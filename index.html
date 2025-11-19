@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Explorable Explanation AI</title>
+    <meta name="description" content="Describe your vision and watch AI generate beautiful explanations in real-time. Collaborative explanation powered by AI." />
+    <meta name="author" content="Explorable Explanation AI" />
+
+    <meta property="og:title" content="Explorable Explanation AI - AI-Powered Explanations" />
+    <meta property="og:description" content="Create stunning explanations by simply describing what you want. AI-powered explanation tool for modern explanations." />
+    <meta property="og:type" content="website" />
+
+    <!-- MathJax configuration -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+          ignoreHtmlClass: 'no-mathjax',
+          processHtmlClass: 'mathjax-process',
+        },
+        startup: {
+          typeset: true,
+        },
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

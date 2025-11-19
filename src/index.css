@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fix Excalidraw spacing issues */
+.excalidraw {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+
+.excalidraw .layer-ui__wrapper,
+.excalidraw .App {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.excalidraw .SVGLayer {
+  position: relative !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Light mode colors */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 189 100% 50%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 189 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens for light mode */
+    --glass-bg: 0 0% 100% / 0.8;
+    --gradient-primary: linear-gradient(135deg, hsl(189 100% 50%), hsl(270 60% 60%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 40% 96%));
+    --shadow-glow: 0 0 30px hsl(189 100% 50% / 0.2);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    /* Dark mode colors */
+    --background: 230 35% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 230 30% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 230 30% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 189 100% 50%;
+    --primary-foreground: 230 35% 7%;
+
+    --secondary: 270 60% 60%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 230 25% 15%;
+    --muted-foreground: 217 20% 65%;
+
+    --accent: 189 100% 50%;
+    --accent-foreground: 230 35% 7%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 230 25% 20%;
+    --input: 230 25% 20%;
+    --ring: 189 100% 50%;
+
+    /* Custom tokens for dark mode */
+    --glass-bg: 230 30% 10% / 0.6;
+    --gradient-primary: linear-gradient(135deg, hsl(189 100% 50%), hsl(270 60% 60%));
+    --gradient-subtle: linear-gradient(180deg, hsl(230 35% 7%), hsl(230 30% 10%));
+    --shadow-glow: 0 0 30px hsl(189 100% 50% / 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background: var(--gradient-subtle);
+    min-height: 100vh;
+    transition: var(--transition-smooth);
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(20px);
+    /* border: 1px solid hsl(var(--border)); */
+  }
+  
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Excalidraw view-only UI trims */
+/* Hide zoom controls (plus/minus/reset) */
+.excalidraw .zoom-actions,
+.excalidraw .zoom-button,
+.excalidraw .reset-zoom-button {
+  display: none !important;
+}
+
+/* Hide top-left project name breadcrumb */
+.excalidraw .ProjectName {
+  display: none !important;
+}
+
+/* Hide top-left Excalidraw brand icon */
+.excalidraw .ExcalidrawLogo {
+  display: none !important;
+}
+
+/* Hide top-left menu block (hamburger/icon + group) */
+.excalidraw .App-menu_top__left,
+.excalidraw .App-menu__left {
+  display: none !important;
+}
+/* Scoped editor overrides to restore full Excalidraw UI and centering */
+.excal-editor .excalidraw {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Re-enable hidden UI inside the editor */
+.excal-editor .excalidraw .zoom-actions,
+.excal-editor .excalidraw .zoom-button,
+.excal-editor .excalidraw .reset-zoom-button,
+.excal-editor .excalidraw .ProjectName,
+.excal-editor .excalidraw .ExcalidrawLogo,
+.excal-editor .excalidraw .App-menu_top__left,
+.excal-editor .excalidraw .App-menu__left {
+  display: initial !important;
+}
+
+/* Keep layout tidy within the editor modal */
+.excal-editor .excalidraw .layer-ui__wrapper,
+.excal-editor .excalidraw .App {
+  margin: 0 !important;
+  padding: 0 !important;
+}
