@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import ExcalidrawRenderer from "./ExcalidrawRenderer";
 import SectionCanvas from "./SectionCanvas";
 import type { Section } from "./SectionBlock";
-import loadSectionsFromJSON from "@/lib/section-loader";
+import { loadSections, createSectionsWatcher } from "@/lib/section-loader";
+import sectionLoaderConfig from "@/config/sections-loader.config";
 import "@excalidraw/excalidraw/index.css";
 
 interface CanvasProps {
@@ -17,17 +18,34 @@ export const Canvas = ({ content, onEditSection }: CanvasProps) => {
 
   useEffect(() => {
     let cancelled = false;
+    let cleanup: (() => void) | null = null;
+
     (async () => {
-      const secs = await loadSectionsFromJSON();
+      // Load sections using the configured strategy
+      const secs = await loadSections(sectionLoaderConfig);
       if (cancelled) return;
       setInitialSections(Array.isArray(secs) ? secs : []);
       setLoadingSections(false);
+
+      // Set up watcher for automatic updates in dev mode
+      if (import.meta.env.DEV) {
+        cleanup = createSectionsWatcher(
+          (updatedSections) => {
+            if (!cancelled) {
+              setInitialSections(updatedSections);
+            }
+          },
+          sectionLoaderConfig
+        );
+      }
     })();
+
     return () => {
       cancelled = true;
+      if (cleanup) cleanup();
     };
   }, []);
-  
+
 
   const isMermaid = useMemo(() => {
     if (!content) return false;

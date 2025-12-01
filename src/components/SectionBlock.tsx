@@ -40,6 +40,7 @@ interface SectionBoxProps {
   onUpdateDiagram: (id: string, elements: any[], files: Record<string, any>) => void;
   onSendAI: (id: string, prompt: string) => void;
   autoFocus?: boolean;
+  isPreview?: boolean;
 }
 
 export const SectionBlock: React.FC<SectionBoxProps> = ({
@@ -47,14 +48,13 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
   onAddAbove,
   onAddBelow,
   onDelete,
-  onDuplicate,
-  onRename,
   onBeginDrag,
   onUpdateTitle,
   onUpdateContent,
   onUpdateDiagram,
   onSendAI,
   autoFocus,
+  isPreview = false,
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
@@ -81,7 +81,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
         try {
           const obj = JSON.parse(c);
           return Array.isArray(obj?.elements) ? obj.elements : null;
-        } catch {}
+        } catch { }
       } else if (c && typeof c === "object" && Array.isArray((c as any).elements)) {
         return (c as any).elements;
       }
@@ -96,7 +96,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
         try {
           const obj = JSON.parse(c);
           return obj?.files && typeof obj.files === "object" ? obj.files : undefined;
-        } catch {}
+        } catch { }
       } else if (c && typeof c === "object") {
         return (c as any).files && typeof (c as any).files === "object" ? (c as any).files : undefined;
       }
@@ -123,7 +123,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
           const options = obj.options && typeof obj.options === "object" ? obj.options : undefined;
           return { state, expressions, options };
         }
-      } catch {}
+      } catch { }
       // Fallback: treat as single LaTeX expression
       if (trimmed.length > 0) return { latex: trimmed };
     }
@@ -139,7 +139,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
       try {
         const obj = JSON.parse(trimmed);
         if (obj && typeof obj === "object") return obj;
-      } catch {}
+      } catch { }
       if (trimmed.length > 0) return { materialId: trimmed };
     }
     return null;
@@ -154,7 +154,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
       const len = inputRef.current.value.length;
       try {
         inputRef.current.setSelectionRange(len, len);
-      } catch {}
+      } catch { }
     }
   }, [autoFocus]);
   return (
@@ -166,8 +166,9 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
       }
       data-id={section.id}
     >
-      {/* Hover controls */}
-      <div className="flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Hover controls - hidden in preview mode */}
+      {!isPreview && (
+        <div className="flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -180,11 +181,11 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-               <div>
-                  <span className="font-semibold">Click</span> to add below
-                  <br />
-                  <span className="font-semibold">Option-click</span> to add above
-                </div>
+              <div>
+                <span className="font-semibold">Click</span> to add below
+                <br />
+                <span className="font-semibold">Option-click</span> to add above
+              </div>
             </TooltipContent>
           </Tooltip>
 
@@ -224,7 +225,8 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-      </div>
+        </div>
+      )}
 
       {/* Right content area: show input OR rendered content */}
       <div className="flex-1 px-0 w-full">
@@ -278,10 +280,11 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
             ref={contentRef}
             className="prose prose-sm dark:prose-invert max-w-none outline-none no-mathjax"
             style={{ marginBottom: 12 }}
-            contentEditable
+            contentEditable={!isPreview}
             suppressContentEditableWarning
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
             onPaste={(e) => {
+              if (isPreview) return;
               e.preventDefault();
               const html = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
               const safe = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
@@ -289,6 +292,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
               document.execCommand('insertHTML', false, safe);
             }}
             onBlur={() => {
+              if (isPreview) return;
               const current = contentRef.current?.innerHTML ?? '';
               const safe = current ? DOMPurify.sanitize(current, { USE_PROFILES: { html: true } }) : '';
               onUpdateContent(section.id, safe);
@@ -299,8 +303,9 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
             <Input
               type="text"
               value={section.title || ""}
-              onChange={(e) => onUpdateTitle(section.id, e.target.value)}
-              placeholder={"Press 'space' for AI, write"}
+              onChange={(e) => !isPreview && onUpdateTitle(section.id, e.target.value)}
+              placeholder={isPreview ? "" : "Press 'space' for AI, write"}
+              readOnly={isPreview}
               className={
                 `h-7 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-sm ` +
                 `${(section.title ?? '') === '' ? 'text-transparent' : 'text-foreground'} ` +
@@ -308,8 +313,9 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
               }
               style={{ caretColor: 'hsl(var(--foreground))' }}
               ref={inputRef}
-              onBlur={() => setGlow(false)}
+              onBlur={() => !isPreview && setGlow(false)}
               onKeyDown={(e) => {
+                if (isPreview) return;
                 const isEmpty = (section.title ?? "").trim() === "";
                 if (e.key === "Backspace" && isEmpty) {
                   e.preventDefault();
@@ -327,7 +333,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
                 }
               }}
             />
-            {glow && (
+            {glow && !isPreview && (
               <Button
                 variant="default"
                 size="icon"

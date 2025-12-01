@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Section, SectionBlock } from "./SectionBlock";
+import { useAppMode } from "@/contexts/AppModeContext";
 
 const LS_KEY = "canvas:sections";
 
@@ -8,20 +9,26 @@ export interface SectionCanvasProps {
 }
 
 export const SectionCanvas: React.FC<SectionCanvasProps> = ({ initialSections }) => {
+  const { isPreview } = useAppMode();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const stackRef = useRef<HTMLDivElement | null>(null);
   const isBlank = useCallback((s: Section) => (!s.title || s.title.trim() === "") && (!s.content || s.content.trim() === ""), []);
   const ensureTrailingBlank = useCallback((list: Section[]): Section[] => {
+    if (isPreview) return list;
     const copy = [...list];
     if (copy.length === 0 || !isBlank(copy[copy.length - 1])) {
       copy.push({ id: Math.random().toString(36).slice(2), title: "", content: "" });
     }
     return copy;
-  }, [isBlank]);
+  }, [isBlank, isPreview]);
   const [sections, setSections] = useState<Section[]>(() => {
     // Prefer JSON-provided initial sections over localStorage to make DSL the source of truth.
     if (initialSections && initialSections.length > 0) {
       return initialSections;
+    }
+    // In preview mode, don't use localStorage
+    if (isPreview) {
+      return [{ id: Math.random().toString(36).slice(2), title: "", content: "" }];
     }
     try {
       const raw = localStorage.getItem(LS_KEY);
@@ -29,7 +36,7 @@ export const SectionCanvas: React.FC<SectionCanvasProps> = ({ initialSections })
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-    } catch {}
+    } catch { }
     // Fallback: start with a single blank section instead of example content.
     return [{ id: Math.random().toString(36).slice(2), title: "", content: "" }];
   });
@@ -44,10 +51,12 @@ export const SectionCanvas: React.FC<SectionCanvasProps> = ({ initialSections })
   const [focusId, setFocusId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Don't save to localStorage in preview mode
+    if (isPreview) return;
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(sections));
-    } catch {}
-  }, [sections]);
+    } catch { }
+  }, [sections, isPreview]);
 
   // Typeset MathJax whenever sections update (processes elements with 'mathjax-process')
   useEffect(() => {
@@ -56,11 +65,11 @@ export const SectionCanvas: React.FC<SectionCanvasProps> = ({ initialSections })
     if (!el || !mj) return;
     try {
       if (mj.typesetPromise) {
-        mj.typesetPromise([el]).catch(() => {});
+        mj.typesetPromise([el]).catch(() => { });
       } else if (mj.typeset) {
         mj.typeset([el]);
       }
-    } catch {}
+    } catch { }
   }, [sections]);
 
   useEffect(() => {
@@ -217,24 +226,27 @@ export const SectionCanvas: React.FC<SectionCanvasProps> = ({ initialSections })
 
   return (
     <div ref={containerRef} style={containerStyles} className="pointer-events-auto">
-      <div ref={stackRef} className="absolute top-0 left-0 right-0 z-30 flex flex-col gap-0 pt-8 pr-8" aria-label="Sections Stack">
-        {sections.map((s) => (
-          <div key={s.id} data-id={s.id} className="w-full">
-            <SectionBlock
-              section={s}
-              onAddAbove={addAbove}
-              onAddBelow={addBelow}
-              onDelete={remove}
-              onDuplicate={duplicate}
-              onBeginDrag={beginDrag}
-              onUpdateTitle={updateTitle}
-              onUpdateContent={updateContent}
-              onUpdateDiagram={updateDiagram}
-              onSendAI={sendAI}
-              autoFocus={focusId === s.id}
-            />
-          </div>
-        ))}
+      <div ref={stackRef} className="absolute top-0 left-0 right-0 z-30 flex flex-col gap-0 pt-8 px-8 md:px-16 lg:px-24" aria-label="Sections Stack">
+        <div className="max-w-5xl mx-auto w-full">
+          {sections.map((s) => (
+            <div key={s.id} data-id={s.id} className="w-full">
+              <SectionBlock
+                section={s}
+                onAddAbove={addAbove}
+                onAddBelow={addBelow}
+                onDelete={remove}
+                onDuplicate={duplicate}
+                onBeginDrag={beginDrag}
+                onUpdateTitle={updateTitle}
+                onUpdateContent={updateContent}
+                onUpdateDiagram={updateDiagram}
+                onSendAI={sendAI}
+                autoFocus={focusId === s.id}
+                isPreview={isPreview}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
