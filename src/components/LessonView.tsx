@@ -4,6 +4,7 @@ import ExcalidrawRenderer from "./ExcalidrawRenderer";
 import SectionRenderer from "./SectionRenderer";
 import { loadSections, createSectionsWatcher } from "@/lib/section-loader";
 import sectionLoaderConfig from "@/config/sections-loader.config";
+import { useAppMode } from "@/contexts/AppModeContext";
 import "@excalidraw/excalidraw/index.css";
 
 interface LessonViewProps {
@@ -14,6 +15,7 @@ interface LessonViewProps {
 export const LessonView = ({ content, onEditSection }: LessonViewProps) => {
   const [initialSections, setInitialSections] = useState<ReactElement[]>([]);
   const [loadingSections, setLoadingSections] = useState(true);
+  const { isPreview } = useAppMode();
 
   useEffect(() => {
     let cancelled = false;
@@ -68,7 +70,7 @@ export const LessonView = ({ content, onEditSection }: LessonViewProps) => {
       <Card className="flex-1 overflow-hidden bg-white no-border">
         {(!loadingSections && initialSections.length > 0) ? (
           <div className="relative w-full h-full">
-            <SectionRenderer initialSections={initialSections} />
+            <SectionRenderer initialSections={initialSections} isPreview={isPreview} onEditSection={onEditSection} />
           </div>
         ) : isMermaid ? (
           <div className="w-full h-full">

@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, type CSSProperties, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, cloneElement, isValidElement, type CSSProperties, type ReactElement } from "react";
 
 export interface SectionRendererProps {
   initialSections?: ReactElement[];
+  isPreview?: boolean;
+  onEditSection?: (instruction: string) => void;
 }
 
 /**
@@ -9,7 +11,7 @@ export interface SectionRendererProps {
  * This is the new component-based architecture that renders React components
  * instead of parsing JSON section definitions.
  */
-export const SectionRenderer = ({ initialSections = [] }: SectionRendererProps) => {
+export const SectionRenderer = ({ initialSections = [], isPreview = false, onEditSection }: SectionRendererProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const stackRef = useRef<HTMLDivElement | null>(null);
 
@@ -44,7 +46,7 @@ export const SectionRenderer = ({ initialSections = [] }: SectionRendererProps) 
         <div className="max-w-5xl mx-auto w-full">
           {initialSections.map((section, index) => (
             <div key={section.key || `section-${index}`} className="w-full">
-              {section}
+              {isValidElement(section) ? cloneElement(section, { isPreview, onEditSection } as any) : section}
             </div>
           ))}
         </div>
