@@ -69,13 +69,6 @@ export const GeogebraRenderer: React.FC<GeogebraRendererProps> = ({
     return qs ? `${basePath}?${qs}` : basePath;
   }, [app, materialId, params]);
 
-  const computedStyle: React.CSSProperties = useMemo(() => ({
-    width: typeof width === "number" ? `${width}px` : width || "100%",
-    height: typeof height === "number" ? `${height}px` : height || 400,
-    border: 0,
-    ...(style || {}),
-  }), [width, height, style]);
-
   // Applet mode using deployggb.js for programmatic scenes
   useEffect(() => {
     if (mode !== "applet") return;
@@ -133,7 +126,7 @@ export const GeogebraRenderer: React.FC<GeogebraRendererProps> = ({
               }
             }
           }
-        } catch {}
+        } catch { }
       },
     };
 
@@ -143,28 +136,43 @@ export const GeogebraRenderer: React.FC<GeogebraRendererProps> = ({
     return () => {
       try {
         containerRef.current && (containerRef.current.innerHTML = "");
-      } catch {}
+      } catch { }
     };
   }, [mode, appletReady, app, params, width, height, materialId, ggbBase64, JSON.stringify(commands)]);
 
+  // Applet mode
   if (mode === "applet") {
+    // For applet mode, apply dimensions directly without conversion
+    const containerDimensions: React.CSSProperties = {
+      width: width === "100%" ? "100%" : (typeof width === "number" ? `${width}px` : width),
+      height: height === "100%" ? "100%" : (typeof height === "number" ? `${height}px` : height),
+    };
+
     return (
-      <div className={className} style={{ width: "100%", ...(style || {}) }}>
+      <div className={className} style={{ width: "100%", height: "100%", ...(style || {}) }}>
         <div
           ref={containerRef}
           className="ggb-scale-container"
-          style={{ width: typeof width === "number" ? `${width}px` : width || "100%", height: typeof height === "number" ? `${height}px` : height || 400 }}
+          style={containerDimensions}
         />
       </div>
     );
   }
 
+  // Iframe mode
+  const iframeDimensions: React.CSSProperties = {
+    width: width === "100%" ? "100%" : (typeof width === "number" ? `${width}px` : width),
+    height: height === "100%" ? "100%" : (typeof height === "number" ? `${height}px` : height),
+    border: 0,
+    ...style,
+  };
+
   return (
-    <div className={className} style={{ width: "100%", ...(style || {}) }}>
+    <div className={className} style={{ width: "100%", height: "100%", ...(style || {}) }}>
       <iframe
         src={embedUrl}
         title={materialId ? `GeoGebra ${app} – ${materialId}` : `GeoGebra ${app}`}
-        style={computedStyle}
+        style={iframeDimensions}
         allowFullScreen
         loading="lazy"
       />

@@ -115,7 +115,7 @@ export const DesmosRenderer: React.FC<DesmosRendererProps> = ({
     return () => {
       try {
         calcRef.current?.destroy?.();
-      } catch {}
+      } catch { }
       calcRef.current = null;
     };
   }, [loaded, mergedOptions, latex, state, expressions]);
@@ -123,7 +123,13 @@ export const DesmosRenderer: React.FC<DesmosRendererProps> = ({
   return (
     <div
       className={className}
-      style={{ width: "100%", height: minHeight, ...(style || {}) }}
+      style={{
+        width: "100%",
+        minHeight: minHeight,
+        height: style?.height || "auto",
+        aspectRatio: style?.aspectRatio || undefined,
+        ...(style || {})
+      }}
     >
       {error ? (
         <div style={{ color: "#b00020", padding: 12 }}>{error}</div>

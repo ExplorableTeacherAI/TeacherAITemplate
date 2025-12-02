@@ -1,19 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import ExcalidrawRenderer from "./ExcalidrawRenderer";
-import SectionCanvas from "./SectionCanvas";
-import type { Section } from "./SectionBlock";
+import SectionRenderer from "./SectionRenderer";
 import { loadSections, createSectionsWatcher } from "@/lib/section-loader";
 import sectionLoaderConfig from "@/config/sections-loader.config";
 import "@excalidraw/excalidraw/index.css";
 
-interface CanvasProps {
+interface LessonViewProps {
   content: string;
   onEditSection?: (instruction: string) => void;
 }
 
-export const Canvas = ({ content, onEditSection }: CanvasProps) => {
-  const [initialSections, setInitialSections] = useState<Section[]>([]);
+export const LessonView = ({ content, onEditSection }: LessonViewProps) => {
+  const [initialSections, setInitialSections] = useState<React.ReactElement[]>([]);
   const [loadingSections, setLoadingSections] = useState(true);
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export const Canvas = ({ content, onEditSection }: CanvasProps) => {
       <Card className="flex-1 overflow-hidden bg-white no-border">
         {(!loadingSections && initialSections.length > 0) ? (
           <div className="relative w-full h-full">
-            <SectionCanvas initialSections={initialSections} />
+            <SectionRenderer initialSections={initialSections} />
           </div>
         ) : isMermaid ? (
           <div className="w-full h-full">
@@ -85,8 +84,8 @@ export const Canvas = ({ content, onEditSection }: CanvasProps) => {
         ) : (
           <div className="flex items-center justify-center h-full text-foreground">
             <div className="text-center">
-              <p className="text-lg mb-2">🎨 Canvas is empty</p>
-              <p className="text-sm">Start by describing what you want to create</p>
+              <p className="text-lg mb-2">📚 Lesson View</p>
+              <p className="text-sm">Start by editing sections.tsx</p>
             </div>
           </div>
         )}

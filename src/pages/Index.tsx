@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Canvas } from "@/components/Canvas";
+import { LessonView } from "@/components/LessonView";
 
 const Index = () => {
   const [content] = useState(`flowchart TD
@@ -8,9 +8,9 @@ const Index = () => {
   C -->|One| D[Laptop]
   C -->|Two| E[iPhone]
   C -->|Three| F[Car]`);
-  
 
-  
+
+
 
   const _handlePreview = () => {
     // Open preview in new tab or modal
@@ -89,7 +89,7 @@ const Index = () => {
     ${content}
   </body>
 </html>`;
-    
+
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -101,11 +101,11 @@ const Index = () => {
     URL.revokeObjectURL(url);
   };
 
-  
+
 
   return (
     <div className="h-screen">
-      <Canvas content={content} />
+      <LessonView content={content} />
     </div>
   );
 };
