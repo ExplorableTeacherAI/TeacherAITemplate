@@ -1,4 +1,4 @@
-import React from "react";
+import { type CSSProperties } from "react";
 import { DesmosRenderer } from "../DesmosRenderer";
 
 export interface DesmosExpression {
@@ -41,7 +41,7 @@ export interface DesmosGraphProps {
  * DesmosGraph component wraps DesmosRenderer with a cleaner API.
  * Use this for creating interactive mathematical visualizations.
  */
-export const DesmosGraph: React.FC<DesmosGraphProps> = ({
+export const DesmosGraph = ({
     expressions,
     state,
     options,
@@ -49,9 +49,9 @@ export const DesmosGraph: React.FC<DesmosGraphProps> = ({
     height = 400,
     aspectRatio,
     className = ""
-}) => {
+}: DesmosGraphProps) => {
     // If aspectRatio is specified, use it; otherwise use the height prop
-    const containerStyle: React.CSSProperties = {};
+    const containerStyle: CSSProperties = {};
 
     if (aspectRatio) {
         containerStyle.aspectRatio = aspectRatio;

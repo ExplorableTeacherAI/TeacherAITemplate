@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useAppMode } from '@/contexts/AppModeContext';
 import { Eye, Edit3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
  * ModeIndicator component displays the current app mode (editor/preview)
  * Shows only in development mode to help developers identify which mode is active
  */
-export const ModeIndicator: React.FC = () => {
+export const ModeIndicator = () => {
     const { mode, isEditor, isPreview } = useAppMode();
 
     // Only show in development mode

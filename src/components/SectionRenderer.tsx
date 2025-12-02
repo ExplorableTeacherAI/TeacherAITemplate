@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type CSSProperties, type ReactElement } from "react";
 
 export interface SectionRendererProps {
-  initialSections?: React.ReactElement[];
+  initialSections?: ReactElement[];
 }
 
 /**
@@ -9,7 +9,7 @@ export interface SectionRendererProps {
  * This is the new component-based architecture that renders React components
  * instead of parsing JSON section definitions.
  */
-export const SectionRenderer: React.FC<SectionRendererProps> = ({ initialSections = [] }) => {
+export const SectionRenderer = ({ initialSections = [] }: SectionRendererProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const stackRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,7 +27,7 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({ initialSection
     } catch { }
   }, [initialSections]);
 
-  const containerStyles = useMemo<React.CSSProperties>(() => ({
+  const containerStyles = useMemo<CSSProperties>(() => ({
     position: "absolute",
     inset: 0,
     overflowY: "auto",

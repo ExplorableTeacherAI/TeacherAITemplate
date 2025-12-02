@@ -19,3 +19,12 @@ export type { GeoGebraGraphProps } from "./GeoGebraGraph";
 
 export { Spacer } from "./Spacer";
 export type { SpacerProps } from "./Spacer";
+
+export { InteractiveTerm } from "./InteractiveTerm";
+export type { InteractiveTermProps } from "./InteractiveTerm";
+
+export { InteractiveEquation } from "./InteractiveEquation";
+export type { InteractiveEquationProps } from "./InteractiveEquation";
+
+export { InteractiveParagraph } from "./InteractiveParagraph";
+export type { InteractiveParagraphProps } from "./InteractiveParagraph";

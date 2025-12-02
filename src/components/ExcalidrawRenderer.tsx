@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Excalidraw, convertToExcalidrawElements } from "@excalidraw/excalidraw";
 import { parseMermaidToExcalidraw } from "@excalidraw/mermaid-to-excalidraw";
 import "@excalidraw/excalidraw/index.css";
@@ -13,11 +13,11 @@ interface ExcalidrawRendererProps {
   zenModeEnabled?: boolean;
   uiOptions?: any;
   mermaidConfig?: any;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   className?: string;
 }
 
-export const ExcalidrawRenderer: React.FC<ExcalidrawRendererProps> = ({
+export const ExcalidrawRenderer = ({
   mermaid,
   elements,
   files,
@@ -27,7 +27,7 @@ export const ExcalidrawRenderer: React.FC<ExcalidrawRendererProps> = ({
   mermaidConfig,
   style,
   className,
-}) => {
+}: ExcalidrawRendererProps) => {
   const [renderElements, setRenderElements] = useState<any[]>(elements || []);
   const [renderFiles, setRenderFiles] = useState<BinaryFiles>(files || {});
   const [loading, setLoading] = useState(false);

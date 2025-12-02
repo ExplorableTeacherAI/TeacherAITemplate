@@ -1,4 +1,4 @@
-import React from "react";
+import { type CSSProperties } from "react";
 import { GeogebraRenderer } from "../GeogebraRenderer";
 
 export interface GeoGebraGraphProps {
@@ -33,7 +33,7 @@ export interface GeoGebraGraphProps {
  * GeoGebraGraph component wraps GeogebraRenderer with a cleaner API.
  * Use this for creating geometric and mathematical visualizations.
  */
-export const GeoGebraGraph: React.FC<GeoGebraGraphProps> = ({
+export const GeoGebraGraph = ({
     app = "graphing",
     materialId,
     params,
@@ -44,9 +44,9 @@ export const GeoGebraGraph: React.FC<GeoGebraGraphProps> = ({
     height = 440,
     aspectRatio,
     className = ""
-}) => {
+}: GeoGebraGraphProps) => {
     // If aspectRatio is specified, use it; otherwise use the height prop
-    const containerStyle: React.CSSProperties = {};
+    const containerStyle: CSSProperties = {};
 
     if (aspectRatio) {
         containerStyle.aspectRatio = aspectRatio;

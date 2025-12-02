@@ -1,8 +1,8 @@
-import React from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import DOMPurify from "dompurify";
 
 export interface HeadingProps {
-    children: React.ReactNode;
+    children: ReactNode;
     level?: 1 | 2 | 3 | 4 | 5 | 6;
     className?: string;
     enableMath?: boolean;
@@ -12,15 +12,15 @@ export interface HeadingProps {
  * Heading component for section titles.
  * Supports h1-h6 with optional MathJax rendering.
  */
-export const Heading: React.FC<HeadingProps> = ({
+export const Heading = ({
     children,
     level = 1,
     className = "",
     enableMath = true
-}) => {
-    const contentRef = React.useRef<HTMLElement>(null);
+}: HeadingProps) => {
+    const contentRef = useRef<HTMLElement>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!enableMath) return;
         const el = contentRef.current;
         const mj = window.MathJax;

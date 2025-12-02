@@ -1,8 +1,8 @@
-import React from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import DOMPurify from "dompurify";
 
 export interface ParagraphProps {
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
     enableMath?: boolean;
 }
@@ -11,15 +11,15 @@ export interface ParagraphProps {
  * Paragraph component for text content.
  * Supports inline HTML and optional MathJax rendering.
  */
-export const Paragraph: React.FC<ParagraphProps> = ({
+export const Paragraph = ({
     children,
     className = "",
     enableMath = true
-}) => {
-    const contentRef = React.useRef<HTMLParagraphElement>(null);
+}: ParagraphProps) => {
+    const contentRef = useRef<HTMLParagraphElement>(null);
 
     // Typeset MathJax if enabled
-    React.useEffect(() => {
+    useEffect(() => {
         if (!enableMath) return;
         const el = contentRef.current;
         const mj = window.MathJax;

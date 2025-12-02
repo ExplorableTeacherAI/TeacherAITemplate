@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ export interface DiagramEditorDialogProps {
   onSave: (elements: any[], files: BinaryFiles) => void;
 }
 
-export const DiagramEditorDialog: React.FC<DiagramEditorDialogProps> = ({
+export const DiagramEditorDialog = ({
   open,
   onOpenChange,
   mermaid,
@@ -32,18 +32,18 @@ export const DiagramEditorDialog: React.FC<DiagramEditorDialogProps> = ({
   files,
   title = "Edit Diagram",
   onSave,
-}) => {
-  const [loading, setLoading] = React.useState(false);
-  const [editElements, setEditElements] = React.useState<any[] | null>(null);
-  const [editFiles, setEditFiles] = React.useState<BinaryFiles | null>(null);
-  const [editAppState, setEditAppState] = React.useState<any | null>(null);
-  const editorContainerRef = React.useRef<HTMLDivElement | null>(null);
+}: DiagramEditorDialogProps) => {
+  const [loading, setLoading] = useState(false);
+  const [editElements, setEditElements] = useState<any[] | null>(null);
+  const [editFiles, setEditFiles] = useState<BinaryFiles | null>(null);
+  const [editAppState, setEditAppState] = useState<any | null>(null);
+  const editorContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const hasMermaid = React.useMemo(() => !!(mermaid && mermaid.trim().length > 0), [mermaid]);
-  const hasDiagramData = React.useMemo(() => Array.isArray(elements) && (elements?.length || 0) > 0, [elements]);
+  const hasMermaid = useMemo(() => !!(mermaid && mermaid.trim().length > 0), [mermaid]);
+  const hasDiagramData = useMemo(() => Array.isArray(elements) && (elements?.length || 0) > 0, [elements]);
 
   // Prepare editor initial data when dialog opens
-  React.useEffect(() => {
+  useEffect(() => {
     let cancelled = false;
     const load = async () => {
       if (!open) return;
@@ -81,7 +81,7 @@ export const DiagramEditorDialog: React.FC<DiagramEditorDialogProps> = ({
   }, [open, hasDiagramData, hasMermaid, elements, files, mermaid]);
 
   // Compute appState to center diagram when editor opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open || loading) return;
     const container = editorContainerRef.current;
     const els = editElements || [];

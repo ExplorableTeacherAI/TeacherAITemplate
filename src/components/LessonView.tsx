@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
 import { Card } from "@/components/ui/card";
 import ExcalidrawRenderer from "./ExcalidrawRenderer";
 import SectionRenderer from "./SectionRenderer";
@@ -12,7 +12,7 @@ interface LessonViewProps {
 }
 
 export const LessonView = ({ content, onEditSection }: LessonViewProps) => {
-  const [initialSections, setInitialSections] = useState<React.ReactElement[]>([]);
+  const [initialSections, setInitialSections] = useState<ReactElement[]>([]);
   const [loadingSections, setLoadingSections] = useState(true);
 
   useEffect(() => {

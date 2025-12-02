@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import DOMPurify from "dompurify";
 import { ExcalidrawRenderer } from "./ExcalidrawRenderer";
 import { DesmosRenderer } from "./DesmosRenderer";
@@ -34,7 +34,7 @@ interface SectionBoxProps {
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onRename?: (id: string) => void;
-  onBeginDrag: (id: string, e: React.PointerEvent) => void;
+  onBeginDrag: (id: string, e: PointerEvent) => void;
   onUpdateTitle: (id: string, title: string) => void;
   onUpdateContent: (id: string, content: string) => void;
   onUpdateDiagram: (id: string, elements: any[], files: Record<string, any>) => void;
@@ -43,7 +43,7 @@ interface SectionBoxProps {
   isPreview?: boolean;
 }
 
-export const SectionBlock: React.FC<SectionBoxProps> = ({
+export const SectionBlock = ({
   section,
   onAddAbove,
   onAddBelow,
@@ -55,17 +55,17 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
   onSendAI,
   autoFocus,
   isPreview = false,
-}) => {
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const contentRef = React.useRef<HTMLDivElement | null>(null);
-  const [glow, setGlow] = React.useState(false);
-  const [editOpen, setEditOpen] = React.useState(false);
-  const sanitizedContent = React.useMemo(() => {
+}: SectionBoxProps) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [glow, setGlow] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const sanitizedContent = useMemo(() => {
     const raw = section.content || "";
     return raw ? DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } }) : "";
   }, [section.content]);
 
-  const mermaidSource = React.useMemo(() => {
+  const mermaidSource = useMemo(() => {
     if (section.type === "mermaid") {
       const s = section.mermaid ?? section.content;
       return typeof s === "string" ? s : "";
@@ -73,7 +73,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
     return typeof section.mermaid === "string" ? section.mermaid : "";
   }, [section.type, section.mermaid, section.content]);
 
-  const elementsFromContent = React.useMemo(() => {
+  const elementsFromContent = useMemo(() => {
     if (section.type === "excalidraw") {
       const c: any = section.content;
       if (Array.isArray(c)) return c;
@@ -89,7 +89,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
     return null;
   }, [section.type, section.content]);
 
-  const filesFromContent = React.useMemo(() => {
+  const filesFromContent = useMemo(() => {
     if (section.type === "excalidraw") {
       const c: any = section.content;
       if (typeof c === "string") {
@@ -104,13 +104,13 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
     return undefined;
   }, [section.type, section.content]);
 
-  const hasMermaid = React.useMemo(() => !!(mermaidSource && mermaidSource.trim().length > 0), [mermaidSource]);
-  const elementsToRender = React.useMemo(() => section.elements ?? elementsFromContent ?? [], [section.elements, elementsFromContent]);
-  const filesToRender = React.useMemo(() => section.files ?? filesFromContent ?? {}, [section.files, filesFromContent]);
-  const hasDiagramData = React.useMemo(() => Array.isArray(elementsToRender) && elementsToRender.length > 0, [elementsToRender]);
+  const hasMermaid = useMemo(() => !!(mermaidSource && mermaidSource.trim().length > 0), [mermaidSource]);
+  const elementsToRender = useMemo(() => section.elements ?? elementsFromContent ?? [], [section.elements, elementsFromContent]);
+  const filesToRender = useMemo(() => section.files ?? filesFromContent ?? {}, [section.files, filesFromContent]);
+  const hasDiagramData = useMemo(() => Array.isArray(elementsToRender) && elementsToRender.length > 0, [elementsToRender]);
   const isMermaid = (section.type === "mermaid") || hasMermaid;
   const isExcalidraw = (section.type === "excalidraw") || hasDiagramData;
-  const desmosParsed = React.useMemo(() => {
+  const desmosParsed = useMemo(() => {
     if (section.type !== "desmos") return null;
     const c: any = section.content;
     if (typeof c === "string") {
@@ -131,7 +131,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
   }, [section.type, section.content]);
   const isDesmos = section.type === "desmos";
 
-  const geogebraParsed = React.useMemo(() => {
+  const geogebraParsed = useMemo(() => {
     if (section.type !== "geogebra") return null;
     const c: any = section.content;
     if (typeof c === "string") {
@@ -147,7 +147,7 @@ export const SectionBlock: React.FC<SectionBoxProps> = ({
   const isGeogebra = section.type === "geogebra";
 
   // Diagram editor dialog state now handled by DiagramEditorDialog component
-  React.useEffect(() => {
+  useEffect(() => {
     if (autoFocus && inputRef.current) {
       inputRef.current.focus();
       // place caret at end

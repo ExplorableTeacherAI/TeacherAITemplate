@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 interface GeogebraRendererProps {
   /** Which GeoGebra app to embed: classic | graphing | geometry | 3d | cas */
@@ -8,7 +8,7 @@ interface GeogebraRendererProps {
   /** Additional URL params, e.g., { showMenuBar: false, showToolBar: false } */
   params?: Record<string, any>;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   /** Iframe width; defaults to 100% */
   width?: number | string;
   /** Iframe height; defaults to 400 */
@@ -34,7 +34,7 @@ interface GeogebraRendererProps {
  *   "height": 360
  * }
  */
-export const GeogebraRenderer: React.FC<GeogebraRendererProps> = ({
+export const GeogebraRenderer = ({
   app = "geometry",
   materialId,
   params,
@@ -45,7 +45,7 @@ export const GeogebraRenderer: React.FC<GeogebraRendererProps> = ({
   mode = "iframe",
   commands,
   ggbBase64,
-}) => {
+}: GeogebraRendererProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [appletReady, setAppletReady] = useState(false);
 
@@ -143,7 +143,7 @@ export const GeogebraRenderer: React.FC<GeogebraRendererProps> = ({
   // Applet mode
   if (mode === "applet") {
     // For applet mode, apply dimensions directly without conversion
-    const containerDimensions: React.CSSProperties = {
+    const containerDimensions: CSSProperties = {
       width: width === "100%" ? "100%" : (typeof width === "number" ? `${width}px` : width),
       height: height === "100%" ? "100%" : (typeof height === "number" ? `${height}px` : height),
     };
@@ -160,7 +160,7 @@ export const GeogebraRenderer: React.FC<GeogebraRendererProps> = ({
   }
 
   // Iframe mode
-  const iframeDimensions: React.CSSProperties = {
+  const iframeDimensions: CSSProperties = {
     width: width === "100%" ? "100%" : (typeof width === "number" ? `${width}px` : width),
     height: height === "100%" ? "100%" : (typeof height === "number" ? `${height}px` : height),
     border: 0,

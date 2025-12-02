@@ -1,18 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 interface MermaidRendererProps {
   definition: string;
   config?: any;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
-export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
+export const MermaidRenderer = ({
   definition,
   config,
   className,
   style,
-}) => {
+}: MermaidRendererProps) => {
   const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const lastDefRef = useRef<string>("");

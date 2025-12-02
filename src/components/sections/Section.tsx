@@ -1,10 +1,10 @@
-import React from "react";
+import { type ReactNode } from "react";
 
 export interface SectionProps {
     /** Unique identifier for the section */
     id?: string;
     /** Children content to render */
-    children: React.ReactNode;
+    children: ReactNode;
     /** Optional className for custom styling */
     className?: string;
     /** Optional padding override */
@@ -15,12 +15,12 @@ export interface SectionProps {
  * Section component wraps content and provides consistent layout.
  * This is the container for all content blocks in the canvas.
  */
-export const Section: React.FC<SectionProps> = ({
+export const Section = ({
     id,
     children,
     className = "",
     padding = "md"
-}) => {
+}: SectionProps) => {
     const paddingClasses = {
         none: "",
         sm: "py-2",

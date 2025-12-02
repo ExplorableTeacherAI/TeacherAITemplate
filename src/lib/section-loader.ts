@@ -1,4 +1,4 @@
-import React from "react";
+import { type ReactElement } from "react";
 
 /**
  * Configuration for section loading strategy
@@ -32,7 +32,7 @@ export type SectionLoaderConfig = {
  * Load sections from TypeScript module (supports hot-reload)
  * Returns array of React elements
  */
-async function loadSectionsFromModule(): Promise<React.ReactElement[]> {
+async function loadSectionsFromModule(): Promise<ReactElement[]> {
   try {
     // Dynamic import to allow Vite HMR to work properly
     const module = await import("@/data/sections");
@@ -47,7 +47,7 @@ async function loadSectionsFromModule(): Promise<React.ReactElement[]> {
 /**
  * Main loader function with configurable strategy
  */
-export async function loadSections(config: SectionLoaderConfig = {}): Promise<React.ReactElement[]> {
+export async function loadSections(config: SectionLoaderConfig = {}): Promise<ReactElement[]> {
   const {
     strategy = 'module', // Default to module for hot-reload support
   } = config;
@@ -72,7 +72,7 @@ export async function loadSections(config: SectionLoaderConfig = {}): Promise<Re
  * Returns a cleanup function to stop watching
  */
 export function createSectionsWatcher(
-  onUpdate: (sections: React.ReactElement[]) => void,
+  onUpdate: (sections: ReactElement[]) => void,
   config: SectionLoaderConfig = {}
 ): () => void {
   const {

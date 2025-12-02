@@ -1,12 +1,18 @@
+import React from "react";
 import { Section } from "@/components/sections";
+
 import {
     Paragraph,
     MathBlock,
     Heading,
     DesmosGraph,
     GeoGebraGraph,
-    Spacer
+    Spacer,
+    InteractiveTerm,
+    InteractiveEquation,
+    InteractiveParagraph
 } from "@/components/content";
+
 
 /**
  * Example sections showcasing various component combinations.
@@ -235,6 +241,321 @@ export const exampleFullLesson = [
     </Section>
 ];
 
+// ============================================================================
+// INTERACTIVE COMPONENTS EXAMPLES
+// ============================================================================
+
+// Example 7: Interactive Text with Visual Changes (like the uploaded image)
+export const exampleInteractiveText = () => {
+    const [graphState, setGraphState] = React.useState<'default' | 'dropX' | 'dropY' | 'bestLine'>('default');
+    const [highlightedEquation, setHighlightedEquation] = React.useState(false);
+
+    // Graph expressions that change based on state
+    const getGraphExpressions = () => {
+        const basePoints = [
+            { id: 'point1', latex: '(1, 3)', color: '#c74440' },
+            { id: 'point2', latex: '(2, 2.5)', color: '#c74440' },
+            { id: 'point3', latex: '(3, 1)', color: '#c74440' },
+            { id: 'point4', latex: '(4, 2)', color: '#2d70b3' },
+            { id: 'point5', latex: '(5, 1.5)', color: '#2d70b3' },
+            { id: 'point6', latex: '(6, 0.5)', color: '#2d70b3' },
+        ];
+
+        if (graphState === 'dropX') {
+            return [
+                ...basePoints,
+                { id: 'xLine', latex: 'x=3', color: '#ffa500', lineStyle: 'DASHED' as const },
+            ];
+        } else if (graphState === 'dropY') {
+            return [
+                ...basePoints,
+                { id: 'yLine', latex: 'y=2', color: '#ffa500', lineStyle: 'DASHED' as const },
+            ];
+        } else if (graphState === 'bestLine') {
+            return [
+                ...basePoints,
+                {
+                    id: 'bestFit',
+                    latex: '0.79y=-0.61x+4',
+                    color: highlightedEquation ? '#ff0000' : '#ffa500',
+                    lineWidth: highlightedEquation ? 3 : 2
+                },
+            ];
+        }
+
+        return basePoints;
+    };
+
+    return (
+        <Section key="example-interactive" id="example-interactive">
+            <Heading level={2}>Linear Discriminant Analysis (LDA)</Heading>
+
+            <InteractiveParagraph>
+                You can{' '}
+                <InteractiveTerm
+                    onClick={() => setGraphState('dropX')}
+                    onHoverStart={() => setGraphState('dropX')}
+                    onHoverEnd={() => setGraphState('default')}
+                    color="#c74440"
+                    isActive={graphState === 'dropX'}
+                >
+                    click here to see that dropping the X axis
+                </InteractiveTerm>
+                {' '}isn't much better, but these aren't the only two choices.
+                Geometrically, we have an infinite number of lines we can project on!
+            </InteractiveParagraph>
+
+            <Spacer height={12} />
+
+            <InteractiveParagraph>
+                Out of all these possible lines, the line{' '}
+                <InteractiveEquation
+                    equation="(0.79)y = (-0.61)x"
+                    onClick={() => {
+                        setGraphState('bestLine');
+                        setHighlightedEquation(!highlightedEquation);
+                    }}
+                    onHoverStart={() => {
+                        setGraphState('bestLine');
+                        setHighlightedEquation(true);
+                    }}
+                    onHoverEnd={() => {
+                        setHighlightedEquation(false);
+                    }}
+                    isActive={highlightedEquation}
+                    color="#c74440"
+                />
+                {' '}provides the best possible separation. This best line is what LDA allows us to find.
+            </InteractiveParagraph>
+
+            <Spacer height={16} />
+
+            <DesmosGraph
+                height={400}
+                expressions={getGraphExpressions()}
+                options={{
+                    expressions: false,
+                    settingsMenu: false,
+                    keypad: false,
+                    xAxisLabel: 'Price',
+                    yAxisLabel: 'Distance'
+                }}
+            />
+        </Section>
+    );
+};
+
+// Example 8: Simple Interactive Term with Hover Effects
+export const exampleSimpleInteractive = () => {
+    const [activeSection, setActiveSection] = React.useState<string | null>(null);
+
+    return (
+        <Section key="example-simple-interactive" id="example-simple-interactive">
+            <Heading level={2}>Interactive Terminology</Heading>
+
+            <InteractiveParagraph>
+                The{' '}
+                <InteractiveTerm
+                    onHoverStart={() => setActiveSection('derivative')}
+                    onHoverEnd={() => setActiveSection(null)}
+                    color="#2d70b3"
+                    underlineStyle="dashed"
+                >
+                    derivative
+                </InteractiveTerm>
+                {' '}of a function measures its rate of change, while the{' '}
+                <InteractiveTerm
+                    onHoverStart={() => setActiveSection('integral')}
+                    onHoverEnd={() => setActiveSection(null)}
+                    color="#388c46"
+                    underlineStyle="dashed"
+                >
+                    integral
+                </InteractiveTerm>
+                {' '}measures the area under its curve.
+            </InteractiveParagraph>
+
+            <Spacer height={12} />
+
+            {activeSection === 'derivative' && (
+                <MathBlock equation="f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}" mode="block" />
+            )}
+
+            {activeSection === 'integral' && (
+                <MathBlock equation="\int_a^b f(x) \, dx" mode="block" />
+            )}
+        </Section>
+    );
+};
+
+// Example 9: Interactive Equation Comparison
+export const exampleEquationComparison = () => {
+    const [selectedEquation, setSelectedEquation] = React.useState<'linear' | 'quadratic' | null>(null);
+
+    return (
+        <Section key="example-equation-compare" id="example-equation-compare">
+            <Heading level={2}>Compare Function Types</Heading>
+
+            <InteractiveParagraph>
+                Compare the{' '}
+                <InteractiveEquation
+                    equation="f(x) = mx + b"
+                    onClick={() => setSelectedEquation('linear')}
+                    isActive={selectedEquation === 'linear'}
+                    color="#2d70b3"
+                />
+                {' '}linear function with the{' '}
+                <InteractiveEquation
+                    equation="g(x) = ax^2 + bx + c"
+                    onClick={() => setSelectedEquation('quadratic')}
+                    isActive={selectedEquation === 'quadratic'}
+                    color="#c74440"
+                />
+                {' '}quadratic function.
+            </InteractiveParagraph>
+
+            <Spacer height={16} />
+
+            {selectedEquation && (
+                <DesmosGraph
+                    height={350}
+                    expressions={[
+                        ...(selectedEquation === 'linear' ? [
+                            { id: 'm', latex: 'm=2', sliderBounds: { min: -5, max: 5, step: 0.1 } },
+                            { id: 'b', latex: 'b=1', sliderBounds: { min: -5, max: 5, step: 0.1 } },
+                            { id: 'linear', latex: 'y=m*x+b', color: '#2d70b3' }
+                        ] : []),
+                        ...(selectedEquation === 'quadratic' ? [
+                            { id: 'a', latex: 'a=1', sliderBounds: { min: -3, max: 3, step: 0.1 } },
+                            { id: 'b', latex: 'b=0', sliderBounds: { min: -5, max: 5, step: 0.1 } },
+                            { id: 'c', latex: 'c=0', sliderBounds: { min: -5, max: 5, step: 0.1 } },
+                            { id: 'quadratic', latex: 'y=a*x^2+b*x+c', color: '#c74440' }
+                        ] : [])
+                    ]}
+                    options={{ expressions: true, settingsMenu: false }}
+                />
+            )}
+        </Section>
+    );
+};
+
+// Example 10: Complete Interactive Lesson (like the uploaded image)
+export const exampleInteractiveLDALesson = () => {
+    const [projectionAxis, setProjectionAxis] = React.useState<'x' | 'y' | 'optimal'>('optimal');
+    const [showOptimalLine, setShowOptimalLine] = React.useState(false);
+
+    const getProjectionExpressions = () => {
+        const redPoints = [
+            { id: 'red1', latex: '(2, 4)', color: '#c74440', pointStyle: 'POINT' },
+            { id: 'red2', latex: '(3, 3.5)', color: '#c74440', pointStyle: 'POINT' },
+            { id: 'red3', latex: '(5, 2.8)', color: '#c74440', pointStyle: 'POINT' },
+        ];
+
+        const bluePoints = [
+            { id: 'blue1', latex: '(1.5, 2)', color: '#2d70b3', pointStyle: 'POINT' },
+            { id: 'blue2', latex: '(4, 1.5)', color: '#2d70b3', pointStyle: 'POINT' },
+            { id: 'blue3', latex: '(4.5, 1)', color: '#2d70b3', pointStyle: 'POINT' },
+        ];
+
+        const expressions: any[] = [...redPoints, ...bluePoints];
+
+        if (projectionAxis === 'y' || showOptimalLine) {
+            expressions.push({
+                id: 'yAxis',
+                latex: 'x=3',
+                color: '#ffa500',
+                lineStyle: 'DASHED'
+            });
+        }
+
+        if (projectionAxis === 'optimal' && showOptimalLine) {
+            expressions.push({
+                id: 'optimalLine',
+                latex: '0.79*y=-0.61*x+4',
+                color: '#ff0066',
+                lineWidth: 2.5
+            });
+        }
+
+        return expressions;
+    };
+
+    return (
+        <Section key="example-lda-full" id="example-lda-full">
+            <Heading level={1}>Linear Discriminant Analysis</Heading>
+
+            <Spacer height={12} />
+
+            <InteractiveParagraph>
+                You can{' '}
+                <InteractiveTerm
+                    onClick={() => setProjectionAxis('x')}
+                    onHoverStart={() => setProjectionAxis('x')}
+                    onHoverEnd={() => setProjectionAxis('optimal')}
+                    color="#c74440"
+                    isActive={projectionAxis === 'x'}
+                >
+                    click here to see that dropping the X axis
+                </InteractiveTerm>
+                {' '}isn't much better, but these aren't the only two choices.
+                Geometrically, we have an infinite number of lines we can project on!
+            </InteractiveParagraph>
+
+            <Spacer height={12} />
+
+            <InteractiveParagraph>
+                Out of all these possible lines, the line{' '}
+                <InteractiveEquation
+                    equation="(0.79)y = (-0.61)x"
+                    onClick={() => setShowOptimalLine(!showOptimalLine)}
+                    onHoverStart={() => setShowOptimalLine(true)}
+                    color="#c74440"
+                    isActive={showOptimalLine}
+                />
+                {' '}provides the best possible separation.
+                This best line is what LDA allows us to find.
+            </InteractiveParagraph>
+
+            <Spacer height={20} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <Heading level={3}>2D Scatter Plot</Heading>
+                    <DesmosGraph
+                        height={350}
+                        expressions={getProjectionExpressions()}
+                        options={{
+                            expressions: false,
+                            settingsMenu: false,
+                            xAxisLabel: 'Price',
+                            yAxisLabel: 'Distance'
+                        }}
+                    />
+                </div>
+                <div>
+                    <Heading level={3}>1D Projection</Heading>
+                    <DesmosGraph
+                        height={350}
+                        expressions={[
+                            { id: 'redProj1', latex: '(1, 0)', color: '#c74440' },
+                            { id: 'redProj2', latex: '(2, 0)', color: '#c74440' },
+                            { id: 'blueProj1', latex: '(4, 0)', color: '#2d70b3' },
+                            { id: 'blueProj2', latex: '(5, 0)', color: '#2d70b3' },
+                            { id: 'line', latex: 'y=0', color: '#000000' }
+                        ]}
+
+                        options={{
+                            expressions: false,
+                            settingsMenu: false,
+                            yAxisNumbers: false
+                        }}
+                    />
+                </div>
+            </div>
+        </Section>
+    );
+};
+
 /**
  * Usage in sections.tsx:
  * 
@@ -242,6 +563,7 @@ export const exampleFullLesson = [
  * 
  * export const sections: React.ReactElement[] = [
  *   ...exampleFullLesson,
+
  *   // ... your other sections
  * ];
  */

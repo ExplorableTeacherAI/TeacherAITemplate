@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useRef } from "react";
 
 export interface MathBlockProps {
     /** LaTeX equation string */
@@ -14,15 +14,15 @@ export interface MathBlockProps {
  * MathBlock component for rendering mathematical equations.
  * Uses MathJax for rendering LaTeX.
  */
-export const MathBlock: React.FC<MathBlockProps> = ({
+export const MathBlock = ({
     equation,
     numbered,
     mode = "block",
     className = ""
-}) => {
-    const contentRef = React.useRef<HTMLDivElement>(null);
+}: MathBlockProps) => {
+    const contentRef = useRef<HTMLDivElement>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const el = contentRef.current;
         const mj = window.MathJax;
         if (!el || !mj) return;

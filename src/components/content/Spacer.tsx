@@ -1,4 +1,4 @@
-import React from "react";
+
 
 export interface SpacerProps {
     /** Height in pixels or CSS units */
@@ -9,10 +9,10 @@ export interface SpacerProps {
 /**
  * Spacer component for adding vertical spacing between content.
  */
-export const Spacer: React.FC<SpacerProps> = ({
+export const Spacer = ({
     height = 16,
     className = ""
-}) => {
+}: SpacerProps) => {
     return (
         <div
             className={className}

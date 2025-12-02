@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 type DesmosCalculator = any;
 
@@ -21,7 +21,7 @@ interface DesmosRendererProps {
    */
   options?: Record<string, any>;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   minHeight?: number;
 }
 
@@ -29,7 +29,7 @@ interface DesmosRendererProps {
  * Lightweight renderer for the Desmos Graphing Calculator.
  * Dynamically loads the Desmos API script and embeds an interactive calculator.
  */
-export const DesmosRenderer: React.FC<DesmosRendererProps> = ({
+export const DesmosRenderer = ({
   latex,
   state,
   expressions,
@@ -37,7 +37,7 @@ export const DesmosRenderer: React.FC<DesmosRendererProps> = ({
   className,
   style,
   minHeight = 280,
-}) => {
+}: DesmosRendererProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const calcRef = useRef<DesmosCalculator | null>(null);
   const [error, setError] = useState<string | null>(null);

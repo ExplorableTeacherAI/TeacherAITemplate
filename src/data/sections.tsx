@@ -1,4 +1,4 @@
-import React from "react";
+import { type ReactElement } from "react";
 import { Section } from "@/components/sections";
 import {
     Paragraph,
@@ -9,6 +9,7 @@ import {
     Spacer,
     type DesmosExpression
 } from "@/components/content";
+import { QuickStartInteractiveExample } from "@/examples/quick-start-interactive";
 
 /**
  * Sections configuration for the canvas.
@@ -24,7 +25,7 @@ export const sectionsMetadata = {
     description: "Configurable sections using React components for maximum flexibility.",
 };
 
-export const sections: React.ReactElement[] = [
+export const sections: ReactElement[] = [
     // Title Section
     <Section key="intro-title" id="intro-title">
         <Heading level={1}>Geometric interpretation of quadratic and cubic equations</Heading>
@@ -213,4 +214,9 @@ export const sections: React.ReactElement[] = [
             As you can see, both Desmos and GeoGebra provide interactive visualizations to help understand how the parameters affect the intersection points.
         </Paragraph>
     </Section>,
+
+    // New Interactive Component Example
+    <QuickStartInteractiveExample key="quick-start-interactive" />,
 ];
+
+

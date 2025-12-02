@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
 export type AppMode = 'editor' | 'preview';
 
@@ -11,7 +11,7 @@ interface AppModeContextType {
 const AppModeContext = createContext<AppModeContextType | undefined>(undefined);
 
 interface AppModeProviderProps {
-    children: React.ReactNode;
+    children: ReactNode;
     defaultMode?: AppMode;
 }
 
@@ -21,10 +21,10 @@ interface AppModeProviderProps {
  * 2. Environment variable (VITE_APP_MODE)
  * 3. Default fallback (editor)
  */
-export const AppModeProvider: React.FC<AppModeProviderProps> = ({
+export const AppModeProvider = ({
     children,
     defaultMode = 'editor'
-}) => {
+}: AppModeProviderProps) => {
     const mode = useMemo(() => {
         // First, check URL parameters
         const urlParams = new URLSearchParams(window.location.search);
