@@ -8,7 +8,7 @@ import { Badge } from '@/components/atoms/ui/badge';
  * Shows only in development mode to help developers identify which mode is active
  */
 export const ModeIndicator = () => {
-    const { mode, isEditor, isPreview } = useAppMode();
+    const { isEditor } = useAppMode();
 
     // Only show in development mode
     if (!import.meta.env.DEV) {
