@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Section } from "@/components/sections";
+
 import {
     Heading,
     InteractiveTerm,
     InteractiveEquation,
-    InteractiveParagraph,
-    DesmosGraph,
-    Spacer
-} from "@/components/content";
+    InteractiveParagraph
+} from "@/components/molecules";
+import { DesmosGraph } from "@/components/organisms";
+import { Spacer } from "@/components/atoms";
 
 /**
  * Quick Start Example - Interactive LDA Visualization
@@ -20,7 +20,7 @@ import {
  * export const sections = [<QuickStartInteractiveExample key="quick-start" />];
  */
 
-export const QuickStartInteractiveExample = (() => {
+export const QuickStartInteractiveExample = () => {
 
     const [graphState, setGraphState] = useState<'default' | 'dropX' | 'bestLine'>('default');
     const [highlightEquation, setHighlightEquation] = useState(false);
@@ -70,7 +70,7 @@ export const QuickStartInteractiveExample = (() => {
     };
 
     return (
-        <Section key="quick-start-interactive" id="quick-start-interactive">
+        <>
             <Heading level={1}>Linear Discriminant Analysis (LDA)</Heading>
 
             <Spacer height={16} />
@@ -135,6 +135,6 @@ export const QuickStartInteractiveExample = (() => {
             <InteractiveParagraph className="text-sm text-gray-600">
                 💡 <strong>Try it:</strong> Click or hover over the highlighted text to see the graph change!
             </InteractiveParagraph>
-        </Section>
+        </>
     );
-});
+};

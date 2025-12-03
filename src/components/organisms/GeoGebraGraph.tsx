@@ -1,5 +1,5 @@
 import { type CSSProperties } from "react";
-import { GeogebraRenderer } from "../GeogebraRenderer";
+import GeogebraRenderer from "./GeogebraRenderer";
 
 export interface GeoGebraGraphProps {
     /** GeoGebra app type */

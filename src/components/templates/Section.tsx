@@ -1,12 +1,12 @@
 import { type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/atoms/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/ui/tooltip";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/atoms/ui/dropdown-menu";
 import { GripVertical, Plus, Send } from "lucide-react";
 
 export interface SectionProps {

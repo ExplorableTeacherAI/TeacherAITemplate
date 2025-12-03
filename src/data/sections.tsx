@@ -1,14 +1,16 @@
 import { type ReactElement } from "react";
-import { Section } from "@/components/sections";
+import { Section } from "@/components/templates";
 import {
     Paragraph,
     MathBlock,
-    Heading,
+    Heading
+} from "@/components/molecules";
+import {
     DesmosGraph,
-    GeoGebraGraph,
-    Spacer,
-    type DesmosExpression
-} from "@/components/content";
+    GeoGebraGraph
+} from "@/components/organisms";
+import { Spacer } from "@/components/atoms";
+import { type DesmosExpression } from "@/components/organisms/DesmosGraph";
 import { QuickStartInteractiveExample } from "@/examples/quick-start-interactive";
 
 /**
@@ -216,7 +218,9 @@ export const sections: ReactElement[] = [
     </Section>,
 
     // New Interactive Component Example
-    <QuickStartInteractiveExample key="quick-start-interactive" />,
+    <Section key="interactive-example" id="interactive-example">
+        <QuickStartInteractiveExample />
+    </Section>,
 ];
 
 

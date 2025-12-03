@@ -1,5 +1,5 @@
 import { type CSSProperties } from "react";
-import { DesmosRenderer } from "../DesmosRenderer";
+import DesmosRenderer from "./DesmosRenderer";
 
 export interface DesmosExpression {
     id?: string;

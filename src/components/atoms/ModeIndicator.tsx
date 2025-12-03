@@ -1,7 +1,7 @@
 
 import { useAppMode } from '@/contexts/AppModeContext';
 import { Eye, Edit3 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/atoms/ui/badge';
 
 /**
  * ModeIndicator component displays the current app mode (editor/preview)

@@ -1,17 +1,19 @@
 import React from "react";
-import { Section } from "@/components/sections";
+import { Section } from "@/components/templates";
 
 import {
     Paragraph,
     MathBlock,
     Heading,
-    DesmosGraph,
-    GeoGebraGraph,
-    Spacer,
     InteractiveTerm,
     InteractiveEquation,
     InteractiveParagraph
-} from "@/components/content";
+} from "@/components/molecules";
+import {
+    DesmosGraph,
+    GeoGebraGraph
+} from "@/components/organisms";
+import { Spacer } from "@/components/atoms";
 
 
 /**
