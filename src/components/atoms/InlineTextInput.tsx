@@ -12,6 +12,8 @@ interface InlineTextInputProps {
     bgColor?: string;
     /** Optional case sensitive checking (default: false) */
     caseSensitive?: boolean;
+    /** Optional callback when answer is validated */
+    onChange?: (value: string, isCorrect: boolean) => void;
 }
 
 /**
@@ -45,6 +47,7 @@ export const InlineTextInput: React.FC<InlineTextInputProps> = ({
     color = "#3B82F6", // Default blue
     bgColor = "rgba(59, 130, 246, 0.35)", // Balanced transparency
     caseSensitive = false,
+    onChange,
 }) => {
     const [inputValue, setInputValue] = useState("");
     const [isEditing, setIsEditing] = useState(false);
@@ -77,6 +80,7 @@ export const InlineTextInput: React.FC<InlineTextInputProps> = ({
             setIsCorrect(true);
             setIsChecked(true);
             setIsEditing(false);
+            onChange?.(value, true);
         }
     };
 
@@ -99,6 +103,7 @@ export const InlineTextInput: React.FC<InlineTextInputProps> = ({
         setIsCorrect(correct);
         setIsChecked(true);
         setIsEditing(false);
+        onChange?.(inputValue, correct);
     };
 
     const handleClear = () => {

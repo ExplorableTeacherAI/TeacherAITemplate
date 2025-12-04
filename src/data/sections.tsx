@@ -16,6 +16,7 @@ import { interactiveAnimationDemoSection } from "./sections/interactiveAnimation
 import { infoTooltipDemoSection } from "./sections/infoTooltipDemo";
 import { inlineDropdownDemoSection } from "./sections/inlineDropdownDemo";
 import { inlineTextInputDemoSection } from "./sections/inlineTextInputDemo";
+import { inlineStepperDemoSection } from "./sections/inlineStepperDemo";
 
 /**
  * Sections configuration for the canvas.
@@ -202,6 +203,11 @@ export const sections: ReactElement[] = [
     // InlineTextInput Demo
     <Section key="inline-text-input-demo" id="inline-text-input-demo">
         {inlineTextInputDemoSection.content}
+    </Section>,
+
+    // InlineStepper Demo
+    <Section key="inline-stepper-demo" id="inline-stepper-demo">
+        {inlineStepperDemoSection.content}
     </Section>,
 ];
 

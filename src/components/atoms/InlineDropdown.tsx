@@ -13,6 +13,8 @@ interface InlineDropdownProps {
     color?: string;
     /** Optional background color (supports RGBA for transparency) */
     bgColor?: string;
+    /** Optional callback when selection changes */
+    onChange?: (value: string, isCorrect: boolean) => void;
 }
 
 /**
@@ -46,6 +48,7 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
     placeholder = "???",
     color = "#3B82F6", // Default blue
     bgColor = "rgba(59, 130, 246, 0.35)", // Balanced transparency
+    onChange,
 }) => {
     const [selectedValue, setSelectedValue] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -70,9 +73,11 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
     }, [isOpen]);
 
     const handleSelect = (option: string) => {
+        const correct = option === correctAnswer;
         setSelectedValue(option);
-        setIsCorrect(option === correctAnswer);
+        setIsCorrect(correct);
         setIsOpen(false);
+        onChange?.(option, correct);
     };
 
     const handleClear = () => {
