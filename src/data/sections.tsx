@@ -6,14 +6,14 @@ import {
     Heading
 } from "@/components/molecules";
 import {
-    DesmosGraph,
-    GeoGebraGraph
+    DesmosGraph
 } from "@/components/organisms";
 import { Spacer } from "@/components/atoms";
 import { type DesmosExpression } from "@/components/organisms/DesmosGraph";
 import { QuickStartInteractiveExample } from "@/examples/quick-start-interactive";
 import { twoJsAnimationsDemoSection } from "./sections/twoJsAnimationsDemo";
 import { interactiveAnimationDemoSection } from "./sections/interactiveAnimationDemo";
+import { infoTooltipDemoSection } from "./sections/infoTooltipDemo";
 
 /**
  * Sections configuration for the canvas.
@@ -165,57 +165,10 @@ export const sections: ReactElement[] = [
         />
     </Section>,
 
-    // Spacer before GeoGebra
-    <Section key="spacer-2" id="spacer-2" padding="none">
-        <Spacer height={24} />
-    </Section>,
-
-    // GeoGebra Alternative Visualization
-    <Section key="geogebra-visualization" id="geogebra-visualization">
-        <Paragraph>
-            Here's the same visualization using GeoGebra:
-        </Paragraph>
-        <Spacer height={12} />
-        <GeoGebraGraph
-            app="graphing"
-            mode="applet"
-            aspectRatio="16/9"
-            params={{
-                showMenuBar: false,
-                showToolBar: false,
-                showAlgebraInput: false,
-                enableRightClick: false,
-                enableLabelDrags: false,
-                showResetIcon: false
-            }}
-            commands={[
-                // Create the functions
-                "f(x) = x^2",
-                "g(x) = 0.3*x + 1.5",
-                // Find intersections
-                "A = Intersect(f, g, 1)",
-                "B = Intersect(f, g, 2)",
-                // Style the parabola
-                "SetColor(f, 199, 68, 64)",
-                "SetLineThickness(f, 5)",
-                // Style the line
-                "SetColor(g, 0, 0, 0)",
-                "SetLineThickness(g, 3)",
-                // Style intersection points
-                "SetColor(A, 45, 112, 179)",
-                "SetColor(B, 45, 112, 179)",
-                "SetPointSize(A, 5)",
-                "SetPointSize(B, 5)",
-                "ShowLabel(A, true)",
-                "ShowLabel(B, true)"
-            ]}
-        />
-    </Section>,
-
     // Conclusion
     <Section key="conclusion" id="conclusion">
         <Paragraph>
-            As you can see, both Desmos and GeoGebra provide interactive visualizations to help understand how the parameters affect the intersection points.
+            The interactive Desmos visualization helps understand how the parameters affect the intersection points.
         </Paragraph>
     </Section>,
 
@@ -232,6 +185,11 @@ export const sections: ReactElement[] = [
     // Interactive Animation Controls Demo
     <Section key="interactive-animation" id="interactive-animation">
         {interactiveAnimationDemoSection.content}
+    </Section>,
+
+    // InfoTooltip Demo
+    <Section key="info-tooltip-demo" id="info-tooltip-demo">
+        {infoTooltipDemoSection.content}
     </Section>,
 ];
 

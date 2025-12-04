@@ -49,6 +49,7 @@ export * from "./ui/use-toast";
 // Basic Atoms
 export { Spacer } from "./Spacer";
 export { ModeIndicator } from "./ModeIndicator";
+export { InfoTooltip } from "./InfoTooltip";
 
 // Two.js Animation Components
 export { TwoCanvas } from "./TwoCanvas";
