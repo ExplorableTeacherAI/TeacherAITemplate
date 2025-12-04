@@ -1,6 +1,7 @@
 // Visualization Components
 export { DesmosGraph } from "./DesmosGraph";
 export { GeoGebraGraph } from "./GeoGebraGraph";
+export { InteractiveAnimation } from "./InteractiveAnimation";
 
 // Renderer Components
 export { default as DesmosRenderer } from "./DesmosRenderer";

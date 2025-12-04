@@ -49,3 +49,10 @@ export * from "./ui/use-toast";
 // Basic Atoms
 export { Spacer } from "./Spacer";
 export { ModeIndicator } from "./ModeIndicator";
+
+// Two.js Animation Components
+export { TwoCanvas } from "./TwoCanvas";
+export { AnimatedBackground } from "./AnimatedBackground";
+export { MorphingShapes } from "./MorphingShapes";
+export { ParticleSystem } from "./ParticleSystem";
+export { AnimatedGraph } from "./AnimatedGraph";

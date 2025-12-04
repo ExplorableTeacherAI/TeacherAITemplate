@@ -12,6 +12,8 @@ import {
 import { Spacer } from "@/components/atoms";
 import { type DesmosExpression } from "@/components/organisms/DesmosGraph";
 import { QuickStartInteractiveExample } from "@/examples/quick-start-interactive";
+import { twoJsAnimationsDemoSection } from "./sections/twoJsAnimationsDemo";
+import { interactiveAnimationDemoSection } from "./sections/interactiveAnimationDemo";
 
 /**
  * Sections configuration for the canvas.
@@ -221,6 +223,18 @@ export const sections: ReactElement[] = [
     <Section key="interactive-example" id="interactive-example">
         <QuickStartInteractiveExample />
     </Section>,
+
+    // Two.js Animations Demo
+    <Section key="twojs-animations" id="twojs-animations">
+        {twoJsAnimationsDemoSection.content}
+    </Section>,
+
+    // Interactive Animation Controls Demo
+    <Section key="interactive-animation" id="interactive-animation">
+        {interactiveAnimationDemoSection.content}
+    </Section>,
 ];
+
+
 
 
