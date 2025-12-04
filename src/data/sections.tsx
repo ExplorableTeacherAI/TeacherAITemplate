@@ -15,6 +15,7 @@ import { twoJsAnimationsDemoSection } from "./sections/twoJsAnimationsDemo";
 import { interactiveAnimationDemoSection } from "./sections/interactiveAnimationDemo";
 import { infoTooltipDemoSection } from "./sections/infoTooltipDemo";
 import { inlineDropdownDemoSection } from "./sections/inlineDropdownDemo";
+import { inlineTextInputDemoSection } from "./sections/inlineTextInputDemo";
 
 /**
  * Sections configuration for the canvas.
@@ -196,6 +197,11 @@ export const sections: ReactElement[] = [
     // InlineDropdown Demo
     <Section key="inline-dropdown-demo" id="inline-dropdown-demo">
         {inlineDropdownDemoSection.content}
+    </Section>,
+
+    // InlineTextInput Demo
+    <Section key="inline-text-input-demo" id="inline-text-input-demo">
+        {inlineTextInputDemoSection.content}
     </Section>,
 ];
 

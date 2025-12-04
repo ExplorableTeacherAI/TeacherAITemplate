@@ -51,6 +51,7 @@ export { Spacer } from "./Spacer";
 export { ModeIndicator } from "./ModeIndicator";
 export { InfoTooltip } from "./InfoTooltip";
 export { InlineDropdown } from "./InlineDropdown";
+export { InlineTextInput } from "./InlineTextInput";
 
 // Two.js Animation Components
 export { TwoCanvas } from "./TwoCanvas";
