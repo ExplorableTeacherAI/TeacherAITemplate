@@ -49,8 +49,8 @@ interface InfoTooltipProps {
 export const InfoTooltip: React.FC<InfoTooltipProps> = ({
     term,
     description,
-    highlightColor = '#F97316', // Orange accent
-    tooltipBgColor = 'rgba(251, 146, 60, 0.15)', // Light transparent orange
+    highlightColor = '#faa061ff', // Orange accent
+    tooltipBgColor = 'rgba(253, 187, 134, 0.95)', // Balanced transparency
     position = 'auto',
     maxWidth = 400,
 }) => {
@@ -145,7 +145,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
                                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                                 }}
                             >
-                                <p className="text-sm leading-relaxed font-normal text-gray-700 dark:text-gray-200">
+                                <p className="text-sm leading-relaxed font-normal text-white">
                                     {description}
                                 </p>
                             </div>

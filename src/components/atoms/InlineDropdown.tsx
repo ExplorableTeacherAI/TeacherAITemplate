@@ -45,7 +45,7 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
     options,
     placeholder = "???",
     color = "#3B82F6", // Default blue
-    bgColor = "rgba(59, 130, 246, 0.15)", // Light transparent blue
+    bgColor = "rgba(59, 130, 246, 0.35)", // Balanced transparency
 }) => {
     const [selectedValue, setSelectedValue] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -146,7 +146,7 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
                         transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
                         className="absolute top-full left-0 mt-1 rounded-lg shadow-lg overflow-hidden z-50 min-w-[140px] backdrop-blur-sm"
                         style={{
-                            backgroundColor: bgColor,
+                            backgroundColor: bgColor.replace(/[\d.]+\)/, '0.75)'), // Medium opacity for dropdown menu
                         }}
                     >
                         {options.map((option, index) => (
@@ -155,11 +155,11 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
                                 onClick={() => handleSelect(option)}
                                 className="w-full text-left px-2 py-1 transition-all text-sm font-medium"
                                 style={{
-                                    color: color,
-                                    borderBottom: index !== options.length - 1 ? `1px solid ${color}20` : 'none',
+                                    color: 'white', // White text for better contrast
+                                    borderBottom: index !== options.length - 1 ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = `${color}30`;
+                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.backgroundColor = 'transparent';
