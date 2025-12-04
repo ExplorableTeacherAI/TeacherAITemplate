@@ -50,6 +50,7 @@ export * from "./ui/use-toast";
 export { Spacer } from "./Spacer";
 export { ModeIndicator } from "./ModeIndicator";
 export { InfoTooltip } from "./InfoTooltip";
+export { InlineDropdown } from "./InlineDropdown";
 
 // Two.js Animation Components
 export { TwoCanvas } from "./TwoCanvas";

@@ -14,6 +14,7 @@ import { QuickStartInteractiveExample } from "@/examples/quick-start-interactive
 import { twoJsAnimationsDemoSection } from "./sections/twoJsAnimationsDemo";
 import { interactiveAnimationDemoSection } from "./sections/interactiveAnimationDemo";
 import { infoTooltipDemoSection } from "./sections/infoTooltipDemo";
+import { inlineDropdownDemoSection } from "./sections/inlineDropdownDemo";
 
 /**
  * Sections configuration for the canvas.
@@ -190,6 +191,11 @@ export const sections: ReactElement[] = [
     // InfoTooltip Demo
     <Section key="info-tooltip-demo" id="info-tooltip-demo">
         {infoTooltipDemoSection.content}
+    </Section>,
+
+    // InlineDropdown Demo
+    <Section key="inline-dropdown-demo" id="inline-dropdown-demo">
+        {inlineDropdownDemoSection.content}
     </Section>,
 ];
 
