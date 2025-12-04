@@ -97,9 +97,17 @@ export const Section = ({
                             <DropdownMenuItem
                                 className="text"
                                 onClick={() => {
-                                    if (onEditSection && id) {
-                                        // Send the section ID or content to AI
-                                        onEditSection(`Context: Section ${id}`);
+                                    if (id) {
+                                        // Send message to parent window with section context
+                                        window.parent.postMessage({
+                                            type: 'add-to-chat',
+                                            sectionId: id,
+                                        }, '*');
+
+                                        // Also call the callback if provided (for backwards compatibility)
+                                        if (onEditSection) {
+                                            onEditSection(`Context: Section ${id}`);
+                                        }
                                     }
                                 }}
                             >
