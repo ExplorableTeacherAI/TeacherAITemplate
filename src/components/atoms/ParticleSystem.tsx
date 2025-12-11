@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { TwoCanvas } from "./TwoCanvas";
-import type Two from "two.js";
+import { useState, useEffect, useRef } from "react";
+import Two from "two.js";
 
 export interface ParticleSystemProps {
     /** Width of the canvas */
@@ -63,6 +62,8 @@ export const ParticleSystem = ({
     className = "",
 }: ParticleSystemProps) => {
     const [mousePos, setMousePos] = useState({ x: width / 2, y: height / 2 });
+    const containerRef = useRef<HTMLDivElement>(null);
+    const twoRef = useRef<Two | null>(null);
 
     const setupFireworks = (two: Two) => {
         const particles: Particle[] = [];
@@ -401,23 +402,63 @@ export const ParticleSystem = ({
         trail: setupTrail,
     };
 
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const two = new Two({
+            width,
+            height,
+            autostart: true,
+        }).appendTo(containerRef.current);
+
+        twoRef.current = two;
+
+        // Set proper SVG viewBox to prevent clipping
+        const svgElement = containerRef.current.querySelector('svg');
+        if (svgElement) {
+            svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            svgElement.style.width = '100%';
+            svgElement.style.height = '100%';
+        }
+
+        const cleanup = variants[variant](two);
+
+        return () => {
+            if (typeof cleanup === "function") {
+                cleanup();
+            }
+            if (twoRef.current) {
+                twoRef.current.pause();
+                twoRef.current.clear();
+            }
+        };
+    }, [width, height, variant, color, secondaryColor, particleCount, speed, mousePos]);
+
     return (
         <div
             className={`relative ${className}`}
             onMouseMove={(e) => {
                 if (interactive) {
                     const rect = e.currentTarget.getBoundingClientRect();
+                    // Map screen coordinates to canvas coordinates (0..width, 0..height)
+                    const scaleX = width / rect.width;
+                    const scaleY = height / rect.height;
                     setMousePos({
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top,
+                        x: (e.clientX - rect.left) * scaleX,
+                        y: (e.clientY - rect.top) * scaleY,
                     });
                 }
             }}
         >
-            <TwoCanvas
-                width={width}
-                height={height}
-                onSetup={variants[variant]}
+            <div
+                ref={containerRef}
+                style={{
+                    width: '100%',
+                    height: 'auto',
+                    aspectRatio: `${width}/${height}`,
+                    display: 'block',
+                }}
             />
         </div>
     );

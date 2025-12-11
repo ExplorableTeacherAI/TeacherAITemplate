@@ -1,4 +1,4 @@
-import { TwoCanvas } from "./TwoCanvas";
+import { useEffect, useRef } from "react";
 import Two from "two.js";
 
 export interface AnimatedGraphProps {
@@ -48,6 +48,8 @@ export const AnimatedGraph = ({
     showGrid = false,
     className = "",
 }: AnimatedGraphProps) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const twoRef = useRef<Two | null>(null);
     const drawAxes = (two: Two) => {
         const centerX = width / 2;
         const centerY = height / 2;
@@ -384,12 +386,49 @@ export const AnimatedGraph = ({
         "lissajous": setupLissajous,
     };
 
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const two = new Two({
+            width,
+            height,
+            autostart: true,
+        }).appendTo(containerRef.current);
+
+        twoRef.current = two;
+
+        // Set proper SVG viewBox to prevent clipping
+        const svgElement = containerRef.current.querySelector('svg');
+        if (svgElement) {
+            svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            svgElement.style.width = '100%';
+            svgElement.style.height = '100%';
+        }
+
+        const cleanup = variants[variant](two);
+
+        return () => {
+            if (typeof cleanup === "function") {
+                cleanup();
+            }
+            if (twoRef.current) {
+                twoRef.current.pause();
+                twoRef.current.clear();
+            }
+        };
+    }, [width, height, variant, color, secondaryColor, speed, showAxes, showGrid]);
+
     return (
-        <TwoCanvas
-            width={width}
-            height={height}
-            onSetup={variants[variant]}
+        <div
+            ref={containerRef}
             className={className}
+            style={{
+                width: '100%',
+                height: 'auto',
+                aspectRatio: `${width}/${height}`,
+                display: 'block',
+            }}
         />
     );
 };

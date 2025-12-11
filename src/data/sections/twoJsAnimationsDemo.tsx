@@ -1,4 +1,4 @@
-import { AnimatedGraph } from "@/components/atoms";
+import { AnimatedGraph, CoordinateSystem } from "@/components/atoms";
 
 export const twoJsAnimationsDemoSection = {
     id: "twojs-animations-demo",
@@ -13,6 +13,77 @@ export const twoJsAnimationsDemoSection = {
                     Interactive mathematical animations to help students understand complex concepts through visualization.
                 </p>
             </div>
+
+            {/* Coordinate System */}
+            <div className="space-y-6">
+                <h2 className="text-2xl font-semibold">Coordinate System</h2>
+                <p className="text-muted-foreground">
+                    A fundamental mathematical visualization showing a 2D coordinate plane with axes, arrows, and an optional grid.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-medium">Standard Coordinate System</h3>
+                        <p className="text-sm text-muted-foreground">Full coordinate plane with grid and labels</p>
+                        <div className="rounded-lg overflow-hidden bg-background">
+                            <CoordinateSystem
+                                width={460}
+                                height={400}
+                                showGrid={true}
+                                showLabels={true}
+                                gridSpacing={40}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-medium">Minimal Axes</h3>
+                        <p className="text-sm text-muted-foreground">Clean axes without grid for plotting</p>
+                        <div className="rounded-lg overflow-hidden bg-background">
+                            <CoordinateSystem
+                                width={500}
+                                height={400}
+                                showGrid={false}
+                                showLabels={true}
+                                gridSpacing={50}
+                                axisColor="#3B82F6"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-medium">Fine Grid</h3>
+                        <p className="text-sm text-muted-foreground">Smaller grid spacing for precise plotting</p>
+                        <div className="rounded-lg overflow-hidden bg-background">
+                            <CoordinateSystem
+                                width={500}
+                                height={400}
+                                showGrid={true}
+                                showLabels={true}
+                                gridSpacing={25}
+                                gridColor="#10B981"
+                                axisColor="#059669"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-medium">Coarse Grid</h3>
+                        <p className="text-sm text-muted-foreground">Larger grid spacing for overview</p>
+                        <div className="rounded-lg overflow-hidden bg-background">
+                            <CoordinateSystem
+                                width={480}
+                                height={420}
+                                showGrid={true}
+                                showLabels={true}
+                                gridSpacing={60}
+                                gridColor="#EC4899"
+                                axisColor="#DB2777"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             {/* Animated Graphs */}
             <div className="space-y-6">

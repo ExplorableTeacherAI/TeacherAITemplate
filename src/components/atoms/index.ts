@@ -55,8 +55,8 @@ export { InlineTextInput } from "./InlineTextInput";
 export { InlineStepper } from "./InlineStepper";
 
 // Two.js Animation Components
-export { TwoCanvas } from "./TwoCanvas";
 export { AnimatedBackground } from "./AnimatedBackground";
 export { MorphingShapes } from "./MorphingShapes";
 export { ParticleSystem } from "./ParticleSystem";
 export { AnimatedGraph } from "./AnimatedGraph";
+export { CoordinateSystem } from "./CoordinateSystem";

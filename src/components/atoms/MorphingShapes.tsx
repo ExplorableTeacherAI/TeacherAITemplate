@@ -1,4 +1,4 @@
-import { TwoCanvas } from "./TwoCanvas";
+import { useEffect, useRef } from "react";
 import Two from "two.js";
 
 export interface MorphingShapesProps {
@@ -39,6 +39,8 @@ export const MorphingShapes = ({
     speed = 1.0,
     className = "",
 }: MorphingShapesProps) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const twoRef = useRef<Two | null>(null);
     const setupCircleToSquare = (two: Two) => {
         const cx = width / 2;
         const cy = height / 2;
@@ -299,12 +301,49 @@ export const MorphingShapes = ({
         "geometric": setupGeometric,
     };
 
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const two = new Two({
+            width,
+            height,
+            autostart: true,
+        }).appendTo(containerRef.current);
+
+        twoRef.current = two;
+
+        // Set proper SVG viewBox to prevent clipping
+        const svgElement = containerRef.current.querySelector('svg');
+        if (svgElement) {
+            svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            svgElement.style.width = '100%';
+            svgElement.style.height = '100%';
+        }
+
+        const cleanup = variants[variant](two);
+
+        return () => {
+            if (typeof cleanup === "function") {
+                cleanup();
+            }
+            if (twoRef.current) {
+                twoRef.current.pause();
+                twoRef.current.clear();
+            }
+        };
+    }, [width, height, variant, color, speed]);
+
     return (
-        <TwoCanvas
-            width={width}
-            height={height}
-            onSetup={variants[variant]}
+        <div
+            ref={containerRef}
             className={className}
+            style={{
+                width: '100%',
+                height: 'auto',
+                aspectRatio: `${width}/${height}`,
+                display: 'block',
+            }}
         />
     );
 };

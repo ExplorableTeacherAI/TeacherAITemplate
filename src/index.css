@@ -127,6 +127,13 @@ All colors MUST be HSL.
   .two-canvas * {
     border: none !important;
   }
+
+  /* Ensure Two.js SVG elements have no offset */
+  .two-canvas svg {
+    display: block;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 
 @layer utilities {
