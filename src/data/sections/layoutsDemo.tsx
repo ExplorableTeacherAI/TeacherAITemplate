@@ -47,7 +47,7 @@ export const splitDemoRightSection = {
     id: "split-demo-right",
     title: "Visualization",
     content: (
-        <div className="rounded-lg overflow-hidden border border-border bg-background">
+        <div className="rounded-lg overflow-hidden bg-background">
             <AnimatedGraph
                 variant="sine-wave"
                 color="#10B981"
@@ -67,7 +67,7 @@ export const gridDemoSection1 = {
     content: (
         <div className="space-y-3 p-6 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors h-full">
             <h3 className="text-xl font-semibold">Parametric Rose</h3>
-            <div className="rounded-lg overflow-hidden border border-border">
+            <div className="rounded-lg overflow-hidden">
                 <AnimatedGraph
                     variant="parametric"
                     color="#EC4899"
@@ -91,7 +91,7 @@ export const gridDemoSection2 = {
     content: (
         <div className="space-y-3 p-6 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors h-full">
             <h3 className="text-xl font-semibold">Pendulum Motion</h3>
-            <div className="rounded-lg overflow-hidden border border-border">
+            <div className="rounded-lg overflow-hidden">
                 <AnimatedGraph
                     variant="pendulum"
                     color="#8B5CF6"
@@ -114,7 +114,7 @@ export const gridDemoSection3 = {
     content: (
         <div className="space-y-3 p-6 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors h-full">
             <h3 className="text-xl font-semibold">Lissajous Curve</h3>
-            <div className="rounded-lg overflow-hidden border border-border">
+            <div className="rounded-lg overflow-hidden">
                 <AnimatedGraph
                     variant="lissajous"
                     color="#06B6D4"
@@ -177,7 +177,7 @@ export const sidebarDemoMainSection = {
                 and cosine waves. This powerful mathematical tool has applications across physics,
                 engineering, and signal processing.
             </p>
-            <div className="rounded-lg overflow-hidden border border-border bg-background">
+            <div className="rounded-lg overflow-hidden bg-background">
                 <AnimatedGraph
                     variant="fourier"
                     color="#F59E0B"

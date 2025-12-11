@@ -24,7 +24,7 @@ export const twoJsAnimationsDemoSection = {
                     <div className="space-y-2">
                         <h3 className="text-lg font-medium">Sine Wave</h3>
                         <p className="text-sm text-muted-foreground">Fundamental trigonometric function showing periodic motion</p>
-                        <div className="rounded-lg overflow-hidden border border-border bg-background">
+                        <div className="rounded-lg overflow-hidden bg-background">
                             <AnimatedGraph
                                 variant="sine-wave"
                                 color="#10B981"
@@ -40,7 +40,7 @@ export const twoJsAnimationsDemoSection = {
                     <div className="space-y-2">
                         <h3 className="text-lg font-medium">Parametric Curve (Rose)</h3>
                         <p className="text-sm text-muted-foreground">Beautiful parametric equations creating rose patterns</p>
-                        <div className="rounded-lg overflow-hidden border border-border bg-background">
+                        <div className="rounded-lg overflow-hidden bg-background">
                             <AnimatedGraph
                                 variant="parametric"
                                 color="#EC4899"
@@ -56,7 +56,7 @@ export const twoJsAnimationsDemoSection = {
                     <div className="space-y-2">
                         <h3 className="text-lg font-medium">Pendulum Motion</h3>
                         <p className="text-sm text-muted-foreground">Physics simulation demonstrating simple harmonic motion</p>
-                        <div className="rounded-lg overflow-hidden border border-border bg-background">
+                        <div className="rounded-lg overflow-hidden bg-background">
                             <AnimatedGraph
                                 variant="pendulum"
                                 color="#8B5CF6"
@@ -71,7 +71,7 @@ export const twoJsAnimationsDemoSection = {
                     <div className="space-y-2">
                         <h3 className="text-lg font-medium">Fourier Series</h3>
                         <p className="text-sm text-muted-foreground">Visualizing how circles combine to create wave patterns</p>
-                        <div className="rounded-lg overflow-hidden border border-border bg-background">
+                        <div className="rounded-lg overflow-hidden bg-background">
                             <AnimatedGraph
                                 variant="fourier"
                                 color="#F59E0B"
@@ -87,7 +87,7 @@ export const twoJsAnimationsDemoSection = {
                     <div className="space-y-2">
                         <h3 className="text-lg font-medium">Lissajous Curve</h3>
                         <p className="text-sm text-muted-foreground">Complex patterns from two perpendicular oscillations</p>
-                        <div className="rounded-lg overflow-hidden border border-border bg-background">
+                        <div className="rounded-lg overflow-hidden bg-background">
                             <AnimatedGraph
                                 variant="lissajous"
                                 color="#06B6D4"

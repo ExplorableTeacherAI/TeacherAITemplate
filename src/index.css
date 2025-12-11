@@ -119,6 +119,14 @@ All colors MUST be HSL.
     min-height: 100vh;
     transition: var(--transition-smooth);
   }
+
+  /* Remove borders from Two.js canvas elements */
+  svg,
+  canvas,
+  .two-canvas,
+  .two-canvas * {
+    border: none !important;
+  }
 }
 
 @layer utilities {
@@ -127,7 +135,7 @@ All colors MUST be HSL.
     backdrop-filter: blur(20px);
     /* border: 1px solid hsl(var(--border)); */
   }
-  
+
   .gradient-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -159,6 +167,7 @@ All colors MUST be HSL.
 .excalidraw .App-menu__left {
   display: none !important;
 }
+
 /* Scoped editor overrides to restore full Excalidraw UI and centering */
 .excal-editor .excalidraw {
   position: relative !important;
