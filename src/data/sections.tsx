@@ -12,6 +12,7 @@ import { Spacer } from "@/components/atoms";
 import { type DesmosExpression } from "@/components/organisms/DesmosGraph";
 import { QuickStartInteractiveExample } from "@/examples/quick-start-interactive";
 import { twoJsAnimationsDemoSection } from "./sections/twoJsAnimationsDemo";
+import { threeJsAnimationsDemoSection } from "./sections/threeJsAnimationsDemo";
 import { interactiveAnimationDemoSection } from "./sections/interactiveAnimationDemo";
 import { infoTooltipDemoSection } from "./sections/infoTooltipDemo";
 import { inlineDropdownDemoSection } from "./sections/inlineDropdownDemo";
@@ -337,6 +338,13 @@ export const sections: ReactElement[] = [
     <FullWidthLayout key="twojs-animations" maxWidth="full">
         <Section id="twojs-animations">
             {twoJsAnimationsDemoSection.content}
+        </Section>
+    </FullWidthLayout>,
+
+    // Three.js Animations Demo
+    <FullWidthLayout key="threejs-animations" maxWidth="full">
+        <Section id="threejs-animations">
+            {threeJsAnimationsDemoSection.content}
         </Section>
     </FullWidthLayout>,
 

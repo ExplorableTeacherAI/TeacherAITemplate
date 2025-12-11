@@ -60,3 +60,8 @@ export { MorphingShapes } from "./MorphingShapes";
 export { ParticleSystem } from "./ParticleSystem";
 export { AnimatedGraph } from "./AnimatedGraph";
 export { CoordinateSystem } from "./CoordinateSystem";
+
+// Three.js Components
+export { ThreeCanvas } from "./ThreeCanvas";
+export { ThreeCoordinateSystem } from "./ThreeCoordinateSystem";
+export * from "./ThreeVisuals";
