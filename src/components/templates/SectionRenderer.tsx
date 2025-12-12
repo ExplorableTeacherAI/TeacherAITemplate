@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, cloneElement, isValidElement, Children, type CSSProperties, type ReactElement, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, cloneElement, isValidElement, Children, Fragment, type CSSProperties, type ReactElement, type ReactNode } from "react";
 
 export interface SectionRendererProps {
   initialSections?: ReactElement[];
@@ -9,17 +9,26 @@ export interface SectionRendererProps {
 /**
  * Recursively clone React elements and inject props into all children.
  * This ensures layout components and nested sections all receive isPreview and onEditSection.
+ * 
+ * MODIFIED: Only inject props into custom components, not host components (DOM elements) or Fragments,
+ * to avoid "React does not recognize the prop..." warnings.
  */
 const deepCloneWithProps = (element: ReactNode, props: { isPreview?: boolean; onEditSection?: (instruction: string) => void }): ReactNode => {
   if (!isValidElement(element)) {
     return element;
   }
 
-  // Clone the current element with props
+  // Determine if we should pass props to this element
+  // Only pass to custom components (functions/objects), not strings (DOM elements) or Fragments
+  const isHostComponent = typeof element.type === 'string';
+  const isFragment = element.type === Fragment;
+  const shouldInjectProps = !isHostComponent && !isFragment;
+
+  // Clone the current element, possibly with injected props
   const clonedElement = cloneElement(
-    element,
-    { ...props } as any,
-    // Recursively process children
+    element as ReactElement,
+    shouldInjectProps ? { ...props } : {},
+    // Recursively process children ensuring we go deep into the tree
     element.props.children
       ? Children.map(element.props.children, (child) => deepCloneWithProps(child, props))
       : undefined

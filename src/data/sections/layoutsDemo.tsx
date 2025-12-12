@@ -4,21 +4,7 @@ import { AnimatedGraph } from "@/components/atoms";
  * Demo sections showcasing different layout capabilities
  */
 
-export const layoutIntroSection = {
-    id: "layout-intro",
-    title: "Layout System Demo",
-    content: (
-        <div className="space-y-4">
-            <h1 className="text-4xl font-bold text-foreground">
-                Flexible Layout System
-            </h1>
-            <p className="text-lg text-muted-foreground">
-                This demonstration showcases different layout types available for organizing educational content.
-                Each layout type serves a specific purpose and can be combined to create rich, engaging lessons.
-            </p>
-        </div>
-    ),
-};
+
 
 export const splitDemoLeftSection = {
     id: "split-demo-left",
@@ -205,35 +191,4 @@ export const sidebarDemoMainSection = {
     ),
 };
 
-export const fullWidthDemoSection = {
-    id: "full-width-demo",
-    title: "Full Width Conclusion",
-    content: (
-        <div className="space-y-6 py-8">
-            <h2 className="text-3xl font-bold text-center">Layout System Benefits</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <div className="text-center space-y-2">
-                    <div className="text-4xl">🎯</div>
-                    <h3 className="font-semibold">Flexible</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Choose the right layout for your content
-                    </p>
-                </div>
-                <div className="text-center space-y-2">
-                    <div className="text-4xl">📱</div>
-                    <h3 className="font-semibold">Responsive</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Adapts to all screen sizes automatically
-                    </p>
-                </div>
-                <div className="text-center space-y-2">
-                    <div className="text-4xl">⚡</div>
-                    <h3 className="font-semibold">Composable</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Mix and match layouts on the same page
-                    </p>
-                </div>
-            </div>
-        </div>
-    ),
-};
+

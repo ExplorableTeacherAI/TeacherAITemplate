@@ -247,7 +247,7 @@ export const CoordinateSystem = ({
             originText.opacity = 0.7;
 
             // Axis labels
-            const xLabel = two.makeText("x", width - 25, centerY + 25, {
+            const xLabel = two.makeText("x", width - 10, centerY + 25, {
                 family: "Arial, sans-serif",
                 size: 16,
                 fill: axisColor,
@@ -272,6 +272,9 @@ export const CoordinateSystem = ({
         return () => {
             if (twoRef.current) {
                 twoRef.current.clear();
+                if (containerRef.current) {
+                    containerRef.current.innerHTML = "";
+                }
             }
         };
     }, [width, height, gridSpacing, showGrid, showLabels, axisColor, gridColor, axisThickness, xRange, yRange]);

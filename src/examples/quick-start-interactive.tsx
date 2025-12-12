@@ -6,6 +6,8 @@ import {
     InteractiveEquation,
     InteractiveParagraph
 } from "@/components/molecules";
+import { FullWidthLayout } from "@/components/layouts";
+import { Section } from "@/components/templates";
 import { DesmosGraph } from "@/components/organisms";
 import { Spacer } from "@/components/atoms";
 
@@ -14,7 +16,7 @@ import { Spacer } from "@/components/atoms";
  * This example replicates the pattern from your uploaded image.
  * 
  * To use: Import this in your sections.tsx file:
- * import { quickStartInteractiveExample } from './examples/quick-start-interactive';
+ * import { QuickStartInteractiveExample } from './examples/quick-start-interactive';
  * 
  * Then add to your sections array:
  * export const sections = [<QuickStartInteractiveExample key="quick-start" />];
@@ -70,71 +72,73 @@ export const QuickStartInteractiveExample = () => {
     };
 
     return (
-        <>
-            <Heading level={1}>Linear Discriminant Analysis (LDA)</Heading>
+        <FullWidthLayout maxWidth="xl">
+            <Section id="quick-start-interactive">
+                <Heading level={1}>Linear Discriminant Analysis (LDA)</Heading>
 
-            <Spacer height={16} />
+                <Spacer height={16} />
 
-            <InteractiveParagraph>
-                You can{' '}
-                <InteractiveTerm
-                    onClick={() => setGraphState(prev => prev === 'dropX' ? 'default' : 'dropX')}
-                    onHoverStart={() => setGraphState('dropX')}
-                    onHoverEnd={() => setGraphState('default')}
-                    color="#c74440"
-                    isActive={graphState === 'dropX'}
-                >
-                    click here to see that dropping the X axis
-                </InteractiveTerm>
-                {' '}isn't much better, but these aren't the only two choices.
-                Geometrically, we have an infinite number of lines we can project on!
-            </InteractiveParagraph>
+                <InteractiveParagraph>
+                    You can{' '}
+                    <InteractiveTerm
+                        onClick={() => setGraphState(prev => prev === 'dropX' ? 'default' : 'dropX')}
+                        onHoverStart={() => setGraphState('dropX')}
+                        onHoverEnd={() => setGraphState('default')}
+                        color="#c74440"
+                        isActive={graphState === 'dropX'}
+                    >
+                        click here to see that dropping the X axis
+                    </InteractiveTerm>
+                    {' '}isn't much better, but these aren't the only two choices.
+                    Geometrically, we have an infinite number of lines we can project on!
+                </InteractiveParagraph>
 
-            <Spacer height={12} />
+                <Spacer height={12} />
 
-            <InteractiveParagraph>
-                Out of all these possible lines, the line{' '}
-                <InteractiveEquation
-                    equation="(0.79)y = (-0.61)x"
-                    onClick={() => {
-                        setGraphState('bestLine');
-                        setHighlightEquation(!highlightEquation);
+                <InteractiveParagraph>
+                    Out of all these possible lines, the line{' '}
+                    <InteractiveEquation
+                        equation="(0.79)y = (-0.61)x"
+                        onClick={() => {
+                            setGraphState('bestLine');
+                            setHighlightEquation(!highlightEquation);
+                        }}
+                        onHoverStart={() => {
+                            setGraphState('bestLine');
+                            setHighlightEquation(true);
+                        }}
+                        onHoverEnd={() => {
+                            setHighlightEquation(false);
+                            if (!highlightEquation) setGraphState('default');
+                        }}
+                        isActive={highlightEquation}
+                        color="#c74440"
+                    />
+                    {' '}provides the best possible separation.
+                    This best line is what LDA allows us to find.
+                </InteractiveParagraph>
+
+                <Spacer height={20} />
+
+                <DesmosGraph
+                    height={450}
+                    expressions={getGraphExpressions()}
+                    options={{
+                        expressions: false,
+                        settingsMenu: false,
+                        keypad: false,
+                        zoomButtons: true,
+                        xAxisLabel: 'Price',
+                        yAxisLabel: 'Distance'
                     }}
-                    onHoverStart={() => {
-                        setGraphState('bestLine');
-                        setHighlightEquation(true);
-                    }}
-                    onHoverEnd={() => {
-                        setHighlightEquation(false);
-                        if (!highlightEquation) setGraphState('default');
-                    }}
-                    isActive={highlightEquation}
-                    color="#c74440"
                 />
-                {' '}provides the best possible separation.
-                This best line is what LDA allows us to find.
-            </InteractiveParagraph>
 
-            <Spacer height={20} />
+                <Spacer height={16} />
 
-            <DesmosGraph
-                height={450}
-                expressions={getGraphExpressions()}
-                options={{
-                    expressions: false,
-                    settingsMenu: false,
-                    keypad: false,
-                    zoomButtons: true,
-                    xAxisLabel: 'Price',
-                    yAxisLabel: 'Distance'
-                }}
-            />
-
-            <Spacer height={16} />
-
-            <InteractiveParagraph className="text-sm text-gray-600">
-                💡 <strong>Try it:</strong> Click or hover over the highlighted text to see the graph change!
-            </InteractiveParagraph>
-        </>
+                <InteractiveParagraph className="text-sm text-gray-600">
+                    💡 <strong>Try it:</strong> Click or hover over the highlighted text to see the graph change!
+                </InteractiveParagraph>
+            </Section>
+        </FullWidthLayout>
     );
 };

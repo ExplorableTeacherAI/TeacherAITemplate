@@ -415,6 +415,9 @@ export const AnimatedGraph = ({
             if (twoRef.current) {
                 twoRef.current.pause();
                 twoRef.current.clear();
+                if (containerRef.current) {
+                    containerRef.current.innerHTML = "";
+                }
             }
         };
     }, [width, height, variant, color, secondaryColor, speed, showAxes, showGrid]);

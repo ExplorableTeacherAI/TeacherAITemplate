@@ -46,7 +46,7 @@ export const Section = ({
     return (
         <section
             id={id}
-            className={`w-full group flex gap-3 ${paddingClasses[padding]} ${className} ${!isPreview ? 'hover:ring-1 hover:ring-primary/20 rounded-lg transition-all' : ''}`}
+            className={`w-full group flex gap-3 pr-3 ${paddingClasses[padding]} ${className} ${!isPreview ? 'hover:ring-1 hover:ring-primary/20 rounded-lg transition-all' : ''}`}
             data-section-id={id}
         >
             {/* Hover controls - hidden in preview mode */}
