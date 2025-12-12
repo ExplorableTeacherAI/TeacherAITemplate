@@ -2,7 +2,7 @@ import { type ReactElement } from "react";
 import { Section } from "@/components/templates";
 import { twoJsAnimationsDemo } from "./sections/twoJsAnimationsDemo";
 import { threeJsAnimationsDemo } from "./sections/threeJsAnimationsDemo";
-import { exampleDesmosInteractive } from "@/examples/sections-examples";
+import { exampleDesmosInteractive, exampleEquationColoring, exampleSchrodingerEquation, exampleInlineEquation } from "@/examples/sections-examples";
 
 
 // Import layout components
@@ -132,6 +132,13 @@ export const sections: ReactElement[] = [
     // THREE.JS ANIMATIONS DEMO
     // ========================================
     ...threeJsAnimationsDemo,
+
+    // ========================================
+    // EQUATION COLORING DEMO
+    // ========================================
+    exampleEquationColoring,
+    exampleSchrodingerEquation,
+    exampleInlineEquation,
 
 ];
 

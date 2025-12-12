@@ -65,3 +65,12 @@ export { CoordinateSystem } from "./CoordinateSystem";
 export { ThreeCanvas } from "./ThreeCanvas";
 export { ThreeCoordinateSystem } from "./ThreeCoordinateSystem";
 export * from "./ThreeVisuals";
+
+// Colored Equation Components
+export { Equation } from "./Equation";
+export {
+    ColoredEquationProvider,
+    ColoredEquation,
+    HighlightedTerm,
+    TermReveal
+} from "./ColoredEquation";

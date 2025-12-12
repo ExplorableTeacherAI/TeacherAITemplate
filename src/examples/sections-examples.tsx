@@ -14,7 +14,13 @@ import {
     DesmosGraph,
     GeoGebraGraph
 } from "@/components/organisms";
-import { Spacer } from "@/components/atoms";
+import {
+    Spacer,
+    ColoredEquationProvider,
+    ColoredEquation,
+    HighlightedTerm,
+    TermReveal
+} from "@/components/atoms";
 
 
 /**
@@ -586,6 +592,130 @@ export const exampleInteractiveLDALesson = () => {
         </FullWidthLayout>
     );
 };
+
+// Example 11: Einstein's Mass-Energy Equivalence with Inline Paragraph
+export const exampleEquationColoring = (
+    <FullWidthLayout key="example-equation-coloring" maxWidth="xl">
+        <Section id="example-equation-coloring">
+            <Heading level={2}>Einstein's Mass-Energy Equivalence</Heading>
+            <Spacer height={16} />
+
+            <ColoredEquationProvider
+                colorMap={{
+                    energy: "#e11d48",  // red
+                    mass: "#2563eb",    // blue
+                    light: "#d97706"    // amber
+                }}
+            >
+                <div className="text-lg leading-relaxed space-y-4">
+                    <p>
+                        Perhaps the most famous equation in physics:
+                    </p>
+
+                    <div className="flex justify-center py-4">
+                        <ColoredEquation
+                            latex="\clr{energy}{E} = \clr{mass}{m} \clr{light}{c}^2"
+                            className="text-4xl md:text-5xl"
+                        />
+                    </div>
+
+                    <p>
+                        This equation tells us that <HighlightedTerm name="energy">energy (E)</HighlightedTerm> and <HighlightedTerm name="mass">mass (m)</HighlightedTerm> are
+                        interchangeable — they are different forms of the same thing. The <HighlightedTerm name="light">speed of light (c)</HighlightedTerm>,
+                        approximately 300 million meters per second, acts as the conversion factor.
+                    </p>
+
+                    <p>
+                        Because <HighlightedTerm name="light">c²</HighlightedTerm> is such an enormous number, even a tiny amount of <HighlightedTerm name="mass">mass</HighlightedTerm> contains
+                        a tremendous amount of <HighlightedTerm name="energy">energy</HighlightedTerm>. This is the principle behind both nuclear power and nuclear weapons.
+                    </p>
+                </div>
+            </ColoredEquationProvider>
+        </Section>
+    </FullWidthLayout>
+);
+
+// Example 12: Schrödinger Equation with Inline Paragraph
+export const exampleSchrodingerEquation = (
+    <FullWidthLayout key="example-schrodinger" maxWidth="xl">
+        <Section id="example-schrodinger">
+            <Heading level={2}>The Schrödinger Equation</Heading>
+            <Spacer height={16} />
+
+            <ColoredEquationProvider
+                colorMap={{
+                    h: "#8b5cf6",    // violet
+                    Psi: "#ec4899",  // pink
+                    m: "#f59e0b",    // amber
+                    V: "#10b981",    // emerald
+                    r: "#3b82f6"     // blue
+                }}
+            >
+                <div className="text-lg leading-relaxed space-y-4">
+                    <p>
+                        The time-dependent Schrödinger equation describes how quantum systems evolve:
+                    </p>
+
+                    <div className="flex justify-center py-4">
+                        <ColoredEquation
+                            latex="i \clr{h}{\hbar} \frac{\partial}{\partial t} \clr{Psi}{\Psi}(\clr{r}{\mathbf{r}},t) = \left[ \frac{-\clr{h}{\hbar}^2}{2\clr{m}{m}} \nabla^2 + \clr{V}{V}(\clr{r}{\mathbf{r}},t) \right] \clr{Psi}{\Psi}(\clr{r}{\mathbf{r}},t)"
+                            className="text-xl md:text-2xl"
+                        />
+                    </div>
+
+                    <p>
+                        In this equation, <HighlightedTerm name="Psi">Ψ (Psi) is the wave function</HighlightedTerm> that describes
+                        the quantum state of a particle at position <HighlightedTerm name="r">r</HighlightedTerm> and time t.
+                        The <HighlightedTerm name="h">reduced Planck constant ℏ</HighlightedTerm> (pronounced "h-bar") sets the
+                        fundamental scale of quantum mechanics.
+                    </p>
+
+                    <p>
+                        The equation balances kinetic and potential energy: the term with <HighlightedTerm name="m">mass m</HighlightedTerm> in
+                        the denominator relates to kinetic energy via the Laplacian operator ∇², while <HighlightedTerm name="V">V</HighlightedTerm> represents
+                        the potential energy that the particle experiences from its environment.
+                    </p>
+                </div>
+
+            </ColoredEquationProvider>
+        </Section>
+    </FullWidthLayout>
+);
+
+// Example 13: Inline Equation with Paragraph Explanations
+export const exampleInlineEquation = (
+    <FullWidthLayout key="example-inline-equation" maxWidth="xl">
+        <Section id="example-inline-equation">
+            <Heading level={2}>Inline Equation Explanations</Heading>
+            <Spacer height={16} />
+
+            <ColoredEquationProvider
+                colorMap={{
+                    F: "#ef4444",  // red
+                    m: "#3b82f6",  // blue  
+                    a: "#22c55e"   // green
+                }}
+            >
+                <div className="text-lg leading-relaxed space-y-4">
+                    <p>
+                        Newton's Second Law is expressed as{' '}
+                        <ColoredEquation latex="\clr{F}{F} = \clr{m}{m} \clr{a}{a}" />
+                        {' '}where <HighlightedTerm name="F">F represents the net force</HighlightedTerm> applied to an object,{' '}
+                        <HighlightedTerm name="m">m is the object's mass</HighlightedTerm>, and{' '}
+                        <HighlightedTerm name="a">a is the resulting acceleration</HighlightedTerm>.
+                    </p>
+
+                    <p>
+                        This relationship is fundamental because it shows that{' '}
+                        <TermReveal terms="F">force is what causes an object to accelerate</TermReveal>{' '}
+                        <TermReveal terms="m">— and the same force produces less acceleration on more massive objects</TermReveal>{' '}
+                        <TermReveal terms="a">— meaning acceleration is inversely proportional to mass for a given force</TermReveal>.
+                    </p>
+                </div>
+            </ColoredEquationProvider>
+        </Section>
+    </FullWidthLayout>
+);
 
 /**
  * Usage in sections.tsx:
