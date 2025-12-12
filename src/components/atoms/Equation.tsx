@@ -38,7 +38,7 @@ export const Equation: React.FC<EquationProps> = ({
     onTermClick,
     className = '',
 }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLSpanElement>(null);
 
     // Pre-process the latex to replace \clr{term}{content} with colored spans
     const processedLatex = useMemo(() => {
@@ -161,9 +161,9 @@ export const Equation: React.FC<EquationProps> = ({
     }, [onTermClick, findTermElement, getTermFromElement]);
 
     return (
-        <div
+        <span
             ref={containerRef}
-            className={cn("equation-display", className)}
+            className={cn("equation-display inline-block", className)}
             onMouseOver={handleMouseOver}
             onMouseOut={handleMouseOut}
             onClick={handleClick}

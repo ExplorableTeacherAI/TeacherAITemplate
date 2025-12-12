@@ -1,8 +1,14 @@
-import { type ReactElement } from "react";
+import React, { type ReactElement } from "react";
 import { Section } from "@/components/templates";
 import { twoJsAnimationsDemo } from "./sections/twoJsAnimationsDemo";
 import { threeJsAnimationsDemo } from "./sections/threeJsAnimationsDemo";
-import { exampleDesmosInteractive, exampleEquationColoring, exampleSchrodingerEquation, exampleInlineEquation } from "@/examples/sections-examples";
+import {
+    exampleDesmosInteractive,
+    exampleEquationColoring,
+    exampleSchrodingerEquation,
+    exampleInlineEquation,
+    exampleUnifiedHighlight
+} from "@/examples/sections-examples";
 
 
 // Import layout components
@@ -139,6 +145,11 @@ export const sections: ReactElement[] = [
     exampleEquationColoring,
     exampleSchrodingerEquation,
     exampleInlineEquation,
+
+    // ========================================
+    // UNIFIED HIGHLIGHT SYSTEM DEMO
+    // ========================================
+    React.createElement(exampleUnifiedHighlight, { key: "unified-highlight" }),
 
 ];
 

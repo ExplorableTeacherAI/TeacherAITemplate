@@ -74,3 +74,25 @@ export {
     HighlightedTerm,
     TermReveal
 } from "./ColoredEquation";
+
+// React Flow Components
+export { FlowDiagram } from "./FlowDiagram";
+export type { FlowNode, FlowEdge, FlowDiagramProps } from "./FlowDiagram";
+export { ExpandableFlowDiagram } from "./ExpandableFlowDiagram";
+export type { TreeNode, TreeEdge, ExpandableFlowDiagramProps } from "./ExpandableFlowDiagram";
+
+// Interactive Highlight Components (unified bidirectional highlighting system)
+export {
+    InteractiveHighlightProvider,
+    InteractiveText,
+    useInteractiveHighlight,
+    useActiveHighlight,
+    useSetActiveHighlight,
+    useHighlightState
+} from "./InteractiveHighlight";
+export type {
+    HighlightStyle,
+    InteractiveHighlightContextValue,
+    InteractiveHighlightProviderProps,
+    InteractiveTextProps
+} from "./InteractiveHighlight";
