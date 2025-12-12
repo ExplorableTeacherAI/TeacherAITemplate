@@ -53,6 +53,7 @@ export { InfoTooltip } from "./InfoTooltip";
 export { InlineDropdown } from "./InlineDropdown";
 export { InlineTextInput } from "./InlineTextInput";
 export { InlineStepper } from "./InlineStepper";
+export { AnnotationOverlay } from "./AnnotationOverlay";
 
 // Two.js Animation Components
 export { AnimatedBackground } from "./AnimatedBackground";

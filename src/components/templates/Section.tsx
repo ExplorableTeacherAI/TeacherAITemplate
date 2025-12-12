@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useRef, useEffect } from "react";
 import { Button } from "@/components/atoms/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/ui/tooltip";
 import {
@@ -7,7 +7,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/atoms/ui/dropdown-menu";
-import { GripVertical, Plus, Send } from "lucide-react";
+import { GripVertical, Plus, Send, Pencil } from "lucide-react";
+import { AnnotationOverlay } from "@/components/atoms/AnnotationOverlay";
 
 export interface SectionProps {
     /** Unique identifier for the section */
@@ -36,6 +37,9 @@ export const Section = ({
     isPreview = false,
     onEditSection
 }: SectionProps) => {
+    const [isAnnotating, setIsAnnotating] = useState(false);
+    const sectionRef = useRef<HTMLElement>(null);
+
     const paddingClasses = {
         none: "",
         sm: "py-2",
@@ -43,93 +47,158 @@ export const Section = ({
         lg: "py-6"
     };
 
-    return (
-        <section
-            id={id}
-            className={`w-full group flex gap-3 pr-3 ${paddingClasses[padding]} ${className} ${!isPreview ? 'hover:ring-1 hover:ring-primary/20 rounded-lg transition-all' : ''}`}
-            data-section-id={id}
-        >
-            {/* Hover controls - hidden in preview mode */}
-            {!isPreview && (
-                <div className="flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity pt-1">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => {
-                                    console.log("Add section clicked (not implemented in code mode)");
-                                }}
-                            >
-                                <Plus className="h-4 w-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                            <div>
-                                <span className="font-semibold">Click</span> to add below
-                            </div>
-                        </TooltipContent>
-                    </Tooltip>
+    // Listen for events to close this overlay when another one opens
+    useEffect(() => {
+        const handleCloseAnnotation = (e: CustomEvent) => {
+            // Close if another section opened an annotation overlay
+            if (e.detail.sectionId !== id && isAnnotating) {
+                setIsAnnotating(false);
+            }
+        };
 
-                    <DropdownMenu>
+        window.addEventListener('annotation-overlay-opened' as any, handleCloseAnnotation);
+        return () => {
+            window.removeEventListener('annotation-overlay-opened' as any, handleCloseAnnotation);
+        };
+    }, [id, isAnnotating]);
+
+    const handleStartAnnotation = () => {
+        // Dispatch event to close any other open annotation overlays
+        window.dispatchEvent(new CustomEvent('annotation-overlay-opened', {
+            detail: { sectionId: id }
+        }));
+        setIsAnnotating(true);
+    };
+
+    const handleCancelAnnotation = () => {
+        setIsAnnotating(false);
+    };
+
+    const handleSendAnnotation = (imageDataUrl: string) => {
+        setIsAnnotating(false);
+
+        if (id) {
+            // Send message to parent window with annotated image
+            window.parent.postMessage({
+                type: 'add-annotation-to-chat',
+                sectionId: id,
+                imageDataUrl: imageDataUrl,
+            }, '*');
+
+            // Also call the callback if provided
+            if (onEditSection) {
+                onEditSection(`Annotated Section ${id}: [Image attached]`);
+            }
+        }
+    };
+
+    return (
+        <>
+            {/* Annotation Overlay */}
+            {isAnnotating && sectionRef.current && (
+                <AnnotationOverlay
+                    targetElement={sectionRef.current}
+                    onSend={handleSendAnnotation}
+                    onCancel={handleCancelAnnotation}
+                    sectionId={id}
+                />
+            )}
+
+            <section
+                ref={sectionRef}
+                id={id}
+                className={`w-full group flex gap-3 pr-3 ${paddingClasses[padding]} ${className} ${!isPreview ? 'hover:ring-1 rounded-lg transition-all' : ''}`}
+                style={!isPreview ? { '--tw-ring-color': '#D4EDE5' } as React.CSSProperties : undefined}
+                data-section-id={id}
+            >
+                {/* Hover controls - hidden in preview mode */}
+                {!isPreview && (
+                    <div className="flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity pt-1">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7 cursor-grab active:cursor-grabbing"
-                                    >
-                                        <GripVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 hover:bg-[#D4EDE5] hover:text-[#0D7377]"
+                                    onClick={() => {
+                                        console.log("Add section clicked (not implemented in code mode)");
+                                    }}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </Button>
                             </TooltipTrigger>
                             <TooltipContent side="bottom">
                                 <div>
-                                    <span className="font-semibold">Drag</span> to move
-                                    <br />
-                                    <span className="font-semibold">Click</span> to open menu
+                                    <span className="font-semibold">Click</span> to add below
                                 </div>
                             </TooltipContent>
                         </Tooltip>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem
-                                className="text"
-                                onClick={() => {
-                                    if (id) {
-                                        // Send message to parent window with section context
-                                        window.parent.postMessage({
-                                            type: 'add-to-chat',
-                                            sectionId: id,
-                                        }, '*');
 
-                                        // Also call the callback if provided (for backwards compatibility)
-                                        if (onEditSection) {
-                                            onEditSection(`Context: Section ${id}`);
+                        <DropdownMenu>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 cursor-grab active:cursor-grabbing hover:bg-[#D4EDE5] hover:text-[#0D7377]"
+                                        >
+                                            <GripVertical className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                    <div>
+                                        <span className="font-semibold">Drag</span> to move
+                                        <br />
+                                        <span className="font-semibold">Click</span> to open menu
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip>
+                            <DropdownMenuContent align="start">
+                                <DropdownMenuItem
+                                    className="text"
+                                    onClick={() => {
+                                        if (id) {
+                                            // Send message to parent window with section context
+                                            window.parent.postMessage({
+                                                type: 'add-to-chat',
+                                                sectionId: id,
+                                            }, '*');
+
+                                            // Also call the callback if provided (for backwards compatibility)
+                                            if (onEditSection) {
+                                                onEditSection(`Context: Section ${id}`);
+                                            }
                                         }
-                                    }
-                                }}
-                            >
-                                <Send className="mr-2 h-4 w-4" />
-                                Add to chat
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                className="text-destructive"
-                                onClick={() => {
-                                    console.log("Delete section clicked (not implemented in code mode)");
-                                }}
-                            >
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            )}
+                                    }}
+                                >
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Add to chat
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={handleStartAnnotation}
+                                >
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Annotate
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="text-destructive"
+                                    onClick={() => {
+                                        console.log("Delete section clicked (not implemented in code mode)");
+                                    }}
+                                >
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                )}
 
-            <div className="flex-1 min-w-0">
-                {children}
-            </div>
-        </section>
+                <div className="flex-1 min-w-0">
+                    {children}
+                </div>
+            </section>
+        </>
     );
 };
