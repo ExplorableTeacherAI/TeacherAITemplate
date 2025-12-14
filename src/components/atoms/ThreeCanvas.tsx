@@ -23,7 +23,7 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({
 }) => {
     return (
         <div style={{ height, width: '100%', borderRadius: '0.5rem', overflow: 'hidden' }} className={className}>
-            <Canvas shadows dpr={[1, 2]}>
+            <Canvas shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true }}>
                 <PerspectiveCamera makeDefault position={cameraPosition} fov={50} />
                 <Suspense fallback={null}>
                     <ambientLight intensity={0.5} />

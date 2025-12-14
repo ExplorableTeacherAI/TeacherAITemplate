@@ -347,11 +347,55 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
             // Wait for re-render
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            // Capture the target element
+            // Pre-capture all WebGL canvases (Three.js, etc.) before html2canvas runs
+            // We'll temporarily replace them with img elements since html2canvas can't capture WebGL
+            const webglCanvases = targetElement.querySelectorAll('canvas');
+            const replacements: { canvas: HTMLCanvasElement; img: HTMLImageElement; parent: Node }[] = [];
+
+            webglCanvases.forEach((canvas) => {
+                try {
+                    // Capture the canvas content as data URL
+                    const dataUrl = canvas.toDataURL('image/png');
+
+                    // Create an img element with the same dimensions
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.style.width = canvas.style.width || `${canvas.width}px`;
+                    img.style.height = canvas.style.height || `${canvas.height}px`;
+                    img.style.display = 'block';
+                    // Copy computed styles for positioning
+                    const computedStyle = window.getComputedStyle(canvas);
+                    img.style.borderRadius = computedStyle.borderRadius;
+
+                    // Store for restoration
+                    const parent = canvas.parentNode;
+                    if (parent) {
+                        replacements.push({ canvas, img, parent });
+                        // Replace canvas with img
+                        parent.replaceChild(img, canvas);
+                    }
+                } catch (e) {
+                    console.warn('Could not capture canvas:', e);
+                }
+            });
+
+            // Small delay to ensure DOM updates
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            // Capture the target element - now canvases are replaced with images
             const elementCanvas = await html2canvas(targetElement, {
                 useCORS: true,
                 logging: false,
                 backgroundColor: null,
+            });
+
+            // Restore the original canvases
+            replacements.forEach(({ canvas, img, parent }) => {
+                try {
+                    parent.replaceChild(canvas, img);
+                } catch (e) {
+                    console.warn('Could not restore canvas:', e);
+                }
             });
 
             // Get the annotation layer as image
