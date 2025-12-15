@@ -37,15 +37,11 @@ import {
  * Vite will watch this file for changes and hot-reload automatically.
  */
 
-export const sectionsMetadata = {
-    version: "2.0",
-    title: "TeacherAI Sections - Component Based with Layouts",
-    description: "Configurable sections using React components with flexible layout system.",
-};
-
-export const sections: ReactElement[] = [
 
 
+const showExamples = import.meta.env.VITE_SHOW_EXAMPLES === 'true';
+
+const exampleSections: ReactElement[] = [
     // ========================================
     // SPLIT LAYOUT DEMO (50/50)
     // ========================================
@@ -122,8 +118,6 @@ export const sections: ReactElement[] = [
         </Main>
     </SidebarLayout>,
 
-
-
     // ========================================
     // DESMOS INTERACTIVE EXAMPLE
     // ========================================
@@ -150,9 +144,6 @@ export const sections: ReactElement[] = [
     // UNIFIED HIGHLIGHT SYSTEM DEMO
     // ========================================
     React.createElement(exampleUnifiedHighlight, { key: "unified-highlight" }),
-
 ];
 
-
-
-
+export const sections: ReactElement[] = showExamples ? exampleSections : [];

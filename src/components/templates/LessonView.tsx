@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactElement } from "react";
+import { WelcomeScreen } from "./WelcomeScreen";
 import { Card } from "@/components/atoms/ui/card";
 import SectionRenderer from "./SectionRenderer";
 import { loadSections, createSectionsWatcher } from "@/lib/section-loader";
@@ -58,12 +59,7 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center h-full text-foreground">
-            <div className="text-center">
-              <p className="text-lg mb-2">📚 Lesson View</p>
-              <p className="text-sm">Start by editing sections.tsx</p>
-            </div>
-          </div>
+          <WelcomeScreen />
         )}
       </Card>
     </div>
