@@ -1,149 +1,69 @@
-import React, { type ReactElement } from "react";
-import { Section } from "@/components/templates";
-import { twoJsAnimationsDemo } from "./sections/twoJsAnimationsDemo";
-import { threeJsAnimationsDemo } from "./sections/threeJsAnimationsDemo";
-import {
-    exampleDesmosInteractive,
-    exampleEquationColoring,
-    exampleSchrodingerEquation,
-    exampleInlineEquation,
-    exampleUnifiedHighlight
-} from "@/examples/sections-examples";
-
-
-// Import layout components
-import { FullWidthLayout, SplitLayout, GridLayout, SidebarLayout, Sidebar, Main } from "@/components/layouts";
-
-// Import layout demo sections
-import {
-    splitDemoLeftSection,
-    splitDemoRightSection,
-    gridDemoSection1,
-    gridDemoSection2,
-    gridDemoSection3,
-    sidebarDemoSidebarSection,
-    sidebarDemoMainSection,
-
-} from "./sections/layoutsDemo";
+import { type ReactElement } from "react";
+// import { Section } from "@/components/templates";
+// import { FullWidthLayout, SplitLayout, GridLayout, SidebarLayout, Sidebar, Main } from "@/components/layouts";
 
 /**
- * Sections configuration for the canvas.
- * This file uses React components instead of JSON for better type safety,
- * composition, and developer experience.
+ * ------------------------------------------------------------------
+ * SECTION CONFIGURATION
+ * ------------------------------------------------------------------
+ * This file is the entry point for your lesson content.
  * 
- * NOW WITH LAYOUT SYSTEM: Sections can be wrapped in layout components
- * to control how they are arranged on the page.
+ * INSTRUCTIONS:
+ * 1. Create your content using the <Section> component.
+ * 2. Use Layout components to organize your sections.
+ * 3. Add your sections to the `sections` array below.
  * 
- * Vite will watch this file for changes and hot-reload automatically.
+ * AVAILABLE LAYOUTS:
+ * 
+ * 1. FullWidthLayout
+ *    - Best for: Title headers, introductory text, broad visualizations.
+ *    - Usage:
+ *      <FullWidthLayout maxWidth="xl">
+ *          <Section id="intro">...</Section>
+ *      </FullWidthLayout>
+ * 
+ * 2. SplitLayout
+ *    - Best for: Side-by-side content (e.g., Text + Visualization).
+ *    - Usage:
+ *      <SplitLayout ratio="1:1" gap="lg">
+ *          <Section id="left">...</Section>
+ *          <Section id="right">...</Section>
+ *      </SplitLayout>
+ * 
+ * 3. GridLayout
+ *    - Best for: Multiple equal-sized items (cards, galleries).
+ *    - Usage:
+ *      <GridLayout columns={3} gap="md">
+ *          <Section id="item-1">...</Section>
+ *          <Section id="item-2">...</Section>
+ *          <Section id="item-3">...</Section>
+ *      </GridLayout>
+ * 
+ * 4. SidebarLayout
+ *    - Best for: Main content with a sticky sidebar (glossary, controls).
+ *    - Usage:
+ *      <SidebarLayout sidebarPosition="left" sidebarWidth="medium">
+ *          <Sidebar><Section id="sidebar">...</Section></Sidebar>
+ *          <Main><Section id="main">...</Section></Main>
+ *      </SidebarLayout>
+ * 
+ * EXAMPLES:
+ * See `src/data/exampleSections.tsx` for comprehensive examples.
+ * 
+ * NOTE: If you are seeing examples in the browser instead of this content,
+ * check your .env file and set VITE_SHOW_EXAMPLES=false.
  */
 
+export const sections: ReactElement[] = [
+    // Start adding your sections here!
 
-
-const showExamples = import.meta.env.VITE_SHOW_EXAMPLES === 'true';
-
-const exampleSections: ReactElement[] = [
-    // ========================================
-    // SPLIT LAYOUT DEMO (50/50)
-    // ========================================
-    <FullWidthLayout key="split-layout-header" maxWidth="xl">
-        <Section id="split-layout-header">
-            <div className="mb-4">
-                <h2 className="text-3xl font-bold mb-2">Split Layout Example</h2>
-                <p className="text-muted-foreground">
-                    Perfect for pairing explanations with visualizations. Content on the left, interactive demo on the right.
-                </p>
-            </div>
+    // Example:
+    /*
+    <FullWidthLayout key="welcome" maxWidth="xl">
+        <Section id="welcome-message">
+            <h1 className="text-4xl font-bold">Welcome to MathVibe</h1>
+            <p className="mt-4 text-xl text-muted-foreground">Start building your interactive lesson.</p>
         </Section>
-    </FullWidthLayout>,
-
-    <SplitLayout key="split-demo" ratio="1:1" gap="lg">
-        <Section id="split-demo-left">
-            {splitDemoLeftSection.content}
-        </Section>
-        <Section id="split-demo-right">
-            {splitDemoRightSection.content}
-        </Section>
-    </SplitLayout>,
-
-    // ========================================
-    // GRID LAYOUT DEMO (3 columns)
-    // ========================================
-    <FullWidthLayout key="grid-layout-header" maxWidth="xl">
-        <Section id="grid-layout-header">
-            <div className="mt-12 mb-4">
-                <h2 className="text-3xl font-bold mb-2">Grid Layout Example</h2>
-                <p className="text-muted-foreground">
-                    Great for showcasing multiple examples or concepts side by side. Automatically responsive.
-                </p>
-            </div>
-        </Section>
-    </FullWidthLayout>,
-
-    <GridLayout key="grid-demo" columns={3} gap="md">
-        <Section id="grid-demo-1">
-            {gridDemoSection1.content}
-        </Section>
-        <Section id="grid-demo-2">
-            {gridDemoSection2.content}
-        </Section>
-        <Section id="grid-demo-3">
-            {gridDemoSection3.content}
-        </Section>
-    </GridLayout>,
-
-    // ========================================
-    // SIDEBAR LAYOUT DEMO
-    // ========================================
-    <FullWidthLayout key="sidebar-layout-header" maxWidth="xl">
-        <Section id="sidebar-layout-header">
-            <div className="mt-12 mb-4">
-                <h2 className="text-3xl font-bold mb-2">Sidebar Layout Example</h2>
-                <p className="text-muted-foreground">
-                    Useful for persistent context like glossaries or navigation. Sidebar sticks while scrolling.
-                </p>
-            </div>
-        </Section>
-    </FullWidthLayout>,
-
-    <SidebarLayout key="sidebar-demo" sidebarPosition="left" sidebarWidth="medium" gap="lg">
-        <Sidebar>
-            <Section id="sidebar-demo-sidebar">
-                {sidebarDemoSidebarSection.content}
-            </Section>
-        </Sidebar>
-        <Main>
-            <Section id="sidebar-demo-main">
-                {sidebarDemoMainSection.content}
-            </Section>
-        </Main>
-    </SidebarLayout>,
-
-    // ========================================
-    // DESMOS INTERACTIVE EXAMPLE
-    // ========================================
-    exampleDesmosInteractive,
-
-    // ========================================
-    // TWO.JS ANIMATIONS DEMO
-    // ========================================
-    ...twoJsAnimationsDemo,
-
-    // ========================================
-    // THREE.JS ANIMATIONS DEMO
-    // ========================================
-    ...threeJsAnimationsDemo,
-
-    // ========================================
-    // EQUATION COLORING DEMO
-    // ========================================
-    exampleEquationColoring,
-    exampleSchrodingerEquation,
-    exampleInlineEquation,
-
-    // ========================================
-    // UNIFIED HIGHLIGHT SYSTEM DEMO
-    // ========================================
-    React.createElement(exampleUnifiedHighlight, { key: "unified-highlight" }),
+    </FullWidthLayout>
+    */
 ];
-
-export const sections: ReactElement[] = showExamples ? exampleSections : [];

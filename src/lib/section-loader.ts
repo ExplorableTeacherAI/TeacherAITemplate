@@ -34,6 +34,13 @@ export type SectionLoaderConfig = {
  */
 async function loadSectionsFromModule(): Promise<ReactElement[]> {
   try {
+    // If VITE_SHOW_EXAMPLES is true, load from exampleSections
+    if (import.meta.env.VITE_SHOW_EXAMPLES === 'true') {
+      const module = await import("@/data/exampleSections");
+      const sections = module.exampleSections || [];
+      return Array.isArray(sections) ? sections : [];
+    }
+
     // Dynamic import to allow Vite HMR to work properly
     const module = await import("@/data/sections");
     const sections = module.sections || [];
@@ -82,11 +89,19 @@ export function createSectionsWatcher(
   // For module strategy, Vite HMR handles updates automatically
   // We set up HMR accept for the sections module
   if (strategy === 'module' && import.meta.hot) {
-    import.meta.hot.accept('@/data/sections', (newModule) => {
-      if (newModule?.sections) {
-        onUpdate(newModule.sections);
-      }
-    });
+    if (import.meta.env.VITE_SHOW_EXAMPLES === 'true') {
+      import.meta.hot.accept('@/data/exampleSections', (newModule) => {
+        if (newModule?.exampleSections) {
+          onUpdate(newModule.exampleSections);
+        }
+      });
+    } else {
+      import.meta.hot.accept('@/data/sections', (newModule) => {
+        if (newModule?.sections) {
+          onUpdate(newModule.sections);
+        }
+      });
+    }
 
     return () => {
       // Vite handles cleanup
