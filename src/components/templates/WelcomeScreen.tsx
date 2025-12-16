@@ -22,8 +22,8 @@ export const WelcomeScreen = () => {
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#0f172a] mb-6 text-center tracking-tight">
-                Start Building Your <span className="text-[#1A7F75]">Explorable</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#a4a5a3] mb-6 text-center tracking-tight">
+                Start Building Your <span className="text-[#1fa598]">Explorable</span>
             </h1>
 
             {/* Subheading */}
@@ -37,7 +37,7 @@ export const WelcomeScreen = () => {
                 <Button
                     onClick={handleFocusChat}
                     size="lg"
-                    className="bg-[#115e59] hover:bg-[#0f766e] text-white px-8 py-7 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+                    className="bg-[#1fa598] hover:bg-[#1fbcac] text-white px-8 py-7 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
                 >
                     <MessageSquare className="w-5 h-5 mr-3" />
                     Start Chatting
