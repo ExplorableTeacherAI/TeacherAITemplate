@@ -1,6 +1,29 @@
+@import "mafs/core.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Mafs Light Mode Theme - Override default dark theme */
+.MafsView {
+  --mafs-bg: white;
+  --mafs-fg: #1a1a1a;
+
+  --mafs-origin-color: var(--mafs-fg);
+  --mafs-line-color: #bbb;
+  --mafs-line-stroke-dash-style: 4, 3;
+  --mafs-axis-stroke-width: 1px;
+  --grid-line-subdivision-color: #ddd;
+
+  /* Keep the same vibrant colors for plots */
+  --mafs-red: #dc2626;
+  --mafs-orange: #ea580c;
+  --mafs-yellow: #ca8a04;
+  --mafs-green: #16a34a;
+  --mafs-blue: #2563eb;
+  --mafs-indigo: #4f46e5;
+  --mafs-violet: #7c3aed;
+  --mafs-pink: #db2777;
+}
 
 /* Fix Excalidraw spacing issues */
 .excalidraw {

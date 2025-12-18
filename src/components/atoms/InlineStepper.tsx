@@ -3,7 +3,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface InlineStepperProps {
-    /** Initial value */
+    /** Controlled value (if provided, component is controlled) */
+    value?: number;
+    /** Initial value (for uncontrolled mode) */
     initialValue?: number;
     /** Minimum value (default: 0) */
     min?: number;
@@ -17,6 +19,8 @@ interface InlineStepperProps {
     bgColor?: string;
     /** Optional callback when value changes */
     onChange?: (value: number) => void;
+    /** Format the displayed value (e.g., to show decimals) */
+    formatValue?: (value: number) => string;
 }
 
 /**
@@ -25,12 +29,16 @@ interface InlineStepperProps {
  * An interactive number stepper that can be embedded inline within paragraphs.
  * Users can click arrows, drag, or use keyboard to change the value.
  * 
+ * Supports both controlled and uncontrolled modes:
+ * - Controlled: Pass `value` and `onChange` props
+ * - Uncontrolled: Pass `initialValue` prop
+ * 
  * - Click left/right arrows to decrement/increment
  * - Click and drag on the number to change value
  * - Hover to see progress bar
  * - Use arrow keys when focused
  * 
- * @example
+ * @example Uncontrolled mode
  * ```tsx
  * <p>
  *   If we increase the number of wedges to{" "}
@@ -39,13 +47,29 @@ interface InlineStepperProps {
  *     min={1}
  *     max={20}
  *     color="#D81B60"
- *     bgColor="rgba(216, 27, 96, 0.9)"
  *   />{" "}
  *   this shape gets closer to a circle.
  * </p>
  * ```
+ * 
+ * @example Controlled mode
+ * ```tsx
+ * const [value, setValue] = useState(2);
+ * <p>
+ *   The amplitude is{" "}
+ *   <InlineStepper 
+ *     value={value}
+ *     onChange={setValue}
+ *     min={0.1}
+ *     max={4}
+ *     step={0.1}
+ *     formatValue={(v) => v.toFixed(2)}
+ *   />.
+ * </p>
+ * ```
  */
 export const InlineStepper: React.FC<InlineStepperProps> = ({
+    value: controlledValue,
     initialValue = 10,
     min = 0,
     max = 100,
@@ -53,17 +77,24 @@ export const InlineStepper: React.FC<InlineStepperProps> = ({
     color = "#D81B60", // Default pink/magenta
     bgColor = "rgba(216, 27, 96, 0.9)", // Semi-transparent pink
     onChange,
+    formatValue,
 }) => {
-    const [value, setValue] = useState(initialValue);
+    const [internalValue, setInternalValue] = useState(controlledValue ?? initialValue);
     const [isDragging, setIsDragging] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const dragStartX = useRef(0);
     const dragStartValue = useRef(0);
     const containerRef = useRef<HTMLSpanElement>(null);
 
+    // Determine if controlled mode
+    const isControlled = controlledValue !== undefined;
+    const value = isControlled ? controlledValue : internalValue;
+
     const updateValue = (newValue: number) => {
         const clampedValue = Math.max(min, Math.min(max, newValue));
-        setValue(clampedValue);
+        if (!isControlled) {
+            setInternalValue(clampedValue);
+        }
         onChange?.(clampedValue);
     };
 
@@ -182,7 +213,7 @@ export const InlineStepper: React.FC<InlineStepperProps> = ({
                         display: 'inline-block',
                     }}
                 >
-                    {value}
+                    {formatValue ? formatValue(value) : value}
                 </span>
 
                 {/* Increment button */}

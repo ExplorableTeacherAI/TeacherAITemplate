@@ -80,6 +80,12 @@ export {
 export { D3BarChart } from "./D3BarChart";
 export type { D3BarChartProps, DataPoint } from "./D3BarChart";
 
+// Mafs Components
+export { MafsBasic } from "./MafsBasic";
+export { MafsAnimated } from "./MafsAnimated";
+export { MafsInteractive } from "./MafsInteractive";
+export { MafsInteractiveDemo } from "./MafsInteractiveDemo";
+
 // React Flow Components
 export { FlowDiagram } from "./FlowDiagram";
 export type { FlowNode, FlowEdge, FlowDiagramProps } from "./FlowDiagram";

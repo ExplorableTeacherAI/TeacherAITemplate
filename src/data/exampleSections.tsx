@@ -3,6 +3,7 @@ import { Section } from "@/components/templates";
 import { twoJsAnimationsDemo } from "./sections/twoJsAnimationsDemo";
 import { threeJsAnimationsDemo } from "./sections/threeJsAnimationsDemo";
 import { d3Demo } from "./sections/d3Demo";
+import { mafsDemo } from "./sections/mafsDemo";
 import {
     exampleDesmosInteractive,
     exampleEquationColoring,
@@ -138,6 +139,11 @@ const exampleSections: ReactElement[] = [
     // D3.JS DEMO
     // ========================================
     ...d3Demo,
+
+    // ========================================
+    // MAFS DEMO
+    // ========================================
+    ...mafsDemo,
 
     // ========================================
     // EQUATION COLORING DEMO
