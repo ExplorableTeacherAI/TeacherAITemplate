@@ -3,7 +3,7 @@ import { Mafs, Coordinates, Plot } from "mafs";
 export function MafsBasic() {
     return (
         <div
-            className="w-full h-full overflow-hidden rounded-xl"
+            className="w-full overflow-hidden rounded-xl"
         >
             <Mafs height={400} viewBox={{ x: [-5, 5], y: [-5, 5] }}>
                 <Coordinates.Cartesian />

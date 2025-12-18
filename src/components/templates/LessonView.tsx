@@ -5,6 +5,7 @@ import SectionRenderer from "./SectionRenderer";
 import { loadSections, createSectionsWatcher } from "@/lib/section-loader";
 import sectionLoaderConfig from "@/config/sections-loader.config";
 import { useAppMode } from "@/contexts/AppModeContext";
+import { LoadingScreen } from "@/components/atoms/LoadingScreen";
 
 interface LessonViewProps {
   onEditSection?: (instruction: string) => void;
@@ -45,18 +46,17 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
     };
   }, []);
 
+  // Show loading screen at top level
+  if (loadingSections) {
+    return <LoadingScreen />;
+  }
+
   return (
     <div className="flex flex-col h-full glass">
-      <Card className="flex-1 overflow-hidden bg-white no-border">
-        {!loadingSections && initialSections.length > 0 ? (
+      <Card className="flex-1 overflow-hidden bg-white no-border relative">
+        {initialSections.length > 0 ? (
           <div className="relative w-full h-full">
             <SectionRenderer initialSections={initialSections} isPreview={isPreview} onEditSection={onEditSection} />
-          </div>
-        ) : loadingSections ? (
-          <div className="flex items-center justify-center h-full text-foreground">
-            <div className="text-center">
-              <p className="text-lg mb-2">⏳ Loading sections...</p>
-            </div>
           </div>
         ) : (
           <WelcomeScreen />

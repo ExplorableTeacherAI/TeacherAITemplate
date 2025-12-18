@@ -1,0 +1,181 @@
+.loading-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    z-index: 1;
+}
+
+.logo-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: logoFadeIn 0.5s ease-out;
+}
+
+.loading-logo {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    animation: logoScale 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 8px 30px rgba(252, 183, 179, 0.4));
+}
+
+@keyframes logoScale {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes logoFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Glow effect behind the logo */
+.logo-glow {
+    position: absolute;
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 1;
+    background: radial-gradient(circle,
+            rgba(252, 183, 179, 0.4) 0%,
+            rgba(252, 219, 188, 0.2) 40%,
+            transparent 70%);
+    border-radius: 50%;
+    animation: glowPulse 1s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes glowPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.3);
+        opacity: 0.3;
+    }
+}
+
+.loading-text-container {
+    text-align: center;
+}
+
+.loading-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: 0.05em;
+    animation: textFadeIn 0.8s ease-out 0.3s both;
+}
+
+.loading-dots {
+    display: inline-block;
+    width: 1.5em;
+    text-align: left;
+}
+
+@keyframes textFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animated progress bar */
+.loading-bar {
+    width: 200px;
+    height: 4px;
+    background: rgba(252, 183, 179, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    animation: barFadeIn 0.8s ease-out 0.5s both;
+}
+
+.loading-bar-progress {
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg,
+            #fcb7b3 0%,
+            #ec9851 50%,
+            #fcb7b3 100%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    animation: progressSlide 1.5s ease-in-out infinite, progressShimmer 2s linear infinite;
+}
+
+@keyframes progressSlide {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    50% {
+        transform: translateX(150%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes progressShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes barFadeIn {
+    from {
+        opacity: 0;
+        transform: scaleX(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}

@@ -74,7 +74,7 @@ export const SectionRenderer = ({ initialSections = [], isPreview = false, onEdi
     <div ref={containerRef} style={containerStyles} className="pointer-events-auto">
       <div
         ref={stackRef}
-        className="absolute top-0 left-0 right-0 z-30 flex flex-col gap-6 pt-8 px-8 md:px-16 lg:px-24"
+        className="min-h-full z-30 flex flex-col gap-6 pt-8 pb-16 px-8 md:px-16 lg:px-24"
         aria-label="Sections Stack"
       >
         <div className="max-w-5xl mx-auto w-full space-y-8">

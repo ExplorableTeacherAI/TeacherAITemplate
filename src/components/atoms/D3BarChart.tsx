@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 
 export interface DataPoint {
@@ -20,6 +20,12 @@ export const D3BarChart: React.FC<D3BarChartProps> = ({
     color = "hsl(var(--primary))"
 }) => {
     const svgRef = useRef<SVGSVGElement>(null);
+    const [tooltip, setTooltip] = useState<{ visible: boolean; x: number; y: number; content: string }>({
+        visible: false,
+        x: 0,
+        y: 0,
+        content: ''
+    });
 
     useEffect(() => {
         if (!svgRef.current) return;
@@ -92,49 +98,54 @@ export const D3BarChart: React.FC<D3BarChartProps> = ({
             .attr("y", d => y(d.value))
             .attr("height", d => chartHeight - y(d.value));
 
-        // Hover effects
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "absolute z-50 px-2 py-1 text-sm text-white bg-black rounded shadow opacity-0 pointer-events-none transition-opacity duration-200")
-            .style("opacity", 0);
-
+        // Hover effects using React state for tooltip
         g.selectAll(".bar")
-            .on("mouseenter", function (_event, d: DataPoint) {
+            .on("mouseenter", function (event, d: DataPoint) {
                 d3.select(this)
                     .transition().duration(200)
                     .attr("fill", "hsl(var(--primary) / 0.8)");
 
-                tooltip.transition().duration(200).style("opacity", 0.9);
-                tooltip.html(`${d.label}: <b>${d.value}</b>`)
-                    .style("left", (_event.pageX + 10) + "px")
-                    .style("top", (_event.pageY - 28) + "px");
+                setTooltip({
+                    visible: true,
+                    x: event.pageX + 10,
+                    y: event.pageY - 28,
+                    content: `${d.label}: <b>${d.value}</b>`
+                });
             })
             .on("mousemove", function (event) {
-                tooltip
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 28) + "px");
+                setTooltip(prev => ({
+                    ...prev,
+                    x: event.pageX + 10,
+                    y: event.pageY - 28
+                }));
             })
             .on("mouseleave", function () {
                 d3.select(this)
                     .transition().duration(200)
                     .attr("fill", color);
-                tooltip.transition().duration(500).style("opacity", 0);
+                setTooltip(prev => ({ ...prev, visible: false }));
             });
-
-        // Cleanup
-        return () => {
-            tooltip.remove();
-        };
 
     }, [data, width, height, color]);
 
     return (
-        <div className="flex justify-center p-4">
+        <div className="flex justify-center p-4 relative">
             <svg
                 ref={svgRef}
                 width={width}
                 height={height}
                 className="overflow-visible"
                 viewBox={`0 0 ${width} ${height}`}
+            />
+            {/* React-managed tooltip - no DOM manipulation */}
+            <div
+                className="fixed z-50 px-2 py-1 text-sm text-white bg-black rounded shadow pointer-events-none transition-opacity duration-200"
+                style={{
+                    opacity: tooltip.visible ? 0.9 : 0,
+                    left: tooltip.x,
+                    top: tooltip.y,
+                }}
+                dangerouslySetInnerHTML={{ __html: tooltip.content }}
             />
         </div>
     );

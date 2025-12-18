@@ -125,7 +125,7 @@ export function MafsInteractive({
     };
 
     return (
-        <div className="w-full h-full overflow-hidden rounded-xl relative">
+        <div className="w-full overflow-hidden rounded-xl relative">
             <Mafs height={400} viewBox={{ x: [-5, 5], y: [-4, 4] }}>
                 <Coordinates.Cartesian />
 

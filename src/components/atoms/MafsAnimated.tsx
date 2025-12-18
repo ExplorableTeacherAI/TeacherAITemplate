@@ -23,7 +23,7 @@ export function MafsAnimated() {
     const circleY = 2 * Math.sin(angle);
 
     return (
-        <div className="w-full h-full overflow-hidden rounded-xl">
+        <div className="w-full overflow-hidden rounded-xl">
             <Mafs height={400} viewBox={{ x: [-5, 5], y: [-3, 3] }}>
                 <Coordinates.Cartesian />
 
