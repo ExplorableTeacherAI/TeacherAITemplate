@@ -113,7 +113,7 @@ export const Section = ({
             >
                 {/* Hover controls - hidden in preview mode */}
                 {!isPreview && (
-                    <div className="flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity pt-1">
+                    <div className="relative z-10 flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity pt-1">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button

@@ -2,6 +2,7 @@ import React, { type ReactElement } from "react";
 import { Section } from "@/components/templates";
 import { twoJsAnimationsDemo } from "./sections/twoJsAnimationsDemo";
 import { threeJsAnimationsDemo } from "./sections/threeJsAnimationsDemo";
+import { d3Demo } from "./sections/d3Demo";
 import {
     exampleDesmosInteractive,
     exampleEquationColoring,
@@ -132,6 +133,11 @@ const exampleSections: ReactElement[] = [
     // THREE.JS ANIMATIONS DEMO
     // ========================================
     ...threeJsAnimationsDemo,
+
+    // ========================================
+    // D3.JS DEMO
+    // ========================================
+    ...d3Demo,
 
     // ========================================
     // EQUATION COLORING DEMO

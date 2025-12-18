@@ -76,6 +76,10 @@ export {
     TermReveal
 } from "./ColoredEquation";
 
+// D3 Components
+export { D3BarChart } from "./D3BarChart";
+export type { D3BarChartProps, DataPoint } from "./D3BarChart";
+
 // React Flow Components
 export { FlowDiagram } from "./FlowDiagram";
 export type { FlowNode, FlowEdge, FlowDiagramProps } from "./FlowDiagram";
