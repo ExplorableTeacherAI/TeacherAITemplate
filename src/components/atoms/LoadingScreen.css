@@ -27,7 +27,6 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    animation: logoFadeIn 0.5s ease-out;
 }
 
 .loading-logo {
@@ -35,19 +34,27 @@
     width: 100%;
     max-width: 280px;
     height: auto;
-    animation: logoScale 1.5s ease-in-out infinite;
+    animation: logoBounce 1s cubic-bezier(0.28, 0.84, 0.42, 1) infinite, logoFadeIn 0.5s ease-out;
     filter: drop-shadow(0 8px 30px rgba(252, 183, 179, 0.4));
 }
 
-@keyframes logoScale {
+@keyframes logoBounce {
 
     0%,
     100% {
-        transform: scale(1);
+        transform: translateY(0) scale(1);
+    }
+
+    25% {
+        transform: translateY(-25px) scale(1.02);
     }
 
     50% {
-        transform: scale(1.2);
+        transform: translateY(0) scale(0.98);
+    }
+
+    75% {
+        transform: translateY(-12px) scale(1.01);
     }
 }
 

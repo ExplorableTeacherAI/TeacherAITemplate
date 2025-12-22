@@ -25,6 +25,7 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
       const secs = await loadSections(sectionLoaderConfig);
       if (cancelled) return;
       setInitialSections(Array.isArray(secs) ? secs : []);
+      setInitialSections(Array.isArray(secs) ? secs : []);
       setLoadingSections(false);
 
       // Set up watcher for automatic updates in dev mode
