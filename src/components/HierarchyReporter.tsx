@@ -22,7 +22,8 @@ export const HierarchyReporter = () => {
             const elementId = element.getAttribute("id");
 
             // Determine if this is a layout component or section
-            const isLayout = element.classList.contains("layout") ||
+            const layoutType = element.getAttribute("data-layout-type");
+            const isLayout = element.classList.contains("layout") || layoutType ||
                 (element.tagName === "DIV" &&
                     (element.classList.contains("split-layout") ||
                         element.classList.contains("grid-layout") ||
@@ -35,7 +36,7 @@ export const HierarchyReporter = () => {
                 // Root level - look for children
                 const children: HierarchyNode[] = [];
                 Array.from(element.children).forEach((child) => {
-                    const childNode = buildHierarchy(child, depth, parentId);
+                    const childNode = buildHierarchy(child, depth + 1, parentId);
                     if (childNode) children.push(childNode);
                 });
                 // Flatten root if it's just a container wrapper
@@ -55,7 +56,18 @@ export const HierarchyReporter = () => {
                     const childNode = buildHierarchy(child, depth, parentId);
                     if (childNode) children.push(childNode);
                 });
-                return children.length === 1 ? children[0] : null; // Return single child if wrapper
+
+                if (children.length === 0) return null;
+                if (children.length === 1) return children[0]; // Return single child if wrapper
+
+                // If multiple children, wrap them in a container to preserve structure
+                return {
+                    id: `${parentId}-${element.tagName.toLowerCase()}-${Math.random().toString(36).substr(2, 9)}`,
+                    type: "layout",
+                    label: element.tagName.toLowerCase(), // e.g. "div", "main"
+                    children,
+                    depth,
+                };
             }
 
             // Generate unique ID for this node
@@ -68,7 +80,16 @@ export const HierarchyReporter = () => {
             } else if (elementId) {
                 label = elementId;
             } else if (isLayout) {
-                if (element.classList.contains("split-layout")) label = "Split Layout";
+                if (layoutType) {
+                    // Normalize layout type to readable label
+                    const type = layoutType.toLowerCase();
+                    if (type.includes('split')) label = "Split Layout";
+                    else if (type.includes('grid')) label = "Grid Layout";
+                    else if (type.includes('sidebar')) label = "Sidebar Layout";
+                    else if (type.includes('full-width')) label = "Full Width Layout";
+                    else label = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ') + " Layout";
+                }
+                else if (element.classList.contains("split-layout")) label = "Split Layout";
                 else if (element.classList.contains("grid-layout")) label = "Grid Layout";
                 else if (element.classList.contains("sidebar-layout")) label = "Sidebar Layout";
                 else if (element.classList.contains("full-width-layout")) label = "Full Width Layout";
