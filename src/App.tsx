@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppModeProvider } from "@/contexts/AppModeContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { HierarchyReporter } from "./components/HierarchyReporter";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
+        <HierarchyReporter />
         <TooltipProvider>
           <BrowserRouter>
             <Routes>
