@@ -13,95 +13,117 @@ interface HierarchyNode {
 export const HierarchyReporter = () => {
     // Function to build and send hierarchy
     const reportHierarchy = () => {
-        const body = document.body;
-        if (!body) return;
+        // Find all potential section elements
+        // We look for elements with data-section-id or actual <section> tags
+        const allElements = Array.from(document.querySelectorAll('section, [data-section-id]'));
 
-        // Helper to generate stable-ish IDs for elements without IDs
-        const getOrAssignId = (el: Element, prefix: string): string => {
-            if (el.hasAttribute('data-hierarchy-temp-id')) {
-                return el.getAttribute('data-hierarchy-temp-id')!;
-            }
-            const newId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-            el.setAttribute('data-hierarchy-temp-id', newId);
-            return newId;
-        };
+        // Filter out elements that might be hidden or inside ignored containers
+        const sections = allElements.filter(el => !el.closest('.hierarchy-ignore'));
 
-        const collectNodes = (element: Element, depth: number): HierarchyNode[] => {
-            // Determine if this is a section or layout we want to show
-            const sectionId = element.getAttribute("data-section-id");
-            const elementId = element.getAttribute("id");
+        if (sections.length === 0) {
+            window.parent.postMessage({ type: 'hierarchy-update', hierarchy: [] }, '*');
+            return;
+        }
 
-            const layoutType = element.getAttribute("data-layout-type");
-            const isLayout = element.classList.contains("layout") || !!layoutType ||
-                (element.tagName === "DIV" &&
-                    (element.classList.contains("split-layout") ||
-                        element.classList.contains("grid-layout") ||
-                        element.classList.contains("sidebar-layout") ||
-                        element.classList.contains("full-width-layout")));
+        interface FlatNode extends HierarchyNode {
+            level: number;
+        }
 
-            const isSection = element.tagName === "SECTION" || !!sectionId;
+        const flatNodes: FlatNode[] = [];
+        let lastHeaderLevel = 0; // 0 means no header seen yet
 
-            // Only report "significant" nodes (Sections or explicit Layouts)
-            if (isSection || isLayout) {
-                let nodeId = sectionId || elementId;
-                // Assign a stable ID if one doesn't exist (for Layouts mostly)
-                if (!nodeId) {
-                    nodeId = getOrAssignId(element, isSection ? 'sec' : 'layout');
+        sections.forEach((section) => {
+            // 1. Identify Heading Level
+            const header = section.querySelector('h1, h2, h3, h4, h5, h6');
+            let level = 1; // Default level
+            let label = "Section";
+
+            if (header) {
+                const tagName = header.tagName.toLowerCase();
+                const hLevel = parseInt(tagName.replace('h', ''), 10);
+                if (!isNaN(hLevel)) {
+                    level = hLevel;
+                    lastHeaderLevel = hLevel;
+                    // Use header text as label
+                    label = header.textContent?.trim() || "Untitled Section";
+                    if (label.length > 30) label = label.substring(0, 30) + "...";
                 }
-
-                // Determine Label
-                let label = "Unknown";
-                if (sectionId) label = sectionId;
-                else if (elementId) label = elementId;
-                else if (isLayout) {
-                    if (layoutType) {
-                        const type = layoutType.toLowerCase();
-                        if (type.includes('split')) label = "Split Layout";
-                        else if (type.includes('grid')) label = "Grid Layout";
-                        else if (type.includes('sidebar')) label = "Sidebar Layout";
-                        else if (type.includes('full-width')) label = "Full Width Layout";
-                        else label = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ') + " Layout";
-                    }
-                    else if (element.classList.contains("split-layout")) label = "Split Layout";
-                    else if (element.classList.contains("grid-layout")) label = "Grid Layout";
-                    else if (element.classList.contains("sidebar-layout")) label = "Sidebar Layout";
-                    else label = "Layout";
-                } else if (isSection) {
-                    label = "Section";
-                }
-
-                const node: HierarchyNode = {
-                    id: nodeId,
-                    type: isSection ? "section" : "layout",
-                    sectionId: sectionId || undefined,
-                    label: label,
-                    children: [],
-                    depth: depth
-                };
-
-                // Collect children (increment depth)
-                Array.from(element.children).forEach(child => {
-                    node.children.push(...collectNodes(child, depth + 1));
-                });
-
-                return [node];
             } else {
-                // Generic container (e.g. div, main, wrapper) - Skip this node but check children
-                // Pass current depth since we aren't visually indenting for this invisible wrapper
-                const nodes: HierarchyNode[] = [];
-                Array.from(element.children).forEach(child => {
-                    nodes.push(...collectNodes(child, depth));
-                });
-                return nodes;
+                // No header.
+                // Rule: "if below sections do not have [headers], then below sections will be childs"
+                // Logic: If we have seen a header at level L, this "body" section becomes L + 1.
+                // If we haven't seen any header yet, it stays at level 1.
+                if (lastHeaderLevel > 0) {
+                    level = lastHeaderLevel + 1;
+                } else {
+                    level = 1;
+                }
+
+                // Try to get a label from first text block or use ID
+                const idLabel = section.getAttribute('data-section-id') || section.id;
+                if (idLabel && idLabel.length < 20) {
+                    label = idLabel;
+                } else {
+                    // Fallback to truncated content
+                    const text = section.textContent?.trim();
+                    if (text) {
+                        label = text.substring(0, 20) + (text.length > 20 ? "..." : "");
+                    }
+                }
             }
-        };
 
-        const hierarchy = collectNodes(body, 0);
+            // Generate stable ID
+            let nodeId = section.getAttribute('data-section-id') || section.id;
+            if (!nodeId) {
+                if (section.hasAttribute('data-hierarchy-temp-id')) {
+                    nodeId = section.getAttribute('data-hierarchy-temp-id')!;
+                } else {
+                    nodeId = `sec-${Math.random().toString(36).substr(2, 9)}`;
+                    section.setAttribute('data-hierarchy-temp-id', nodeId);
+                }
+            }
 
-        // Always send update
+            flatNodes.push({
+                id: nodeId,
+                type: "section",
+                sectionId: section.getAttribute('data-section-id') || undefined,
+                label: label,
+                children: [],
+                depth: 0, // Will be fixed during tree build
+                level: level
+            });
+        });
+
+        // 2. Build Tree from Flat List
+        const rootNodes: HierarchyNode[] = [];
+        const stack: FlatNode[] = []; // Stack tracks the current parent chain
+
+        flatNodes.forEach(node => {
+            // Pop stack until we find the correct parent level
+            // A node of level L should be a child of the closest node in stack with level < L
+            while (stack.length > 0 && stack[stack.length - 1].level >= node.level) {
+                stack.pop();
+            }
+
+            if (stack.length === 0) {
+                // No parent found, add to root
+                node.depth = 1;
+                rootNodes.push(node);
+            } else {
+                // Parent found
+                const parent = stack[stack.length - 1];
+                node.depth = parent.depth + 1;
+                parent.children.push(node);
+            }
+
+            // Push current node to stack as potential parent for next nodes
+            stack.push(node);
+        });
+
+        // Send update
         window.parent.postMessage({
             type: 'hierarchy-update',
-            hierarchy: hierarchy
+            hierarchy: rootNodes
         }, '*');
     };
 
