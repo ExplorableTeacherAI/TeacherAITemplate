@@ -159,22 +159,33 @@ export const HierarchyReporter = () => {
 
             if (event.data.type === 'scroll-to-section') {
                 const { sectionId } = event.data;
+
+                // 1. Clear previous selection
+                document.querySelectorAll('[data-hierarchy-selected="true"]').forEach(el => {
+                    (el as HTMLElement).style.outline = (el as HTMLElement).dataset.originalOutline || "";
+                    (el as HTMLElement).style.outlineOffset = (el as HTMLElement).dataset.originalOffset || "";
+                    delete (el as HTMLElement).dataset.originalOutline;
+                    delete (el as HTMLElement).dataset.originalOffset;
+                    el.removeAttribute('data-hierarchy-selected');
+                });
+
                 if (sectionId) {
                     const el = document.querySelector(`[data-section-id="${sectionId}"]`);
                     if (el) {
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                        // Flash highlight
-                        const originalOutline = (el as HTMLElement).style.outline;
-                        const originalOffset = (el as HTMLElement).style.outlineOffset;
+                        // Apply new selection
+                        const htmlEl = el as HTMLElement;
 
-                        (el as HTMLElement).style.outline = "3px solid #0D7377";
-                        (el as HTMLElement).style.outlineOffset = "4px";
+                        // Save original styles if not already saved (though we just cleared global so it should be clean)
+                        if (!htmlEl.dataset.originalOutline) {
+                            htmlEl.dataset.originalOutline = htmlEl.style.outline;
+                            htmlEl.dataset.originalOffset = htmlEl.style.outlineOffset;
+                        }
 
-                        setTimeout(() => {
-                            (el as HTMLElement).style.outline = originalOutline;
-                            (el as HTMLElement).style.outlineOffset = originalOffset;
-                        }, 2000);
+                        htmlEl.style.outline = "3px solid #0D7377";
+                        htmlEl.style.outlineOffset = "4px";
+                        htmlEl.setAttribute('data-hierarchy-selected', 'true');
                     }
                 }
             }
@@ -184,14 +195,25 @@ export const HierarchyReporter = () => {
 
                 // Remove existing highlights
                 document.querySelectorAll('[data-hierarchy-highlight]').forEach(el => {
-                    (el as HTMLElement).style.outline = "";
-                    (el as HTMLElement).style.outlineOffset = "";
+                    // Don't clear if it's the selected one? 
+                    // Hover uses dashed, Selection uses solid. 
+                    // To avoid conflict, we can leave selected alone or override.
+                    // If we clear outline, we might mess up selection.
+
+                    // Only clear if it is NOT the selected one, OR store distinct hover state.
+                    // For simplicity, let's allow hover to override or coexist carefully.
+                    // But 'style.outline' is singular.
+
+                    if (!el.hasAttribute('data-hierarchy-selected')) {
+                        (el as HTMLElement).style.outline = "";
+                        (el as HTMLElement).style.outlineOffset = "";
+                    }
                     el.removeAttribute('data-hierarchy-highlight');
                 });
 
                 if (isHovering && sectionId) {
                     const el = document.querySelector(`[data-section-id="${sectionId}"]`);
-                    if (el) {
+                    if (el && !el.hasAttribute('data-hierarchy-selected')) {
                         (el as HTMLElement).style.outline = "2px dashed #14B8A6";
                         (el as HTMLElement).style.outlineOffset = "2px";
                         el.setAttribute('data-hierarchy-highlight', 'true');
