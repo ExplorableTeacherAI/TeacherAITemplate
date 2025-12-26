@@ -16,123 +16,93 @@ export const HierarchyReporter = () => {
         const body = document.body;
         if (!body) return;
 
-        const buildHierarchy = (element: Element, depth = 0, parentId = ""): HierarchyNode | null => {
-            // Check if this is a section
+        // Helper to generate stable-ish IDs for elements without IDs
+        const getOrAssignId = (el: Element, prefix: string): string => {
+            if (el.hasAttribute('data-hierarchy-temp-id')) {
+                return el.getAttribute('data-hierarchy-temp-id')!;
+            }
+            const newId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+            el.setAttribute('data-hierarchy-temp-id', newId);
+            return newId;
+        };
+
+        const collectNodes = (element: Element, depth: number): HierarchyNode[] => {
+            // Determine if this is a section or layout we want to show
             const sectionId = element.getAttribute("data-section-id");
             const elementId = element.getAttribute("id");
 
-            // Determine if this is a layout component or section
             const layoutType = element.getAttribute("data-layout-type");
-            const isLayout = element.classList.contains("layout") || layoutType ||
+            const isLayout = element.classList.contains("layout") || !!layoutType ||
                 (element.tagName === "DIV" &&
                     (element.classList.contains("split-layout") ||
                         element.classList.contains("grid-layout") ||
                         element.classList.contains("sidebar-layout") ||
                         element.classList.contains("full-width-layout")));
 
-            const isSection = element.tagName === "SECTION" || sectionId;
+            const isSection = element.tagName === "SECTION" || !!sectionId;
 
-            if (!isLayout && !isSection && depth === 0) {
-                // Root level - look for children
-                const children: HierarchyNode[] = [];
-                Array.from(element.children).forEach((child) => {
-                    const childNode = buildHierarchy(child, depth + 1, parentId);
-                    if (childNode) children.push(childNode);
-                });
-                // Flatten root if it's just a container wrapper
-                return children.length > 0 ? {
-                    id: "root",
-                    type: "layout",
-                    label: "Root",
-                    children,
-                    depth
-                } : null;
-            }
-
-            if (!isLayout && !isSection) {
-                // Not a trackable element, check children
-                const children: HierarchyNode[] = [];
-                Array.from(element.children).forEach((child) => {
-                    const childNode = buildHierarchy(child, depth, parentId);
-                    if (childNode) children.push(childNode);
-                });
-
-                if (children.length === 0) return null;
-                if (children.length === 1) return children[0]; // Return single child if wrapper
-
-                // If multiple children, wrap them in a container to preserve structure
-                return {
-                    id: `${parentId}-${element.tagName.toLowerCase()}-${Math.random().toString(36).substr(2, 9)}`,
-                    type: "layout",
-                    label: element.tagName.toLowerCase(), // e.g. "div", "main"
-                    children,
-                    depth,
-                };
-            }
-
-            // Generate unique ID for this node
-            const nodeId = `${parentId}-${sectionId || elementId || element.tagName}-${Math.random().toString(36).substr(2, 9)}`;
-
-            // Get label
-            let label = "";
-            if (sectionId) {
-                label = sectionId;
-            } else if (elementId) {
-                label = elementId;
-            } else if (isLayout) {
-                if (layoutType) {
-                    // Normalize layout type to readable label
-                    const type = layoutType.toLowerCase();
-                    if (type.includes('split')) label = "Split Layout";
-                    else if (type.includes('grid')) label = "Grid Layout";
-                    else if (type.includes('sidebar')) label = "Sidebar Layout";
-                    else if (type.includes('full-width')) label = "Full Width Layout";
-                    else label = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ') + " Layout";
+            // Only report "significant" nodes (Sections or explicit Layouts)
+            if (isSection || isLayout) {
+                let nodeId = sectionId || elementId;
+                // Assign a stable ID if one doesn't exist (for Layouts mostly)
+                if (!nodeId) {
+                    nodeId = getOrAssignId(element, isSection ? 'sec' : 'layout');
                 }
-                else if (element.classList.contains("split-layout")) label = "Split Layout";
-                else if (element.classList.contains("grid-layout")) label = "Grid Layout";
-                else if (element.classList.contains("sidebar-layout")) label = "Sidebar Layout";
-                else if (element.classList.contains("full-width-layout")) label = "Full Width Layout";
-                else label = "Layout";
-            } else {
-                label = element.tagName.toLowerCase();
-            }
 
-            const node: HierarchyNode = {
-                id: nodeId,
-                type: isSection ? "section" : "layout",
-                sectionId: sectionId || undefined,
-                label,
-                children: [],
-                depth,
-            };
-
-            // Parse children
-            const children = Array.from(element.children);
-            children.forEach((child) => {
-                const childNode = buildHierarchy(child, depth + 1, nodeId);
-                if (childNode) {
-                    if (childNode.id === "root") {
-                        node.children.push(...childNode.children);
-                    } else {
-                        node.children.push(childNode);
+                // Determine Label
+                let label = "Unknown";
+                if (sectionId) label = sectionId;
+                else if (elementId) label = elementId;
+                else if (isLayout) {
+                    if (layoutType) {
+                        const type = layoutType.toLowerCase();
+                        if (type.includes('split')) label = "Split Layout";
+                        else if (type.includes('grid')) label = "Grid Layout";
+                        else if (type.includes('sidebar')) label = "Sidebar Layout";
+                        else if (type.includes('full-width')) label = "Full Width Layout";
+                        else label = type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ') + " Layout";
                     }
+                    else if (element.classList.contains("split-layout")) label = "Split Layout";
+                    else if (element.classList.contains("grid-layout")) label = "Grid Layout";
+                    else if (element.classList.contains("sidebar-layout")) label = "Sidebar Layout";
+                    else label = "Layout";
+                } else if (isSection) {
+                    label = "Section";
                 }
-            });
 
-            return node;
+                const node: HierarchyNode = {
+                    id: nodeId,
+                    type: isSection ? "section" : "layout",
+                    sectionId: sectionId || undefined,
+                    label: label,
+                    children: [],
+                    depth: depth
+                };
+
+                // Collect children (increment depth)
+                Array.from(element.children).forEach(child => {
+                    node.children.push(...collectNodes(child, depth + 1));
+                });
+
+                return [node];
+            } else {
+                // Generic container (e.g. div, main, wrapper) - Skip this node but check children
+                // Pass current depth since we aren't visually indenting for this invisible wrapper
+                const nodes: HierarchyNode[] = [];
+                Array.from(element.children).forEach(child => {
+                    nodes.push(...collectNodes(child, depth));
+                });
+                return nodes;
+            }
         };
 
-        const rootNode = buildHierarchy(body, 0, "root");
-        if (rootNode) {
-            const nodes = rootNode.id === "root" ? rootNode.children : [rootNode];
+        const hierarchy = collectNodes(body, 0);
 
-            // Send to parent
-            window.parent.postMessage({
-                type: 'hierarchy-update',
-                hierarchy: nodes
-            }, '*');
-        }
+        // Always send update
+        window.parent.postMessage({
+            type: 'hierarchy-update',
+            hierarchy: hierarchy
+        }, '*');
     };
 
     // Auto-report on load and mutation
