@@ -232,7 +232,38 @@ export const HierarchyReporter = () => {
         };
 
         window.addEventListener('message', handleMessage);
-        return () => window.removeEventListener('message', handleMessage);
+
+        // Global click listener to handle deselecting when clicking outside
+        const handleGlobalClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            // Check if click was inside a traceable section
+            const wasInSection = target.closest('section, [data-section-id]');
+
+            if (!wasInSection) {
+                // Clicked outside -> Clear selection
+
+                // 1. Clear visual highlights
+                document.querySelectorAll('[data-hierarchy-selected="true"]').forEach(el => {
+                    (el as HTMLElement).style.outline = (el as HTMLElement).dataset.originalOutline || "";
+                    (el as HTMLElement).style.outlineOffset = (el as HTMLElement).dataset.originalOffset || "";
+                    delete (el as HTMLElement).dataset.originalOutline;
+                    delete (el as HTMLElement).dataset.originalOffset;
+                    el.removeAttribute('data-hierarchy-selected');
+                });
+
+                // 2. Notify parent
+                window.parent.postMessage({
+                    type: 'selection-cleared'
+                }, '*');
+            }
+        };
+
+        window.addEventListener('click', handleGlobalClick);
+
+        return () => {
+            window.removeEventListener('message', handleMessage);
+            window.removeEventListener('click', handleGlobalClick);
+        };
     }, []);
 
     return null; // This component doesn't render anything
