@@ -162,8 +162,11 @@ export const HierarchyReporter = () => {
 
                 // 1. Clear previous selection
                 document.querySelectorAll('[data-hierarchy-selected="true"]').forEach(el => {
+                    // Restore original style
                     (el as HTMLElement).style.outline = (el as HTMLElement).dataset.originalOutline || "";
                     (el as HTMLElement).style.outlineOffset = (el as HTMLElement).dataset.originalOffset || "";
+
+                    // Clean up data attributes
                     delete (el as HTMLElement).dataset.originalOutline;
                     delete (el as HTMLElement).dataset.originalOffset;
                     el.removeAttribute('data-hierarchy-selected');
@@ -174,18 +177,31 @@ export const HierarchyReporter = () => {
                     if (el) {
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                        // Apply new selection
                         const htmlEl = el as HTMLElement;
 
-                        // Save original styles if not already saved (though we just cleared global so it should be clean)
+                        // Check current style before saving it
+                        const currentOutline = htmlEl.style.outline;
+                        const isOurHighlight = currentOutline.includes('#14B8A6') || currentOutline.includes('dashed'); // Hover style
+
+                        // Save original styles if not already saved
                         if (!htmlEl.dataset.originalOutline) {
-                            htmlEl.dataset.originalOutline = htmlEl.style.outline;
+                            // If the current outline is OUR highlight, don't save it! Save empty or previous.
+                            if (isOurHighlight) {
+                                htmlEl.dataset.originalOutline = "";
+                            } else {
+                                htmlEl.dataset.originalOutline = currentOutline;
+                            }
+
                             htmlEl.dataset.originalOffset = htmlEl.style.outlineOffset;
                         }
 
+                        // Apply Selection Style (Solid)
                         htmlEl.style.outline = "3px solid #0D7377";
                         htmlEl.style.outlineOffset = "4px";
                         htmlEl.setAttribute('data-hierarchy-selected', 'true');
+
+                        // Also remove highlight attribute if present to keep state clean
+                        htmlEl.removeAttribute('data-hierarchy-highlight');
                     }
                 }
             }
@@ -195,15 +211,7 @@ export const HierarchyReporter = () => {
 
                 // Remove existing highlights
                 document.querySelectorAll('[data-hierarchy-highlight]').forEach(el => {
-                    // Don't clear if it's the selected one? 
-                    // Hover uses dashed, Selection uses solid. 
-                    // To avoid conflict, we can leave selected alone or override.
-                    // If we clear outline, we might mess up selection.
-
-                    // Only clear if it is NOT the selected one, OR store distinct hover state.
-                    // For simplicity, let's allow hover to override or coexist carefully.
-                    // But 'style.outline' is singular.
-
+                    // Only clear style if it's NOT selected (Selection wins)
                     if (!el.hasAttribute('data-hierarchy-selected')) {
                         (el as HTMLElement).style.outline = "";
                         (el as HTMLElement).style.outlineOffset = "";
@@ -213,6 +221,7 @@ export const HierarchyReporter = () => {
 
                 if (isHovering && sectionId) {
                     const el = document.querySelector(`[data-section-id="${sectionId}"]`);
+                    // Apply highlight only if not already selected
                     if (el && !el.hasAttribute('data-hierarchy-selected')) {
                         (el as HTMLElement).style.outline = "2px dashed #14B8A6";
                         (el as HTMLElement).style.outlineOffset = "2px";
