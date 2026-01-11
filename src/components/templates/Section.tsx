@@ -92,6 +92,22 @@ export const Section = ({
         }
     };
 
+    const handleSectionClick = (e: React.MouseEvent<HTMLElement>) => {
+        // Only handle clicks in editor mode and if there's an ID
+        if (!isPreview && id) {
+            // Don't interfere with button clicks
+            if ((e.target as HTMLElement).closest('button')) {
+                return;
+            }
+
+            // Send message to parent window to highlight in hierarchy
+            window.parent.postMessage({
+                type: 'section-selected',
+                sectionId: id,
+            }, '*');
+        }
+    };
+
     return (
         <>
             {/* Annotation Overlay */}
@@ -110,6 +126,7 @@ export const Section = ({
                 className={`w-full group flex gap-3 pr-3 ${paddingClasses[padding]} ${className} ${!isPreview ? 'hover:ring-1 rounded-lg transition-all' : ''}`}
                 style={!isPreview ? { '--tw-ring-color': '#D4EDE5' } as React.CSSProperties : undefined}
                 data-section-id={id}
+                onClick={handleSectionClick}
             >
                 {/* Hover controls - hidden in preview mode */}
                 {!isPreview && (

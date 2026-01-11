@@ -4,6 +4,7 @@ import { twoJsAnimationsDemo } from "./sections/twoJsAnimationsDemo";
 import { threeJsAnimationsDemo } from "./sections/threeJsAnimationsDemo";
 import { d3Demo } from "./sections/d3Demo";
 import { mafsDemo } from "./sections/mafsDemo";
+import { annotationsDemoSections } from "./sections/annotationsDemo";
 import {
     exampleDesmosInteractive,
     exampleEquationColoring,
@@ -151,6 +152,11 @@ const exampleSections: ReactElement[] = [
     exampleEquationColoring,
     exampleSchrodingerEquation,
     exampleInlineEquation,
+
+    // ========================================
+    // ANNOTATIONS SYSTEM DEMO
+    // ========================================
+    ...annotationsDemoSections,
 
     // ========================================
     // UNIFIED HIGHLIGHT SYSTEM DEMO

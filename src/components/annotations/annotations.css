@@ -1,0 +1,622 @@
+/**
+ * Annotation System Styles
+ * 
+ * Base styles for all annotation types organized by category.
+ * Each annotation uses CSS custom properties for theming.
+ */
+
+/* ============================================================================
+   CSS CUSTOM PROPERTIES
+   ============================================================================ */
+
+:root {
+    /* Informational - Reveals info on hover */
+    --annotation-informational: #F59E0B;
+    --annotation-informational-glow: rgba(245, 158, 11, 0.3);
+    --annotation-informational-bg: rgba(245, 158, 11, 0.15);
+
+    /* Mutable - Can be changed */
+    --annotation-mutable: #D946EF;
+    --annotation-mutable-glow: rgba(217, 70, 239, 0.3);
+    --annotation-mutable-bg: rgba(217, 70, 239, 0.15);
+
+    /* Validatable - Quiz/input */
+    --annotation-validatable: #3B82F6;
+    --annotation-validatable-glow: rgba(59, 130, 246, 0.35);
+    --annotation-validatable-bg: rgba(59, 130, 246, 0.15);
+
+    /* Connective - Links to visuals */
+    --annotation-connective: #10B981;
+    --annotation-connective-glow: rgba(16, 185, 129, 0.3);
+    --annotation-connective-bg: rgba(16, 185, 129, 0.15);
+
+    /* Draggable - Can be moved */
+    --annotation-draggable: #6366F1;
+    --annotation-draggable-glow: rgba(99, 102, 241, 0.3);
+    --annotation-draggable-bg: rgba(99, 102, 241, 0.15);
+
+    /* Success state */
+    --annotation-success: #22C55E;
+    --annotation-success-glow: rgba(34, 197, 94, 0.3);
+    --annotation-success-bg: rgba(34, 197, 94, 0.15);
+
+    /* Error state */
+    --annotation-error: #EF4444;
+    --annotation-error-glow: rgba(239, 68, 68, 0.3);
+    --annotation-error-bg: rgba(239, 68, 68, 0.15);
+
+    /* Animation timing */
+    --annotation-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================================
+   BASE ANNOTATION STYLES
+   ============================================================================ */
+
+.annotation {
+    display: inline;
+    font-weight: 500;
+    transition: all var(--annotation-transition);
+    position: relative;
+}
+
+.annotation:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* ============================================================================
+   UNDERLINE STYLES
+   ============================================================================ */
+
+/* No underline - color only */
+.annotation-underline-none {
+    text-decoration: none;
+    border-bottom: none;
+}
+
+/* Solid underline - for draggable values, numbers */
+.annotation-underline-solid {
+    text-decoration: none;
+    border-bottom: 2px solid currentColor;
+    padding-bottom: 1px;
+}
+
+/* Dashed underline - for toggleable states */
+.annotation-underline-dashed {
+    text-decoration: none;
+    border-bottom: 2px dashed currentColor;
+    padding-bottom: 1px;
+}
+
+/* Dotted underline - for definitions, glossary */
+.annotation-underline-dotted {
+    text-decoration: none;
+    border-bottom: 2px dotted currentColor;
+    padding-bottom: 1px;
+}
+
+/* Wavy underline - for continuous sliders */
+.annotation-underline-wavy {
+    text-decoration: underline wavy;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+/* Double underline - for precision controls */
+.annotation-underline-double {
+    text-decoration: underline double;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+/* ============================================================================
+   CATEGORY: INFORMATIONAL
+   ============================================================================ */
+
+.annotation-informational {
+    color: var(--annotation-informational);
+    cursor: help;
+}
+
+.annotation-informational:hover {
+    text-shadow: 0 0 12px var(--annotation-informational-glow);
+}
+
+/* Hoverable - tooltip on hover */
+.annotation-hoverable {
+    color: var(--annotation-informational);
+}
+
+.annotation-hoverable:hover {
+    text-shadow: 0 0 8px var(--annotation-informational-glow);
+    background: var(--annotation-informational-bg);
+    border-radius: 2px;
+    padding: 0 2px;
+    margin: 0 -2px;
+}
+
+/* Glossary - definition cards */
+.annotation-glossary {
+    color: var(--annotation-informational);
+    border-bottom: 2px dotted var(--annotation-informational);
+    cursor: help;
+}
+
+.annotation-glossary:hover {
+    background: var(--annotation-informational-bg);
+    border-radius: 2px 2px 0 0;
+}
+
+/* Whisper - faded text that reveals */
+.annotation-whisper {
+    color: inherit;
+    opacity: 0.3;
+    transition: opacity var(--annotation-transition);
+}
+
+.annotation-whisper:hover,
+.annotation-whisper.revealed {
+    opacity: 1;
+}
+
+/* ============================================================================
+   CATEGORY: MUTABLE
+   ============================================================================ */
+
+.annotation-mutable {
+    color: var(--annotation-mutable);
+    cursor: ew-resize;
+}
+
+.annotation-mutable:hover {
+    text-shadow: 0 0 8px var(--annotation-mutable-glow);
+}
+
+/* Stepper - arrow buttons with number */
+.annotation-stepper {
+    display: inline-flex;
+    align-items: center;
+    background: var(--annotation-mutable-bg);
+    border-radius: 4px;
+    padding: 0;
+    user-select: none;
+}
+
+.annotation-stepper__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    color: var(--annotation-mutable);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform var(--annotation-transition);
+}
+
+.annotation-stepper__button:hover:not(:disabled) {
+    transform: scale(1.15);
+}
+
+.annotation-stepper__button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.annotation-stepper__value {
+    color: var(--annotation-mutable);
+    font-weight: 600;
+    min-width: 2ch;
+    text-align: center;
+    cursor: ew-resize;
+}
+
+/* Toggle - cycles through options */
+.annotation-toggle {
+    color: var(--annotation-mutable);
+    border-bottom: 2px dashed var(--annotation-mutable);
+    padding-bottom: 1px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.annotation-toggle:hover {
+    background: var(--annotation-mutable-bg);
+    border-radius: 2px 2px 0 0;
+}
+
+.annotation-toggle::after {
+    content: '⟳';
+    font-size: 0.75em;
+    margin-left: 2px;
+    opacity: 0;
+    transition: opacity var(--annotation-transition);
+}
+
+.annotation-toggle:hover::after {
+    opacity: 0.6;
+}
+
+/* Scrubber - precision number control */
+.annotation-scrubber {
+    color: var(--annotation-mutable);
+    border-bottom: 3px double var(--annotation-mutable);
+    padding-bottom: 1px;
+    cursor: ns-resize;
+    user-select: none;
+}
+
+.annotation-scrubber.dragging {
+    background: var(--annotation-mutable-bg);
+    border-radius: 2px 2px 0 0;
+}
+
+/* ============================================================================
+   CATEGORY: VALIDATABLE
+   ============================================================================ */
+
+.annotation-validatable {
+    color: var(--annotation-validatable);
+}
+
+/* FillBlank & MultiChoice - quiz inputs */
+.annotation-fillblank,
+.annotation-multichoice {
+    display: inline-flex;
+    align-items: center;
+    background: var(--annotation-validatable-bg);
+    border-radius: 4px;
+    padding: 0 4px;
+    min-width: 3ch;
+    cursor: pointer;
+}
+
+.annotation-fillblank:hover,
+.annotation-multichoice:hover {
+    background: var(--annotation-validatable-glow);
+}
+
+/* Placeholder state */
+.annotation-fillblank--placeholder,
+.annotation-multichoice--placeholder {
+    color: var(--annotation-validatable);
+    font-weight: 600;
+}
+
+/* Correct state */
+.annotation-fillblank--correct,
+.annotation-multichoice--correct {
+    color: var(--annotation-success);
+    background: var(--annotation-success-bg);
+    cursor: default;
+}
+
+/* Incorrect state */
+.annotation-fillblank--incorrect,
+.annotation-multichoice--incorrect {
+    background: var(--annotation-error-bg);
+}
+
+.annotation-clear-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    padding: 2px;
+    color: var(--annotation-error);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform var(--annotation-transition);
+}
+
+.annotation-clear-button:hover {
+    transform: scale(1.2);
+}
+
+/* ============================================================================
+   CATEGORY: CONNECTIVE
+   ============================================================================ */
+
+.annotation-connective {
+    color: var(--annotation-connective);
+    cursor: pointer;
+}
+
+.annotation-connective:hover {
+    text-shadow: 0 0 8px var(--annotation-connective-glow);
+}
+
+/* Linked - bidirectional highlighting */
+.annotation-linked {
+    color: var(--annotation-connective);
+    border-bottom: 2px dotted var(--annotation-connective);
+    padding-bottom: 1px;
+    cursor: pointer;
+    transition: all var(--annotation-transition);
+}
+
+.annotation-linked:hover,
+.annotation-linked.active {
+    background: var(--annotation-connective-bg);
+    border-radius: 2px 2px 0 0;
+    text-shadow: 0 0 8px var(--annotation-connective-glow);
+}
+
+.annotation-linked.dimmed {
+    opacity: 0.4;
+}
+
+/* Trigger - click to trigger action */
+.annotation-trigger {
+    color: var(--annotation-connective);
+    border-bottom: 2px solid var(--annotation-connective);
+    padding-bottom: 1px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.annotation-trigger:hover {
+    background: var(--annotation-connective-bg);
+    border-radius: 2px 2px 0 0;
+}
+
+.annotation-trigger__icon {
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
+.annotation-trigger--triggered {
+    opacity: 0.6;
+}
+
+/* Focus - highlights target on hover */
+.annotation-focus {
+    color: var(--annotation-connective);
+    border-bottom: 2px dashed var(--annotation-connective);
+    padding-bottom: 1px;
+    cursor: zoom-in;
+}
+
+.annotation-focus:hover {
+    background: var(--annotation-connective-bg);
+    border-radius: 2px 2px 0 0;
+}
+
+/* ============================================================================
+   CATEGORY: DRAGGABLE
+   ============================================================================ */
+
+.annotation-draggable {
+    color: var(--annotation-draggable);
+    cursor: grab;
+}
+
+.annotation-draggable:active {
+    cursor: grabbing;
+}
+
+/* DragWord - draggable word chips */
+.annotation-dragword {
+    display: inline-flex;
+    align-items: center;
+    background: var(--annotation-draggable-bg);
+    border: 1px dashed var(--annotation-draggable);
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: grab;
+    user-select: none;
+    transition: all var(--annotation-transition);
+}
+
+.annotation-dragword:hover {
+    background: var(--annotation-draggable-glow);
+    transform: scale(1.02);
+}
+
+.annotation-dragword.dragging {
+    cursor: grabbing;
+    box-shadow: 0 4px 12px var(--annotation-draggable-glow);
+    transform: scale(1.05);
+    z-index: 100;
+}
+
+.annotation-dragword__handle {
+    margin-right: 4px;
+    opacity: 0.5;
+}
+
+/* Movable - free-moving elements */
+.annotation-movable {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    background: var(--annotation-draggable-bg);
+    border: 1px solid var(--annotation-draggable);
+    border-radius: 6px;
+    padding: 4px 12px;
+    cursor: move;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    user-select: none;
+    transition: box-shadow var(--annotation-transition);
+}
+
+.annotation-movable:hover {
+    box-shadow: 0 4px 16px var(--annotation-draggable-glow);
+}
+
+.annotation-movable.dragging {
+    cursor: grabbing;
+    box-shadow: 0 8px 24px var(--annotation-draggable-glow);
+}
+
+/* ============================================================================
+   DROP ZONES
+   ============================================================================ */
+
+.annotation-dropzone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    min-height: 24px;
+    border: 2px dashed var(--annotation-draggable);
+    border-radius: 4px;
+    padding: 2px 8px;
+    background: var(--annotation-draggable-bg);
+    opacity: 0.6;
+    transition: all var(--annotation-transition);
+}
+
+.annotation-dropzone.active {
+    opacity: 1;
+    border-style: solid;
+    background: var(--annotation-draggable-glow);
+    transform: scale(1.02);
+}
+
+.annotation-dropzone.filled {
+    opacity: 1;
+    border-style: solid;
+    background: var(--annotation-success-bg);
+    border-color: var(--annotation-success);
+}
+
+/* ============================================================================
+   TOOLTIP STYLES (Shared)
+   ============================================================================ */
+
+.annotation-tooltip {
+    position: fixed;
+    z-index: 1000;
+    max-width: 400px;
+    min-width: 200px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+}
+
+.annotation-tooltip--informational {
+    background: var(--annotation-informational);
+    color: white;
+}
+
+.annotation-tooltip--glossary {
+    background: linear-gradient(135deg, var(--annotation-informational) 0%, #e67e22 100%);
+}
+
+/* ============================================================================
+   PROGRESS BAR (for Stepper/Scrubber)
+   ============================================================================ */
+
+.annotation-progress {
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--annotation-mutable-bg);
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity var(--annotation-transition);
+}
+
+.annotation-stepper:hover .annotation-progress,
+.annotation-scrubber:hover .annotation-progress {
+    opacity: 1;
+}
+
+.annotation-progress__fill {
+    height: 100%;
+    background: var(--annotation-mutable);
+    border-radius: 2px;
+    transition: width 0.1s ease-out;
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+@keyframes annotation-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 var(--annotation-connective-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px transparent;
+    }
+}
+
+.annotation-linked.active {
+    animation: annotation-pulse 1.5s infinite;
+}
+
+@keyframes annotation-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-2px);
+    }
+
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+.annotation-fillblank--incorrect,
+.annotation-multichoice--incorrect {
+    animation: annotation-shake 0.3s ease-in-out;
+}
+
+@keyframes annotation-glow {
+
+    0%,
+    100% {
+        text-shadow: 0 0 4px currentColor;
+    }
+
+    50% {
+        text-shadow: 0 0 12px currentColor;
+    }
+}
+
+.annotation-hoverable:hover,
+.annotation-glossary:hover {
+    animation: annotation-glow 1.5s infinite;
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================ */
+
+@media (max-width: 640px) {
+    .annotation-tooltip {
+        max-width: calc(100vw - 32px);
+        min-width: 150px;
+    }
+
+    .annotation-stepper__button {
+        padding: 0 4px;
+    }
+
+    .annotation-dragword {
+        padding: 4px 10px;
+    }
+}
