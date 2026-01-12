@@ -1,5 +1,5 @@
 import { LessonView } from "@/components/templates";
-import { ModeIndicator } from "@/components/atoms";
+// import { ModeIndicator } from "@/components/atoms";
 
 const Index = () => {
   const handleEditSection = (instruction: string) => {
@@ -8,7 +8,7 @@ const Index = () => {
 
   return (
     <div className="h-screen">
-      <ModeIndicator />
+      {/* <ModeIndicator /> */}
       <LessonView onEditSection={handleEditSection} />
     </div>
   );
