@@ -2,6 +2,7 @@
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://explorableteacherai.github.io/TeacherAlTemplate",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,9 +11,11 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:editor": "VITE_APP_MODE=editor vite build",
-    "build:preview": "VITE_APP_MODE=preview vite build",
+    "build:preview": "VITE_APP_MODE=preview VITE_SHOW_EXAMPLES=false vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build:preview",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.18.0",
@@ -60,6 +63,7 @@
     "dompurify": "^3.3.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.25",
+    "gh-pages": "^6.3.0",
     "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
     "katex": "^0.16.27",
