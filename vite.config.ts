@@ -15,5 +15,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: "/TeacherAITemplate",
+  base: mode === "development" ? "/" : "/TeacherAITemplate",
 }));
