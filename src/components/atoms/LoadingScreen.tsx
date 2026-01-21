@@ -17,7 +17,7 @@ export const LoadingScreen = () => {
                 {/* Animated logo */}
                 <div className="logo-wrapper">
                     <img
-                        src="/logo-1.svg"
+                        src={`${import.meta.env.BASE_URL}logo-1.svg`}
                         alt="Loading"
                         className="loading-logo"
                     />
