@@ -1,7 +1,7 @@
 import { TooltipProvider } from "@/components/atoms/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { AppModeProvider } from "@/contexts/AppModeContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -19,13 +19,13 @@ const App = () => {
       <AppModeProvider>
         <HierarchyReporter />
         <TooltipProvider>
-          <BrowserRouter>
+          <HashRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </TooltipProvider>
       </AppModeProvider>
     </QueryClientProvider>
