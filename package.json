@@ -1,8 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "mathvibe",
   "private": true,
-  "version": "0.0.0",
-  "homepage": "https://explorableteacherai.github.io/TeacherAlTemplate",
+  "version": "1.0.0",
+  "homepage": "https://mathvibe.space/",
   "type": "module",
   "scripts": {
     "dev": "vite",

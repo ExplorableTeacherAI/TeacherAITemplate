@@ -4,6 +4,9 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
+//  If we want to deploy to the github pages without custom domain use this 
+// base: mode === "development" ? "/" : "/TeacherAITemplate",
+
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -15,5 +18,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: mode === "development" ? "/" : "/TeacherAITemplate",
+  base: "/",
 }));
