@@ -15,7 +15,7 @@ export const WelcomeScreen = () => {
             {/* Brand / Logo Area */}
             <div className="mb-12 flex items-center justify-center select-none">
                 <img
-                    src="/logo.svg"
+                    src={`${import.meta.env.BASE_URL}logo.svg`}
                     alt="Math Vibe Logo"
                     className="w-[36rem] h-auto"
                 />
