@@ -2,8 +2,6 @@
 
 Welcome to the **MathVibe Template**! This repository is designed to help you build interactive, explorable educational content with ease. It provides a structured way to create lessons, visualizations, and interactive components using pre-built components in React.
 
-
-
 ## 🚀 Overview
 
 This template allows agents and developers to:

@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 //  If we want to deploy to the github pages without custom domain use this 
-// base: mode === "development" ? "/" : "/TeacherAITemplate",
+// base: mode === "development" ? "/" : "/MathVibeTemplate",
 
 export default defineConfig(({ mode }) => ({
   server: {
