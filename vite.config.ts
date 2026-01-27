@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: ['.mathvibe.xyz', '.mathvibe.space'],
+    allowedHosts: ['.mathvibe.online', '.mathvibe.xyz', '.mathvibe.space'],
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
