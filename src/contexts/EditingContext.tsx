@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect, type ReactNode } from 'react';
 import { useAppMode } from './AppModeContext';
 
 // Edit types
@@ -61,6 +61,13 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     } | null>(null);
 
+    // Keep a ref of pending edits for event listeners to avoid stale closures
+    const pendingEditsRef = useRef(pendingEdits);
+
+    useEffect(() => {
+        pendingEditsRef.current = pendingEdits;
+    }, [pendingEdits]);
+
     // Generate unique ID for edits
     const generateId = useCallback(() => {
         return `edit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -119,9 +126,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             // Add new edit
             return [...prev, newEdit];
         });
-
-        // Notify parent of pending edits
-        notifyParentOfEdits();
     }, [generateId]);
 
     const addEquationEdit = useCallback((edit: Omit<EquationEdit, 'id' | 'type' | 'timestamp'>) => {
@@ -163,18 +167,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
             return [...prev, newEdit];
         });
-
-        notifyParentOfEdits();
     }, [generateId]);
 
     const removeEdit = useCallback((id: string) => {
         setPendingEdits(prev => prev.filter(e => e.id !== id));
-        notifyParentOfEdits();
     }, []);
 
     const clearAllEdits = useCallback(() => {
         setPendingEdits([]);
-        notifyParentOfEdits();
     }, []);
 
     const openEquationEditor = useCallback((
@@ -210,20 +210,17 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingEquation(null);
     }, [editingEquation, addEquationEdit]);
 
-    // Notify parent of current edits
-    const notifyParentOfEdits = useCallback(() => {
-        // Use setTimeout to ensure state is updated
-        setTimeout(() => {
-            window.parent.postMessage({
-                type: 'edits-changed',
-                edits: pendingEdits,
-                count: pendingEdits.length,
-            }, '*');
-        }, 0);
+    // Notify parent whenever edits change
+    useEffect(() => {
+        window.parent.postMessage({
+            type: 'edits-changed',
+            edits: pendingEdits,
+            count: pendingEdits.length,
+        }, '*');
     }, [pendingEdits]);
 
     // Listen for messages from parent
-    useState(() => {
+    useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (!event.data) return;
 
@@ -245,15 +242,15 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             if (event.data.type === 'request-edits') {
                 window.parent.postMessage({
                     type: 'edits-response',
-                    edits: pendingEdits,
-                    count: pendingEdits.length,
+                    edits: pendingEditsRef.current,
+                    count: pendingEditsRef.current.length,
                 }, '*');
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    });
+    }, [enableEditing, disableEditing, clearAllEdits]);
 
     const value = useMemo(() => ({
         isEditing,
