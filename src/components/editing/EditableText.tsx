@@ -10,6 +10,11 @@ interface EditableTextProps {
     as?: keyof JSX.IntrinsicElements;
 }
 
+// Context to check if we are inside an editable text component
+const EditableTextContext = React.createContext<{ isParentEditable: boolean }>({ isParentEditable: false });
+
+export const useEditableTextContext = () => React.useContext(EditableTextContext);
+
 /**
  * EditableText wrapper component.
  * In editor mode, makes text content editable with click-to-edit functionality.
@@ -124,24 +129,28 @@ export const EditableText: React.FC<EditableTextProps> = ({
         return <>{children}</>;
     }
 
-    return React.createElement(
-        Component,
-        {
-            ref: containerRef,
-            className: cn(
-                className,
-                isEditing && 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-primary/40 hover:outline-offset-2 transition-all duration-150',
-                isContentEditable && 'outline outline-2 outline-solid outline-primary outline-offset-2 bg-primary/5'
-            ),
-            contentEditable: isContentEditable,
-            suppressContentEditableWarning: true,
-            onClick: handleClick,
-            onBlur: handleBlur,
-            onKeyDown: handleKeyDown,
-            'data-editable': isEditing ? 'true' : undefined,
-            'data-editing': isContentEditable ? 'true' : undefined,
-        },
-        children
+    return (
+        <EditableTextContext.Provider value={{ isParentEditable: isContentEditable }}>
+            {React.createElement(
+                Component,
+                {
+                    ref: containerRef,
+                    className: cn(
+                        className,
+                        isEditing && 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-offset-2 hover:outline-[#3cc499] transition-all duration-150',
+                        isContentEditable && 'outline outline-2 outline-solid outline-offset-2 outline-[#3cc499] bg-[#3cc499]/10'
+                    ),
+                    contentEditable: isContentEditable,
+                    suppressContentEditableWarning: true,
+                    onClick: handleClick,
+                    onBlur: handleBlur,
+                    onKeyDown: handleKeyDown,
+                    'data-editable': isEditing ? 'true' : undefined,
+                    'data-editing': isContentEditable ? 'true' : undefined,
+                },
+                children
+            )}
+        </EditableTextContext.Provider>
     );
 };
 

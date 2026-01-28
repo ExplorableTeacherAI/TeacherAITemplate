@@ -193,7 +193,11 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveEquationEdit = useCallback((newLatex: string, newColorMap?: Record<string, string>) => {
         if (!editingEquation) return;
 
-        if (newLatex !== editingEquation.latex) {
+        // Check if latex or color map changed
+        const latexChanged = newLatex !== editingEquation.latex;
+        const colorMapChanged = newColorMap && JSON.stringify(newColorMap) !== JSON.stringify(editingEquation.colorMap);
+
+        if (latexChanged || colorMapChanged) {
             addEquationEdit({
                 sectionId: editingEquation.sectionId,
                 componentType: 'Equation', // Will need to detect actual type
@@ -279,9 +283,40 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         saveEquationEdit,
     ]);
 
+    // Check if running standalone (not in iframe)
+    const isStandalone = typeof window !== 'undefined' && window.self === window.top;
+
     return (
         <EditingContext.Provider value={value}>
             {children}
+
+            {/* Debug toggle button for standalone testing */}
+            {isEditor && isStandalone && (
+                <button
+                    onClick={() => isEditing ? disableEditing() : enableEditing()}
+                    className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg transition-all duration-200"
+                    style={{
+                        backgroundColor: isEditing ? '#22c55e' : '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                    }}
+                >
+                    <span>{isEditing ? '✏️ Editing ON' : '✏️ Enable Editing'}</span>
+                    {pendingEdits.length > 0 && (
+                        <span style={{
+                            backgroundColor: '#ef4444',
+                            padding: '2px 6px',
+                            borderRadius: '9999px',
+                            fontSize: '12px',
+                        }}>
+                            {pendingEdits.length}
+                        </span>
+                    )}
+                </button>
+            )}
         </EditingContext.Provider>
     );
 };
@@ -292,4 +327,12 @@ export const useEditing = (): EditingContextType => {
         throw new Error('useEditing must be used within EditingProvider');
     }
     return context;
+};
+
+/**
+ * Optional version of useEditing that returns undefined if not in EditingProvider.
+ * Useful for components that optionally support editing.
+ */
+export const useOptionalEditing = (): EditingContextType | undefined => {
+    return useContext(EditingContext);
 };

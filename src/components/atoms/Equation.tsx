@@ -42,15 +42,52 @@ export const Equation: React.FC<EquationProps> = ({
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
 
+    // Editing support
+    const { isEditor } = useAppMode();
+    const { isEditing, openEquationEditor, pendingEdits } = useEditing();
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Generate element path for identifying this equation
+    const getElementPath = useCallback(() => {
+        if (!containerRef.current) return '';
+        const section = containerRef.current.closest('[data-section-id]');
+        const sectionId = section?.getAttribute('data-section-id') || 'unknown';
+        // Use a more stable ID if possible, otherwise rely on content
+        return `equation-${sectionId}-${latex.substring(0, 20)}`;
+    }, [latex]);
+
+    // Check for pending edits
+    const pendingEdit = useMemo(() => {
+        if (!isEditing || !isEditor || !containerRef.current) return null;
+
+        const path = getElementPath();
+        const section = containerRef.current.closest('[data-section-id]');
+        const sectionId = section?.getAttribute('data-section-id') || '';
+
+        // Find the most recent edit for this equation
+        const edit = [...pendingEdits].reverse().find(e =>
+            e.type === 'equation' &&
+            e.sectionId === sectionId &&
+            (e as any).originalLatex === latex // Simple matching for now
+            // Ideally we'd match by elementPath if we generated it consistently upstream
+        );
+
+        return edit as { newLatex: string, colorMap?: Record<string, string> } | null;
+    }, [isEditing, isEditor, pendingEdits, latex, getElementPath]);
+
+    // Use edited values if available
+    const displayLatex = pendingEdit ? pendingEdit.newLatex : latex;
+    const displayColorMap = pendingEdit && pendingEdit.colorMap ? pendingEdit.colorMap : colorMap;
+
     // Pre-process the latex to replace \clr{term}{content} with colored spans
     const processedLatex = useMemo(() => {
-        let result = latex;
+        let result = displayLatex;
 
         // Replace \clr{termName}{content} with \htmlClass{term-termName}{\textcolor{color}{content}}
         const clrPattern = /\\clr\{([^}]+)\}\{([^}]+)\}/g;
 
         result = result.replace(clrPattern, (_, termName, content) => {
-            const color = colorMap[termName];
+            const color = displayColorMap[termName];
             if (color) {
                 return `\\htmlClass{term-${termName}}{\\textcolor{${color}}{${content}}}`;
             }
@@ -58,7 +95,7 @@ export const Equation: React.FC<EquationProps> = ({
         });
 
         return result;
-    }, [latex, colorMap]);
+    }, [displayLatex, displayColorMap]);
 
     // Helper to get term from element
     const getTermFromElement = useCallback((el: Element | null): string | null => {
@@ -94,9 +131,9 @@ export const Equation: React.FC<EquationProps> = ({
             });
         } catch (error) {
             console.error("KaTeX rendering error:", error);
-            containerRef.current.textContent = latex;
+            containerRef.current.textContent = displayLatex;
         }
-    }, [processedLatex, latex]);
+    }, [processedLatex, displayLatex]);
 
     // Apply styles based on activeTerm (no DOM manipulation)
     useEffect(() => {
@@ -162,27 +199,14 @@ export const Equation: React.FC<EquationProps> = ({
         }
     }, [onTermClick, findTermElement, getTermFromElement]);
 
-    // Editing support
-    const { isEditor } = useAppMode();
-    const { isEditing, openEquationEditor } = useEditing();
-    const [isHovered, setIsHovered] = useState(false);
-
-    // Generate element path for identifying this equation
-    const getElementPath = useCallback(() => {
-        if (!containerRef.current) return '';
-        const section = containerRef.current.closest('[data-section-id]');
-        const sectionId = section?.getAttribute('data-section-id') || 'unknown';
-        return `equation-${sectionId}-${latex.substring(0, 20)}`;
-    }, [latex]);
-
     // Handle edit button click
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         const section = containerRef.current?.closest('[data-section-id]');
         const sectionId = section?.getAttribute('data-section-id') || '';
-        openEquationEditor(latex, colorMap, sectionId, getElementPath());
-    }, [latex, colorMap, openEquationEditor, getElementPath]);
+        openEquationEditor(displayLatex, displayColorMap, sectionId, getElementPath());
+    }, [displayLatex, displayColorMap, openEquationEditor, getElementPath]);
 
     return (
         <span
@@ -198,7 +222,7 @@ export const Equation: React.FC<EquationProps> = ({
                 className={cn(
                     "equation-display inline-block",
                     className,
-                    isEditor && isEditing && "cursor-pointer hover:outline hover:outline-2 hover:outline-dashed hover:outline-primary/40 hover:outline-offset-2 rounded transition-all duration-150"
+                    isEditor && isEditing && "cursor-pointer hover:outline hover:outline-2 hover:outline-dashed hover:outline-offset-2 hover:outline-[#3cc499] rounded transition-all duration-150"
                 )}
                 onMouseOver={handleMouseOver}
                 onMouseOut={handleMouseOut}
@@ -208,7 +232,7 @@ export const Equation: React.FC<EquationProps> = ({
             {isEditor && isEditing && isHovered && (
                 <button
                     onClick={handleEditClick}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center text-xs hover:bg-primary/90 transition-all duration-150 z-10"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-[#3cc499] text-white rounded-full shadow-lg flex items-center justify-center text-xs hover:bg-[#3cc499]/90 transition-all duration-150 z-10"
                     title="Edit equation"
                 >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
