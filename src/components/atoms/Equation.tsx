@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
+import { useEditing } from '@/contexts/EditingContext';
+import { useAppMode } from '@/contexts/AppModeContext';
 
 interface EquationProps {
     latex: string;
@@ -160,13 +162,60 @@ export const Equation: React.FC<EquationProps> = ({
         }
     }, [onTermClick, findTermElement, getTermFromElement]);
 
+    // Editing support
+    const { isEditor } = useAppMode();
+    const { isEditing, openEquationEditor } = useEditing();
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Generate element path for identifying this equation
+    const getElementPath = useCallback(() => {
+        if (!containerRef.current) return '';
+        const section = containerRef.current.closest('[data-section-id]');
+        const sectionId = section?.getAttribute('data-section-id') || 'unknown';
+        return `equation-${sectionId}-${latex.substring(0, 20)}`;
+    }, [latex]);
+
+    // Handle edit button click
+    const handleEditClick = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const section = containerRef.current?.closest('[data-section-id]');
+        const sectionId = section?.getAttribute('data-section-id') || '';
+        openEquationEditor(latex, colorMap, sectionId, getElementPath());
+    }, [latex, colorMap, openEquationEditor, getElementPath]);
+
     return (
         <span
-            ref={containerRef}
-            className={cn("equation-display inline-block", className)}
-            onMouseOver={handleMouseOver}
-            onMouseOut={handleMouseOut}
-            onClick={handleClick}
-        />
+            className={cn(
+                "relative inline-block",
+                isEditor && isEditing && "group"
+            )}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <span
+                ref={containerRef}
+                className={cn(
+                    "equation-display inline-block",
+                    className,
+                    isEditor && isEditing && "cursor-pointer hover:outline hover:outline-2 hover:outline-dashed hover:outline-primary/40 hover:outline-offset-2 rounded transition-all duration-150"
+                )}
+                onMouseOver={handleMouseOver}
+                onMouseOut={handleMouseOut}
+                onClick={isEditor && isEditing ? handleEditClick : handleClick}
+            />
+            {/* Edit button - appears on hover in edit mode */}
+            {isEditor && isEditing && isHovered && (
+                <button
+                    onClick={handleEditClick}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center text-xs hover:bg-primary/90 transition-all duration-150 z-10"
+                    title="Edit equation"
+                >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                </button>
+            )}
+        </span>
     );
 };
