@@ -5,6 +5,7 @@ import { threeJsAnimationsDemo } from "./sections/threeJsAnimationsDemo";
 import { d3Demo } from "./sections/d3Demo";
 import { mafsDemo } from "./sections/mafsDemo";
 import { annotationsDemoSections } from "./sections/annotationsDemo";
+import { storeDemoSections } from "./sections/StoreDemoSection";
 import {
     exampleDesmosInteractive,
     exampleEquationColoring,
@@ -12,6 +13,11 @@ import {
     exampleInlineEquation,
     exampleUnifiedHighlight
 } from "@/examples/sections-examples";
+
+// Initialize variables from example variable definitions
+import { useVariableStore } from "@/stores";
+import { getExampleDefaultValues } from "./exampleVariables";
+useVariableStore.getState().initialize(getExampleDefaultValues());
 
 
 // Import layout components
@@ -43,8 +49,12 @@ import {
 
 
 
-
 const exampleSections: ReactElement[] = [
+    // ========================================
+    // VARIABLE STORE DEMO (Cross-Section State)
+    // ========================================
+    ...storeDemoSections,
+
     // ========================================
     // SPLIT LAYOUT DEMO (50/50)
     // ========================================
