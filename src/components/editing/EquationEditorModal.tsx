@@ -4,16 +4,21 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
 
-// Color presets for equation terms
+import { createPortal } from 'react-dom';
+
+// Color presets matching Tailwind colors used elsewhere
+// These can be updated to specific theme values if needed
 const COLOR_PRESETS = [
-    { name: 'Red', value: '#ef4444' },
-    { name: 'Blue', value: '#3b82f6' },
-    { name: 'Green', value: '#22c55e' },
-    { name: 'Orange', value: '#f97316' },
-    { name: 'Purple', value: '#a855f7' },
-    { name: 'Cyan', value: '#06b6d4' },
-    { name: 'Pink', value: '#ec4899' },
-    { name: 'Yellow', value: '#eab308' },
+    { name: 'Red', value: '#ef4444' },    // red-500
+    { name: 'Blue', value: '#3b82f6' },   // blue-500
+    { name: 'Green', value: '#3cc499' },  // Custom Brand Green
+    { name: 'Orange', value: '#f97316' }, // orange-500
+    { name: 'Purple', value: '#a855f7' }, // purple-500
+    { name: 'Cyan', value: '#06b6d4' },   // cyan-500
+    { name: 'Pink', value: '#ec4899' },   // pink-500
+    { name: 'Yellow', value: '#eab308' }, // yellow-500
+    { name: 'Teal', value: '#14b8a6' },   // teal-500
+    { name: 'Indigo', value: '#6366f1' }, // indigo-500
 ];
 
 interface TermEditorProps {
@@ -33,9 +38,42 @@ const TermEditor: React.FC<TermEditorProps> = ({
 }) => {
     const [localContent, setLocalContent] = useState(content);
     const [showColorPicker, setShowColorPicker] = useState(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 });
+
+    // Update position when picker opens
+    useEffect(() => {
+        if (showColorPicker && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            // Position below the button, slightly offset to left to align with edge if close to screen edge
+            setPickerPosition({
+                top: rect.bottom + 8 + window.scrollY,
+                left: rect.left + window.scrollX - 100, // Shift left to keep in viewport usually
+            });
+        }
+    }, [showColorPicker]);
+
+    // Close picker when clicking outside
+    useEffect(() => {
+        if (!showColorPicker) return;
+
+        const handleClickOutside = (e: MouseEvent) => {
+            if (buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
+                // Check if click is inside the portal (we can't easily check ref inside portal here without more state)
+                // A simple trick is to check if the target has a specific class or check closest
+                const target = e.target as HTMLElement;
+                if (!target.closest('.color-picker-portal')) {
+                    setShowColorPicker(false);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showColorPicker]);
 
     return (
-        <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-md">
+        <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-md relative">
             {/* Term name */}
             <span className="text-xs font-mono text-muted-foreground min-w-[60px]">
                 {termName}
@@ -51,40 +89,63 @@ const TermEditor: React.FC<TermEditorProps> = ({
                 placeholder="Content"
             />
 
-            {/* Color picker */}
-            <div className="relative">
-                <button
-                    className="w-6 h-6 rounded border-2 border-white shadow-sm"
-                    style={{ backgroundColor: color }}
-                    onClick={() => setShowColorPicker(!showColorPicker)}
-                    title="Change color"
-                />
+            {/* Color picker trigger */}
+            <button
+                ref={buttonRef}
+                className="w-6 h-6 rounded border-2 border-white shadow-sm flex-shrink-0"
+                style={{ backgroundColor: color }}
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                title="Change color"
+            />
 
-                {showColorPicker && (
-                    <div className="absolute right-0 top-8 z-50 bg-background border rounded-lg shadow-lg p-2 grid grid-cols-4 gap-1">
-                        {COLOR_PRESETS.map((preset) => (
-                            <button
-                                key={preset.value}
-                                className={cn(
-                                    "w-6 h-6 rounded border-2 transition-transform hover:scale-110",
-                                    color === preset.value ? "border-foreground" : "border-transparent"
-                                )}
-                                style={{ backgroundColor: preset.value }}
-                                onClick={() => {
-                                    onUpdate(termName, localContent, preset.value);
-                                    setShowColorPicker(false);
-                                }}
-                                title={preset.name}
-                            />
-                        ))}
+            {/* Color picker portal */}
+            {showColorPicker && createPortal(
+                <div
+                    className="color-picker-portal fixed z-[10000] bg-popover text-popover-foreground border rounded-lg shadow-xl p-3 grid grid-cols-5 gap-2 animate-in fade-in zoom-in-95 duration-100"
+                    style={{
+                        top: pickerPosition.top,
+                        left: Math.max(10, Math.min(window.innerWidth - 180, pickerPosition.left)),
+                        width: '180px'
+                    }}
+                >
+                    {COLOR_PRESETS.map((preset) => (
+                        <button
+                            key={preset.value}
+                            className={cn(
+                                "w-6 h-6 rounded-full border-2 transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                                color.toLowerCase() === preset.value.toLowerCase() ? "border-foreground ring-2 ring-offset-1 ring-foreground/20" : "border-transparent"
+                            )}
+                            style={{ backgroundColor: preset.value }}
+                            onClick={() => {
+                                onUpdate(termName, localContent, preset.value);
+                                setShowColorPicker(false);
+                            }}
+                            title={preset.name}
+                        />
+                    ))}
+                    {/* Input for custom hex */}
+                    <div className="col-span-5 pt-2 mt-1 border-t flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground">#</span>
+                        <input
+                            type="text"
+                            className="w-full text-xs bg-muted/50 rounded px-1 py-0.5 border-none focus:ring-1 focus:ring-primary"
+                            value={color.replace('#', '')}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (/^[0-9a-fA-F]{0,6}$/.test(val)) {
+                                    onUpdate(termName, localContent, '#' + val);
+                                }
+                            }}
+                        />
                     </div>
-                )}
-            </div>
+                </div>,
+                document.body
+            )}
 
             {/* Remove button */}
             <button
                 onClick={() => onRemove(termName)}
-                className="text-muted-foreground hover:text-destructive transition-colors"
+                className="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
                 title="Remove term"
             >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,21 +178,40 @@ export const EquationEditorModal: React.FC = () => {
     }, [editingEquation]);
 
     // Parse \clr{term}{content} from LaTeX
-    const parseTermsFromLatex = useCallback((latexStr: string, colors: Record<string, string>) => {
-        const pattern = /\\clr\{([^}]+)\}\{([^}]+)\}/g;
+    const parseTermsFromLatex = useCallback((latexStr: string, currentColors: Record<string, string>) => {
+        // Regex to match \clr{term}{content}, allowing for whitespace
+        const pattern = /\\clr\s*\{\s*([^}]+)\s*\}\s*\{\s*([^}]+)\s*\}/g;
         const foundTerms: { name: string; content: string; color: string }[] = [];
         let match;
 
+        // Track colors to potentially update state
+        const updatedColors = { ...currentColors };
+        let hasNewColors = false;
+
         while ((match = pattern.exec(latexStr)) !== null) {
             const [, termName, content] = match;
+            const cleanName = termName.trim();
+
+            // If color doesn't exist for this term, assign a default one
+            if (!updatedColors[cleanName]) {
+                const defaultColor = COLOR_PRESETS[foundTerms.length % COLOR_PRESETS.length].value;
+                updatedColors[cleanName] = defaultColor;
+                hasNewColors = true;
+            }
+
             foundTerms.push({
-                name: termName,
-                content: content,
-                color: colors[termName] || COLOR_PRESETS[foundTerms.length % COLOR_PRESETS.length].value,
+                name: cleanName,
+                content: content.trim(),
+                color: updatedColors[cleanName],
             });
         }
 
         setTerms(foundTerms);
+
+        // If we assigned new default colors, update the map so preview picks it up
+        if (hasNewColors) {
+            setColorMap(updatedColors);
+        }
     }, []);
 
     // Render preview
@@ -141,10 +221,12 @@ export const EquationEditorModal: React.FC = () => {
         try {
             // Process \clr{}{} syntax for preview
             let processedLatex = latex;
-            const clrPattern = /\\clr\{([^}]+)\}\{([^}]+)\}/g;
+            // Regex to match \clr{term}{content}, allowing for whitespace
+            const clrPattern = /\\clr\s*\{\s*([^}]+)\s*\}\s*\{\s*([^}]+)\s*\}/g;
 
             processedLatex = processedLatex.replace(clrPattern, (_, termName, content) => {
-                const color = colorMap[termName] || '#888888';
+                const cleanName = termName.trim();
+                const color = colorMap[cleanName] || '#888888';
                 return `\\textcolor{${color}}{${content}}`;
             });
 
@@ -157,7 +239,7 @@ export const EquationEditorModal: React.FC = () => {
         } catch (err) {
             setError((err as Error).message);
         }
-    }, [latex, colorMap]);
+    }, [latex, colorMap, activeTab]);
 
     // Update term in LaTeX
     const handleUpdateTerm = useCallback((termName: string, newContent: string, newColor: string) => {
@@ -195,29 +277,6 @@ export const EquationEditorModal: React.FC = () => {
 
         setTerms(prev => prev.filter(t => t.name !== termName));
     }, []);
-
-    // Add new colored term
-    const handleAddTerm = useCallback(() => {
-        const newTermName = `term${terms.length + 1}`;
-        const newColor = COLOR_PRESETS[terms.length % COLOR_PRESETS.length].value;
-
-        // Get selected text or insert at cursor
-        const textarea = textareaRef.current;
-        if (textarea) {
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = latex.substring(start, end) || 'text';
-
-            const newLatex =
-                latex.substring(0, start) +
-                `\\clr{${newTermName}}{${selectedText}}` +
-                latex.substring(end);
-
-            setLatex(newLatex);
-            setColorMap(prev => ({ ...prev, [newTermName]: newColor }));
-            setTerms(prev => [...prev, { name: newTermName, content: selectedText, color: newColor }]);
-        }
-    }, [latex, terms.length]);
 
     // Handle save
     const handleSave = useCallback(() => {
@@ -258,7 +317,7 @@ export const EquationEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'latex'
-                                ? "border-b-2 border-primary text-primary"
+                                ? "border-b-2 border-[#3cc499] text-[#3cc499]"
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('latex')}
@@ -269,7 +328,7 @@ export const EquationEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'terms'
-                                ? "border-b-2 border-primary text-primary"
+                                ? "border-b-2 border-[#3cc499] text-[#3cc499]"
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('terms')}
@@ -291,7 +350,7 @@ export const EquationEditorModal: React.FC = () => {
                                         setLatex(e.target.value);
                                         parseTermsFromLatex(e.target.value, colorMap);
                                     }}
-                                    className="w-full h-32 px-3 py-2 font-mono text-sm bg-muted/30 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full h-32 px-3 py-2 font-mono text-sm bg-muted/30 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#3cc499]"
                                     placeholder="Enter LaTeX equation..."
                                     spellCheck={false}
                                 />
@@ -322,7 +381,7 @@ export const EquationEditorModal: React.FC = () => {
                                 <div className="text-center py-8 text-muted-foreground">
                                     <p>No colored terms found.</p>
                                     <p className="text-sm mt-1">
-                                        Select text in the LaTeX tab and click "Add Colored Term" to create one.
+                                        Use the <code className="bg-muted px-1 rounded">\clr{'{'}name{'}'}{'{'}content{'}'}</code> syntax in the LaTeX Source tab to add colored terms.
                                     </p>
                                 </div>
                             ) : (
@@ -337,13 +396,6 @@ export const EquationEditorModal: React.FC = () => {
                                     />
                                 ))
                             )}
-
-                            <button
-                                onClick={handleAddTerm}
-                                className="w-full py-2 border-2 border-dashed border-muted-foreground/30 rounded-lg text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-                            >
-                                + Add Colored Term
-                            </button>
                         </div>
                     )}
                 </div>
@@ -358,7 +410,7 @@ export const EquationEditorModal: React.FC = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                        className="px-4 py-2 text-sm font-medium bg-[#3cc499] text-white rounded-lg hover:bg-[#3cc499]/90 transition-colors"
                     >
                         Apply Changes
                     </button>
