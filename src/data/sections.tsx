@@ -2,6 +2,11 @@ import { type ReactElement } from "react";
 // import { Section } from "@/components/templates";
 // import { FullWidthLayout, SplitLayout, GridLayout, SidebarLayout, Sidebar, Main } from "@/components/layouts";
 
+// Initialize variables from this file's variable definitions
+import { useVariableStore } from "@/stores";
+import { getDefaultValues } from "./variables";
+useVariableStore.getState().initialize(getDefaultValues());
+
 /**
  * ------------------------------------------------------------------
  * SECTION CONFIGURATION
@@ -13,7 +18,27 @@ import { type ReactElement } from "react";
  * 2. Use Layout components to organize your sections.
  * 3. Add your sections to the `sections` array below.
  * 
- * AVAILABLE LAYOUTS:
+ * ------------------------------------------------------------------
+ * CROSS-SECTION VARIABLES
+ * ------------------------------------------------------------------
+ * Variables can be shared across sections using the global store.
+ * 
+ * DEFINE VARIABLES: src/data/variables.ts
+ * 
+ * USAGE IN SECTIONS:
+ * 
+ * // Reading a value (auto-updates when changed):
+ * import { useVar } from '@/stores';
+ * const amplitude = useVar('amplitude', 1);
+ * 
+ * // Setting a value:
+ * import { useSetVar } from '@/stores';
+ * const setVar = useSetVar();
+ * setVar('amplitude', 2.5);
+ * 
+ * ------------------------------------------------------------------
+ * AVAILABLE LAYOUTS
+ * ------------------------------------------------------------------
  * 
  * 1. FullWidthLayout
  *    - Best for: Title headers, introductory text, broad visualizations.

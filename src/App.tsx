@@ -3,9 +3,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { AppModeProvider } from "@/contexts/AppModeContext";
+import { EditingProvider } from "@/contexts/EditingContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { HierarchyReporter } from "./components/HierarchyReporter";
+import { EquationEditorModal } from "./components/editing";
 
 const queryClient = new QueryClient();
 
@@ -17,16 +19,19 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
-        <HierarchyReporter />
-        <TooltipProvider>
-          <HashRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </HashRouter>
-        </TooltipProvider>
+        <EditingProvider>
+          <HierarchyReporter />
+          <EquationEditorModal />
+          <TooltipProvider>
+            <HashRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </HashRouter>
+          </TooltipProvider>
+        </EditingProvider>
       </AppModeProvider>
     </QueryClientProvider>
   );

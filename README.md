@@ -25,9 +25,14 @@ src/
 │   ├── layouts/         # Layout wrappers (FullWidth, Split, Grid, Sidebar)
 │   └── templates/       # Page-level structures and base Section component
 ├── data/                # Content configuration
-│   ├── sections/        # Individual section components for modularity
-│   ├── sections.tsx     # 🛑 MAIN ENTRY: Array of sections to render
-│   └── exampleSections.tsx # Reference examples for all layouts
+│   ├── sections/        # Individual section components for modularity (You will create new files here)
+│   ├── sections.tsx     # MAIN ENTRY: Array of sections to render (You will edit this file)
+│   ├── variables.ts     # VARIABLES: Define shared variables here (You will edit this file)
+│   ├── exampleSections.tsx # Reference examples for all layouts
+│   └── exampleVariables.ts # Variables for example/demo sections
+├── stores/              # Global state management (Zustand)
+│   ├── index.ts         # Exports for useVar, useSetVar, etc.
+│   └── variableStore.ts # The variable store implementation
 ├── hooks/               # Custom React hooks
 ├── lib/                 # Utilities and helper functions
 ├── pages/               # Top-level application pages (Index, NotFound)
@@ -36,8 +41,10 @@ src/
 
 ### Key Files in Detail
 
-- **`src/data/sections.tsx`**: 🛑 **START HERE**. This is the main entry point for your lesson content. The `sections` array in this file determines what is rendered on the page.
+- **`src/data/sections.tsx`**: **START HERE**. This is the main entry point for your lesson content. The `sections` array in this file determines what is rendered on the page.
+- **`src/data/variables.ts`**: **DEFINE VARIABLES HERE**. All shared variables for cross-section state are defined in this file.
 - **`src/data/exampleSections.tsx`**: A reference file containing comprehensive examples of all available layouts and extensive component usage. Use this for inspiration!
+- **`src/data/exampleVariables.ts`**: Variables used by the example/demo sections.
 - **`src/components/layouts/*`**: Contains the core layout components (`FullWidthLayout`, `SplitLayout`, `GridLayout`, `SidebarLayout`).
 - **`src/components/templates/Section.tsx`**: The core wrapper component for all content blocks.
 - **`src/components/atoms/ui`**: Reusable UI components (Buttons, Inputs, etc.) built with Tailwind CSS.
@@ -207,19 +214,137 @@ You can find specialized "molecule" and "organism" components in `src/components
 
 ---
 
-## ⚡ Development Tips
+## 🔗 Cross-Section Variables
 
-- **Run Dev Server**: `npm run dev`
-- **Toggle Examples**: Check your `.env` file. Set `VITE_SHOW_EXAMPLES=true` to see the built-in demo content instead of your `sections.tsx` content. This is great for reference!
-- **Hot Reloading**: Changes to `sections.tsx` and components reflect instantly.
+Share state between different sections using the global variable store. This is essential for creating interactive lessons where changing a value in one section updates visualizations in another.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/data/variables.ts` | 🛑 **Define your variables here** |
+| `src/data/exampleVariables.ts` | Variables for example/demo sections |
+| `src/stores/variableStore.ts` | The Zustand store (don't modify) |
+
+### 1. Define Variables in `variables.ts`
+
+```typescript
+// src/data/variables.ts
+export const variableDefinitions: Record<string, VariableDefinition> = {
+    // NUMBER - Use with sliders
+    amplitude: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Amplitude',
+        description: 'Wave amplitude',
+        min: 0, max: 5, step: 0.1,
+    },
+
+    // TEXT - Free text input
+    lessonTitle: {
+        defaultValue: 'My Lesson',
+        type: 'text',
+        label: 'Title',
+        placeholder: 'Enter a title...',
+    },
+
+    // SELECT - Dropdown with options
+    waveType: {
+        defaultValue: 'sine',
+        type: 'select',
+        label: 'Wave Type',
+        options: ['sine', 'cosine', 'square'],
+    },
+
+    // BOOLEAN - Toggle switch
+    showGrid: {
+        defaultValue: true,
+        type: 'boolean',
+        label: 'Show Grid',
+    },
+
+    // ARRAY - List of numbers
+    dataPoints: {
+        defaultValue: [1, 4, 9, 16],
+        type: 'array',
+        label: 'Data Points',
+    },
+
+    // OBJECT - Complex data
+    graphSettings: {
+        defaultValue: { xMin: -10, xMax: 10 },
+        type: 'object',
+        schema: '{ xMin: number, xMax: number }',
+    },
+};
+```
+
+### 2. Use Variables in Sections
+
+```tsx
+import { useVar, useSetVar } from '@/stores';
+
+// READING a variable (reactive - auto-updates when value changes)
+const amplitude = useVar('amplitude', 1);
+const title = useVar('lessonTitle', 'Default');
+const showGrid = useVar('showGrid', true);
+
+// SETTING a variable
+const setVar = useSetVar();
+setVar('amplitude', 2.5);
+setVar('lessonTitle', 'New Title');
+setVar('showGrid', false);
+```
+
+### 3. Example: Linked Slider and Visualization
+
+**Section A - Controls:**
+```tsx
+const ControlPanel = () => {
+    const setVar = useSetVar();
+    const amplitude = useVar('amplitude', 1);
+
+    return (
+        <Slider
+            value={[amplitude]}
+            onValueChange={([v]) => setVar('amplitude', v)}
+        />
+    );
+};
+```
+
+**Section B - Visualization:**
+```tsx
+const WaveDisplay = () => {
+    const amplitude = useVar('amplitude', 1);
+    
+    // amplitude updates automatically when slider moves!
+    return <WaveGraph amplitude={amplitude} />;
+};
+```
+
+### Variable Type Reference
+
+| Type | Default Example | UI Component |
+|------|-----------------|--------------|
+| `number` | `5` | Slider |
+| `text` | `'Hello'` | Input |
+| `select` | `'option1'` | Dropdown |
+| `boolean` | `true` | Switch/Toggle |
+| `array` | `[1, 2, 3]` | Custom |
+| `object` | `{ x: 0, y: 0 }` | Custom |
 
 ---
+
 
 ## 🤖 Agent Instructions (for AI)
 
 If you are an AI agent working on this repo:
 1. **Always read `src/data/sections.tsx`** first to see the current content structure.
-2. **Check `src/data/exampleSections.tsx`** if you need to know how to implement a specific layout or interactive component.
-3. When asked to "add a section", **create the component first**, then wrap it in an appropriate **Layout**, and finally add it to the `sections` array.
-4. Use **unique IDs** for every `<Section>`.
-5. Prefer **splitting complex code** into separate files in `src/components` or `src/data/sections` rather than dumping everything into `sections.tsx`.
+2. **Always read `src/data/variables.ts`** to see available shared variables.
+3. **Check `src/data/exampleSections.tsx`** if you need to know how to implement a specific layout or interactive component examples but do not modify this file.
+4. When asked to "add a section", **create the component first**, then wrap it in an appropriate **Layout**, and finally add it to the `sections` array.
+5. When creating interactive content, **define variables in `variables.ts`** first, then use `useVar` and `useSetVar` in your components.
+6. Use **unique IDs** for every `<Section>`.
+7. Prefer **splitting complex code** into separate files in `src/components` or `src/data/sections` rather than dumping everything into `sections.tsx`.
+
