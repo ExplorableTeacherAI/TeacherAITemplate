@@ -9,6 +9,7 @@ import { loadSections, createSectionsWatcher } from "@/lib/section-loader";
 import sectionLoaderConfig from "@/config/sections-loader.config";
 import { useAppMode } from "@/contexts/AppModeContext";
 import { LoadingScreen } from "@/components/atoms/LoadingScreen";
+import { useOptionalEditing } from "@/contexts/EditingContext";
 
 interface LessonViewProps {
   onEditSection?: (instruction: string) => void;
@@ -58,6 +59,7 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
   const [initialSections, setInitialSections] = useState<ReactElement[]>([]);
   const [loadingSections, setLoadingSections] = useState(true);
   const { isPreview } = useAppMode();
+  const editing = useOptionalEditing();
 
   const handleCommitSection = (sectionId: string, content: string) => {
     setInitialSections(prevSections => {
@@ -72,12 +74,16 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
       });
     });
 
-    // Notify parent to persist the change via AI agent
-    window.parent.postMessage({
-      type: 'commit-section-add',
-      sectionId,
-      content
-    }, '*');
+    if (editing) {
+      editing.addStructureEdit({
+        action: 'add',
+        sectionId,
+        content
+      });
+    } else {
+      // Fallback or dev mode without context?
+      console.warn("Editing context not found, cannot batch save section add");
+    }
   };
 
   const handleAddSection = (targetId: string) => {

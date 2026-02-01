@@ -25,7 +25,17 @@ export interface EquationEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit;
+export interface StructureEdit {
+    id: string;
+    type: 'structure';
+    action: 'reorder' | 'delete' | 'add';
+    sectionId?: string;
+    sectionIds?: string[];
+    content?: string;
+    timestamp: number;
+}
+
+export type PendingEdit = TextEdit | EquationEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -38,6 +48,7 @@ interface EditingContextType {
     disableEditing: () => void;
     addTextEdit: (edit: Omit<TextEdit, 'id' | 'type' | 'timestamp'>) => void;
     addEquationEdit: (edit: Omit<EquationEdit, 'id' | 'type' | 'timestamp'>) => void;
+    addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
     openEquationEditor: (latex: string, colorMap: Record<string, string> | undefined, sectionId: string, elementPath: string) => void;
@@ -176,6 +187,16 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         });
     }, [generateId]);
 
+    const addStructureEdit = useCallback((edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: StructureEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'structure',
+            timestamp: Date.now(),
+        };
+        setPendingEdits(prev => [...prev, newEdit]);
+    }, [generateId]);
+
     const removeEdit = useCallback((id: string) => {
         setPendingEdits(prev => prev.filter(e => e.id !== id));
     }, []);
@@ -267,6 +288,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         disableEditing,
         addTextEdit,
         addEquationEdit,
+        addStructureEdit,
         removeEdit,
         clearAllEdits,
         openEquationEditor,
@@ -280,6 +302,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         disableEditing,
         addTextEdit,
         addEquationEdit,
+        addStructureEdit,
         removeEdit,
         clearAllEdits,
         openEquationEditor,
