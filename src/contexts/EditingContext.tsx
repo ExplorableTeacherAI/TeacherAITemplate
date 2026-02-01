@@ -110,8 +110,12 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                 const updated = [...prev];
                 const existing = updated[existingIndex] as TextEdit;
 
-                // If new text matches original, remove the edit
-                if (edit.newText === existing.originalText) {
+                // If new text matches original (and html if available), remove the edit
+                const isReverted =
+                    edit.newText === existing.originalText &&
+                    (!edit.newHtml || !existing.originalHtml || edit.newHtml === existing.originalHtml);
+
+                if (isReverted) {
                     updated.splice(existingIndex, 1);
                     return updated;
                 }
@@ -120,6 +124,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                 updated[existingIndex] = {
                     ...existing,
                     newText: edit.newText,
+                    newHtml: edit.newHtml,
                     timestamp: Date.now(),
                 };
                 return updated;

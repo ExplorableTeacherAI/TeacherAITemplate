@@ -42,7 +42,7 @@ src/
 ### Key Files in Detail
 
 - **`src/data/sections.tsx`**: **START HERE**. This is the main entry point for your lesson content. The `sections` array in this file determines what is rendered on the page.
-- **`src/data/variables.ts`**: **DEFINE VARIABLES HERE**. All shared variables for cross-section state are defined in this file.
+- **`src/data/variables.ts`**: **DEFINE VARIABLES HERE**. All variables must be defined in this file.
 - **`src/data/exampleSections.tsx`**: A reference file containing comprehensive examples of all available layouts and extensive component usage. Use this for inspiration!
 - **`src/data/exampleVariables.ts`**: Variables used by the example/demo sections.
 - **`src/components/layouts/*`**: Contains the core layout components (`FullWidthLayout`, `SplitLayout`, `GridLayout`, `SidebarLayout`).
@@ -222,7 +222,7 @@ Share state between different sections using the global variable store. This is 
 
 | File | Purpose |
 |------|---------|
-| `src/data/variables.ts` | 🛑 **Define your variables here** |
+| `src/data/variables.ts` | **Define ALL variables here (Required)** |
 | `src/data/exampleVariables.ts` | Variables for example/demo sections |
 | `src/stores/variableStore.ts` | The Zustand store (don't modify) |
 
@@ -337,14 +337,35 @@ const WaveDisplay = () => {
 ---
 
 
+
+## ✏️ Editable Text
+
+To make content editable within the application (so users can tweak the lesson text without changing code), you **must** wrap text elements in the `<EditableText />` component.
+
+```tsx
+import { EditableText } from "@/components/editing";
+
+<Section id="my-section">
+  <EditableText as="h1" className="text-2xl font-bold">
+    My Editable Title
+  </EditableText>
+  <EditableText as="p">
+    This paragraph can be edited by clicking on it in Editor Mode.
+  </EditableText>
+</Section>
+```
+
+---
+
 ## 🤖 Agent Instructions (for AI)
 
 If you are an AI agent working on this repo:
 1. **Always read `src/data/sections.tsx`** first to see the current content structure.
 2. **Always read `src/data/variables.ts`** to see available shared variables.
-3. **Check `src/data/exampleSections.tsx`** if you need to know how to implement a specific layout or interactive component examples but do not modify this file.
-4. When asked to "add a section", **create the component first**, then wrap it in an appropriate **Layout**, and finally add it to the `sections` array.
-5. When creating interactive content, **define variables in `variables.ts`** first, then use `useVar` and `useSetVar` in your components.
-6. Use **unique IDs** for every `<Section>`.
-7. Prefer **splitting complex code** into separate files in `src/components` or `src/data/sections` rather than dumping everything into `sections.tsx`.
+3. **Check `src/data/exampleSections.tsx`** for reference but do not modify it.
+4. **Shared Variables ONLY**: Do not use `useState` for any lesson content or interactive state. **ALWAYS** define variables in `src/data/variables.ts` and use `useVar` / `useSetVar`.
+5. **Editable Wrappers ALWAYS**: Every piece of text (headings, paragraphs, labels) **MUST** be wrapped in `<EditableText />` (imported from `@/components/editing`). Use the `as` prop to change the tag (e.g., `as="h1"`).
+6. When asked to "add a section", **create the component first**, wrap it in a **Layout**, and add it to `sections.tsx`.
+7. Use **unique IDs** for every `<Section>`.
+8. Prefer **splitting complex code** into separate files.
 

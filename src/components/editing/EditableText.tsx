@@ -91,8 +91,8 @@ export const EditableText: React.FC<EditableTextProps> = ({
         const originalText = originalTextRef.current;
         const originalHtml = originalHtmlRef.current;
 
-        // Only create edit if text actually changed
-        if (newText !== originalText) {
+        // Only create edit if text actually changed OR html changed (e.g. deleting all content)
+        if (newText !== originalText || newHtml !== originalHtml) {
             addTextEdit({
                 sectionId,
                 elementPath: getElementPath(),
