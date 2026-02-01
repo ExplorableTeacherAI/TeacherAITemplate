@@ -8,7 +8,9 @@ export interface TextEdit {
     sectionId: string;
     elementPath: string;
     originalText: string;
+    originalHtml?: string;
     newText: string;
+    newHtml?: string;
     timestamp: number;
 }
 

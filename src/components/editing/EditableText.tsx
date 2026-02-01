@@ -31,6 +31,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const containerRef = useRef<HTMLElement>(null);
     const [isContentEditable, setIsContentEditable] = useState(false);
     const originalTextRef = useRef<string>('');
+    const originalHtmlRef = useRef<string>('');
 
     // Generate a unique path for this element based on its position in the DOM
     const getElementPath = useCallback(() => {
@@ -60,8 +61,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
         e.stopPropagation();
 
         if (!isContentEditable && containerRef.current) {
-            // Store original text before editing
+            // Store original text AND HTML before editing
             originalTextRef.current = containerRef.current.innerText;
+            originalHtmlRef.current = containerRef.current.outerHTML; // Capture the element itself
             setIsContentEditable(true);
 
             // Focus and select the content
@@ -85,7 +87,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
         if (!containerRef.current) return;
 
         const newText = containerRef.current.innerText;
+        const newHtml = containerRef.current.outerHTML;
         const originalText = originalTextRef.current;
+        const originalHtml = originalHtmlRef.current;
 
         // Only create edit if text actually changed
         if (newText !== originalText) {
@@ -93,7 +97,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
                 sectionId,
                 elementPath: getElementPath(),
                 originalText,
+                originalHtml,
                 newText,
+                newHtml,
             });
         }
 
