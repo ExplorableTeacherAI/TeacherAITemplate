@@ -9,6 +9,7 @@ import {
 } from "@/components/atoms/ui/dropdown-menu";
 import { GripVertical, Plus, Send, Pencil } from "lucide-react";
 import { AnnotationOverlay } from "@/components/atoms/AnnotationOverlay";
+import { useSectionContext } from "@/contexts/SectionContext";
 
 export interface SectionProps {
     /** Unique identifier for the section */
@@ -23,6 +24,8 @@ export interface SectionProps {
     isPreview?: boolean;
     /** Callback to send instruction to AI */
     onEditSection?: (instruction: string) => void;
+    /** Callback to add a new section */
+    onAddSection?: (sectionId: string) => void;
 }
 
 /**
@@ -35,8 +38,10 @@ export const Section = ({
     className = "",
     padding = "md",
     isPreview = false,
-    onEditSection
+    onEditSection,
+    onAddSection
 }: SectionProps) => {
+    const { dragControls, onDelete: sectionContextDelete } = useSectionContext();
     const [isAnnotating, setIsAnnotating] = useState(false);
     const sectionRef = useRef<HTMLElement>(null);
 
@@ -138,7 +143,11 @@ export const Section = ({
                                     size="icon"
                                     className="h-7 w-7 hover:bg-[#D4EDE5] hover:text-[#0D7377]"
                                     onClick={() => {
-                                        console.log("Add section clicked (not implemented in code mode)");
+                                        if (id && onAddSection) {
+                                            onAddSection(id);
+                                        } else {
+                                            console.log("Add section clicked (not implemented in code mode)");
+                                        }
                                     }}
                                 >
                                     <Plus className="h-4 w-4" />
@@ -159,6 +168,12 @@ export const Section = ({
                                             variant="ghost"
                                             size="icon"
                                             className="h-7 w-7 cursor-grab active:cursor-grabbing hover:bg-[#D4EDE5] hover:text-[#0D7377]"
+                                            onPointerDown={(e) => {
+                                                // Pass the event to DragControls
+                                                if (dragControls) {
+                                                    dragControls.start(e);
+                                                }
+                                            }}
                                         >
                                             <GripVertical className="h-4 w-4" />
                                         </Button>
@@ -202,7 +217,11 @@ export const Section = ({
                                 <DropdownMenuItem
                                     className="text-destructive"
                                     onClick={() => {
-                                        console.log("Delete section clicked (not implemented in code mode)");
+                                        if (sectionContextDelete) {
+                                            sectionContextDelete();
+                                        } else {
+                                            console.log("Delete not available");
+                                        }
                                     }}
                                 >
                                     Delete
