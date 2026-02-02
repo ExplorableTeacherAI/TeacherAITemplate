@@ -143,7 +143,6 @@ export const HighlightedTerm: React.FC<HighlightedTermProps> = ({
     // Get editing context - optional hook that doesn't throw if not in provider
     const { isEditor } = useAppMode();
     const editingContext = useOptionalEditing();
-    const isEditing = editingContext?.isEditing && isEditor;
     const addTextEdit = editingContext?.addTextEdit;
 
     // Check if we are inside an editable text component that is currently being edited
@@ -161,7 +160,7 @@ export const HighlightedTerm: React.FC<HighlightedTermProps> = ({
         // We just want to let the cursor be placed naturally
         if (isParentEditable) return;
 
-        if (!isEditing || isContentEditable) return;
+        if (!isEditor || isContentEditable) return;
 
         e.stopPropagation();
 
@@ -216,15 +215,13 @@ export const HighlightedTerm: React.FC<HighlightedTermProps> = ({
         <span
             ref={spanRef}
             className={cn(
-                "cursor-pointer transition-all duration-150 rounded px-0.5",
-                isEditing && !isContentEditable && !isParentEditable && "hover:outline hover:outline-2 hover:outline-dashed hover:outline-offset-1 hover:outline-[#3cc499]",
-                isContentEditable && "outline outline-2 outline-offset-1 outline-[#3cc499]",
+                "cursor-pointer transition-all duration-150 rounded px-0.5 outline-none focus:outline-none",
                 className
             )}
             style={{
                 color: color,
                 opacity: hasActiveTerm ? (isActive ? 1 : 0.35) : 1,
-                backgroundColor: isContentEditable ? `${color}30` : (isActive ? `${color}20` : 'transparent'),
+                backgroundColor: isActive ? `${color}20` : 'transparent',
             }}
             contentEditable={isContentEditable}
             suppressContentEditableWarning

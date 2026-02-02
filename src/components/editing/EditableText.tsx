@@ -27,7 +27,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     as: Component = 'span',
 }) => {
     const { isEditor } = useAppMode();
-    const { isEditing, addTextEdit } = useEditing();
+    const { addTextEdit } = useEditing();
     const containerRef = useRef<HTMLElement>(null);
     const [isContentEditable, setIsContentEditable] = useState(false);
     const originalTextRef = useRef<string>('');
@@ -56,7 +56,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
 
     // Handle click to enable editing
     const handleClick = useCallback((e: React.MouseEvent) => {
-        if (!isEditor || !isEditing) return;
+        if (!isEditor) return;
 
         e.stopPropagation();
 
@@ -80,7 +80,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
                 }
             }, 0);
         }
-    }, [isEditor, isEditing, isContentEditable]);
+    }, [isEditor, isContentEditable]);
 
     // Handle blur to save changes
     const handleBlur = useCallback(() => {
@@ -125,14 +125,14 @@ export const EditableText: React.FC<EditableTextProps> = ({
 
     // Disable editing when mode changes
     useEffect(() => {
-        if (!isEditing) {
+        if (!isEditor) {
             setIsContentEditable(false);
         }
-    }, [isEditing]);
+    }, [isEditor]);
 
     // If not in editor mode, just render children normally
     if (!isEditor) {
-        return <>{children}</>;
+        return React.createElement(Component, { className }, children);
     }
 
     return (
@@ -143,15 +143,14 @@ export const EditableText: React.FC<EditableTextProps> = ({
                     ref: containerRef,
                     className: cn(
                         className,
-                        isEditing && 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-offset-2 hover:outline-[#3cc499] transition-all duration-150',
-                        isContentEditable && 'outline outline-2 outline-solid outline-offset-2 outline-[#3cc499] bg-[#3cc499]/10'
+                        isEditor && 'cursor-text transition-all duration-150 outline-none focus:outline-none'
                     ),
                     contentEditable: isContentEditable,
                     suppressContentEditableWarning: true,
                     onClick: handleClick,
                     onBlur: handleBlur,
                     onKeyDown: handleKeyDown,
-                    'data-editable': isEditing ? 'true' : undefined,
+                    'data-editable': 'true',
                     'data-editing': isContentEditable ? 'true' : undefined,
                 },
                 children
