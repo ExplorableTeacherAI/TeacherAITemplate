@@ -144,7 +144,7 @@ export const SectionRenderer = ({
               axis="y"
               values={initialSections}
               onReorder={handleReorder}
-              className="space-y-8"
+              className="space-y-2"
             >
               {initialSections.map((section, index) => (
                 <DraggableSection
@@ -158,7 +158,7 @@ export const SectionRenderer = ({
               ))}
             </Reorder.Group>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-2">
               {initialSections.map((section, index) => (
                 <div key={section.key || `section-${index}`} className="w-full">
                   {deepCloneWithProps(section, { isPreview, onEditSection, onAddSection })}

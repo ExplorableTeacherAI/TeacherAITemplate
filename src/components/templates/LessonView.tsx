@@ -95,7 +95,7 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
       const newId = `section-${Date.now()}`;
       const newSection = (
         <FullWidthLayout key={`layout-${newId}`} maxWidth="xl">
-          <Section id={newId}>
+          <Section id={newId} padding="sm">
             <SectionInput
               id={newId}
               onCommit={handleCommitSection}

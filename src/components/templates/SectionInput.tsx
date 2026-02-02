@@ -1,5 +1,5 @@
-import { useState, type KeyboardEvent, useRef, useEffect } from "react";
-import { Textarea } from "@/components/atoms/ui/textarea";
+import { type KeyboardEvent, useRef, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface SectionInputProps {
     id: string;
@@ -8,36 +8,34 @@ interface SectionInputProps {
 }
 
 export const SectionInput = ({ id, onCommit, placeholder = "Type '/' for commands" }: SectionInputProps) => {
-    const [value, setValue] = useState("");
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const contentRef = useRef<HTMLParagraphElement>(null);
 
     useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.focus();
-            // Simple auto-resize
-            textareaRef.current.style.height = "auto";
-            textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
+        if (contentRef.current) {
+            contentRef.current.focus();
         }
-    }, [value]);
+    }, []);
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLParagraphElement>) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            if (value.trim()) {
-                onCommit(id, value);
+            const text = contentRef.current?.innerText || "";
+            if (text.trim()) {
+                onCommit(id, text);
             }
         }
     };
 
     return (
         <div className="w-full">
-            <Textarea
-                ref={textareaRef}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
+            <p
+                ref={contentRef}
+                contentEditable
                 onKeyDown={handleKeyDown}
-                placeholder={placeholder}
-                className="min-h-[2.5rem] resize-none border-none shadow-none focus-visible:ring-0 px-0 text-lg bg-transparent placeholder:text-muted-foreground/50"
+                className={cn(
+                    "w-full outline-none text-lg text-gray-800 leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50 cursor-text min-h-[1.5em]"
+                )}
+                data-placeholder={placeholder}
             />
         </div>
     );
