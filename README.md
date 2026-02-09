@@ -55,22 +55,31 @@ src/
 
 Creating content involves three simple steps: **Create**, **Layout**, and **Register**.
 
-### 1. Create a Section via `<Section>`
+### 1. Create a Block with Editable Components
 
-The `<Section>` component is the fundamental building block. It wraps your content and provides necessary hooks for the AI agent (like highlighting and context awareness).
+The `<Block>` component is the fundamental building block. It wraps your editable content and provides necessary hooks for the AI agent (like highlighting and context awareness). **All text content must use editable components** for proper tracking and editing.
 
-**Props:**
-- `id` (required): A unique string identifier for the section (e.g., "intro-text", "simulation-1").
+**Block Props:**
+- `id` (required): A unique string identifier for the block (e.g., "block-intro-01", "block-simulation-1").
 - `padding` (optional): "none" | "sm" | "md" | "lg" (default: "md").
 
+**Editable Component Props:**
+- `id` (required): A unique identifier for the specific editable element (e.g., "h1-main-title", "para-intro-1").
+- `sectionId` (required): References the parent Block's `id` for proper tracking.
+
 ```tsx
-import { Section } from "@/components/templates";
+import { Block } from "@/components/templates";
+import { EditableH1, EditableParagraph } from "@/components/atoms";
 
 const MyContent = () => (
-  <Section id="my-unique-section-id">
-    <h1 className="text-2xl font-bold">Hello World</h1>
-    <p>This is my first section.</p>
-  </Section>
+  <Block id="block-hello-world-01" padding="md">
+    <EditableH1 id="h1-main-title" sectionId="block-hello-world-01">
+      Hello World
+    </EditableH1>
+    <EditableParagraph id="para-intro-1" sectionId="block-hello-world-01">
+      This is my first editable paragraph.
+    </EditableParagraph>
+  </Block>
 );
 ```
 
@@ -86,11 +95,15 @@ Best for titles, introductions, or large visualizations that need maximum space.
 
 ```tsx
 import { FullWidthLayout } from "@/components/layouts";
+import { Block } from "@/components/templates";
+import { EditableH1 } from "@/components/atoms";
 
 <FullWidthLayout maxWidth="xl">
-  <Section id="header">
-    <h1>Chapter 1: The Beginning</h1>
-  </Section>
+  <Block id="block-header-01" padding="md">
+    <EditableH1 id="h1-chapter-title" sectionId="block-header-01">
+      Chapter 1: The Beginning
+    </EditableH1>
+  </Block>
 </FullWidthLayout>
 ```
 
@@ -105,14 +118,18 @@ Perfect for "Explanation + Visualization" pairs. Side-by-side content.
 
 ```tsx
 import { SplitLayout } from "@/components/layouts";
+import { Block } from "@/components/templates";
+import { EditableParagraph } from "@/components/atoms";
 
 <SplitLayout ratio="1:1" gap="lg" align="start">
-  <Section id="explanation">
-    <p>On the right, you can see the atom structure...</p>
-  </Section>
-  <Section id="visualization">
+  <Block id="block-explanation-01" padding="md">
+    <EditableParagraph id="para-atom-desc" sectionId="block-explanation-01">
+      On the right, you can see the atom structure...
+    </EditableParagraph>
+  </Block>
+  <Block id="block-visualization-01" padding="md">
     <MyAtomVisualizer />
-  </Section>
+  </Block>
 </SplitLayout>
 ```
 
@@ -126,11 +143,25 @@ Great for cards, galleries, or multiple small items.
 
 ```tsx
 import { GridLayout } from "@/components/layouts";
+import { Block } from "@/components/templates";
+import { EditableParagraph } from "@/components/atoms";
 
 <GridLayout columns={3} gap="md">
-  <Section id="card-1">Card 1</Section>
-  <Section id="card-2">Card 2</Section>
-  <Section id="card-3">Card 3</Section>
+  <Block id="block-card-01" padding="md">
+    <EditableParagraph id="para-card-1" sectionId="block-card-01">
+      Card 1
+    </EditableParagraph>
+  </Block>
+  <Block id="block-card-02" padding="md">
+    <EditableParagraph id="para-card-2" sectionId="block-card-02">
+      Card 2
+    </EditableParagraph>
+  </Block>
+  <Block id="block-card-03" padding="md">
+    <EditableParagraph id="para-card-3" sectionId="block-card-03">
+      Card 3
+    </EditableParagraph>
+  </Block>
 </GridLayout>
 ```
 
@@ -144,13 +175,23 @@ Useful for persistent tools, glossaries, or navigation that stays visible while 
 
 ```tsx
 import { SidebarLayout, Sidebar, Main } from "@/components/layouts";
+import { Block } from "@/components/templates";
+import { EditableH2, EditableParagraph } from "@/components/atoms";
 
 <SidebarLayout sidebarPosition="left" sidebarWidth="medium">
   <Sidebar>
-    <Section id="tools">Toolbox</Section>
+    <Block id="block-tools-01" padding="md">
+      <EditableH2 id="h2-tools-title" sectionId="block-tools-01">
+        Toolbox
+      </EditableH2>
+    </Block>
   </Sidebar>
   <Main>
-    <Section id="content">Main Lesson Content...</Section>
+    <Block id="block-content-01" padding="md">
+      <EditableParagraph id="para-main-content" sectionId="block-content-01">
+        Main Lesson Content...
+      </EditableParagraph>
+    </Block>
   </Main>
 </SidebarLayout>
 ```
@@ -163,17 +204,20 @@ Finally, add your configured layout to the `sections` array in `src/data/section
 // src/data/sections.tsx
 import { type ReactElement } from "react";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
-import { Section } from "@/components/templates";
+import { Block } from "@/components/templates";
+import { EditableH1, EditableParagraph } from "@/components/atoms";
 
 export const sections: ReactElement[] = [
-  <FullWidthLayout key="intro" maxWidth="xl">
-    <Section id="intro-content">
-      <h1>Welcome</h1>
-    </Section>
+  <FullWidthLayout key="layout-intro-01" maxWidth="xl">
+    <Block id="block-intro-01" padding="md">
+      <EditableH1 id="h1-welcome" sectionId="block-intro-01">
+        Welcome
+      </EditableH1>
+    </Block>
   </FullWidthLayout>,
 
-  <SplitLayout key="demo" ratio="1:1">
-     {/* ... content ... */}
+  <SplitLayout key="layout-demo-01" ratio="1:1">
+     {/* ... content with Block and editable components ... */}
   </SplitLayout>
 ];
 ```
@@ -188,14 +232,27 @@ To keep `sections.tsx` clean, it is highly recommended to **define complex secti
 
 1. Create `src/data/sections/MyTopicDemo.tsx`:
    ```tsx
-   export const myTopicSection = <Section id="topic">...</Section>;
+   import { Block } from "@/components/templates";
+   import { EditableH2, EditableParagraph } from "@/components/atoms";
+   
+   export const myTopicSection = (
+     <Block id="block-my-topic-01" padding="md">
+       <EditableH2 id="h2-topic-title" sectionId="block-my-topic-01">
+         My Topic
+       </EditableH2>
+       <EditableParagraph id="para-topic-intro" sectionId="block-my-topic-01">
+         This is the introduction to my topic.
+       </EditableParagraph>
+     </Block>
+   );
    ```
 2. Import in `src/data/sections.tsx`:
    ```tsx
    import { myTopicSection } from "./sections/MyTopicDemo";
+   import { FullWidthLayout } from "@/components/layouts";
    
    export const sections = [
-       <FullWidthLayout>{myTopicSection}</FullWidthLayout>
+       <FullWidthLayout key="layout-topic-01">{myTopicSection}</FullWidthLayout>
    ];
    ```
 
@@ -338,22 +395,65 @@ const WaveDisplay = () => {
 
 
 
-## ✏️ Editable Text
+## ✏️ Editable Components
 
-To make content editable within the application (so users can tweak the lesson text without changing code), you **must** wrap text elements in the `<EditableText />` component.
+To make content editable within the application (so users can tweak the lesson text without changing code), you **must** use editable component wrappers. Each editable component requires both an `id` and `sectionId` prop for proper tracking.
+
+### Available Editable Components
+
+- `EditableH1`, `EditableH2`, `EditableH3` - Editable headings
+- `EditableParagraph` - Editable paragraph text
+- `InlineScrubbleNumber` - Interactive inline numeric values that can be dragged
+
+### Basic Usage
 
 ```tsx
-import { EditableText } from "@/components/editing";
+import { Block } from "@/components/templates";
+import { EditableH1, EditableH2, EditableParagraph } from "@/components/atoms";
 
-<Section id="my-section">
-  <EditableText as="h1" className="text-2xl font-bold">
+<Block id="block-example-01" padding="md">
+  <EditableH1 id="h1-title" sectionId="block-example-01">
     My Editable Title
-  </EditableText>
-  <EditableText as="p">
+  </EditableH1>
+  <EditableH2 id="h2-subtitle" sectionId="block-example-01">
+    My Subtitle
+  </EditableH2>
+  <EditableParagraph id="para-intro" sectionId="block-example-01">
     This paragraph can be edited by clicking on it in Editor Mode.
-  </EditableText>
-</Section>
+  </EditableParagraph>
+</Block>
 ```
+
+### Inline Components in Paragraphs
+
+You can embed interactive components like `InlineScrubbleNumber` within paragraphs:
+
+```tsx
+import { Block } from "@/components/templates";
+import { EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
+
+<Block id="block-physics-01" padding="md">
+  <EditableParagraph id="para-velocity" sectionId="block-physics-01">
+    The object is moving at{" "}
+    <InlineScrubbleNumber
+      varName="velocity"
+      defaultValue={20}
+      min={0}
+      max={100}
+      step={1}
+      formatValue={(v) => `${v} m/s`}
+    />
+    {" "}through the air.
+  </EditableParagraph>
+</Block>
+```
+
+### ID Naming Conventions
+
+- **Block IDs**: Use format `block-<description>-<number>` (e.g., `block-intro-01`, `block-physics-demo-02`)
+- **Editable Component IDs**: Use format `<type>-<description>` (e.g., `h1-main-title`, `para-intro-1`, `h2-section-heading`)
+- Each ID must be **unique** across the entire application
+- `sectionId` must match the parent Block's `id`
 
 ---
 
@@ -362,10 +462,19 @@ import { EditableText } from "@/components/editing";
 If you are an AI agent working on this repo:
 1. **Always read `src/data/sections.tsx`** first to see the current content structure.
 2. **Always read `src/data/variables.ts`** to see available shared variables.
-3. **Check `src/data/exampleSections.tsx`** for reference but do not modify it.
+3. **Check `src/data/exampleSections.tsx`** for comprehensive reference examples but do not modify it.
 4. **Shared Variables ONLY**: Do not use `useState` for any lesson content or interactive state. **ALWAYS** define variables in `src/data/variables.ts` and use `useVar` / `useSetVar`.
-5. **Editable Wrappers ALWAYS**: Every piece of text (headings, paragraphs, labels) **MUST** be wrapped in `<EditableText />` (imported from `@/components/editing`). Use the `as` prop to change the tag (e.g., `as="h1"`).
-6. When asked to "add a section", **create the component first**, wrap it in a **Layout**, and add it to `sections.tsx`.
-7. Use **unique IDs** for every `<Section>`.
-8. Prefer **splitting complex code** into separate files.
+5. **Block-Based Approach**: All content MUST be wrapped in `<Block>` components with unique IDs.
+6. **Editable Components ALWAYS**: Every piece of text (headings, paragraphs) **MUST** use editable component wrappers:
+   - Use `EditableH1`, `EditableH2`, `EditableH3` for headings
+   - Use `EditableParagraph` for paragraph text
+   - Import from `@/components/atoms`
+7. **ID Requirements**:
+   - Every `<Block>` must have a unique `id` prop (format: `block-<description>-<number>`)
+   - Every editable component must have:
+     - A unique `id` prop (format: `<type>-<description>`)
+     - A `sectionId` prop matching its parent Block's `id`
+8. **Inline Components**: Use `InlineScrubbleNumber` for interactive numeric values within paragraphs.
+9. When asked to "add a section", **create the Block with editable components first**, wrap it in a **Layout**, and add it to `sections.tsx`.
+10. Prefer **splitting complex code** into separate files in `src/data/sections/`.
 
