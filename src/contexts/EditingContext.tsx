@@ -638,6 +638,20 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                         )}
                                                     </>
                                                 )}
+                                                {edit.type === 'scrubbleNumber' && (
+                                                    <>
+                                                        <div>📍 {(edit as ScrubbleNumberEdit).sectionId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            🔢 Path: {(edit as ScrubbleNumberEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            varName: {(edit as ScrubbleNumberEdit).newProps.varName || '(none)'} |
+                                                            default: {(edit as ScrubbleNumberEdit).newProps.defaultValue} |
+                                                            range: [{(edit as ScrubbleNumberEdit).newProps.min}, {(edit as ScrubbleNumberEdit).newProps.max}] |
+                                                            step: {(edit as ScrubbleNumberEdit).newProps.step}
+                                                        </div>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     ))

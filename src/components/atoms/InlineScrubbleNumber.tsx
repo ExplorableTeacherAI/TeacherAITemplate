@@ -108,8 +108,10 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     useEffect(() => {
         if (!containerRef.current) return;
 
+        // Look for data-section-id first, then fall back to data-block-id
         const section = containerRef.current.closest('[data-section-id]');
-        const sectionId = section?.getAttribute('data-section-id') || '';
+        const block = containerRef.current.closest('[data-block-id]');
+        const sectionId = section?.getAttribute('data-section-id') || block?.getAttribute('data-block-id') || '';
         const elementPath = `scrubble-${sectionId}-${varName || defaultValue}`;
 
         setEditIdentity({ sectionId, elementPath });
@@ -217,7 +219,10 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         e.preventDefault();
 
         // Use stored identity if available, otherwise try to find it
-        const sectionId = editIdentity?.sectionId || containerRef.current?.closest('[data-section-id]')?.getAttribute('data-section-id') || '';
+        // Look for data-section-id first, then fall back to data-block-id
+        const section = containerRef.current?.closest('[data-section-id]');
+        const block = containerRef.current?.closest('[data-block-id]');
+        const sectionId = editIdentity?.sectionId || section?.getAttribute('data-section-id') || block?.getAttribute('data-block-id') || '';
         const elementPath = editIdentity?.elementPath || `scrubble-${sectionId}-${varName || defaultValue}`;
 
         openScrubbleNumberEditor(
