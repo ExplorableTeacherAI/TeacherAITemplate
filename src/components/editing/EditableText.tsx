@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 
 interface EditableTextProps {
     children: React.ReactNode;
+    id?: string;
     sectionId?: string;
     className?: string;
     as?: keyof JSX.IntrinsicElements;
@@ -22,6 +23,7 @@ export const useEditableTextContext = () => React.useContext(EditableTextContext
  */
 export const EditableText: React.FC<EditableTextProps> = ({
     children,
+    id,
     sectionId = '',
     className = '',
     as: Component = 'span',
@@ -132,7 +134,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
 
     // If not in editor mode, just render children normally
     if (!isEditor) {
-        return React.createElement(Component, { className }, children);
+        return React.createElement(Component, { id, className }, children);
     }
 
     return (
@@ -140,6 +142,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
             {React.createElement(
                 Component,
                 {
+                    id,
                     ref: containerRef,
                     className: cn(
                         className,

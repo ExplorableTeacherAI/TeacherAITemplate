@@ -7,7 +7,7 @@ import { EditingProvider } from "@/contexts/EditingContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { HierarchyReporter } from "./components/HierarchyReporter";
-import { EquationEditorModal } from "./components/editing";
+import { EquationEditorModal, ScrubbleNumberEditorModal } from "./components/editing";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +22,7 @@ const App = () => {
         <EditingProvider>
           <HierarchyReporter />
           <EquationEditorModal />
+          <ScrubbleNumberEditorModal />
           <TooltipProvider>
             <HashRouter>
               <Routes>

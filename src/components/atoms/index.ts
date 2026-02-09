@@ -52,7 +52,17 @@ export { ModeIndicator } from "./ModeIndicator";
 export { InfoTooltip } from "./InfoTooltip";
 export { InlineDropdown } from "./InlineDropdown";
 export { InlineTextInput } from "./InlineTextInput";
-export { InlineStepper } from "./InlineStepper";
+export { InlineScrubbleNumber } from "./InlineScrubbleNumber";
+export {
+    EditableH1,
+    EditableH2,
+    EditableH3,
+    EditableH4,
+    EditableH5,
+    EditableH6,
+    headingStyles
+} from "./EditableHeadings";
+export { EditableParagraph, EditableSpan } from "./EditableParagraph";
 export { AnnotationOverlay } from "./AnnotationOverlay";
 export { LoadingScreen } from "./LoadingScreen";
 

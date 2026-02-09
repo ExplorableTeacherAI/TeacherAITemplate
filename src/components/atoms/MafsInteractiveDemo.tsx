@@ -5,7 +5,7 @@ import {
     MafsInteractive,
     InteractiveHighlightProvider,
     InteractiveText,
-    InlineStepper
+    InlineScrubbleNumber
 } from "@/components/atoms";
 
 /**
@@ -36,14 +36,13 @@ export function MafsInteractiveDemo() {
                                 A sine wave is defined by two key parameters. The{" "}
                                 <InteractiveText id="amplitude">amplitude</InteractiveText>{" "}
                                 controls the height of the wave — try setting it to{" "}
-                                <InlineStepper
+                                <InlineScrubbleNumber
                                     value={amplitude}
                                     onChange={setAmplitude}
                                     min={0.1}
                                     max={4}
                                     step={0.1}
                                     color="#ef4444"
-                                    bgColor="rgba(239, 68, 68, 0.9)"
                                     formatValue={(v) => v.toFixed(1)}
                                 />{" "}
                                 and watch how the wave stretches vertically.
@@ -53,14 +52,13 @@ export function MafsInteractiveDemo() {
                                 The{" "}
                                 <InteractiveText id="frequency">frequency</InteractiveText>{" "}
                                 determines how rapidly the wave oscillates. Currently set to{" "}
-                                <InlineStepper
+                                <InlineScrubbleNumber
                                     value={frequency}
                                     onChange={setFrequency}
                                     min={0.1}
                                     max={2}
                                     step={0.1}
                                     color="#3b82f6"
-                                    bgColor="rgba(59, 130, 246, 0.9)"
                                     formatValue={(v) => v.toFixed(1)}
                                 />{" "}
                                 — a higher frequency means more oscillations per unit distance.
