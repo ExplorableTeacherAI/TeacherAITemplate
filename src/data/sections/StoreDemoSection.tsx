@@ -6,7 +6,7 @@
  */
 
 import { type ReactElement } from 'react';
-import { Section } from '@/components/templates';
+import { Block } from '@/components/templates';
 import { SplitLayout, FullWidthLayout } from '@/components/layouts';
 import { useVar, useSetVar } from '@/stores';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/atoms/ui/card';
@@ -273,7 +273,7 @@ const VariableDisplay = () => {
 
 const DemoHeader = () => (
     <FullWidthLayout maxWidth="xl">
-        <Section id="store-demo-header" padding="lg">
+        <Block id="store-demo-header" padding="lg">
             <div className="text-center space-y-4">
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                     🔗 Cross-Section Variable Demo
@@ -288,21 +288,21 @@ const DemoHeader = () => (
                     <span>All changes update instantly across sections!</span>
                 </div>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>
 );
 
 const DemoMain = () => (
     <SplitLayout ratio="1:1" gap="lg">
-        <Section id="store-demo-controls" padding="md">
+        <Block id="store-demo-controls" padding="md">
             <ControlPanel />
-        </Section>
-        <Section id="store-demo-viz" padding="md">
+        </Block>
+        <Block id="store-demo-viz" padding="md">
             <div className="space-y-4">
                 <WaveVisualization />
                 <VariableDisplay />
             </div>
-        </Section>
+        </Block>
     </SplitLayout>
 );
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SplitLayout } from "@/components/layouts";
-import { Section } from "@/components/templates";
+import { Block } from "@/components/templates";
 import {
     MafsInteractive,
     InteractiveHighlightProvider,
@@ -26,7 +26,7 @@ export function MafsInteractiveDemo() {
             }}
         >
             <SplitLayout ratio="1:1" gap="lg">
-                <Section id="mafs-interactive-text">
+                <Block id="mafs-interactive-text">
                     <div className="space-y-6">
                         <h2 className="text-2xl font-bold">Exploring Sine Waves</h2>
 
@@ -100,8 +100,8 @@ export function MafsInteractiveDemo() {
                             in the chart — the values above will update automatically!
                         </p>
                     </div>
-                </Section>
-                <Section id="mafs-interactive-viz">
+                </Block>
+                <Block id="mafs-interactive-viz">
                     <div className="w-full">
                         <MafsInteractive
                             amplitude={amplitude}
@@ -110,7 +110,7 @@ export function MafsInteractiveDemo() {
                             onFrequencyChange={setFrequency}
                         />
                     </div>
-                </Section>
+                </Block>
             </SplitLayout>
         </InteractiveHighlightProvider>
     );

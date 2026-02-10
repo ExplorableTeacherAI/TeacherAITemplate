@@ -50,24 +50,23 @@ export const Equation: React.FC<EquationProps> = ({
     // Generate element path for identifying this equation
     const getElementPath = useCallback(() => {
         if (!containerRef.current) return '';
-        const section = containerRef.current.closest('[data-section-id]');
-        const sectionId = section?.getAttribute('data-section-id') || 'unknown';
+        const block = containerRef.current.closest('[data-block-id]');
+        const blockId = block?.getAttribute('data-block-id') || 'unknown';
         // Use a more stable ID if possible, otherwise rely on content
-        return `equation-${sectionId}-${latex.substring(0, 20)}`;
+        return `equation-${blockId}-${latex.substring(0, 20)}`;
     }, [latex]);
 
     // Check for pending edits
     const pendingEdit = useMemo(() => {
         if (!isEditing || !isEditor || !containerRef.current) return null;
 
-        const path = getElementPath();
-        const section = containerRef.current.closest('[data-section-id]');
-        const sectionId = section?.getAttribute('data-section-id') || '';
+        const block = containerRef.current.closest('[data-block-id]');
+        const blockId = block?.getAttribute('data-block-id') || '';
 
         // Find the most recent edit for this equation
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'equation' &&
-            e.sectionId === sectionId &&
+            (e as any).blockId === blockId &&
             (e as any).originalLatex === latex // Simple matching for now
             // Ideally we'd match by elementPath if we generated it consistently upstream
         );
@@ -203,9 +202,9 @@ export const Equation: React.FC<EquationProps> = ({
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        const section = containerRef.current?.closest('[data-section-id]');
-        const sectionId = section?.getAttribute('data-section-id') || '';
-        openEquationEditor(displayLatex, displayColorMap, sectionId, getElementPath());
+        const block = containerRef.current?.closest('[data-block-id]');
+        const blockId = block?.getAttribute('data-block-id') || '';
+        openEquationEditor(displayLatex, displayColorMap, blockId, getElementPath());
     }, [displayLatex, displayColorMap, openEquationEditor, getElementPath]);
 
     return (

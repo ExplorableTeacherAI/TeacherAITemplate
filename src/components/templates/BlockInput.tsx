@@ -30,13 +30,13 @@ const extractContentWithMarkers = (element: HTMLElement): string => {
     return result.trim();
 };
 
-interface SectionInputProps {
+interface BlockInputProps {
     id: string;
     onCommit: (id: string, value: string, blockType?: SlashCommandType) => void;
     placeholder?: string;
 }
 
-export const SectionInput = ({ id, onCommit, placeholder = "Type '/' for commands" }: SectionInputProps) => {
+export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands" }: BlockInputProps) => {
     const contentRef = useRef<HTMLParagraphElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSlashMenu, setShowSlashMenu] = useState(false);

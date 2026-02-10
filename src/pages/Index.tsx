@@ -1,13 +1,13 @@
 import { LessonView } from "@/components/templates";
 
 const Index = () => {
-  const handleEditSection = (instruction: string) => {
-    console.log("Edit section instruction:", instruction);
+  const handleEditBlock = (instruction: string) => {
+    console.log("Edit block instruction:", instruction);
   };
 
   return (
     <div className="h-screen">
-      <LessonView onEditSection={handleEditSection} />
+      <LessonView onEditBlock={handleEditBlock} />
     </div>
   );
 };

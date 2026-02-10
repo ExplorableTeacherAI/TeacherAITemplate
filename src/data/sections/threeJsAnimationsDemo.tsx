@@ -1,11 +1,11 @@
 import { ThreeCanvas, RotatingCube, PulsingSphere, GeometricCollection, AtomicStructure, ThreeCoordinateSystem } from "@/components/atoms";
 import { FullWidthLayout, GridLayout, SplitLayout } from "@/components/layouts";
-import { Section } from "@/components/templates";
+import { Block } from "@/components/templates";
 
 export const threeJsAnimationsDemo = [
     // Header
     <FullWidthLayout key="threejs-header" maxWidth="xl">
-        <Section id="threejs-header">
+        <Block id="threejs-header">
             <div className="prose dark:prose-invert max-w-none">
                 <h1 className="text-4xl font-bold text-foreground">
                     Interactive 3D Visualizations
@@ -14,18 +14,18 @@ export const threeJsAnimationsDemo = [
                     Immersive 3D experiences to demonstrate complex spatial relationships and physics using Three.js and React Three Fiber.
                 </p>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     // Basic Geometries Section
     <FullWidthLayout key="basic-geo-header" maxWidth="xl">
-        <Section id="basic-geo-header">
+        <Block id="basic-geo-header">
             <h2 className="text-2xl font-semibold">Basic Geometries</h2>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     <GridLayout key="basic-geo-grid" columns={2} gap="lg">
-        <Section id="geo-cube">
+        <Block id="geo-cube">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Rotating Cube</h3>
                 <p className="text-sm text-muted-foreground">Interactive floating cube (hover to change color)</p>
@@ -35,8 +35,8 @@ export const threeJsAnimationsDemo = [
                     </ThreeCanvas>
                 </div>
             </div>
-        </Section>
-        <Section id="geo-sphere">
+        </Block>
+        <Block id="geo-sphere">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Pulsing Sphere</h3>
                 <p className="text-sm text-muted-foreground">Distorted mesh material simulating organic motion</p>
@@ -46,18 +46,18 @@ export const threeJsAnimationsDemo = [
                     </ThreeCanvas>
                 </div>
             </div>
-        </Section>
+        </Block>
     </GridLayout>,
 
     // 3D Coordinate System Section
     <FullWidthLayout key="3d-coord-header" maxWidth="xl">
-        <Section id="3d-coord-header">
+        <Block id="3d-coord-header">
             <h2 className="text-2xl font-semibold">3D Coordinate System</h2>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     <GridLayout key="3d-coord-grid" columns={2} gap="lg">
-        <Section id="coord-basic">
+        <Block id="coord-basic">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Standard Axes</h3>
                 <p className="text-sm text-muted-foreground">X (Red), Y (Green), and Z (Blue) axes with labels</p>
@@ -67,8 +67,8 @@ export const threeJsAnimationsDemo = [
                     </ThreeCanvas>
                 </div>
             </div>
-        </Section>
-        <Section id="coord-grid">
+        </Block>
+        <Block id="coord-grid">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">With Reference Grid</h3>
                 <p className="text-sm text-muted-foreground">Including an infinite grid for spatial reference</p>
@@ -78,18 +78,18 @@ export const threeJsAnimationsDemo = [
                     </ThreeCanvas>
                 </div>
             </div>
-        </Section>
+        </Block>
     </GridLayout>,
 
     // Complex Scenes Section
     <FullWidthLayout key="complex-scenes-header" maxWidth="xl">
-        <Section id="complex-scenes-header">
+        <Block id="complex-scenes-header">
             <h2 className="text-2xl font-semibold">Complex Scenes</h2>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     <SplitLayout key="complex-scenes-split" ratio="1:1" gap="lg">
-        <Section id="scene-atomic">
+        <Block id="scene-atomic">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Atomic Structure Simulation</h3>
                 <p className="text-sm text-muted-foreground">Simulated electron orbits around a nucleus</p>
@@ -99,8 +99,8 @@ export const threeJsAnimationsDemo = [
                     </ThreeCanvas>
                 </div>
             </div>
-        </Section>
-        <Section id="scene-geometric">
+        </Block>
+        <Block id="scene-geometric">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Geometric Composition</h3>
                 <p className="text-sm text-muted-foreground">Collection of floating shapes with different materials</p>
@@ -110,7 +110,7 @@ export const threeJsAnimationsDemo = [
                     </ThreeCanvas>
                 </div>
             </div>
-        </Section>
+        </Block>
     </SplitLayout>
 ];
 

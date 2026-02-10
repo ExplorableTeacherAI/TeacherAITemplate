@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import { Section } from '@/components/templates';
+import { Block } from '@/components/templates';
 import { FullWidthLayout } from '@/components/layouts';
 import {
     Hoverable,
@@ -41,17 +41,17 @@ const LinkedVisualization = ({ activeId }: { activeId: string | null }) => (
 export const annotationsDemoSections = [
     // Header
     <FullWidthLayout key="annotations-header">
-        <Section id="annotations-intro">
+        <Block id="annotations-intro">
             <h2 className="text-2xl font-bold mb-4">📐 Annotation System Demo</h2>
             <p className="text-lg text-muted-foreground">
                 Interactive annotations for explorable explanations. Each annotation type has a distinct visual style.
             </p>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     // Informational Category
     <FullWidthLayout key="informational-demo">
-        <Section id="informational-annotations">
+        <Block id="informational-annotations">
             <h3 className="text-xl font-semibold mb-4 text-amber-600">🔍 Informational Annotations</h3>
 
             <div className="space-y-6">
@@ -96,12 +96,12 @@ export const annotationsDemoSections = [
                     </p>
                 </div>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     // Mutable Category
     <FullWidthLayout key="mutable-demo">
-        <Section id="mutable-annotations">
+        <Block id="mutable-annotations">
             <h3 className="text-xl font-semibold mb-4 text-fuchsia-600">🔄 Mutable Annotations</h3>
 
             <div className="space-y-6">
@@ -125,12 +125,12 @@ export const annotationsDemoSections = [
                     </p>
                 </div>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     // Validatable Category
     <FullWidthLayout key="validatable-demo">
-        <Section id="validatable-annotations">
+        <Block id="validatable-annotations">
             <h3 className="text-xl font-semibold mb-4 text-blue-600">✅ Validatable Annotations</h3>
 
             <div className="space-y-6">
@@ -158,12 +158,12 @@ export const annotationsDemoSections = [
                     </p>
                 </div>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     // Connective Category
     <FullWidthLayout key="connective-demo">
-        <Section id="connective-annotations">
+        <Block id="connective-annotations">
             <h3 className="text-xl font-semibold mb-4 text-emerald-600">🔗 Connective Annotations</h3>
 
             <div className="space-y-6">
@@ -181,7 +181,7 @@ export const annotationsDemoSections = [
                     </p>
                 </div>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 ];
 

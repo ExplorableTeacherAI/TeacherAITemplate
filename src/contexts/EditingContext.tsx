@@ -5,7 +5,7 @@ import { useAppMode } from './AppModeContext';
 export interface TextEdit {
     id: string;
     type: 'text';
-    sectionId: string;
+    blockId: string;
     elementPath: string;
     originalText: string;
     originalHtml?: string;
@@ -17,7 +17,7 @@ export interface TextEdit {
 export interface EquationEdit {
     id: string;
     type: 'equation';
-    sectionId: string;
+    blockId: string;
     componentType: 'Equation' | 'InteractiveEquation' | 'ColoredEquation';
     originalLatex: string;
     newLatex: string;
@@ -28,7 +28,7 @@ export interface EquationEdit {
 export interface ScrubbleNumberEdit {
     id: string;
     type: 'scrubbleNumber';
-    sectionId: string;
+    blockId: string;
     elementPath: string;
     originalProps: ScrubbleNumberProps;
     newProps: ScrubbleNumberProps;
@@ -47,8 +47,8 @@ export interface StructureEdit {
     id: string;
     type: 'structure';
     action: 'reorder' | 'delete' | 'add';
-    sectionId?: string;
-    sectionIds?: string[];
+    blockId?: string;
+    blockIds?: string[];
     content?: string;
     blockType?: string;
     timestamp: number;
@@ -60,8 +60,8 @@ interface EditingContextType {
     // State
     isEditing: boolean;
     pendingEdits: PendingEdit[];
-    editingEquation: { latex: string; colorMap?: Record<string, string>; sectionId: string; elementPath: string } | null;
-    editingScrubbleNumber: (ScrubbleNumberProps & { sectionId: string; elementPath: string }) | null;
+    editingEquation: { latex: string; colorMap?: Record<string, string>; blockId: string; elementPath: string } | null;
+    editingScrubbleNumber: (ScrubbleNumberProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -72,10 +72,10 @@ interface EditingContextType {
     addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
-    openEquationEditor: (latex: string, colorMap: Record<string, string> | undefined, sectionId: string, elementPath: string) => void;
+    openEquationEditor: (latex: string, colorMap: Record<string, string> | undefined, blockId: string, elementPath: string) => void;
     closeEquationEditor: () => void;
     saveEquationEdit: (newLatex: string, newColorMap?: Record<string, string>) => void;
-    openScrubbleNumberEditor: (props: ScrubbleNumberProps, sectionId: string, elementPath: string) => void;
+    openScrubbleNumberEditor: (props: ScrubbleNumberProps, blockId: string, elementPath: string) => void;
     closeScrubbleNumberEditor: () => void;
     saveScrubbleNumberEdit: (newProps: ScrubbleNumberProps) => void;
 }
@@ -94,11 +94,11 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const [editingEquation, setEditingEquation] = useState<{
         latex: string;
         colorMap?: Record<string, string>;
-        sectionId: string;
+        blockId: string;
         elementPath: string;
     } | null>(null);
     const [editingScrubbleNumber, setEditingScrubbleNumber] = useState<(ScrubbleNumberProps & {
-        sectionId: string;
+        blockId: string;
         elementPath: string;
     }) | null>(null);
 
@@ -139,12 +139,12 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         };
 
         setPendingEdits(prev => {
-            // 1. Check if there is a pending STRUCTURE edit with action 'add' for this section
+            // 1. Check if there is a pending STRUCTURE edit with action 'add' for this block
             // If so, we just update the content of that add structure edit
             const structureAddIndex = prev.findIndex(
                 e => e.type === 'structure' &&
                     e.action === 'add' &&
-                    e.sectionId === edit.sectionId
+                    (e as StructureEdit).blockId === edit.blockId
             );
 
             if (structureAddIndex !== -1) {
@@ -163,7 +163,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             // 2. Check if there's already a TEXT edit for the same element
             const existingIndex = prev.findIndex(
                 e => e.type === 'text' &&
-                    e.sectionId === edit.sectionId &&
+                    (e as TextEdit).blockId === edit.blockId &&
                     e.elementPath === edit.elementPath
             );
 
@@ -209,7 +209,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             // Check if there's already an edit for the same equation
             const existingIndex = prev.findIndex(
                 e => e.type === 'equation' &&
-                    e.sectionId === edit.sectionId &&
+                    (e as EquationEdit).blockId === edit.blockId &&
                     (e as EquationEdit).originalLatex === edit.originalLatex
             );
 
@@ -240,13 +240,13 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     const addStructureEdit = useCallback((edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => {
         setPendingEdits(prev => {
-            // Check if there's already an 'add' structure edit for this sectionId
+            // Check if there's already an 'add' structure edit for this blockId
             // This handles the case where we add a placeholder and then commit content to it
             if (edit.action === 'add') {
                 const existingAddIndex = prev.findIndex(
                     e => e.type === 'structure' &&
                         e.action === 'add' &&
-                        e.sectionId === edit.sectionId
+                        (e as StructureEdit).blockId === edit.blockId
                 );
 
                 if (existingAddIndex !== -1) {
@@ -284,10 +284,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const openEquationEditor = useCallback((
         latex: string,
         colorMap: Record<string, string> | undefined,
-        sectionId: string,
+        blockId: string,
         elementPath: string
     ) => {
-        setEditingEquation({ latex, colorMap, sectionId, elementPath });
+        setEditingEquation({ latex, colorMap, blockId, elementPath });
     }, []);
 
     const closeEquationEditor = useCallback(() => {
@@ -303,7 +303,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
         if (latexChanged || colorMapChanged) {
             addEquationEdit({
-                sectionId: editingEquation.sectionId,
+                blockId: editingEquation.blockId,
                 componentType: 'Equation', // Will need to detect actual type
                 originalLatex: editingEquation.latex,
                 newLatex,
@@ -327,7 +327,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             // Check if there's already an edit for the same scrubble number
             const existingIndex = prev.findIndex(
                 e => e.type === 'scrubbleNumber' &&
-                    e.sectionId === edit.sectionId &&
+                    (e as ScrubbleNumberEdit).blockId === edit.blockId &&
                     (e as ScrubbleNumberEdit).elementPath === edit.elementPath
             );
 
@@ -358,10 +358,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     const openScrubbleNumberEditor = useCallback((
         props: ScrubbleNumberProps,
-        sectionId: string,
+        blockId: string,
         elementPath: string
     ) => {
-        setEditingScrubbleNumber({ ...props, sectionId, elementPath });
+        setEditingScrubbleNumber({ ...props, blockId, elementPath });
     }, []);
 
     const closeScrubbleNumberEditor = useCallback(() => {
@@ -371,14 +371,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveScrubbleNumberEdit = useCallback((newProps: ScrubbleNumberProps) => {
         if (!editingScrubbleNumber) return;
 
-        const { sectionId, elementPath, ...originalProps } = editingScrubbleNumber;
+        const { blockId, elementPath, ...originalProps } = editingScrubbleNumber;
 
         // Check if any property changed
         const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addScrubbleNumberEdit({
-                sectionId,
+                blockId,
                 elementPath,
                 originalProps,
                 newProps,
@@ -606,7 +606,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                             <div style={{ color: '#d1d5db', wordBreak: 'break-word' }}>
                                                 {edit.type === 'text' && (
                                                     <>
-                                                        <div>📍 {(edit as any).sectionId}</div>
+                                                        <div>📍 {(edit as any).blockId}</div>
                                                         <div style={{ color: '#9ca3af' }}>
                                                             "{(edit as any).originalText}" →
                                                             "{(edit as any).newText}"
@@ -615,7 +615,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                 )}
                                                 {edit.type === 'equation' && (
                                                     <>
-                                                        <div>📍 {(edit as any).sectionId}</div>
+                                                        <div>📍 {(edit as any).blockId}</div>
                                                         <div style={{ fontFamily: 'monospace', color: '#9ca3af' }}>
                                                             {(edit as any).newLatex}
                                                         </div>
@@ -625,11 +625,11 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                     <>
                                                         {(edit as any).action === 'reorder' && (
                                                             <div>
-                                                                📋 Order: [{(edit as any).sectionIds?.join(', ')}]
+                                                                📋 Order: [{(edit as any).blockIds?.join(', ')}]
                                                             </div>
                                                         )}
                                                         {(edit as any).action === 'delete' && (
-                                                            <div>🗑️ Block: {(edit as any).sectionId}</div>
+                                                            <div>🗑️ Block: {(edit as any).blockId}</div>
                                                         )}
                                                         {(edit as any).action === 'add' && (
                                                             <div>
@@ -640,7 +640,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                 )}
                                                 {edit.type === 'scrubbleNumber' && (
                                                     <>
-                                                        <div>📍 {(edit as ScrubbleNumberEdit).sectionId}</div>
+                                                        <div>📍 {(edit as ScrubbleNumberEdit).blockId}</div>
                                                         <div style={{ color: '#9ca3af' }}>
                                                             🔢 Path: {(edit as ScrubbleNumberEdit).elementPath}
                                                         </div>

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 interface EditableHeadingProps {
     children: React.ReactNode;
     id?: string;
-    sectionId?: string;
+    blockId?: string;
     className?: string;
 }
 
@@ -30,7 +30,7 @@ export const headingStyles = {
  * 
  * @example
  * ```tsx
- * <EditableH1 id="title-1" sectionId="intro">
+ * <EditableH1 id="title-1" blockId="intro">
  *   Welcome to Physics
  * </EditableH1>
  * ```
@@ -38,13 +38,13 @@ export const headingStyles = {
 export const EditableH1: React.FC<EditableHeadingProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
 }) => (
     <EditableText
         as="h1"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={cn(headingStyles.h1, className)}
     >
         {children}
@@ -59,7 +59,7 @@ export const EditableH1: React.FC<EditableHeadingProps> = ({
  * 
  * @example
  * ```tsx
- * <EditableH2 id="chapter-heading-1" sectionId="chapter-1">
+ * <EditableH2 id="chapter-heading-1" blockId="chapter-1">
  *   Chapter 1: Introduction
  * </EditableH2>
  * ```
@@ -67,13 +67,13 @@ export const EditableH1: React.FC<EditableHeadingProps> = ({
 export const EditableH2: React.FC<EditableHeadingProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
 }) => (
     <EditableText
         as="h2"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={cn(headingStyles.h2, className)}
     >
         {children}
@@ -88,7 +88,7 @@ export const EditableH2: React.FC<EditableHeadingProps> = ({
  * 
  * @example
  * ```tsx
- * <EditableH3 id="subsection-1-1" sectionId="1-1">
+ * <EditableH3 id="subsection-1-1" blockId="1-1">
  *   1.1 Basic Concepts
  * </EditableH3>
  * ```
@@ -96,13 +96,13 @@ export const EditableH2: React.FC<EditableHeadingProps> = ({
 export const EditableH3: React.FC<EditableHeadingProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
 }) => (
     <EditableText
         as="h3"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={cn(headingStyles.h3, className)}
     >
         {children}
@@ -117,7 +117,7 @@ export const EditableH3: React.FC<EditableHeadingProps> = ({
  * 
  * @example
  * ```tsx
- * <EditableH4 id="definitions-heading" sectionId="definitions">
+ * <EditableH4 id="definitions-heading" blockId="definitions">
  *   Key Definitions
  * </EditableH4>
  * ```
@@ -125,13 +125,13 @@ export const EditableH3: React.FC<EditableHeadingProps> = ({
 export const EditableH4: React.FC<EditableHeadingProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
 }) => (
     <EditableText
         as="h4"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={cn(headingStyles.h4, className)}
     >
         {children}
@@ -147,13 +147,13 @@ export const EditableH4: React.FC<EditableHeadingProps> = ({
 export const EditableH5: React.FC<EditableHeadingProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
 }) => (
     <EditableText
         as="h5"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={cn(headingStyles.h5, className)}
     >
         {children}
@@ -169,13 +169,13 @@ export const EditableH5: React.FC<EditableHeadingProps> = ({
 export const EditableH6: React.FC<EditableHeadingProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
 }) => (
     <EditableText
         as="h6"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={cn(headingStyles.h6, className)}
     >
         {children}

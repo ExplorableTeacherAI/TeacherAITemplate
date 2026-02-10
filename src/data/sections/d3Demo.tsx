@@ -1,5 +1,5 @@
 import { FullWidthLayout, GridLayout, SplitLayout } from "@/components/layouts";
-import { Section } from "@/components/templates";
+import { Block } from "@/components/templates";
 import { D3BarChart } from "@/components/atoms";
 
 const sampleData1 = [
@@ -23,7 +23,7 @@ const sampleData2 = [
 export const d3Demo = [
     // Header
     <FullWidthLayout key="d3-header" maxWidth="xl">
-        <Section id="d3-header">
+        <Block id="d3-header">
             <div className="prose dark:prose-invert max-w-none">
                 <h1 className="text-4xl font-bold text-foreground">
                     Data Visualization with D3.js
@@ -32,12 +32,12 @@ export const d3Demo = [
                     Powerful, interactive data visualizations integrated directly into your educational content.
                 </p>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     // Basic Bar Chart
     <SplitLayout key="d3-basic-chart" ratio="1:1" gap="lg">
-        <Section id="d3-basic-text">
+        <Block id="d3-basic-text">
             <div className="space-y-4">
                 <h2 className="text-2xl font-bold">Interactive Bar Charts</h2>
                 <p>
@@ -54,12 +54,12 @@ export const d3Demo = [
                     Hover over the bars to see value details.
                 </p>
             </div>
-        </Section>
-        <Section id="d3-basic-viz">
+        </Block>
+        <Block id="d3-basic-viz">
             <div className="p-4 bg-card rounded-xl">
                 <h3 className="text-lg font-semibold mb-4 text-center">Fruit Sales</h3>
                 <D3BarChart data={sampleData1} width={500} height={350} />
             </div>
-        </Section>
+        </Block>
     </SplitLayout>
 ];

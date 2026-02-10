@@ -5,7 +5,7 @@ Welcome to the **MathVibe Template**! This repository is designed to help you bu
 ## 🚀 Overview
 
 This template allows agents and developers to:
-- Quickly scaffold educational "sections".
+- Quickly scaffold educational **blocks** of content.
 - Organize content using flexible **Layouts**.
 - Integrate interactive components (Two.js, Three.js, Desmos, etc.).
 - Maintain a clean separation between content configuration and component logic.
@@ -23,13 +23,13 @@ src/
 │   ├── molecules/       # Compound components (Search bars, Cards)
 │   ├── organisms/       # Complex widgets (Graphs, Chat interfaces)
 │   ├── layouts/         # Layout wrappers (FullWidth, Split, Grid, Sidebar)
-│   └── templates/       # Page-level structures and base Section component
+│   └── templates/       # Page-level structures and Block component
 ├── data/                # Content configuration
-│   ├── sections/        # Individual section components for modularity (You will create new files here)
-│   ├── sections.tsx     # MAIN ENTRY: Array of sections to render (You will edit this file)
+│   ├── sections/        # Individual block components for modularity (You will create new files here)
+│   ├── blocks.tsx       # MAIN ENTRY: Array of blocks to render (You will edit this file)
 │   ├── variables.ts     # VARIABLES: Define shared variables here (You will edit this file)
-│   ├── exampleSections.tsx # Reference examples for all layouts
-│   └── exampleVariables.ts # Variables for example/demo sections
+│   ├── exampleBlocks.tsx # Reference examples for all layouts
+│   └── exampleVariables.ts # Variables for example/demo blocks
 ├── stores/              # Global state management (Zustand)
 │   ├── index.ts         # Exports for useVar, useSetVar, etc.
 │   └── variableStore.ts # The variable store implementation
@@ -41,12 +41,12 @@ src/
 
 ### Key Files in Detail
 
-- **`src/data/sections.tsx`**: **START HERE**. This is the main entry point for your lesson content. The `sections` array in this file determines what is rendered on the page.
+- **`src/data/blocks.tsx`**: **START HERE**. This is the main entry point for your lesson content. The `blocks` array in this file determines what is rendered on the page.
 - **`src/data/variables.ts`**: **DEFINE VARIABLES HERE**. All variables must be defined in this file.
-- **`src/data/exampleSections.tsx`**: A reference file containing comprehensive examples of all available layouts and extensive component usage. Use this for inspiration!
-- **`src/data/exampleVariables.ts`**: Variables used by the example/demo sections.
+- **`src/data/exampleBlocks.tsx`**: A reference file containing comprehensive examples of all available layouts and extensive component usage. Use this for inspiration!
+- **`src/data/exampleVariables.ts`**: Variables used by the example/demo blocks.
 - **`src/components/layouts/*`**: Contains the core layout components (`FullWidthLayout`, `SplitLayout`, `GridLayout`, `SidebarLayout`).
-- **`src/components/templates/Section.tsx`**: The core wrapper component for all content blocks.
+- **`src/components/templates/Block.tsx`**: The core wrapper component for all content blocks.
 - **`src/components/atoms/ui`**: Reusable UI components (Buttons, Inputs, etc.) built with Tailwind CSS.
 
 ---
@@ -65,7 +65,7 @@ The `<Block>` component is the fundamental building block. It wraps your editabl
 
 **Editable Component Props:**
 - `id` (required): A unique identifier for the specific editable element (e.g., "h1-main-title", "para-intro-1").
-- `sectionId` (required): References the parent Block's `id` for proper tracking.
+- `blockId` (required): References the parent Block's `id` for proper tracking.
 
 ```tsx
 import { Block } from "@/components/templates";
@@ -73,10 +73,10 @@ import { EditableH1, EditableParagraph } from "@/components/atoms";
 
 const MyContent = () => (
   <Block id="block-hello-world-01" padding="md">
-    <EditableH1 id="h1-main-title" sectionId="block-hello-world-01">
+    <EditableH1 id="h1-main-title" blockId="block-hello-world-01">
       Hello World
     </EditableH1>
-    <EditableParagraph id="para-intro-1" sectionId="block-hello-world-01">
+    <EditableParagraph id="para-intro-1" blockId="block-hello-world-01">
       This is my first editable paragraph.
     </EditableParagraph>
   </Block>
@@ -85,7 +85,7 @@ const MyContent = () => (
 
 ### 2. Choose a Layout
 
-We provide 4 powerful layouts to organize your sections.
+We provide 4 powerful layouts to organize your blocks.
 
 #### A. FullWidthLayout
 Best for titles, introductions, or large visualizations that need maximum space.
@@ -100,7 +100,7 @@ import { EditableH1 } from "@/components/atoms";
 
 <FullWidthLayout maxWidth="xl">
   <Block id="block-header-01" padding="md">
-    <EditableH1 id="h1-chapter-title" sectionId="block-header-01">
+    <EditableH1 id="h1-chapter-title" blockId="block-header-01">
       Chapter 1: The Beginning
     </EditableH1>
   </Block>
@@ -123,7 +123,7 @@ import { EditableParagraph } from "@/components/atoms";
 
 <SplitLayout ratio="1:1" gap="lg" align="start">
   <Block id="block-explanation-01" padding="md">
-    <EditableParagraph id="para-atom-desc" sectionId="block-explanation-01">
+    <EditableParagraph id="para-atom-desc" blockId="block-explanation-01">
       On the right, you can see the atom structure...
     </EditableParagraph>
   </Block>
@@ -148,17 +148,17 @@ import { EditableParagraph } from "@/components/atoms";
 
 <GridLayout columns={3} gap="md">
   <Block id="block-card-01" padding="md">
-    <EditableParagraph id="para-card-1" sectionId="block-card-01">
+    <EditableParagraph id="para-card-1" blockId="block-card-01">
       Card 1
     </EditableParagraph>
   </Block>
   <Block id="block-card-02" padding="md">
-    <EditableParagraph id="para-card-2" sectionId="block-card-02">
+    <EditableParagraph id="para-card-2" blockId="block-card-02">
       Card 2
     </EditableParagraph>
   </Block>
   <Block id="block-card-03" padding="md">
-    <EditableParagraph id="para-card-3" sectionId="block-card-03">
+    <EditableParagraph id="para-card-3" blockId="block-card-03">
       Card 3
     </EditableParagraph>
   </Block>
@@ -181,14 +181,14 @@ import { EditableH2, EditableParagraph } from "@/components/atoms";
 <SidebarLayout sidebarPosition="left" sidebarWidth="medium">
   <Sidebar>
     <Block id="block-tools-01" padding="md">
-      <EditableH2 id="h2-tools-title" sectionId="block-tools-01">
+      <EditableH2 id="h2-tools-title" blockId="block-tools-01">
         Toolbox
       </EditableH2>
     </Block>
   </Sidebar>
   <Main>
     <Block id="block-content-01" padding="md">
-      <EditableParagraph id="para-main-content" sectionId="block-content-01">
+      <EditableParagraph id="para-main-content" blockId="block-content-01">
         Main Lesson Content...
       </EditableParagraph>
     </Block>
@@ -196,21 +196,21 @@ import { EditableH2, EditableParagraph } from "@/components/atoms";
 </SidebarLayout>
 ```
 
-### 3. Register in `sections.tsx`
+### 3. Register in `blocks.tsx`
 
-Finally, add your configured layout to the `sections` array in `src/data/sections.tsx`.
+Finally, add your configured layout to the `blocks` array in `src/data/blocks.tsx`.
 
 ```tsx
-// src/data/sections.tsx
+// src/data/blocks.tsx
 import { type ReactElement } from "react";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import { EditableH1, EditableParagraph } from "@/components/atoms";
 
-export const sections: ReactElement[] = [
+export const blocks: ReactElement[] = [
   <FullWidthLayout key="layout-intro-01" maxWidth="xl">
     <Block id="block-intro-01" padding="md">
-      <EditableH1 id="h1-welcome" sectionId="block-intro-01">
+      <EditableH1 id="h1-welcome" blockId="block-intro-01">
         Welcome
       </EditableH1>
     </Block>
@@ -226,7 +226,7 @@ export const sections: ReactElement[] = [
 
 ## 🧩 Reusability & specialized Components
 
-To keep `sections.tsx` clean, it is highly recommended to **define complex sections in separate files** and import them.
+To keep `blocks.tsx` clean, it is highly recommended to **define complex blocks in separate files** and import them.
 
 **Example Pattern:**
 
@@ -235,24 +235,24 @@ To keep `sections.tsx` clean, it is highly recommended to **define complex secti
    import { Block } from "@/components/templates";
    import { EditableH2, EditableParagraph } from "@/components/atoms";
    
-   export const myTopicSection = (
+   export const myTopicBlock = (
      <Block id="block-my-topic-01" padding="md">
-       <EditableH2 id="h2-topic-title" sectionId="block-my-topic-01">
+       <EditableH2 id="h2-topic-title" blockId="block-my-topic-01">
          My Topic
        </EditableH2>
-       <EditableParagraph id="para-topic-intro" sectionId="block-my-topic-01">
+       <EditableParagraph id="para-topic-intro" blockId="block-my-topic-01">
          This is the introduction to my topic.
        </EditableParagraph>
      </Block>
    );
    ```
-2. Import in `src/data/sections.tsx`:
+2. Import in `src/data/blocks.tsx`:
    ```tsx
-   import { myTopicSection } from "./sections/MyTopicDemo";
+   import { myTopicBlock } from "./sections/MyTopicDemo";
    import { FullWidthLayout } from "@/components/layouts";
    
-   export const sections = [
-       <FullWidthLayout key="layout-topic-01">{myTopicSection}</FullWidthLayout>
+   export const blocks = [
+       <FullWidthLayout key="layout-topic-01">{myTopicBlock}</FullWidthLayout>
    ];
    ```
 
@@ -271,16 +271,16 @@ You can find specialized "molecule" and "organism" components in `src/components
 
 ---
 
-## 🔗 Cross-Section Variables
+## 🔗 Cross-Block Variables
 
-Share state between different sections using the global variable store. This is essential for creating interactive lessons where changing a value in one section updates visualizations in another.
+Share state between different blocks using the global variable store. This is essential for creating interactive lessons where changing a value in one block updates visualizations in another.
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
 | `src/data/variables.ts` | **Define ALL variables here (Required)** |
-| `src/data/exampleVariables.ts` | Variables for example/demo sections |
+| `src/data/exampleVariables.ts` | Variables for example/demo blocks |
 | `src/stores/variableStore.ts` | The Zustand store (don't modify) |
 
 ### 1. Define Variables in `variables.ts`
@@ -336,7 +336,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
 };
 ```
 
-### 2. Use Variables in Sections
+### 2. Use Variables in Blocks
 
 ```tsx
 import { useVar, useSetVar } from '@/stores';
@@ -355,7 +355,7 @@ setVar('showGrid', false);
 
 ### 3. Example: Linked Slider and Visualization
 
-**Section A - Controls:**
+**Block A - Controls:**
 ```tsx
 const ControlPanel = () => {
     const setVar = useSetVar();
@@ -370,7 +370,7 @@ const ControlPanel = () => {
 };
 ```
 
-**Section B - Visualization:**
+**Block B - Visualization:**
 ```tsx
 const WaveDisplay = () => {
     const amplitude = useVar('amplitude', 1);
@@ -383,7 +383,7 @@ const WaveDisplay = () => {
 ### Variable Type Reference
 
 | Type | Default Example | UI Component |
-|------|-----------------|--------------|
+|------|-----------------|--------------| 
 | `number` | `5` | Slider |
 | `text` | `'Hello'` | Input |
 | `select` | `'option1'` | Dropdown |
@@ -397,7 +397,7 @@ const WaveDisplay = () => {
 
 ## ✏️ Editable Components
 
-To make content editable within the application (so users can tweak the lesson text without changing code), you **must** use editable component wrappers. Each editable component requires both an `id` and `sectionId` prop for proper tracking.
+To make content editable within the application (so users can tweak the lesson text without changing code), you **must** use editable component wrappers. Each editable component requires both an `id` and `blockId` prop for proper tracking.
 
 ### Available Editable Components
 
@@ -412,13 +412,13 @@ import { Block } from "@/components/templates";
 import { EditableH1, EditableH2, EditableParagraph } from "@/components/atoms";
 
 <Block id="block-example-01" padding="md">
-  <EditableH1 id="h1-title" sectionId="block-example-01">
+  <EditableH1 id="h1-title" blockId="block-example-01">
     My Editable Title
   </EditableH1>
-  <EditableH2 id="h2-subtitle" sectionId="block-example-01">
+  <EditableH2 id="h2-subtitle" blockId="block-example-01">
     My Subtitle
   </EditableH2>
-  <EditableParagraph id="para-intro" sectionId="block-example-01">
+  <EditableParagraph id="para-intro" blockId="block-example-01">
     This paragraph can be edited by clicking on it in Editor Mode.
   </EditableParagraph>
 </Block>
@@ -433,7 +433,7 @@ import { Block } from "@/components/templates";
 import { EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
 
 <Block id="block-physics-01" padding="md">
-  <EditableParagraph id="para-velocity" sectionId="block-physics-01">
+  <EditableParagraph id="para-velocity" blockId="block-physics-01">
     The object is moving at{" "}
     <InlineScrubbleNumber
       varName="velocity"
@@ -453,16 +453,16 @@ import { EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
 - **Block IDs**: Use format `block-<description>-<number>` (e.g., `block-intro-01`, `block-physics-demo-02`)
 - **Editable Component IDs**: Use format `<type>-<description>` (e.g., `h1-main-title`, `para-intro-1`, `h2-section-heading`)
 - Each ID must be **unique** across the entire application
-- `sectionId` must match the parent Block's `id`
+- `blockId` must match the parent Block's `id`
 
 ---
 
 ## 🤖 Agent Instructions (for AI)
 
 If you are an AI agent working on this repo:
-1. **Always read `src/data/sections.tsx`** first to see the current content structure.
+1. **Always read `src/data/blocks.tsx`** first to see the current content structure.
 2. **Always read `src/data/variables.ts`** to see available shared variables.
-3. **Check `src/data/exampleSections.tsx`** for comprehensive reference examples but do not modify it.
+3. **Check `src/data/exampleBlocks.tsx`** for comprehensive reference examples but do not modify it.
 4. **Shared Variables ONLY**: Do not use `useState` for any lesson content or interactive state. **ALWAYS** define variables in `src/data/variables.ts` and use `useVar` / `useSetVar`.
 5. **Block-Based Approach**: All content MUST be wrapped in `<Block>` components with unique IDs.
 6. **Editable Components ALWAYS**: Every piece of text (headings, paragraphs) **MUST** use editable component wrappers:
@@ -473,8 +473,7 @@ If you are an AI agent working on this repo:
    - Every `<Block>` must have a unique `id` prop (format: `block-<description>-<number>`)
    - Every editable component must have:
      - A unique `id` prop (format: `<type>-<description>`)
-     - A `sectionId` prop matching its parent Block's `id`
+     - A `blockId` prop matching its parent Block's `id`
 8. **Inline Components**: Use `InlineScrubbleNumber` for interactive numeric values within paragraphs.
-9. When asked to "add a section", **create the Block with editable components first**, wrap it in a **Layout**, and add it to `sections.tsx`.
+9. When asked to "add a block", **create the Block with editable components first**, wrap it in a **Layout**, and add it to `blocks.tsx`.
 10. Prefer **splitting complex code** into separate files in `src/data/sections/`.
-

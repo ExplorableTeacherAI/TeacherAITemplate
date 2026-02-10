@@ -115,7 +115,7 @@ interface HighlightedTermProps {
     name: string;
     children: React.ReactNode;
     className?: string;
-    sectionId?: string;
+    blockId?: string;
 }
 
 /**
@@ -128,7 +128,7 @@ export const HighlightedTerm: React.FC<HighlightedTermProps> = ({
     name,
     children,
     className = '',
-    sectionId = '',
+    blockId = '',
 }) => {
     const { activeTerm, setActiveTerm, colorMap } = useColoredEquation();
     const color = colorMap[name];
@@ -188,7 +188,7 @@ export const HighlightedTerm: React.FC<HighlightedTermProps> = ({
 
         if (newText !== originalText && addTextEdit) {
             addTextEdit({
-                sectionId,
+                blockId: blockId,
                 elementPath: `HighlightedTerm[${name}]`,
                 originalText,
                 newText,

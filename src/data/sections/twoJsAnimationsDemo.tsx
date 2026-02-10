@@ -1,11 +1,11 @@
 import { FullWidthLayout, GridLayout } from "@/components/layouts";
-import { Section } from "@/components/templates";
+import { Block } from "@/components/templates";
 import { AnimatedGraph, CoordinateSystem } from "@/components/atoms";
 
 export const twoJsAnimationsDemo = [
     // Header
     <FullWidthLayout key="twojs-header" maxWidth="xl">
-        <Section id="twojs-header">
+        <Block id="twojs-header">
             <div className="prose dark:prose-invert max-w-none">
                 <h1 className="text-4xl font-bold text-foreground">
                     Mathematical Visualizations with Two.js
@@ -14,21 +14,21 @@ export const twoJsAnimationsDemo = [
                     Interactive mathematical animations to help students understand complex concepts through visualization.
                 </p>
             </div>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     // Coordinate System Section
     <FullWidthLayout key="coord-system-header" maxWidth="xl">
-        <Section id="coord-system-header">
+        <Block id="coord-system-header">
             <h2 className="text-2xl font-semibold">Coordinate System</h2>
             <p className="text-muted-foreground">
                 A fundamental mathematical visualization showing a 2D coordinate plane with axes, arrows, and an optional grid.
             </p>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     <GridLayout key="coord-system-grid" columns={2} gap="lg">
-        <Section id="coord-standard">
+        <Block id="coord-standard">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Standard Coordinate System</h3>
                 <p className="text-sm text-muted-foreground">Full coordinate plane with grid and labels</p>
@@ -42,8 +42,8 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
-        <Section id="coord-minimal">
+        </Block>
+        <Block id="coord-minimal">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Minimal Axes</h3>
                 <p className="text-sm text-muted-foreground">Clean axes without grid for plotting</p>
@@ -58,8 +58,8 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
-        <Section id="coord-fine">
+        </Block>
+        <Block id="coord-fine">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Fine Grid</h3>
                 <p className="text-sm text-muted-foreground">Smaller grid spacing for precise plotting</p>
@@ -75,8 +75,8 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
-        <Section id="coord-coarse">
+        </Block>
+        <Block id="coord-coarse">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Coarse Grid</h3>
                 <p className="text-sm text-muted-foreground">Larger grid spacing for overview</p>
@@ -92,21 +92,21 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
+        </Block>
     </GridLayout>,
 
     // Animated Graphs Section
     <FullWidthLayout key="math-viz-header" maxWidth="xl">
-        <Section id="math-viz-header">
+        <Block id="math-viz-header">
             <h2 className="text-2xl font-semibold">Mathematical Visualizations</h2>
             <p className="text-muted-foreground">
                 Explore fundamental mathematical concepts through dynamic animations. Each visualization helps students understand abstract concepts visually.
             </p>
-        </Section>
+        </Block>
     </FullWidthLayout>,
 
     <GridLayout key="math-viz-grid" columns={2} gap="lg">
-        <Section id="viz-sine">
+        <Block id="viz-sine">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Sine Wave</h3>
                 <p className="text-sm text-muted-foreground">Fundamental trigonometric function showing periodic motion</p>
@@ -122,8 +122,8 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
-        <Section id="viz-parametric">
+        </Block>
+        <Block id="viz-parametric">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Parametric Curve (Rose)</h3>
                 <p className="text-sm text-muted-foreground">Beautiful parametric equations creating rose patterns</p>
@@ -139,8 +139,8 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
-        <Section id="viz-pendulum">
+        </Block>
+        <Block id="viz-pendulum">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Pendulum Motion</h3>
                 <p className="text-sm text-muted-foreground">Physics simulation demonstrating simple harmonic motion</p>
@@ -155,8 +155,8 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
-        <Section id="viz-fourier">
+        </Block>
+        <Block id="viz-fourier">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Fourier Series</h3>
                 <p className="text-sm text-muted-foreground">Visualizing how circles combine to create wave patterns</p>
@@ -172,8 +172,8 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
-        <Section id="viz-lissajous">
+        </Block>
+        <Block id="viz-lissajous">
             <div className="space-y-2">
                 <h3 className="text-lg font-medium">Lissajous Curve</h3>
                 <p className="text-sm text-muted-foreground">Complex patterns from two perpendicular oscillations</p>
@@ -189,7 +189,7 @@ export const twoJsAnimationsDemo = [
                     />
                 </div>
             </div>
-        </Section>
+        </Block>
     </GridLayout>
 ];
 

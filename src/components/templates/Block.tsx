@@ -26,10 +26,6 @@ export interface BlockProps {
     onEditBlock?: (instruction: string) => void;
     /** Callback to add a new block */
     onAddBlock?: (blockId: string) => void;
-    /** @deprecated Use onEditBlock instead */
-    onEditSection?: (instruction: string) => void;
-    /** @deprecated Use onAddBlock instead */
-    onAddSection?: (blockId: string) => void;
 }
 
 /**
@@ -42,18 +38,16 @@ export interface BlockProps {
  * - Deleted
  * 
  * Each content element (heading, paragraph, image, etc.) should be wrapped in a Block.
- * Multiple Blocks are grouped together inside a Section.
+ * Blocks can be used directly inside layouts.
  * 
  * @example
  * ```tsx
- * <Section id="intro">
- *   <Block id="intro-title">
- *     <EditableH1>Welcome</EditableH1>
- *   </Block>
- *   <Block id="intro-text">
- *     <EditableParagraph>This is the intro...</EditableParagraph>
- *   </Block>
- * </Section>
+ * <Block id="intro-title">
+ *   <EditableH1>Welcome</EditableH1>
+ * </Block>
+ * <Block id="intro-text">
+ *   <EditableParagraph>This is the intro...</EditableParagraph>
+ * </Block>
  * ```
  */
 export const Block = ({
@@ -64,13 +58,9 @@ export const Block = ({
     isPreview = false,
     onEditBlock,
     onAddBlock,
-    // Legacy props for backward compatibility
-    onEditSection,
-    onAddSection,
 }: BlockProps) => {
-    // Use new props if available, fall back to legacy props
-    const handleEdit = onEditBlock || onEditSection;
-    const handleAdd = onAddBlock || onAddSection;
+    const handleEdit = onEditBlock;
+    const handleAdd = onAddBlock;
     const { dragControls, onDelete: blockContextDelete } = useBlockContext();
     const [isAnnotating, setIsAnnotating] = useState(false);
     const blockRef = useRef<HTMLDivElement>(null);
@@ -151,7 +141,7 @@ export const Block = ({
                     targetElement={blockRef.current}
                     onSend={handleSendAnnotation}
                     onCancel={handleCancelAnnotation}
-                    sectionId={id}
+                    blockId={id}
                 />
             )}
 

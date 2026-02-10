@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 interface HierarchyNode {
     id: string;
     type: "section" | "layout";
-    sectionId?: string;
+    blockId?: string;
     label: string;
     children: HierarchyNode[];
     depth: number;
@@ -13,9 +13,9 @@ interface HierarchyNode {
 export const HierarchyReporter = () => {
     // Function to build and send hierarchy
     const reportHierarchy = () => {
-        // Find all potential section elements
-        // We look for elements with data-section-id or actual <section> tags
-        const allElements = Array.from(document.querySelectorAll('section, [data-section-id]'));
+        // Find all potential section/block elements
+        // We look for elements with data-block-id or actual <section> tags
+        const allElements = Array.from(document.querySelectorAll('section, [data-block-id]'));
 
         // Filter out elements that might be hidden or inside ignored containers
         const sections = allElements.filter(el => !el.closest('.hierarchy-ignore'));
@@ -60,7 +60,7 @@ export const HierarchyReporter = () => {
                 }
 
                 // Try to get a label from first text block or use ID
-                const idLabel = section.getAttribute('data-section-id') || section.id;
+                const idLabel = section.getAttribute('data-block-id') || section.id;
                 if (idLabel && idLabel.length < 20) {
                     label = idLabel;
                 } else {
@@ -73,7 +73,7 @@ export const HierarchyReporter = () => {
             }
 
             // Generate stable ID
-            let nodeId = section.getAttribute('data-section-id') || section.id;
+            let nodeId = section.getAttribute('data-block-id') || section.id;
             if (!nodeId) {
                 if (section.hasAttribute('data-hierarchy-temp-id')) {
                     nodeId = section.getAttribute('data-hierarchy-temp-id')!;
@@ -86,7 +86,7 @@ export const HierarchyReporter = () => {
             flatNodes.push({
                 id: nodeId,
                 type: "section",
-                sectionId: section.getAttribute('data-section-id') || undefined,
+                blockId: section.getAttribute('data-block-id') || undefined,
                 label: label,
                 children: [],
                 depth: 0, // Will be fixed during tree build
@@ -158,7 +158,8 @@ export const HierarchyReporter = () => {
             }
 
             if (event.data.type === 'scroll-to-section') {
-                const { sectionId } = event.data;
+                const { blockId: msgBlockId } = event.data;
+                const targetId = msgBlockId;
 
                 // 1. Clear previous selection
                 document.querySelectorAll('[data-hierarchy-selected="true"]').forEach(el => {
@@ -172,8 +173,8 @@ export const HierarchyReporter = () => {
                     el.removeAttribute('data-hierarchy-selected');
                 });
 
-                if (sectionId) {
-                    const el = document.querySelector(`[data-section-id="${sectionId}"]`);
+                if (targetId) {
+                    const el = document.querySelector(`[data-block-id="${targetId}"]`);
                     if (el) {
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
@@ -207,7 +208,8 @@ export const HierarchyReporter = () => {
             }
 
             if (event.data.type === 'highlight-section') {
-                const { sectionId, isHovering } = event.data;
+                const { blockId: msgBlockId2, isHovering } = event.data;
+                const targetId2 = msgBlockId2;
 
                 // Remove existing highlights
                 document.querySelectorAll('[data-hierarchy-highlight]').forEach(el => {
@@ -219,8 +221,8 @@ export const HierarchyReporter = () => {
                     el.removeAttribute('data-hierarchy-highlight');
                 });
 
-                if (isHovering && sectionId) {
-                    const el = document.querySelector(`[data-section-id="${sectionId}"]`);
+                if (isHovering && targetId2) {
+                    const el = document.querySelector(`[data-block-id="${targetId2}"]`);
                     // Apply highlight only if not already selected
                     if (el && !el.hasAttribute('data-hierarchy-selected')) {
                         (el as HTMLElement).style.outline = "2px dashed #14B8A6";
@@ -237,7 +239,7 @@ export const HierarchyReporter = () => {
         const handleGlobalClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
             // Check if click was inside a traceable section
-            const wasInSection = target.closest('section, [data-section-id]');
+            const wasInSection = target.closest('section, [data-block-id]');
 
             if (!wasInSection) {
                 // Clicked outside -> Clear selection

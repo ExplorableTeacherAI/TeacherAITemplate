@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 interface EditableTextProps {
     children: React.ReactNode;
     id?: string;
-    sectionId?: string;
+    blockId?: string;
     className?: string;
     as?: keyof JSX.IntrinsicElements;
 }
@@ -24,7 +24,7 @@ export const useEditableTextContext = () => React.useContext(EditableTextContext
 export const EditableText: React.FC<EditableTextProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId = '',
     className = '',
     as: Component = 'span',
 }) => {
@@ -96,7 +96,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         // Only create edit if text actually changed OR html changed (e.g. deleting all content)
         if (newText !== originalText || newHtml !== originalHtml) {
             addTextEdit({
-                sectionId,
+                blockId: blockId,
                 elementPath: getElementPath(),
                 originalText,
                 originalHtml,
@@ -106,7 +106,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         }
 
         setIsContentEditable(false);
-    }, [sectionId, getElementPath, addTextEdit]);
+    }, [blockId, getElementPath, addTextEdit]);
 
     // Handle keyboard events
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -168,11 +168,11 @@ export const EditableText: React.FC<EditableTextProps> = ({
  */
 export const withEditableText = <P extends object>(
     WrappedComponent: React.ComponentType<P>,
-    sectionId?: string
+    blockId?: string
 ) => {
     const WithEditableText: React.FC<P> = (props) => {
         return (
-            <EditableText sectionId={sectionId}>
+            <EditableText blockId={blockId}>
                 <WrappedComponent {...props} />
             </EditableText>
         );

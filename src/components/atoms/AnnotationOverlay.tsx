@@ -11,14 +11,14 @@ import {
 } from '@/components/atoms/ui/popover';
 
 interface AnnotationOverlayProps {
-    /** The element to annotate (section element) */
+    /** The element to annotate (block element) */
     targetElement: HTMLElement;
     /** Callback when annotation is complete and sent */
     onSend: (imageDataUrl: string) => void;
     /** Callback when annotation is cancelled */
     onCancel: () => void;
-    /** Section ID for context */
-    sectionId?: string;
+    /** Block ID for context */
+    blockId?: string;
 }
 
 interface DrawLine {

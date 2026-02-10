@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement, isValidElement, Children, type ReactNode, cloneElement } from "react";
 import { Block } from "./Block";
-import { SectionInput } from "./SectionInput";
+import { BlockInput } from "./BlockInput";
 import { type SlashCommandType } from "./SlashCommandMenu";
 import {
     EditableH1,
@@ -15,9 +15,9 @@ import { EditableText } from "@/components/editing/EditableText";
 import { FullWidthLayout } from "@/components/layouts";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { Card } from "@/components/atoms/ui/card";
-import SectionRenderer from "./SectionRenderer";
-import { loadSections, createSectionsWatcher } from "@/lib/section-loader";
-import sectionLoaderConfig from "@/config/sections-loader.config";
+import BlockRenderer from "./BlockRenderer";
+import { loadBlocks, createBlocksWatcher } from "@/lib/block-loader";
+import blockLoaderConfig from "@/config/blocks-loader.config";
 import { useAppMode } from "@/contexts/AppModeContext";
 import { LoadingScreen } from "@/components/atoms/LoadingScreen";
 import { useOptionalEditing } from "@/contexts/EditingContext";
@@ -103,7 +103,7 @@ const hasInlineComponents = (content: string): boolean => {
 };
 
 interface LessonViewProps {
-    onEditSection?: (instruction: string) => void;
+    onEditBlock?: (instruction: string) => void;
 }
 
 /**
@@ -125,13 +125,13 @@ const hasElementId = (element: ReactNode, targetId: string): boolean => {
 };
 
 /**
- * Helper to replace content of a section with given ID
+ * Helper to replace content of a block with given ID
  */
-const replaceSectionContent = (element: ReactElement, targetId: string, newContent: ReactNode): ReactElement => {
+const replaceBlockContent = (element: ReactElement, targetId: string, newContent: ReactNode): ReactElement => {
     if (!isValidElement(element)) return element;
 
     if ((element as ReactElement).props.id === targetId) {
-        // Found the section, Clone it but with new children
+        // Found the block, Clone it but with new children
         // We preserve other props like className etc.
         return cloneElement(element as ReactElement, {}, newContent);
     }
@@ -139,7 +139,7 @@ const replaceSectionContent = (element: ReactElement, targetId: string, newConte
     // Recursive check children
     if ((element as ReactElement).props.children) {
         const children = Children.map((element as ReactElement).props.children, (child) => {
-            return replaceSectionContent(child as ReactElement, targetId, newContent);
+            return replaceBlockContent(child as ReactElement, targetId, newContent);
         });
 
         return cloneElement(element as ReactElement, {}, children);
@@ -148,17 +148,17 @@ const replaceSectionContent = (element: ReactElement, targetId: string, newConte
     return element;
 };
 
-export const LessonView = ({ onEditSection }: LessonViewProps) => {
-    const [initialSections, setInitialSections] = useState<ReactElement[]>([]);
-    const [loadingSections, setLoadingSections] = useState(true);
+export const LessonView = ({ onEditBlock }: LessonViewProps) => {
+    const [initialBlocks, setInitialBlocks] = useState<ReactElement[]>([]);
+    const [loadingBlocks, setLoadingBlocks] = useState(true);
     const { isPreview } = useAppMode();
     const editing = useOptionalEditing();
 
-    const handleCommitSection = (sectionId: string, content: string, blockType?: SlashCommandType) => {
-        console.log("Committing section:", { sectionId, content, blockType, hasEditing: !!editing });
+    const handleCommitBlock = (blockId: string, content: string, blockType?: SlashCommandType) => {
+        console.log("Committing block:", { blockId, content, blockType, hasEditing: !!editing });
 
-        setInitialSections(prevSections => {
-            return prevSections.map(section => {
+        setInitialBlocks(prevBlocks => {
+            return prevBlocks.map(block => {
                 // Create the appropriate element based on block type
                 let contentElement: React.ReactNode;
 
@@ -170,21 +170,21 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
                 switch (blockType) {
                     case "h1":
                         contentElement = (
-                            <EditableH1 sectionId={sectionId}>
+                            <EditableH1 blockId={blockId}>
                                 {parsedContent}
                             </EditableH1>
                         );
                         break;
                     case "h2":
                         contentElement = (
-                            <EditableH2 sectionId={sectionId}>
+                            <EditableH2 blockId={blockId}>
                                 {parsedContent}
                             </EditableH2>
                         );
                         break;
                     case "h3":
                         contentElement = (
-                            <EditableH3 sectionId={sectionId}>
+                            <EditableH3 blockId={blockId}>
                                 {parsedContent}
                             </EditableH3>
                         );
@@ -193,7 +193,7 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
                         contentElement = (
                             <blockquote className="border-l-4 border-gray-300 pl-4 py-2">
                                 <EditableText
-                                    sectionId={sectionId}
+                                    blockId={blockId}
                                     as="p"
                                     className="text-lg italic text-gray-600"
                                 >
@@ -210,16 +210,16 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
                     case "paragraph":
                     default:
                         contentElement = (
-                            <EditableParagraph sectionId={sectionId}>
+                            <EditableParagraph blockId={blockId}>
                                 {parsedContent}
                             </EditableParagraph>
                         );
                         break;
                 }
 
-                // Replace the Block's children (SectionInput) with the new content
+                // Replace the Block's children (BlockInput) with the new content
                 // The Block wrapper already exists, so we just replace its content
-                return replaceSectionContent(section, sectionId, contentElement);
+                return replaceBlockContent(block, blockId, contentElement);
             });
         });
 
@@ -227,21 +227,21 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
             console.log("Adding structure edit for commit");
             editing.addStructureEdit({
                 action: 'add',
-                sectionId,
+                blockId,
                 content,
                 blockType
             });
         } else {
             // Fallback or dev mode without context?
-            console.warn("Editing context not found, cannot batch save section add");
+            console.warn("Editing context not found, cannot batch save block add");
         }
     };
 
-    const handleAddSection = (targetId: string) => {
-        console.log("handleAddSection called with targetId:", targetId);
+    const handleAddBlock = (targetId: string) => {
+        console.log("handleAddBlock called with targetId:", targetId);
         // Find index of element containing targetId
-        const index = initialSections.findIndex(section => hasElementId(section, targetId));
-        console.log("Found index:", index, "out of", initialSections.length, "blocks");
+        const index = initialBlocks.findIndex(block => hasElementId(block, targetId));
+        console.log("Found index:", index, "out of", initialBlocks.length, "blocks");
 
         if (index !== -1) {
             // Create new Block directly (no Section wrapper needed)
@@ -249,9 +249,9 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
             const newBlock = (
                 <FullWidthLayout key={`layout-${newId}`} maxWidth="xl">
                     <Block id={newId} padding="sm">
-                        <SectionInput
+                        <BlockInput
                             id={newId}
-                            onCommit={handleCommitSection}
+                            onCommit={handleCommitBlock}
                             placeholder="Type '/' for commands"
                         />
                     </Block>
@@ -262,20 +262,20 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
             if (editing) {
                 editing.addStructureEdit({
                     action: 'add',
-                    sectionId: newId,
+                    blockId: newId,
                     blockType: 'placeholder',
                     content: ''
                 });
             }
 
             // Insert after the found element
-            const newSections = [
-                ...initialSections.slice(0, index + 1),
+            const newBlocks = [
+                ...initialBlocks.slice(0, index + 1),
                 newBlock,
-                ...initialSections.slice(index + 1)
+                ...initialBlocks.slice(index + 1)
             ];
 
-            setInitialSections(newSections);
+            setInitialBlocks(newBlocks);
         } else {
             console.warn("Could not find block with id:", targetId);
         }
@@ -286,22 +286,21 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
         let cleanup: (() => void) | null = null;
 
         (async () => {
-            // Load sections using the configured strategy
-            const secs = await loadSections(sectionLoaderConfig);
+            // Load blocks using the configured strategy
+            const blocks = await loadBlocks(blockLoaderConfig);
             if (cancelled) return;
-            setInitialSections(Array.isArray(secs) ? secs : []);
-            setInitialSections(Array.isArray(secs) ? secs : []);
-            setLoadingSections(false);
+            setInitialBlocks(Array.isArray(blocks) ? blocks : []);
+            setLoadingBlocks(false);
 
             // Set up watcher for automatic updates in dev mode
             if (import.meta.env.DEV) {
-                cleanup = createSectionsWatcher(
-                    (updatedSections) => {
+                cleanup = createBlocksWatcher(
+                    (updatedBlocks) => {
                         if (!cancelled) {
-                            setInitialSections(updatedSections);
+                            setInitialBlocks(updatedBlocks);
                         }
                     },
-                    sectionLoaderConfig
+                    blockLoaderConfig
                 );
             }
         })();
@@ -313,11 +312,11 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
     }, []);
 
     // Show loading screen at top level
-    if (loadingSections) {
+    if (loadingBlocks) {
         return <LoadingScreen />;
     }
 
-    const getSectionIdFromElement = (element: ReactElement): string | undefined => {
+    const getBlockIdFromElement = (element: ReactElement): string | undefined => {
         // Try to find the block ID by traversing down
         if (!isValidElement(element)) return undefined;
 
@@ -333,7 +332,7 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
         if (el.props.children) {
             Children.forEach(el.props.children, (child) => {
                 if (!foundId && isValidElement(child)) {
-                    foundId = getSectionIdFromElement(child as ReactElement);
+                    foundId = getBlockIdFromElement(child as ReactElement);
                 }
             });
         }
@@ -341,67 +340,67 @@ export const LessonView = ({ onEditSection }: LessonViewProps) => {
     };
 
 
-    const handleReorder = (newSections: ReactElement[]) => {
-        setInitialSections(newSections);
+    const handleReorder = (newBlocks: ReactElement[]) => {
+        setInitialBlocks(newBlocks);
 
         // Extract IDs to track the new order
-        const blockIds = newSections.map(s => {
+        const blockIds = newBlocks.map(s => {
             // If key has format 'layout-...' try to parse it
             if (s.key && typeof s.key === 'string' && s.key.startsWith('layout-')) {
                 return s.key.replace('layout-', '');
             }
             // Otherwise try to find inner Block ID
-            return getSectionIdFromElement(s) || 'unknown';
+            return getBlockIdFromElement(s) || 'unknown';
         });
 
         // Record the reorder as an edit
         if (editing) {
             editing.addStructureEdit({
                 action: 'reorder',
-                sectionIds: blockIds,
+                blockIds,
             });
         }
 
         // Also notify parent (for legacy support)
         window.parent.postMessage({
-            type: 'commit-section-reorder',
-            sectionIds: blockIds
+            type: 'commit-block-reorder',
+            blockIds
         }, '*');
     };
 
-    const handleDeleteSection = (sectionId: string) => {
-        setInitialSections(prev => {
-            // We need to remove the top-level element that CONTAINS this sectionId
-            return prev.filter(section => !hasElementId(section, sectionId));
+    const handleDeleteBlock = (blockId: string) => {
+        setInitialBlocks(prev => {
+            // We need to remove the top-level element that CONTAINS this blockId
+            return prev.filter(block => !hasElementId(block, blockId));
         });
 
         // Record the delete as an edit
         if (editing) {
             editing.addStructureEdit({
                 action: 'delete',
-                sectionId,
+                blockId,
             });
         }
 
         // Also notify parent (for legacy support)
         window.parent.postMessage({
-            type: 'commit-section-delete',
-            sectionId
+            type: 'commit-block-delete',
+            blockId
         }, '*');
     };
 
     return (
         <div className="flex flex-col h-full glass">
             <Card className="flex-1 overflow-hidden bg-white no-border relative">
-                {initialSections.length > 0 ? (
+                {initialBlocks.length > 0 ? (
                     <div className="relative w-full h-full">
-                        <SectionRenderer
-                            initialSections={initialSections}
+                        <BlockRenderer
+                            initialBlocks={initialBlocks}
                             isPreview={isPreview}
-                            onEditSection={onEditSection}
-                            onAddSection={handleAddSection}
+                            onEditBlock={onEditBlock}
+                            onAddBlock={handleAddBlock}
                             onReorder={handleReorder}
-                            onDeleteSection={handleDeleteSection}
+                            onDeleteBlock={handleDeleteBlock}
                         />
                     </div>
                 ) : (

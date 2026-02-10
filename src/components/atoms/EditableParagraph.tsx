@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 interface EditableParagraphProps {
     children: React.ReactNode;
     id?: string;
-    sectionId?: string;
+    blockId?: string;
     className?: string;
     /** Text size variant */
     size?: 'sm' | 'base' | 'lg' | 'xl';
@@ -48,14 +48,14 @@ const leadingStyles = {
  * 
  * @example Basic usage
  * ```tsx
- * <EditableParagraph sectionId="intro">
+ * <EditableParagraph blockId="intro">
  *   This is the introduction text that explains the concept.
  * </EditableParagraph>
  * ```
  * 
  * @example With inline number
  * ```tsx
- * <EditableParagraph sectionId="demo">
+ * <EditableParagraph blockId="demo">
  *   If we set the value to{" "}
  *   <InlineScrubbleNumber varName="myValue" defaultValue={5} min={0} max={10} />
  *   {" "}we can see the effect in real-time.
@@ -64,7 +64,7 @@ const leadingStyles = {
  * 
  * @example With equation
  * ```tsx
- * <EditableParagraph sectionId="physics">
+ * <EditableParagraph blockId="physics">
  *   The famous equation <Equation latex="E = mc^2" /> describes mass-energy equivalence.
  * </EditableParagraph>
  * ```
@@ -72,7 +72,7 @@ const leadingStyles = {
 export const EditableParagraph: React.FC<EditableParagraphProps> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
     size = 'base',
     leading = 'relaxed',
@@ -80,7 +80,7 @@ export const EditableParagraph: React.FC<EditableParagraphProps> = ({
     <EditableText
         as="p"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={cn(
             sizeStyles[size],
             leadingStyles[leading],
@@ -102,7 +102,7 @@ export const EditableParagraph: React.FC<EditableParagraphProps> = ({
  * ```tsx
  * <p>
  *   This is regular text with an{" "}
- *   <EditableSpan sectionId="highlight">editable portion</EditableSpan>
+ *   <EditableSpan blockId="highlight">editable portion</EditableSpan>
  *   {" "}in the middle.
  * </p>
  * ```
@@ -110,13 +110,13 @@ export const EditableParagraph: React.FC<EditableParagraphProps> = ({
 export const EditableSpan: React.FC<Omit<EditableParagraphProps, 'size' | 'leading'>> = ({
     children,
     id,
-    sectionId = '',
+    blockId,
     className = '',
 }) => (
     <EditableText
         as="span"
         id={id}
-        sectionId={sectionId}
+        blockId={blockId}
         className={className}
     >
         {children}

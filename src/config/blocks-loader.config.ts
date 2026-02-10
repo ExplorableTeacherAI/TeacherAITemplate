@@ -1,16 +1,16 @@
-import type { SectionLoaderConfig } from "@/lib/section-loader";
+import type { BlockLoaderConfig } from "@/lib/block-loader";
 
 /**
- * Configuration for section loading strategies
+ * Configuration for block loading strategies
  * 
- * This file centralizes the section loading configuration,
+ * This file centralizes the block loading configuration,
  * making it easy to switch between different strategies based on environment.
  */
 
 /**
  * Strategy configurations for different environments
  */
-export const sectionLoaderConfigs: Record<string, SectionLoaderConfig> = {
+export const blockLoaderConfigs: Record<string, BlockLoaderConfig> = {
     // Development: Use TypeScript module for instant hot-reload
     development: {
         strategy: 'module',
@@ -20,7 +20,7 @@ export const sectionLoaderConfigs: Record<string, SectionLoaderConfig> = {
     // Can also use JSON in development with polling for changes
     developmentJson: {
         strategy: 'json-public',
-        url: '/sections.json',
+        url: '/blocks.json',
         enableDevPolling: true,
         pollingInterval: 1000,
     },
@@ -33,36 +33,36 @@ export const sectionLoaderConfigs: Record<string, SectionLoaderConfig> = {
     // Production API: Load from backend API
     productionApi: {
         strategy: 'json-api',
-        url: '/api/sections',
+        url: '/api/blocks',
     },
 
     // Staging: Load from static JSON
     staging: {
         strategy: 'json-public',
-        url: '/sections.json',
+        url: '/blocks.json',
     },
 };
 
 /**
  * Get configuration based on current environment
  */
-export function getSectionLoaderConfig(): SectionLoaderConfig {
+export function getBlockLoaderConfig(): BlockLoaderConfig {
     const mode = import.meta.env.MODE || 'development';
 
     // You can customize this logic based on your needs
     if (mode === 'production') {
-        // Use module strategy in production (sections bundled with app)
-        return sectionLoaderConfigs.production;
+        // Use module strategy in production (blocks bundled with app)
+        return blockLoaderConfigs.production;
 
         // Or use API strategy if you need dynamic content:
-        // return sectionLoaderConfigs.productionApi;
+        // return blockLoaderConfigs.productionApi;
     }
 
     // Default to module strategy in development
-    return sectionLoaderConfigs.development;
+    return blockLoaderConfigs.development;
 }
 
 /**
  * Default export for convenient importing
  */
-export default getSectionLoaderConfig();
+export default getBlockLoaderConfig();
