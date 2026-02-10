@@ -63,9 +63,11 @@ export const EditableText: React.FC<EditableTextProps> = ({
         e.stopPropagation();
 
         if (!isContentEditable && containerRef.current) {
-            // Store original text AND HTML before editing
+            // Store original text AND inner HTML before editing
+            // Use innerHTML (not outerHTML) to avoid capturing contentEditable/data-editing attributes
+            // which change when entering/leaving edit mode and cause false-positive diffs
             originalTextRef.current = containerRef.current.innerText;
-            originalHtmlRef.current = containerRef.current.outerHTML; // Capture the element itself
+            originalHtmlRef.current = containerRef.current.innerHTML;
             setIsContentEditable(true);
 
             // Focus and select the content
@@ -89,11 +91,11 @@ export const EditableText: React.FC<EditableTextProps> = ({
         if (!containerRef.current) return;
 
         const newText = containerRef.current.innerText;
-        const newHtml = containerRef.current.outerHTML;
+        const newHtml = containerRef.current.innerHTML;
         const originalText = originalTextRef.current;
         const originalHtml = originalHtmlRef.current;
 
-        // Only create edit if text actually changed OR html changed (e.g. deleting all content)
+        // Only create edit if the actual content changed (text or inner HTML)
         if (newText !== originalText || newHtml !== originalHtml) {
             addTextEdit({
                 blockId: blockId,
