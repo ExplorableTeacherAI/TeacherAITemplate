@@ -31,7 +31,7 @@ export const headingStyles = {
  * @example
  * ```tsx
  * <EditableH1 id="title-1" blockId="intro">
- *   Welcome to Physics
+ *   Welcome to Maths
  * </EditableH1>
  * ```
  */
