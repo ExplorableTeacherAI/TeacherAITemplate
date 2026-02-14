@@ -353,7 +353,31 @@ setVar('lessonTitle', 'New Title');
 setVar('showGrid', false);
 ```
 
-### 3. Example: Linked Slider and Visualization
+### 3. Use with InlineScrubbleNumber
+
+Always use `numberPropsFromDefinition` to spread variable props — never pass `defaultValue`, `min`, `max`, `step` inline:
+
+```tsx
+import { getVariableInfo, numberPropsFromDefinition } from "@/data/variables";
+import { InlineScrubbleNumber } from "@/components/atoms";
+
+<InlineScrubbleNumber
+    varName="amplitude"
+    {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
+/>
+```
+
+For example blocks, import from `exampleVariables.ts` instead:
+```tsx
+import { getExampleVariableInfo, numberPropsFromDefinition } from "@/data/exampleVariables";
+
+<InlineScrubbleNumber
+    varName="amplitude"
+    {...numberPropsFromDefinition(getExampleVariableInfo('amplitude'))}
+/>
+```
+
+### 4. Example: Linked Slider and Visualization
 
 **Block A - Controls:**
 ```tsx
@@ -403,7 +427,10 @@ To make content editable within the application (so users can tweak the lesson t
 
 - `EditableH1`, `EditableH2`, `EditableH3` - Editable headings
 - `EditableParagraph` - Editable paragraph text
-- `InlineScrubbleNumber` - Interactive inline numeric values that can be dragged
+- `InlineScrubbleNumber` - Interactive inline numeric values (drag to scrub, uses global variables)
+- `InlineDropdown` - Inline dropdown selector
+- `InlineTextInput` - Inline text input
+- `Equation`, `InteractiveEquation`, `ColoredEquation` - Math equations
 
 ### Basic Usage
 
@@ -426,27 +453,27 @@ import { EditableH1, EditableH2, EditableParagraph } from "@/components/atoms";
 
 ### Inline Components in Paragraphs
 
-You can embed interactive components like `InlineScrubbleNumber` within paragraphs:
+You can embed interactive components like `InlineScrubbleNumber` within paragraphs. **Important:** Always define the variable in `variables.ts` first, then use `numberPropsFromDefinition` to spread its props — never hardcode numeric props inline.
 
 ```tsx
 import { Block } from "@/components/templates";
 import { EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition } from "@/data/variables";
 
 <Block id="block-physics-01" padding="md">
   <EditableParagraph id="para-velocity" blockId="block-physics-01">
     The object is moving at{" "}
     <InlineScrubbleNumber
       varName="velocity"
-      defaultValue={20}
-      min={0}
-      max={100}
-      step={1}
+      {...numberPropsFromDefinition(getVariableInfo('velocity'))}
       formatValue={(v) => `${v} m/s`}
     />
     {" "}through the air.
   </EditableParagraph>
 </Block>
 ```
+
+> **Do NOT** pass `defaultValue`, `min`, `max`, or `step` as inline props. Always use the spread pattern above so the centralized variable definition is the single source of truth.
 
 ### ID Naming Conventions
 
@@ -459,21 +486,41 @@ import { EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
 
 ## 🤖 Agent Instructions (for AI)
 
-If you are an AI agent working on this repo:
-1. **Always read `src/data/blocks.tsx`** first to see the current content structure.
-2. **Always read `src/data/variables.ts`** to see available shared variables.
-3. **Check `src/data/exampleBlocks.tsx`** for comprehensive reference examples but do not modify it.
-4. **Shared Variables ONLY**: Do not use `useState` for any lesson content or interactive state. **ALWAYS** define variables in `src/data/variables.ts` and use `useVar` / `useSetVar`.
-5. **Block-Based Approach**: All content MUST be wrapped in `<Block>` components with unique IDs.
-6. **Editable Components ALWAYS**: Every piece of text (headings, paragraphs) **MUST** use editable component wrappers:
+> **The two files you edit are `src/data/blocks.tsx` and `src/data/variables.ts`. Everything else under `src/data/example*.ts(x)` is read-only reference material — NEVER modify example files.**
+
+### Where to work
+
+| Action | File to edit |
+|--------|-------------|
+| Add/edit lesson content (blocks, layouts) | `src/data/blocks.tsx` |
+| Add/edit shared variables | `src/data/variables.ts` |
+| Extract complex block components | `src/data/sections/*.tsx` (create new files, import into `blocks.tsx`) |
+
+### What to read as reference only (DO NOT edit)
+
+| File | Purpose |
+|------|---------|
+| `src/data/exampleBlocks.tsx` | Shows how to use every layout, component, and pattern — **read and follow the patterns** |
+| `src/data/exampleVariables.ts` | Shows how to define every variable type — **copy the structure into `variables.ts`** |
+
+### Rules
+
+1. **Only edit `blocks.tsx` and `variables.ts`** for all lesson content. Use example files strictly as reference to understand the correct patterns, then implement in the actual files.
+2. **Shared Variables ONLY**: Do not use `useState` for any lesson content or interactive state. **ALWAYS** define variables in `src/data/variables.ts` and use `useVar` / `useSetVar`.
+3. **Block-Based Approach**: All content MUST be wrapped in `<Block>` components with unique IDs.
+4. **Editable Components ALWAYS**: Every piece of text (headings, paragraphs) **MUST** use editable component wrappers:
    - Use `EditableH1`, `EditableH2`, `EditableH3` for headings
    - Use `EditableParagraph` for paragraph text
    - Import from `@/components/atoms`
-7. **ID Requirements**:
+5. **ID Requirements**:
    - Every `<Block>` must have a unique `id` prop (format: `block-<description>-<number>`)
    - Every editable component must have:
      - A unique `id` prop (format: `<type>-<description>`)
      - A `blockId` prop matching its parent Block's `id`
-8. **Inline Components**: Use `InlineScrubbleNumber` for interactive numeric values within paragraphs.
-9. When asked to "add a block", **create the Block with editable components first**, wrap it in a **Layout**, and add it to `blocks.tsx`.
-10. Prefer **splitting complex code** into separate files in `src/data/sections/`.
+6. **InlineScrubbleNumber — NEVER use inline numeric props**:
+   - First define the variable in `src/data/variables.ts`
+   - Then use the spread pattern: `<InlineScrubbleNumber varName="myVar" {...numberPropsFromDefinition(getVariableInfo('myVar'))} />`
+   - Only `formatValue` may be added as an inline prop alongside the spread
+   - Import `getVariableInfo` and `numberPropsFromDefinition` from `@/data/variables`
+7. When asked to "add a block", **define any needed variables in `variables.ts` first**, then create the Block with editable components, wrap it in a Layout, and add it to `blocks.tsx`.
+8. Prefer **splitting complex code** into separate files in `src/data/sections/` and importing into `blocks.tsx`.

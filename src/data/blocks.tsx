@@ -23,7 +23,7 @@ useVariableStore.getState().initialize(getDefaultValues());
  * ------------------------------------------------------------------
  * Variables can be shared across blocks using the global store.
  * 
- * DEFINE VARIABLES: src/data/variables.ts
+ * DEFINE VARIABLES: src/data/variables.ts (use only variables.ts in this file; same structure as exampleBlocks + exampleVariables)
  * 
  * USAGE IN BLOCKS:
  * 
@@ -35,6 +35,9 @@ useVariableStore.getState().initialize(getDefaultValues());
  * import { useSetVar } from '@/stores';
  * const setVar = useSetVar();
  * setVar('amplitude', 2.5);
+ * 
+ * // InlineScrubbleNumber (from variables.ts): getVariableInfo(name) + numberPropsFromDefinition(...)
+ * <InlineScrubbleNumber varName="amplitude" {...numberPropsFromDefinition(getVariableInfo('amplitude'))} />
  * 
  * ------------------------------------------------------------------
  * AVAILABLE LAYOUTS

@@ -180,3 +180,22 @@ export const getDefaultValues = (): Record<string, VarValue> => {
     }
     return defaults;
 };
+
+/**
+ * Get number props for InlineScrubbleNumber from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx, or getExampleVariableInfo(name) in exampleBlocks.tsx.
+ */
+export function numberPropsFromDefinition(def: VariableDefinition | undefined): {
+    defaultValue?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+} {
+    if (!def || def.type !== 'number') return {};
+    return {
+        defaultValue: def.defaultValue as number,
+        min: def.min,
+        max: def.max,
+        step: def.step,
+    };
+}

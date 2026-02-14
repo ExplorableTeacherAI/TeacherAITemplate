@@ -1,9 +1,13 @@
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 
-// Initialize variables from example variable definitions
+// Initialize variables from example variable definitions (single source of truth)
 import { useVariableStore } from "@/stores";
-import { getExampleDefaultValues } from "./exampleVariables";
+import {
+    getExampleDefaultValues,
+    getExampleVariableInfo,
+    numberPropsFromDefinition,
+} from "./exampleVariables";
 useVariableStore.getState().initialize(getExampleDefaultValues());
 
 // Import layout components
@@ -20,15 +24,19 @@ import {
 
 /**
  * Blocks configuration for the canvas.
- * 
+ *
+ * PROCEDURE: Define variables in src/data/exampleVariables.ts, then use them here
+ * by varName. Use only exampleVariables.ts: getExampleVariableInfo(name) + numberPropsFromDefinition(...).
+ * Same structure as blocks.tsx, which uses only variables.ts.
+ *
  * This file contains examples for:
  * - Editing H tags (H1, H2, H3)
  * - Editing paragraphs
- * - Inline components (InlineScrubbleNumber)
- * 
+ * - Inline components (InlineScrubbleNumber) bound to global variables
+ *
  * Each Block has a unique id for identification.
  * Each editable component within a Block also has its own unique id.
- * 
+ *
  * Vite will watch this file for changes and hot-reload automatically.
  */
 
@@ -111,17 +119,14 @@ const exampleBlocks: ReactElement[] = [
         </Block>
     </FullWidthLayout>,
 
-    // Inline scrubble number examples
+    // Inline scrubble number examples (use global vars from exampleVariables.ts)
     <FullWidthLayout key="layout-paragraph-04" maxWidth="xl">
         <Block id="block-paragraph-04" padding="sm">
             <EditableParagraph id="para-radius-example" blockId="block-paragraph-04">
                 The circle has a radius of{" "}
                 <InlineScrubbleNumber
                     varName="radius"
-                    defaultValue={5}
-                    min={1}
-                    max={20}
-                    step={0.5}
+                    {...numberPropsFromDefinition(getExampleVariableInfo('radius'))}
                 />
                 {" "}units, giving it an area proportional to r².
             </EditableParagraph>
@@ -134,10 +139,7 @@ const exampleBlocks: ReactElement[] = [
                 If we increase the temperature to{" "}
                 <InlineScrubbleNumber
                     varName="temperature"
-                    defaultValue={25}
-                    min={0}
-                    max={100}
-                    step={1}
+                    {...numberPropsFromDefinition(getExampleVariableInfo('temperature'))}
                     formatValue={(v) => `${v}°C`}
                 />
                 {" "}the reaction rate will change accordingly.
@@ -151,10 +153,7 @@ const exampleBlocks: ReactElement[] = [
                 There are{" "}
                 <InlineScrubbleNumber
                     varName="count"
-                    defaultValue={10}
-                    min={1}
-                    max={50}
-                    step={1}
+                    {...numberPropsFromDefinition(getExampleVariableInfo('count'))}
                 />
                 {" "}items in the collection. Try dragging the number to adjust.
             </EditableParagraph>
@@ -178,19 +177,13 @@ const exampleBlocks: ReactElement[] = [
                 Consider a projectile launched at an angle. The initial velocity is{" "}
                 <InlineScrubbleNumber
                     varName="velocity"
-                    defaultValue={20}
-                    min={5}
-                    max={50}
-                    step={1}
+                    {...numberPropsFromDefinition(getExampleVariableInfo('velocity'))}
                     formatValue={(v) => `${v} m/s`}
                 />
                 {" "}and the launch angle is{" "}
                 <InlineScrubbleNumber
                     varName="angle"
-                    defaultValue={45}
-                    min={10}
-                    max={80}
-                    step={5}
+                    {...numberPropsFromDefinition(getExampleVariableInfo('angle'))}
                     formatValue={(v) => `${v}°`}
                 />
                 .
@@ -211,11 +204,8 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-gravity-example" blockId="block-paragraph-08">
                 The gravitational acceleration is{" "}
                 <InlineScrubbleNumber
-                    varName="gravity"
-                    defaultValue={9.8}
-                    min={1}
-                    max={20}
-                    step={0.1}
+                    varName="acceleration"
+                    {...numberPropsFromDefinition(getExampleVariableInfo('acceleration'))}
                     formatValue={(v) => `${v.toFixed(1)} m/s²`}
                 />
                 . You can adjust these values to see how they affect the trajectory.

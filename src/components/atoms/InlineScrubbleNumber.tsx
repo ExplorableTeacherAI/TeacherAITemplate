@@ -4,6 +4,7 @@ import { useVar, useSetVar } from '@/stores/variableStore';
 import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
+import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineScrubbleNumberProps {
     /** Variable name in the shared store */
@@ -96,25 +97,29 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     // Editing support
     const { isEditor } = useAppMode();
     const { isEditing, openScrubbleNumberEditor, pendingEdits } = useEditing();
+    const { id: blockIdFromContext } = useBlockContext();
 
     // Allow editing in editor mode OR standalone mode for testing
     const isStandalone = typeof window !== 'undefined' && window.self === window.top;
     const canEdit = isEditor || isStandalone;
 
-    // State to store the element identity (blockId and path) since it depends on DOM
+    // Element identity for matching pending edits: prefer BlockContext id (reliable when using global vars), fallback to DOM lookup
     const [editIdentity, setEditIdentity] = useState<{ blockId: string; elementPath: string } | null>(null);
 
-    // Update identity when ref is available or props change
+    // Update identity when context blockId or props change (context is authoritative when present)
     useEffect(() => {
+        if (blockIdFromContext) {
+            const elementPath = `scrubble-${blockIdFromContext}-${varName ?? defaultValue}`;
+            setEditIdentity({ blockId: blockIdFromContext, elementPath });
+            return;
+        }
         if (!containerRef.current) return;
 
-        // Look for data-block-id
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `scrubble-${blockId}-${varName || defaultValue}`;
-
+        const elementPath = `scrubble-${blockId}-${varName ?? defaultValue}`;
         setEditIdentity({ blockId, elementPath });
-    }, [varName, defaultValue]);
+    }, [blockIdFromContext, varName, defaultValue]);
 
     // Check for pending edits using the stored identity
     const pendingEdit = React.useMemo(() => {
@@ -133,7 +138,8 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     }, [isEditing, canEdit, pendingEdits, editIdentity]);
 
     // Use edited values if available
-    const effectiveVarName = pendingEdit?.newProps.varName ?? varName;
+    // Note: checking pendingEdit explicitly to allow clearing varName (setting to undefined)
+    const effectiveVarName = pendingEdit ? pendingEdit.newProps.varName : varName;
     const effectiveDefaultValue = pendingEdit?.newProps.defaultValue ?? defaultValue;
     const displayMin = pendingEdit?.newProps.min ?? min;
     const displayMax = pendingEdit?.newProps.max ?? max;
@@ -164,7 +170,41 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             ? storeValue
             : localValue;
 
-    const updateValue = (newValue: number) => {
+    // When a pending edit changes defaultValue or min/max, sync the store value
+    // so the change is immediately visible (defaultValue only affects initial/fallback,
+    // but the user expects the displayed number to update when editing).
+    const lastAppliedEditId = useRef<string | null>(null);
+    useEffect(() => {
+        if (!pendingEdit || isControlled) return;
+        const editId = (pendingEdit as any).id;
+        if (editId === lastAppliedEditId.current) return;
+        lastAppliedEditId.current = editId;
+
+        const newDefault = pendingEdit.newProps.defaultValue;
+        const newMin = pendingEdit.newProps.min ?? min;
+        const newMax = pendingEdit.newProps.max ?? max;
+
+        if (usesVarStore && effectiveVarName) {
+            // Set store value to the new default, clamped to new range
+            if (newDefault !== undefined) {
+                const clamped = Math.max(newMin, Math.min(newMax, newDefault));
+                setVar(effectiveVarName, clamped);
+            } else {
+                // No new default, but range may have changed — clamp current value
+                const clamped = Math.max(newMin, Math.min(newMax, storeValue));
+                if (clamped !== storeValue) {
+                    setVar(effectiveVarName, clamped);
+                }
+            }
+        } else if (!isControlled) {
+            // Local mode — update local value
+            if (newDefault !== undefined) {
+                setLocalValue(Math.max(newMin, Math.min(newMax, newDefault)));
+            }
+        }
+    }, [pendingEdit, isControlled, usesVarStore, effectiveVarName, min, max, storeValue, setVar]);
+
+    const updateValue = useCallback((newValue: number) => {
         const clampedValue = Math.max(displayMin, Math.min(displayMax, newValue));
 
         // Update based on mode
@@ -180,7 +220,11 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             setLocalValue(clampedValue);
             onChange?.(clampedValue);
         }
-    };
+    }, [displayMin, displayMax, isControlled, usesVarStore, effectiveVarName, setVar, onChange]);
+
+    // Keep a ref so the drag handler always calls the latest updateValue
+    const updateValueRef = useRef(updateValue);
+    updateValueRef.current = updateValue;
 
     const increment = () => {
         updateValue(value + displayStep);
@@ -191,8 +235,14 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        // Don't start dragging in edit mode - let click through
-        if (canEdit && isEditing) return;
+        if (canEdit && isEditing) {
+            // In editing mode, trigger the editor on mousedown.
+            // Using mousedown instead of click is more reliable when the parent
+            // EditableParagraph is contentEditable — browsers can intercept click
+            // events on contentEditable={false} children for selection handling.
+            handleEditClick(e);
+            return;
+        }
 
         setIsDragging(true);
         dragStartX.current = e.clientX;
@@ -217,11 +267,15 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         e.stopPropagation();
         e.preventDefault();
 
-        // Use stored identity if available, otherwise try to find it
-        // Look for data-block-id
-        const block = containerRef.current?.closest('[data-block-id]');
-        const blockId = editIdentity?.blockId || block?.getAttribute('data-block-id') || '';
-        const elementPath = editIdentity?.elementPath || `scrubble-${blockId}-${varName || defaultValue}`;
+        // Use editIdentity (from context or DOM) so we open the editor with the same identity we use for pending edits
+        let blockId = editIdentity?.blockId ?? blockIdFromContext ?? '';
+        let elementPath = editIdentity?.elementPath ?? '';
+
+        if (!elementPath) {
+            const block = containerRef.current?.closest('[data-block-id]');
+            blockId = blockId || block?.getAttribute('data-block-id') || '';
+            elementPath = `scrubble-${blockId}-${varName ?? defaultValue}`;
+        }
 
         openScrubbleNumberEditor(
             {
@@ -234,7 +288,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             blockId,
             elementPath
         );
-    }, [editIdentity, effectiveVarName, effectiveDefaultValue, displayMin, displayMax, displayStep, openScrubbleNumberEditor, varName, defaultValue]);
+    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveDefaultValue, displayMin, displayMax, displayStep, openScrubbleNumberEditor, varName, defaultValue]);
 
     // Handle dragging with useEffect
     useEffect(() => {
@@ -244,7 +298,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             const deltaX = e.clientX - dragStartX.current;
             const sensitivity = 2; // pixels per step
             const deltaValue = Math.round(deltaX / sensitivity) * displayStep;
-            updateValue(dragStartValue.current + deltaValue);
+            updateValueRef.current(dragStartValue.current + deltaValue);
         };
 
         const handleMouseUp = () => {
@@ -268,6 +322,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     return (
         <span
             ref={containerRef}
+            contentEditable={false}
             className={cn(
                 "inline-flex items-center relative",
                 canEdit && isEditing && "group"
@@ -300,7 +355,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             {/* Number display with underline */}
             <span
                 onMouseDown={handleMouseDown}
-                onClick={canEdit && isEditing ? handleEditClick : undefined}
+                onClick={canEdit && isEditing ? (e) => { e.stopPropagation(); e.preventDefault(); } : undefined}
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
                 className={cn(
