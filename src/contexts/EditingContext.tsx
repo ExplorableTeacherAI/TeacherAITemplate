@@ -480,8 +480,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         <EditingContext.Provider value={value}>
             {children}
 
-            {/* Debug panel for standalone testing */}
-            {isStandalone && (
+            {/* Debug panel - only visible in editor mode */}
+            {isEditor && (
                 <>
                     {/* Debug toggle button */}
                     <button

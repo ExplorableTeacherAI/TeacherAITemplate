@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 // Define the structure for hierarchy nodes
 interface HierarchyNode {
     id: string;
-    type: "section" | "layout";
+    type: "block" | "layout";
     blockId?: string;
     label: string;
     children: HierarchyNode[];
@@ -85,7 +85,7 @@ export const HierarchyReporter = () => {
 
             flatNodes.push({
                 id: nodeId,
-                type: "section",
+                type: "block",
                 blockId: section.getAttribute('data-block-id') || undefined,
                 label: label,
                 children: [],
@@ -157,9 +157,9 @@ export const HierarchyReporter = () => {
                 reportHierarchy();
             }
 
-            if (event.data.type === 'scroll-to-section') {
-                const { blockId: msgBlockId } = event.data;
-                const targetId = msgBlockId;
+            const scrollPayload = event.data.type === 'scroll-to-block' || event.data.type === 'scroll-to-section';
+            if (scrollPayload) {
+                const targetId = event.data.blockId ?? event.data.sectionId ?? event.data.nodeId;
 
                 // 1. Clear previous selection
                 document.querySelectorAll('[data-hierarchy-selected="true"]').forEach(el => {
@@ -174,9 +174,16 @@ export const HierarchyReporter = () => {
                 });
 
                 if (targetId) {
-                    const el = document.querySelector(`[data-block-id="${targetId}"]`);
+                    const el = document.querySelector(`[data-block-id="${targetId}"]`)
+                        ?? document.getElementById(targetId)
+                        ?? document.querySelector(`[data-hierarchy-temp-id="${targetId}"]`);
                     if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Defer scroll to next frame so layout is ready
+                        requestAnimationFrame(() => {
+                            el!.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                            // If embedded in iframe, also scroll the iframe into view in the parent
+                            window.frameElement?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+                        });
 
                         const htmlEl = el as HTMLElement;
 
@@ -207,9 +214,10 @@ export const HierarchyReporter = () => {
                 }
             }
 
-            if (event.data.type === 'highlight-section') {
-                const { blockId: msgBlockId2, isHovering } = event.data;
-                const targetId2 = msgBlockId2;
+            const highlightPayload = event.data.type === 'highlight-block' || event.data.type === 'highlight-section';
+            if (highlightPayload) {
+                const targetId2 = event.data.blockId ?? event.data.sectionId ?? event.data.nodeId;
+                const isHovering = event.data.isHovering;
 
                 // Remove existing highlights
                 document.querySelectorAll('[data-hierarchy-highlight]').forEach(el => {
@@ -222,7 +230,9 @@ export const HierarchyReporter = () => {
                 });
 
                 if (isHovering && targetId2) {
-                    const el = document.querySelector(`[data-block-id="${targetId2}"]`);
+                    const el = document.querySelector(`[data-block-id="${targetId2}"]`)
+                        ?? document.getElementById(targetId2)
+                        ?? document.querySelector(`[data-hierarchy-temp-id="${targetId2}"]`);
                     // Apply highlight only if not already selected
                     if (el && !el.hasAttribute('data-hierarchy-selected')) {
                         (el as HTMLElement).style.outline = "2px dashed #14B8A6";
