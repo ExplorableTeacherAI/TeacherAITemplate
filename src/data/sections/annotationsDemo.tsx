@@ -11,7 +11,6 @@ import {
     Hoverable,
     Glossary,
     Whisper,
-    Stepper,
     Toggle,
     FillBlank,
     MultiChoice,
@@ -105,16 +104,6 @@ export const annotationsDemoSections = [
             <h3 className="text-xl font-semibold mb-4 text-fuchsia-600">🔄 Mutable Annotations</h3>
 
             <div className="space-y-6">
-                {/* Stepper */}
-                <div className="p-4 bg-fuchsia-50 rounded-lg">
-                    <h4 className="font-medium mb-2">Stepper (Numeric values)</h4>
-                    <p className="text-lg leading-relaxed">
-                        If we increase the number of polygon sides to{' '}
-                        <Stepper initialValue={6} min={3} max={20} />{' '}
-                        the shape becomes more circular. Try dragging the number!
-                    </p>
-                </div>
-
                 {/* Toggle */}
                 <div className="p-4 bg-fuchsia-50 rounded-lg">
                     <h4 className="font-medium mb-2">Toggle (Cycle through options)</h4>

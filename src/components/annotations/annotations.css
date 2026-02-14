@@ -174,45 +174,6 @@
     text-shadow: 0 0 8px var(--annotation-mutable-glow);
 }
 
-/* Stepper - arrow buttons with number */
-.annotation-stepper {
-    display: inline-flex;
-    align-items: center;
-    background: var(--annotation-mutable-bg);
-    border-radius: 4px;
-    padding: 0;
-    user-select: none;
-}
-
-.annotation-stepper__button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 2px;
-    color: var(--annotation-mutable);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: transform var(--annotation-transition);
-}
-
-.annotation-stepper__button:hover:not(:disabled) {
-    transform: scale(1.15);
-}
-
-.annotation-stepper__button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-.annotation-stepper__value {
-    color: var(--annotation-mutable);
-    font-weight: 600;
-    min-width: 2ch;
-    text-align: center;
-    cursor: ew-resize;
-}
-
 /* Toggle - cycles through options */
 .annotation-toggle {
     color: var(--annotation-mutable);
@@ -516,7 +477,7 @@
 }
 
 /* ============================================================================
-   PROGRESS BAR (for Stepper/Scrubber)
+   PROGRESS BAR (for Scrubber)
    ============================================================================ */
 
 .annotation-progress {
@@ -532,7 +493,6 @@
     transition: opacity var(--annotation-transition);
 }
 
-.annotation-stepper:hover .annotation-progress,
 .annotation-scrubber:hover .annotation-progress {
     opacity: 1;
 }
@@ -610,10 +570,6 @@
     .annotation-tooltip {
         max-width: calc(100vw - 32px);
         min-width: 150px;
-    }
-
-    .annotation-stepper__button {
-        padding: 0 4px;
     }
 
     .annotation-dragword {

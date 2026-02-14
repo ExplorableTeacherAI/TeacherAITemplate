@@ -90,23 +90,6 @@ export interface WhisperProps extends BaseAnnotationProps {
 // CATEGORY: MUTABLE
 // ============================================================================
 
-export interface StepperProps extends BaseAnnotationProps {
-    /** Controlled value */
-    value?: number;
-    /** Initial value for uncontrolled mode */
-    initialValue?: number;
-    /** Minimum value */
-    min?: number;
-    /** Maximum value */
-    max?: number;
-    /** Step increment */
-    step?: number;
-    /** Format the displayed value */
-    formatValue?: (value: number) => string;
-    /** Callback when value changes */
-    onChange?: (value: number) => void;
-}
-
 export interface ToggleProps extends BaseAnnotationProps {
     /** Array of options to cycle through */
     options: string[];
@@ -299,7 +282,6 @@ export const ANNOTATION_STYLE_CONFIG: Record<string, AnnotationStyleConfig> = {
     Hoverable: { category: 'informational', underline: 'none', defaultColor: 'informational' },
     Glossary: { category: 'informational', underline: 'dotted', defaultColor: 'informational' },
     Whisper: { category: 'informational', underline: 'none', defaultColor: 'informational' },
-    Stepper: { category: 'mutable', underline: 'solid', defaultColor: 'mutable' },
     Toggle: { category: 'mutable', underline: 'dashed', defaultColor: 'mutable' },
     Scrubber: { category: 'mutable', underline: 'double', defaultColor: 'mutable' },
     FillBlank: { category: 'validatable', underline: 'none', defaultColor: 'validatable' },

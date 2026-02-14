@@ -5,12 +5,12 @@
  * 
  * Categories:
  * - Informational: Hoverable, Glossary, Whisper
- * - Mutable: Stepper, Toggle
+ * - Mutable: Toggle
  * - Validatable: FillBlank, MultiChoice
  * - Connective: Linked, Trigger
  * 
  * Visual Style Guide:
- * - Solid underline ─────── : Draggable values (Stepper)
+ * - Solid underline ─────── : Draggable values
  * - Dashed underline - - -  : Toggleable states (Toggle)
  * - Dotted underline ······ : Definitions (Glossary, Linked)
  * - No underline (color)    : Tooltips (Hoverable, Whisper)
@@ -21,7 +21,6 @@
 export { Hoverable } from './Hoverable';
 export { Glossary } from './Glossary';
 export { Whisper } from './Whisper';
-export { Stepper } from './Stepper';
 export { Toggle } from './Toggle';
 export { FillBlank } from './FillBlank';
 export { MultiChoice } from './MultiChoice';
