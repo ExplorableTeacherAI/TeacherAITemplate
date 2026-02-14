@@ -51,6 +51,7 @@ export interface StructureEdit {
     blockIds?: string[];
     content?: string;
     blockType?: string;
+    afterBlockId?: string;
     timestamp: number;
 }
 

@@ -264,6 +264,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                     action: 'add',
                     blockId: newId,
                     blockType: 'placeholder',
+                    afterBlockId: targetId,
                     content: ''
                 });
             }
