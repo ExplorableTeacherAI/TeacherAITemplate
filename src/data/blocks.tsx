@@ -85,12 +85,16 @@ useVariableStore.getState().initialize(getDefaultValues());
 export const blocks: ReactElement[] = [
     // Start adding your blocks here!
 
-    // Example:
+    // Example (ALWAYS use EditableParagraph and EditableH1/H2/H3 — never plain <p> or <h1>):
     /*
-    <FullWidthLayout key="welcome" maxWidth="xl">
-        <Block id="welcome-message">
-            <h1 className="text-4xl font-bold">Welcome to MathVibe</h1>
-            <p className="mt-4 text-xl text-muted-foreground">Start building your interactive lesson.</p>
+    <FullWidthLayout key="layout-welcome" maxWidth="xl">
+        <Block id="block-welcome" padding="md">
+            <EditableH1 id="h1-welcome" blockId="block-welcome">
+                Welcome to MathVibe
+            </EditableH1>
+            <EditableParagraph id="para-welcome" blockId="block-welcome">
+                Start building your interactive lesson.
+            </EditableParagraph>
         </Block>
     </FullWidthLayout>
     */

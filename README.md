@@ -1,526 +1,443 @@
 # MathVibe Template
 
-Welcome to the **MathVibe Template**! This repository is designed to help you build interactive, explorable educational content with ease. It provides a structured way to create lessons, visualizations, and interactive components using pre-built components in React.
+Interactive explorable-explanation template for creating mathematics lessons. Built with React + TypeScript + Vite + Tailwind CSS. Content is organized as **blocks** inside **layouts**, with shared state via a **global variable store** (Zustand).
 
-## 🚀 Overview
 
-This template allows agents and developers to:
-- Quickly scaffold educational **blocks** of content.
-- Organize content using flexible **Layouts**.
-- Integrate interactive components (Two.js, Three.js, Desmos, etc.).
-- Maintain a clean separation between content configuration and component logic.
+## Project Structure
 
----
-
-## 📂 Project Structure
-
-Here is an overview of the file structure and key directories:
-
-```text
+```
 src/
-├── components/          # React components organized by complexity
-│   ├── atoms/           # Basic UI building blocks (Buttons, Inputs, etc.)
-│   ├── molecules/       # Compound components (Search bars, Cards)
-│   ├── organisms/       # Complex widgets (Graphs, Chat interfaces)
-│   ├── layouts/         # Layout wrappers (FullWidth, Split, Grid, Sidebar)
-│   └── templates/       # Page-level structures and Block component
-├── data/                # Content configuration
-│   ├── sections/        # Individual block components for modularity (You will create new files here)
-│   ├── blocks.tsx       # MAIN ENTRY: Array of blocks to render (You will edit this file)
-│   ├── variables.ts     # VARIABLES: Define shared variables here (You will edit this file)
-│   ├── exampleBlocks.tsx # Reference examples for all layouts
-│   └── exampleVariables.ts # Variables for example/demo blocks
-├── stores/              # Global state management (Zustand)
-│   ├── index.ts         # Exports for useVar, useSetVar, etc.
-│   └── variableStore.ts # The variable store implementation
-├── hooks/               # Custom React hooks
-├── lib/                 # Utilities and helper functions
-├── pages/               # Top-level application pages (Index, NotFound)
-└── main.tsx             # Application entry point
+├── data/                        # LESSON CONTENT (edit these files)
+│   ├── variables.ts             # Define all shared variables (EDIT FIRST)
+│   ├── blocks.tsx               # Define all blocks (main entry point)
+│   ├── sections/                # Extract section blocks here
+│   ├── exampleBlocks.tsx        # Reference only — copy patterns from here
+│   └── exampleVariables.ts      # Reference only — copy structure from here
+│
+├── components/
+│   ├── atoms/                   # Base components (text, inline, math, viz)
+│   │   ├── EditableHeadings.tsx  # EditableH1–H6
+│   │   ├── EditableParagraph.tsx # EditableParagraph, EditableSpan
+│   │   ├── InlineScrubbleNumber.tsx
+│   │   ├── InlineDropdown.tsx
+│   │   ├── InlineTextInput.tsx
+│   │   ├── Equation.tsx          # KaTeX math rendering
+│   │   ├── ColoredEquation.tsx   # Colored/highlighted equations
+│   │   ├── InfoTooltip.tsx
+│   │   ├── MafsBasic.tsx         # Math graphing (Mafs)
+│   │   ├── MafsInteractive.tsx
+│   │   ├── CoordinateSystem.tsx  # 2D coordinate system (Two.js)
+│   │   ├── AnimatedGraph.tsx     # 2D animated graphs
+│   │   ├── ThreeCanvas.tsx       # 3D graphics (Three.js)
+│   │   ├── D3BarChart.tsx        # Data visualization (D3)
+│   │   ├── FlowDiagram.tsx       # Flow diagrams (React Flow)
+│   │   ├── InteractiveHighlight.tsx
+│   │   └── ui/                   # shadcn/ui components (60+)
+│   │
+│   ├── molecules/               # Compound components
+│   │   ├── MathBlock.tsx
+│   │   ├── InteractiveEquation.tsx
+│   │   └── InteractiveTerm.tsx
+│   │
+│   ├── organisms/               # Complex interactive components
+│   │   ├── DesmosGraph.tsx       # Desmos graphing calculator
+│   │   ├── GeoGebraGraph.tsx     # GeoGebra geometry
+│   │   ├── ExcalidrawRenderer.tsx # Hand-drawn diagrams
+│   │   ├── MermaidRenderer.tsx    # Diagram syntax
+│   │   └── InteractiveAnimation.tsx
+│   │
+│   ├── layouts/                 # Page layout components
+│   │   ├── FullWidthLayout.tsx   # Single column
+│   │   ├── SplitLayout.tsx       # Side-by-side
+│   │   ├── GridLayout.tsx        # Multi-column grid
+│   │   └── SidebarLayout.tsx     # Main + sidebar
+│   │
+│   ├── templates/               # Block management
+│   │   ├── Block.tsx             # Content block container
+│   │   ├── BlockRenderer.tsx     # Renders block array
+│   │   ├── BlockInput.tsx        # New block input
+│   │   └── LessonView.tsx        # Main lesson wrapper
+│   │
+│   ├── editing/                 # Editing system
+│   │   ├── EditableText.tsx      # Base editable text wrapper
+│   │   ├── ScrubbleNumberEditorModal.tsx
+│   │   └── EquationEditorModal.tsx
+│   │
+│   └── annotations/             # Interactive text annotations
+│       ├── Hoverable.tsx         # Tooltip on hover
+│       ├── Glossary.tsx          # Definition popup
+│       ├── Whisper.tsx           # Hidden content reveal
+│       ├── Toggle.tsx            # Click to toggle
+│       ├── FillBlank.tsx         # Input validation
+│       ├── MultiChoice.tsx       # Quiz selection
+│       ├── Linked.tsx            # Cross-reference highlighting
+│       └── Trigger.tsx           # Event trigger
+│
+├── stores/
+│   ├── variableStore.ts          # Zustand global variable store
+│   └── index.ts                  # useVar, useSetVar, useVariableStore
+│
+├── contexts/
+│   ├── AppModeContext.tsx         # Editor vs preview mode
+│   ├── BlockContext.tsx           # Block management context
+│   └── EditingContext.tsx         # Edit tracking context
+│
+└── lib/
+    ├── block-loader.ts           # Dynamic block loading
+    └── utils.ts                  # Utilities
 ```
-
-### Key Files in Detail
-
-- **`src/data/blocks.tsx`**: **START HERE**. This is the main entry point for your lesson content. The `blocks` array in this file determines what is rendered on the page.
-- **`src/data/variables.ts`**: **DEFINE VARIABLES HERE**. All variables must be defined in this file.
-- **`src/data/exampleBlocks.tsx`**: A reference file containing comprehensive examples of all available layouts and extensive component usage. Use this for inspiration!
-- **`src/data/exampleVariables.ts`**: Variables used by the example/demo blocks.
-- **`src/components/layouts/*`**: Contains the core layout components (`FullWidthLayout`, `SplitLayout`, `GridLayout`, `SidebarLayout`).
-- **`src/components/templates/Block.tsx`**: The core wrapper component for all content blocks.
-- **`src/components/atoms/ui`**: Reusable UI components (Buttons, Inputs, etc.) built with Tailwind CSS.
-
----
-
-## 🛠️ How to Make Content
-
-Creating content involves three simple steps: **Create**, **Layout**, and **Register**.
-
-### 1. Create a Block with Editable Components
-
-The `<Block>` component is the fundamental building block. It wraps your editable content and provides necessary hooks for the AI agent (like highlighting and context awareness). **All text content must use editable components** for proper tracking and editing.
-
-**Block Props:**
-- `id` (required): A unique string identifier for the block (e.g., "block-intro-01", "block-simulation-1").
-- `padding` (optional): "none" | "sm" | "md" | "lg" (default: "md").
-
-**Editable Component Props:**
-- `id` (required): A unique identifier for the specific editable element (e.g., "h1-main-title", "para-intro-1").
-- `blockId` (required): References the parent Block's `id` for proper tracking.
-
-```tsx
-import { Block } from "@/components/templates";
-import { EditableH1, EditableParagraph } from "@/components/atoms";
-
-const MyContent = () => (
-  <Block id="block-hello-world-01" padding="md">
-    <EditableH1 id="h1-main-title" blockId="block-hello-world-01">
-      Hello World
-    </EditableH1>
-    <EditableParagraph id="para-intro-1" blockId="block-hello-world-01">
-      This is my first editable paragraph.
-    </EditableParagraph>
-  </Block>
-);
-```
-
-### 2. Choose a Layout
-
-We provide 4 powerful layouts to organize your blocks.
-
-#### A. FullWidthLayout
-Best for titles, introductions, or large visualizations that need maximum space.
-
-**Props:**
-- `maxWidth`: `"none" | "md" | "lg" | "xl" | "2xl" | "full"` (default: `xl`)
-
-```tsx
-import { FullWidthLayout } from "@/components/layouts";
-import { Block } from "@/components/templates";
-import { EditableH1 } from "@/components/atoms";
-
-<FullWidthLayout maxWidth="xl">
-  <Block id="block-header-01" padding="md">
-    <EditableH1 id="h1-chapter-title" blockId="block-header-01">
-      Chapter 1: The Beginning
-    </EditableH1>
-  </Block>
-</FullWidthLayout>
-```
-
-#### B. SplitLayout
-Perfect for "Explanation + Visualization" pairs. Side-by-side content.
-
-**Props:**
-- `ratio`: `"1:1" | "1:2" | "2:1" | "1:3" | "3:1" | "2:3" | "3:2"`
-- `gap`: `"none" | "sm" | "md" | "lg" | "xl"`
-- `reverse`: `boolean` (optional)
-- `align`: `"start" | "center" | "end" | "stretch"`
-
-```tsx
-import { SplitLayout } from "@/components/layouts";
-import { Block } from "@/components/templates";
-import { EditableParagraph } from "@/components/atoms";
-
-<SplitLayout ratio="1:1" gap="lg" align="start">
-  <Block id="block-explanation-01" padding="md">
-    <EditableParagraph id="para-atom-desc" blockId="block-explanation-01">
-      On the right, you can see the atom structure...
-    </EditableParagraph>
-  </Block>
-  <Block id="block-visualization-01" padding="md">
-    <MyAtomVisualizer />
-  </Block>
-</SplitLayout>
-```
-
-#### C. GridLayout
-Great for cards, galleries, or multiple small items.
-
-**Props:**
-- `columns`: `2 | 3 | 4 | 5 | 6`
-- `gap`: `"none" | "sm" | "md" | "lg" | "xl"`
-- `align`: `"start" | "center" | "end" | "stretch"`
-
-```tsx
-import { GridLayout } from "@/components/layouts";
-import { Block } from "@/components/templates";
-import { EditableParagraph } from "@/components/atoms";
-
-<GridLayout columns={3} gap="md">
-  <Block id="block-card-01" padding="md">
-    <EditableParagraph id="para-card-1" blockId="block-card-01">
-      Card 1
-    </EditableParagraph>
-  </Block>
-  <Block id="block-card-02" padding="md">
-    <EditableParagraph id="para-card-2" blockId="block-card-02">
-      Card 2
-    </EditableParagraph>
-  </Block>
-  <Block id="block-card-03" padding="md">
-    <EditableParagraph id="para-card-3" blockId="block-card-03">
-      Card 3
-    </EditableParagraph>
-  </Block>
-</GridLayout>
-```
-
-#### D. SidebarLayout
-Useful for persistent tools, glossaries, or navigation that stays visible while scrolling main content.
-
-**Props:**
-- `sidebarPosition`: `"left" | "right"`
-- `sidebarWidth`: `"narrow" | "medium" | "wide"`
-- `stickySidebar`: `boolean` (default: true)
-
-```tsx
-import { SidebarLayout, Sidebar, Main } from "@/components/layouts";
-import { Block } from "@/components/templates";
-import { EditableH2, EditableParagraph } from "@/components/atoms";
-
-<SidebarLayout sidebarPosition="left" sidebarWidth="medium">
-  <Sidebar>
-    <Block id="block-tools-01" padding="md">
-      <EditableH2 id="h2-tools-title" blockId="block-tools-01">
-        Toolbox
-      </EditableH2>
-    </Block>
-  </Sidebar>
-  <Main>
-    <Block id="block-content-01" padding="md">
-      <EditableParagraph id="para-main-content" blockId="block-content-01">
-        Main Lesson Content...
-      </EditableParagraph>
-    </Block>
-  </Main>
-</SidebarLayout>
-```
-
-### 3. Register in `blocks.tsx`
-
-Finally, add your configured layout to the `blocks` array in `src/data/blocks.tsx`.
-
-```tsx
-// src/data/blocks.tsx
-import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
-import { Block } from "@/components/templates";
-import { EditableH1, EditableParagraph } from "@/components/atoms";
-
-export const blocks: ReactElement[] = [
-  <FullWidthLayout key="layout-intro-01" maxWidth="xl">
-    <Block id="block-intro-01" padding="md">
-      <EditableH1 id="h1-welcome" blockId="block-intro-01">
-        Welcome
-      </EditableH1>
-    </Block>
-  </FullWidthLayout>,
-
-  <SplitLayout key="layout-demo-01" ratio="1:1">
-     {/* ... content with Block and editable components ... */}
-  </SplitLayout>
-];
-```
-
----
-
-## 🧩 Reusability & specialized Components
-
-To keep `blocks.tsx` clean, it is highly recommended to **define complex blocks in separate files** and import them.
-
-**Example Pattern:**
-
-1. Create `src/data/sections/MyTopicDemo.tsx`:
-   ```tsx
-   import { Block } from "@/components/templates";
-   import { EditableH2, EditableParagraph } from "@/components/atoms";
-   
-   export const myTopicBlock = (
-     <Block id="block-my-topic-01" padding="md">
-       <EditableH2 id="h2-topic-title" blockId="block-my-topic-01">
-         My Topic
-       </EditableH2>
-       <EditableParagraph id="para-topic-intro" blockId="block-my-topic-01">
-         This is the introduction to my topic.
-       </EditableParagraph>
-     </Block>
-   );
-   ```
-2. Import in `src/data/blocks.tsx`:
-   ```tsx
-   import { myTopicBlock } from "./sections/MyTopicDemo";
-   import { FullWidthLayout } from "@/components/layouts";
-   
-   export const blocks = [
-       <FullWidthLayout key="layout-topic-01">{myTopicBlock}</FullWidthLayout>
-   ];
-   ```
-
-### Specialized Components
-You can find specialized "molecule" and "organism" components in `src/components`.
-- **`src/components/molecules`**: Compound components like search bars or specialized cards.
-- **`src/components/organisms`**: Complex widgets like interactive graphs or chat interfaces.
-
----
-
-## 🎨 Styling
-
-- **Tailwind CSS**: Use utility classes for almost all styling needs (`className="p-4 bg-gray-100 rounded"`).
-- **Icons**: We use `lucide-react` for icons.
-- **Theme**: Colors and variables are defined in `src/index.css`.
-
----
-
-## 🔗 Cross-Block Variables
-
-Share state between different blocks using the global variable store. This is essential for creating interactive lessons where changing a value in one block updates visualizations in another.
 
 ### Key Files
 
 | File | Purpose |
 |------|---------|
-| `src/data/variables.ts` | **Define ALL variables here (Required)** |
-| `src/data/exampleVariables.ts` | Variables for example/demo blocks |
-| `src/stores/variableStore.ts` | The Zustand store (don't modify) |
+| `src/data/variables.ts` | **Define ALL shared variables here first** |
+| `src/data/blocks.tsx` | **Main entry point for lesson content** |
+| `src/data/sections/*.tsx` | Extract complex section blocks here |
+| `src/data/exampleBlocks.tsx` | Reference only — shows all patterns |
+| `src/data/exampleVariables.ts` | Reference only — shows all variable types |
 
-### 1. Define Variables in `variables.ts`
+---
 
-```typescript
-// src/data/variables.ts
+## How to Create Content
+
+### Step 1: Define Variables (`src/data/variables.ts`)
+
+Every interactive number must be defined here first. This centralizes all variable metadata in one place.
+
+```ts
 export const variableDefinitions: Record<string, VariableDefinition> = {
-    // NUMBER - Use with sliders
     amplitude: {
         defaultValue: 1,
         type: 'number',
         label: 'Amplitude',
         description: 'Wave amplitude',
-        min: 0, max: 5, step: 0.1,
+        unit: 'm',
+        min: 0,
+        max: 10,
+        step: 0.1,
     },
-
-    // TEXT - Free text input
-    lessonTitle: {
-        defaultValue: 'My Lesson',
-        type: 'text',
-        label: 'Title',
-        placeholder: 'Enter a title...',
-    },
-
-    // SELECT - Dropdown with options
     waveType: {
         defaultValue: 'sine',
         type: 'select',
         label: 'Wave Type',
         options: ['sine', 'cosine', 'square'],
     },
-
-    // BOOLEAN - Toggle switch
     showGrid: {
         defaultValue: true,
         type: 'boolean',
         label: 'Show Grid',
     },
-
-    // ARRAY - List of numbers
-    dataPoints: {
-        defaultValue: [1, 4, 9, 16],
-        type: 'array',
-        label: 'Data Points',
-    },
-
-    // OBJECT - Complex data
-    graphSettings: {
-        defaultValue: { xMin: -10, xMax: 10 },
-        type: 'object',
-        schema: '{ xMin: number, xMax: number }',
-    },
 };
 ```
 
-### 2. Use Variables in Blocks
+**Supported types:** `number`, `text`, `select`, `boolean`, `array`, `object`
+
+### Step 2: Create Section Blocks (`src/data/sections/`)
+
+Each section exports a **flat array** of `Layout > Block` elements. This is critical for the block management system (add, delete, reorder) to work.
 
 ```tsx
-import { useVar, useSetVar } from '@/stores';
+// src/data/sections/Introduction.tsx
+import { type ReactElement } from "react";
+import { Block } from "@/components/templates";
+import { FullWidthLayout } from "@/components/layouts";
+import { EditableH1, EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition } from "../variables";
 
-// READING a variable (reactive - auto-updates when value changes)
-const amplitude = useVar('amplitude', 1);
-const title = useVar('lessonTitle', 'Default');
-const showGrid = useVar('showGrid', true);
+export const introBlocks: ReactElement[] = [
+    <FullWidthLayout key="layout-intro-title" maxWidth="xl">
+        <Block id="block-intro-title" padding="md">
+            <EditableH1 id="h1-intro-title" blockId="block-intro-title">
+                Understanding Waves
+            </EditableH1>
+        </Block>
+    </FullWidthLayout>,
 
-// SETTING a variable
-const setVar = useSetVar();
-setVar('amplitude', 2.5);
-setVar('lessonTitle', 'New Title');
-setVar('showGrid', false);
+    <FullWidthLayout key="layout-intro-text" maxWidth="xl">
+        <Block id="block-intro-text" padding="sm">
+            <EditableParagraph id="para-intro-text" blockId="block-intro-text">
+                A wave with amplitude{" "}
+                <InlineScrubbleNumber
+                    varName="amplitude"
+                    {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
+                />
+                {" "}meters oscillates between positive and negative values.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+];
 ```
 
-### 3. Use with InlineScrubbleNumber
-
-Always use `numberPropsFromDefinition` to spread variable props — never pass `defaultValue`, `min`, `max`, `step` inline:
+### Step 3: Assemble in `blocks.tsx`
 
 ```tsx
-import { getVariableInfo, numberPropsFromDefinition } from "@/data/variables";
-import { InlineScrubbleNumber } from "@/components/atoms";
+import { introBlocks } from "./sections/Introduction";
 
+export const blocks: ReactElement[] = [
+    ...introBlocks,
+];
+```
+
+---
+
+## Text Components
+
+**Always use editable components for all text content.** These support inline editing in editor mode.
+
+| Component | Purpose | Import from |
+|-----------|---------|-------------|
+| `EditableH1` | Page/section title | `@/components/atoms` |
+| `EditableH2` | Section heading | `@/components/atoms` |
+| `EditableH3` | Subsection heading | `@/components/atoms` |
+| `EditableH4`–`H6` | Minor headings | `@/components/atoms` |
+| `EditableParagraph` | Body text | `@/components/atoms` |
+| `EditableSpan` | Inline editable text | `@/components/atoms` |
+
+### Required Props
+
+Every text component needs:
+- `id` — unique element identifier (e.g., `"para-intro"`)
+- `blockId` — must match the parent `Block`'s `id` (e.g., `"block-intro"`)
+
+```tsx
+<Block id="block-intro" padding="sm">
+    <EditableH2 id="h2-intro" blockId="block-intro">Heading</EditableH2>
+    <EditableParagraph id="para-intro" blockId="block-intro">
+        Body text here.
+    </EditableParagraph>
+</Block>
+```
+
+---
+
+## Section Structure Rules
+
+### Sections Must Be Flat Arrays
+
+The block management system (add, delete, reorder) requires each block to be a separate top-level element in the array. **Never wrap blocks in a React component.**
+
+```tsx
+// WRONG — block manager can't see individual blocks
+export const MySection = () => (
+    <>
+        <FullWidthLayout key="a"><Block id="a">...</Block></FullWidthLayout>
+        <FullWidthLayout key="b"><Block id="b">...</Block></FullWidthLayout>
+    </>
+);
+export const blocks = [<MySection key="section" />]; // 1 opaque element
+
+// CORRECT — each block is individually manageable
+export const mySectionBlocks: ReactElement[] = [
+    <FullWidthLayout key="layout-a" maxWidth="xl">
+        <Block id="block-a" padding="md">...</Block>
+    </FullWidthLayout>,
+    <FullWidthLayout key="layout-b" maxWidth="xl">
+        <Block id="block-b" padding="sm">...</Block>
+    </FullWidthLayout>,
+];
+```
+
+### Why Flat Arrays?
+- Each element = one manageable block
+- Teachers can add blocks between any two elements
+- Teachers can delete or reorder individual blocks
+- The block toolbar (add/delete/drag) appears on each block
+
+### ID Conventions
+
+- Layout keys: `layout-<name>` (e.g., `layout-intro-title`)
+- Block IDs: `block-<name>` (e.g., `block-intro-title`)
+- Element IDs: `<type>-<name>` (e.g., `para-intro-text`, `h1-main-title`)
+- `blockId` prop must match the parent `Block`'s `id`
+
+---
+
+## Inline Interactive Components
+
+### InlineScrubbleNumber
+
+Draggable inline number bound to a global variable. **Never hardcode numeric props.**
+
+```tsx
+import { InlineScrubbleNumber } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition } from "./variables";
+
+// CORRECT — uses centralized variable definition
 <InlineScrubbleNumber
     varName="amplitude"
     {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
 />
+
+// With format function (the only allowed inline prop)
+<InlineScrubbleNumber
+    varName="temperature"
+    {...numberPropsFromDefinition(getVariableInfo('temperature'))}
+    formatValue={(v) => `${v}°C`}
+/>
+
+// WRONG — never hardcode props
+<InlineScrubbleNumber defaultValue={5} min={0} max={10} step={1} />
 ```
 
-For example blocks, import from `exampleVariables.ts` instead:
-```tsx
-import { getExampleVariableInfo, numberPropsFromDefinition } from "@/data/exampleVariables";
+### InlineDropdown / InlineTextInput
 
-<InlineScrubbleNumber
-    varName="amplitude"
-    {...numberPropsFromDefinition(getExampleVariableInfo('amplitude'))}
+```tsx
+<InlineDropdown varName="waveType" options={['sine', 'cosine', 'square']} />
+<InlineTextInput correctAnswer="90" placeholder="???" />
+```
+
+---
+
+## Global Variable Store
+
+Share state between blocks using Zustand hooks.
+
+```tsx
+import { useVar, useSetVar } from '@/stores';
+
+// Read (reactive — auto-updates when value changes)
+const amplitude = useVar('amplitude', 1);
+
+// Write
+const setVar = useSetVar();
+setVar('amplitude', 2.5);
+```
+
+---
+
+## Layouts
+
+| Layout | Best For | Key Props |
+|--------|----------|-----------|
+| `FullWidthLayout` | Single column content | `maxWidth`: `sm`, `md`, `lg`, `xl`, `2xl`, `full` |
+| `SplitLayout` | Side-by-side panels | `ratio`: `1:1`, `1:2`, `2:1`; `gap`; `align` |
+| `GridLayout` | Multiple equal items | `columns`: 2–6; `gap` |
+| `SidebarLayout` | Main + sticky sidebar | `sidebarPosition`, `sidebarWidth`, `<Sidebar>`, `<Main>` |
+
+```tsx
+// Full width
+<FullWidthLayout key="layout-example" maxWidth="xl">
+    <Block id="block-example" padding="sm">...</Block>
+</FullWidthLayout>
+
+// Split
+<SplitLayout key="layout-split" ratio="1:2" gap="lg">
+    <Block id="block-left" padding="sm">...</Block>
+    <Block id="block-right" padding="sm">...</Block>
+</SplitLayout>
+
+// Grid
+<GridLayout key="layout-grid" columns={3} gap="md">
+    <Block id="block-a" padding="sm">...</Block>
+    <Block id="block-b" padding="sm">...</Block>
+    <Block id="block-c" padding="sm">...</Block>
+</GridLayout>
+
+// Sidebar
+<SidebarLayout key="layout-sidebar" sidebarPosition="left" sidebarWidth="medium">
+    <Sidebar><Block id="block-sidebar" padding="md">...</Block></Sidebar>
+    <Main><Block id="block-main" padding="md">...</Block></Main>
+</SidebarLayout>
+```
+
+---
+
+## Annotation System
+
+Interactive inline annotations for explorable explanations. Import from `@/components/annotations`.
+
+| Annotation | Visual Style | Purpose |
+|-----------|-------------|---------|
+| `Hoverable` | Colored text | Shows tooltip on hover |
+| `Glossary` | Dotted underline | Definition popup with pronunciation |
+| `Whisper` | Faded text | Reveals hidden content on hover |
+| `Toggle` | Dashed underline | Cycles through options on click |
+| `FillBlank` | Input field | Text answer validation |
+| `MultiChoice` | Dropdown | Quiz selection validation |
+| `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
+| `Trigger` | Solid underline | Triggers an action on click |
+
+```tsx
+import { Hoverable, FillBlank, Toggle } from '@/components/annotations';
+
+<EditableParagraph id="para-example" blockId="block-example">
+    Every point on a{' '}
+    <Hoverable tooltip="A shape where all points are equidistant from center">
+        circle
+    </Hoverable>{' '}
+    has the same distance from its center. A right angle has{' '}
+    <FillBlank correctAnswer="90" placeholder="???" />{' '}
+    degrees. The shape is a{' '}
+    <Toggle options={['triangle', 'square', 'pentagon']} />.
+</EditableParagraph>
+```
+
+---
+
+## Math Components
+
+```tsx
+import { Equation, ColoredEquation } from '@/components/atoms';
+import { InteractiveEquation } from '@/components/molecules';
+
+// Static equation (KaTeX)
+<Equation latex="E = mc^2" />
+
+// Interactive equation (updates with variables)
+<InteractiveEquation latex="y = {amplitude} \sin({frequency} x)" />
+
+// Colored equation with highlighted terms
+<ColoredEquation
+    latex="F = ma"
+    terms={{ F: '#ef4444', m: '#3b82f6', a: '#22c55e' }}
 />
 ```
 
-### 4. Example: Linked Slider and Visualization
+---
 
-**Block A - Controls:**
-```tsx
-const ControlPanel = () => {
-    const setVar = useSetVar();
-    const amplitude = useVar('amplitude', 1);
+## Visualization Libraries
 
-    return (
-        <Slider
-            value={[amplitude]}
-            onValueChange={([v]) => setVar('amplitude', v)}
-        />
-    );
-};
-```
-
-**Block B - Visualization:**
-```tsx
-const WaveDisplay = () => {
-    const amplitude = useVar('amplitude', 1);
-    
-    // amplitude updates automatically when slider moves!
-    return <WaveGraph amplitude={amplitude} />;
-};
-```
-
-### Variable Type Reference
-
-| Type | Default Example | UI Component |
-|------|-----------------|--------------| 
-| `number` | `5` | Slider |
-| `text` | `'Hello'` | Input |
-| `select` | `'option1'` | Dropdown |
-| `boolean` | `true` | Switch/Toggle |
-| `array` | `[1, 2, 3]` | Custom |
-| `object` | `{ x: 0, y: 0 }` | Custom |
+| Library | Components | Use For |
+|---------|-----------|---------|
+| **Mafs** | `MafsBasic`, `MafsInteractive`, `MafsAnimated` | Interactive math graphs, function plots |
+| **Two.js** | `CoordinateSystem`, `AnimatedGraph`, `AnimatedBackground` | 2D coordinate systems, animations |
+| **Three.js** | `ThreeCanvas`, `ThreeCoordinateSystem`, `ThreeVisuals` | 3D graphics, spatial geometry |
+| **D3** | `D3BarChart` | Data visualization, charts |
+| **React Flow** | `FlowDiagram`, `ExpandableFlowDiagram` | Node/edge diagrams, flowcharts |
+| **Desmos** | `DesmosGraph` | Graphing calculator |
+| **GeoGebra** | `GeoGebraGraph` | Geometry constructions |
+| **Excalidraw** | `ExcalidrawRenderer` | Hand-drawn diagrams |
+| **Mermaid** | `MermaidRenderer` | Diagram syntax (flowcharts, sequences) |
 
 ---
 
+## Environment Variables
 
+| Variable | Values | Purpose |
+|----------|--------|---------|
+| `VITE_APP_MODE` | `editor` / `preview` | Editor enables editing UI; preview is read-only |
+| `VITE_SHOW_EXAMPLES` | `true` / `false` | Load example blocks+variables instead of lesson content |
 
-## ✏️ Editable Components
+## NPM Scripts
 
-To make content editable within the application (so users can tweak the lesson text without changing code), you **must** use editable component wrappers. Each editable component requires both an `id` and `blockId` prop for proper tracking.
-
-### Available Editable Components
-
-- `EditableH1`, `EditableH2`, `EditableH3` - Editable headings
-- `EditableParagraph` - Editable paragraph text
-- `InlineScrubbleNumber` - Interactive inline numeric values (drag to scrub, uses global variables)
-- `InlineDropdown` - Inline dropdown selector
-- `InlineTextInput` - Inline text input
-- `Equation`, `InteractiveEquation`, `ColoredEquation` - Math equations
-
-### Basic Usage
-
-```tsx
-import { Block } from "@/components/templates";
-import { EditableH1, EditableH2, EditableParagraph } from "@/components/atoms";
-
-<Block id="block-example-01" padding="md">
-  <EditableH1 id="h1-title" blockId="block-example-01">
-    My Editable Title
-  </EditableH1>
-  <EditableH2 id="h2-subtitle" blockId="block-example-01">
-    My Subtitle
-  </EditableH2>
-  <EditableParagraph id="para-intro" blockId="block-example-01">
-    This paragraph can be edited by clicking on it in Editor Mode.
-  </EditableParagraph>
-</Block>
-```
-
-### Inline Components in Paragraphs
-
-You can embed interactive components like `InlineScrubbleNumber` within paragraphs. **Important:** Always define the variable in `variables.ts` first, then use `numberPropsFromDefinition` to spread its props — never hardcode numeric props inline.
-
-```tsx
-import { Block } from "@/components/templates";
-import { EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition } from "@/data/variables";
-
-<Block id="block-physics-01" padding="md">
-  <EditableParagraph id="para-velocity" blockId="block-physics-01">
-    The object is moving at{" "}
-    <InlineScrubbleNumber
-      varName="velocity"
-      {...numberPropsFromDefinition(getVariableInfo('velocity'))}
-      formatValue={(v) => `${v} m/s`}
-    />
-    {" "}through the air.
-  </EditableParagraph>
-</Block>
-```
-
-> **Do NOT** pass `defaultValue`, `min`, `max`, or `step` as inline props. Always use the spread pattern above so the centralized variable definition is the single source of truth.
-
-### ID Naming Conventions
-
-- **Block IDs**: Use format `block-<description>-<number>` (e.g., `block-intro-01`, `block-physics-demo-02`)
-- **Editable Component IDs**: Use format `<type>-<description>` (e.g., `h1-main-title`, `para-intro-1`, `h2-section-heading`)
-- Each ID must be **unique** across the entire application
-- `blockId` must match the parent Block's `id`
-
----
-
-## 🤖 Agent Instructions (for AI)
-
-> **The two files you edit are `src/data/blocks.tsx` and `src/data/variables.ts`. Everything else under `src/data/example*.ts(x)` is read-only reference material — NEVER modify example files.**
-
-### Where to work
-
-| Action | File to edit |
+| Script | Description |
 |--------|-------------|
-| Add/edit lesson content (blocks, layouts) | `src/data/blocks.tsx` |
-| Add/edit shared variables | `src/data/variables.ts` |
-| Extract complex block components | `src/data/sections/*.tsx` (create new files, import into `blocks.tsx`) |
+| `npm run dev` | Start development server |
+| `npm run dev:editor` | Start in editor mode |
+| `npm run dev:preview` | Start in preview mode |
+| `npm run build` | Production build |
+| `npm run build:editor` | Build editor mode |
+| `npm run build:preview` | Build preview mode |
+| `npm run lint` | Run ESLint |
 
-### What to read as reference only (DO NOT edit)
+## Tech Stack
 
-| File | Purpose |
-|------|---------|
-| `src/data/exampleBlocks.tsx` | Shows how to use every layout, component, and pattern — **read and follow the patterns** |
-| `src/data/exampleVariables.ts` | Shows how to define every variable type — **copy the structure into `variables.ts`** |
-
-### Rules
-
-1. **Only edit `blocks.tsx` and `variables.ts`** for all lesson content. Use example files strictly as reference to understand the correct patterns, then implement in the actual files.
-2. **Shared Variables ONLY**: Do not use `useState` for any lesson content or interactive state. **ALWAYS** define variables in `src/data/variables.ts` and use `useVar` / `useSetVar`.
-3. **Block-Based Approach**: All content MUST be wrapped in `<Block>` components with unique IDs.
-4. **Editable Components ALWAYS**: Every piece of text (headings, paragraphs) **MUST** use editable component wrappers:
-   - Use `EditableH1`, `EditableH2`, `EditableH3` for headings
-   - Use `EditableParagraph` for paragraph text
-   - Import from `@/components/atoms`
-5. **ID Requirements**:
-   - Every `<Block>` must have a unique `id` prop (format: `block-<description>-<number>`)
-   - Every editable component must have:
-     - A unique `id` prop (format: `<type>-<description>`)
-     - A `blockId` prop matching its parent Block's `id`
-6. **InlineScrubbleNumber — NEVER use inline numeric props**:
-   - First define the variable in `src/data/variables.ts`
-   - Then use the spread pattern: `<InlineScrubbleNumber varName="myVar" {...numberPropsFromDefinition(getVariableInfo('myVar'))} />`
-   - Only `formatValue` may be added as an inline prop alongside the spread
-   - Import `getVariableInfo` and `numberPropsFromDefinition` from `@/data/variables`
-7. When asked to "add a block", **define any needed variables in `variables.ts` first**, then create the Block with editable components, wrap it in a Layout, and add it to `blocks.tsx`.
-8. Prefer **splitting complex code** into separate files in `src/data/sections/` and importing into `blocks.tsx`.
+- **Framework:** React 18 + TypeScript + Vite
+- **Styling:** Tailwind CSS + shadcn/ui (60+ components)
+- **State:** Zustand (global variables) + React Context (editing, app mode)
+- **Animations:** Framer Motion
+- **Math:** KaTeX, Mafs, Desmos, GeoGebra
+- **Graphics:** Three.js, Two.js, D3
+- **Diagrams:** React Flow, Excalidraw, Mermaid
+- **Icons:** lucide-react

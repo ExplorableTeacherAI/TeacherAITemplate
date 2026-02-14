@@ -145,40 +145,132 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - `GridLayout` — grid of items, use `columns` and `gap`
 - `SidebarLayout` — main + sidebar, use `<Sidebar>` and `<Main>` children
 
-## Available Editable Components
+## Available Components
 
-- `EditableH1`, `EditableH2`, `EditableH3` — headings
-- `EditableParagraph` — body text (supports inline components)
+### Text Components (ONLY use these for all text content)
+
+- `EditableH1`, `EditableH2`, `EditableH3` — headings (import from `@/components/atoms`)
+- `EditableParagraph` — body text, supports inline components (import from `@/components/atoms`)
+
+**NEVER use** plain `<p>`, `<h1>`, `<h2>`, `<h3>` HTML tags. Always use the editable components above.
+
+### Inline Interactive Components
+
 - `InlineScrubbleNumber` — draggable inline number bound to global variable
 - `InlineDropdown` — inline dropdown
 - `InlineTextInput` — inline text input
+
+### Math Components
+
 - `Equation`, `InteractiveEquation`, `ColoredEquation` — math equations
 
-## Critical Rule: Use Editable Components for All Content
+### Required Props for All Text Components
 
-**ALWAYS use `EditableParagraph` for paragraph text — NEVER use `InteractiveParagraph`, plain `<p>`, or other non-editable wrappers.**
-
-The visual editor allows teachers to directly edit text, headings, and inline interactive components in the rendered page. This only works when editable components are used:
-
-| Instead of | ALWAYS use |
-|------------|------------|
-| `<p>`, `InteractiveParagraph` | `EditableParagraph` |
-| `<h1>`, `<h2>`, `<h3>` | `EditableH1`, `EditableH2`, `EditableH3` |
-
-Every `EditableParagraph` and heading MUST have:
+Every `EditableParagraph` and `EditableH1/H2/H3` MUST have:
 - A unique `id` prop (e.g., `id="para-intro"`)
 - A `blockId` prop matching the parent `Block`'s `id` (e.g., `blockId="block-intro"`)
 
 ```tsx
-// WRONG — InteractiveParagraph is NOT editable by the visual editor
-<InteractiveParagraph>
-    Content with <InlineScrubbleNumber varName="x" ... />
-</InteractiveParagraph>
+// WRONG — plain HTML tags, missing id and blockId
+<p>Content here</p>
+<h2 className="text-2xl font-bold">Section Title</h2>
 
-// CORRECT — EditableParagraph enables text editing in the visual editor
+// CORRECT — Editable components with required id and blockId
 <EditableParagraph id="para-intro" blockId="block-intro">
-    Content with <InlineScrubbleNumber varName="x" ... />
+    Content here
 </EditableParagraph>
+<EditableH2 id="h2-section-title" blockId="block-section">
+    Section Title
+</EditableH2>
+```
+
+## Critical Rule: Section Structure (Flat Block Arrays)
+
+Sections MUST export a **flat array of `Layout > Block` elements** — NEVER a wrapper component.
+
+The block management system (add, delete, reorder) only works when each block is a separate top-level element in the array. Wrapping blocks inside a component makes them invisible to the block manager.
+
+```tsx
+// WRONG — wrapper component hides blocks from the block manager
+export const MySection = () => (
+    <>
+        <FullWidthLayout key="section-title" maxWidth="xl">
+            <Block id="section-title" padding="md">...</Block>
+        </FullWidthLayout>
+        <FullWidthLayout key="section-content" maxWidth="xl">
+            <Block id="section-content" padding="sm">...</Block>
+        </FullWidthLayout>
+    </>
+);
+export const mySectionBlocks = [<MySection key="my-section" />];
+
+// CORRECT — flat array of individual block elements
+export const mySectionBlocks: ReactElement[] = [
+    <FullWidthLayout key="layout-section-title" maxWidth="xl">
+        <Block id="block-section-title" padding="md">
+            <EditableH1 id="h1-section-title" blockId="block-section-title">
+                Section Title
+            </EditableH1>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-section-content" maxWidth="xl">
+        <Block id="block-section-content" padding="sm">
+            <EditableParagraph id="para-section-content" blockId="block-section-content">
+                Content here...
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+];
+```
+
+### Why Flat Arrays?
+- Each element in the array = one manageable block
+- Teachers can add blocks between any two elements
+- Teachers can delete or reorder individual blocks
+- The block toolbar (add/delete/drag) appears on each block
+
+### Section File Template
+
+```tsx
+// src/data/sections/MySection.tsx
+import { type ReactElement } from "react";
+import { Block } from "@/components/templates";
+import { FullWidthLayout } from "@/components/layouts";
+import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition } from "../variables";
+
+export const mySectionBlocks: ReactElement[] = [
+    <FullWidthLayout key="layout-my-title" maxWidth="xl">
+        <Block id="block-my-title" padding="md">
+            <EditableH1 id="h1-my-title" blockId="block-my-title">
+                My Section Title
+            </EditableH1>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-my-intro" maxWidth="xl">
+        <Block id="block-my-intro" padding="sm">
+            <EditableParagraph id="para-my-intro" blockId="block-my-intro">
+                Introduction text with an interactive value of{" "}
+                <InlineScrubbleNumber
+                    varName="myVar"
+                    {...numberPropsFromDefinition(getVariableInfo('myVar'))}
+                />
+                {" "}units.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+];
+```
+
+Then in `blocks.tsx`:
+```tsx
+import { mySectionBlocks } from "./sections/MySection";
+
+export const blocks: ReactElement[] = [
+    ...mySectionBlocks,
+];
 ```
 
 ## Environment Variables
