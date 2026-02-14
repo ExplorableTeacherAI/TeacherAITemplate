@@ -154,6 +154,33 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - `InlineTextInput` — inline text input
 - `Equation`, `InteractiveEquation`, `ColoredEquation` — math equations
 
+## Critical Rule: Use Editable Components for All Content
+
+**ALWAYS use `EditableParagraph` for paragraph text — NEVER use `InteractiveParagraph`, plain `<p>`, or other non-editable wrappers.**
+
+The visual editor allows teachers to directly edit text, headings, and inline interactive components in the rendered page. This only works when editable components are used:
+
+| Instead of | ALWAYS use |
+|------------|------------|
+| `<p>`, `InteractiveParagraph` | `EditableParagraph` |
+| `<h1>`, `<h2>`, `<h3>` | `EditableH1`, `EditableH2`, `EditableH3` |
+
+Every `EditableParagraph` and heading MUST have:
+- A unique `id` prop (e.g., `id="para-intro"`)
+- A `blockId` prop matching the parent `Block`'s `id` (e.g., `blockId="block-intro"`)
+
+```tsx
+// WRONG — InteractiveParagraph is NOT editable by the visual editor
+<InteractiveParagraph>
+    Content with <InlineScrubbleNumber varName="x" ... />
+</InteractiveParagraph>
+
+// CORRECT — EditableParagraph enables text editing in the visual editor
+<EditableParagraph id="para-intro" blockId="block-intro">
+    Content with <InlineScrubbleNumber varName="x" ... />
+</EditableParagraph>
+```
+
 ## Environment Variables
 
 | Variable | Values | Purpose |
