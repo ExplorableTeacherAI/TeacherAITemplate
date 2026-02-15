@@ -146,6 +146,52 @@ import { getVariableInfo, clozePropsFromDefinition } from "./variables";
 
 The variable store holds the **student's typed answer** (text string). The `correctAnswer` stays as a prop configured via the editor modal.
 
+## Critical Rule: InlineClozeChoice (Dropdown Fill-in-the-Blank)
+
+**NEVER pass inline props directly to `InlineClozeChoice`.** Always define the variable in the central variables file first, then reference it — same pattern as `InlineClozeInput`.
+
+### Two-Step Workflow for Cloze Choices
+
+#### Step 1: Define the variable in `src/data/variables.ts`
+
+```ts
+shapeAnswer: {
+    defaultValue: '',
+    type: 'select',
+    label: 'Shape Answer',
+    description: 'Student answer for the 2D shape question',
+    placeholder: '???',
+    correctAnswer: 'circle',
+    options: ['cube', 'circle', 'square', 'triangle'],
+    color: '#D81B60',
+},
+```
+
+#### Step 2: Use the variable in `src/data/blocks.tsx`
+
+```tsx
+import { getVariableInfo, choicePropsFromDefinition } from "./variables";
+
+<InlineClozeChoice
+    varName="shapeAnswer"
+    correctAnswer="circle"
+    options={["cube", "circle", "square", "triangle"]}
+    {...choicePropsFromDefinition(getVariableInfo('shapeAnswer'))}
+/>
+```
+
+### Key Cloze Choice Variable Fields
+
+| Field | Purpose |
+|-------|---------|
+| `correctAnswer` | The expected answer string (must be one of the options) |
+| `options` | Array of choices to display in the dropdown |
+| `placeholder` | Button text shown before student selects (default: `"???"`) |
+| `color` | Text/border color |
+| `bgColor` | Background color (supports RGBA) |
+
+The variable store holds the **student's selected option** (text string). The `correctAnswer` and `options` stay as props configured via the editor modal.
+
 ## Variable Types
 
 | Type | Example Definition |
@@ -154,6 +200,7 @@ The variable store holds the **student's typed answer** (text string). The `corr
 | `text` | `{ defaultValue: 'Hello', type: 'text', placeholder: 'Enter...' }` |
 | `text` (cloze) | `{ defaultValue: '', type: 'text', correctAnswer: '90', placeholder: '???', color: '#3B82F6' }` |
 | `select` | `{ defaultValue: 'sine', type: 'select', options: ['sine', 'cosine'] }` |
+| `select` (cloze choice) | `{ defaultValue: '', type: 'select', correctAnswer: 'circle', options: ['cube', 'circle'], placeholder: '???', color: '#D81B60' }` |
 | `boolean` | `{ defaultValue: true, type: 'boolean' }` |
 | `array` | `{ defaultValue: [1, 2, 3], type: 'array' }` |
 | `object` | `{ defaultValue: { x: 0, y: 0 }, type: 'object', schema: '{ x: number, y: number }' }` |
@@ -203,7 +250,8 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 - `InlineScrubbleNumber` — draggable inline number bound to global variable
 - `InlineClozeInput` — fill-in-the-blank input with answer validation, bound to global variable
-- `InlineDropdown` — inline dropdown
+- `InlineClozeChoice` — dropdown choice with answer validation, bound to global variable
+- `InlineDropdown` — alias for InlineClozeChoice (backward compat)
 
 ### Math Components
 
@@ -282,7 +330,7 @@ export const mySectionBlocks: ReactElement[] = [
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput } from "@/components/atoms";
+import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice } from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "../variables";
 
 export const mySectionBlocks: ReactElement[] = [

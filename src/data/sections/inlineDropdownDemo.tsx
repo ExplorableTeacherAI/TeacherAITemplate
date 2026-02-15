@@ -1,4 +1,4 @@
-import { InlineDropdown } from "@/components/atoms";
+import { InlineClozeChoice } from "@/components/atoms";
 
 export const inlineDropdownDemoSection = {
     id: "inline-dropdown-demo",
@@ -6,7 +6,7 @@ export const inlineDropdownDemoSection = {
     content: (
         <p className="text-lg leading-relaxed">
             Notice how the definition of a sphere is almost the same as the definition of a{" "}
-            <InlineDropdown
+            <InlineClozeChoice
                 correctAnswer="circle"
                 options={["cube", "circle", "radius"]}
                 color="#3B82F6"

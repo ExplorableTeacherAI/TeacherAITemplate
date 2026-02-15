@@ -50,8 +50,8 @@ src/
 ├── components/
 │   ├── atoms/                      # Smallest reusable building blocks
 │   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
-│   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineDropdown,
-│   │   │                           #   InteractiveHighlight
+│   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice,
+│   │   │                           #   InlineDropdown (alias), InteractiveHighlight
 │   │   ├── formula/                #   Equation, ColoredEquation
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
 │   │   │                           #   AnimatedGraph, MorphingShapes, ParticleSystem,
@@ -89,7 +89,8 @@ src/
 │   └── utility/                    # Infrastructure — NOT for lesson content
 │       ├── Spacer, ModeIndicator, InfoTooltip
 │       ├── AnnotationOverlay, LoadingScreen
-│       ├── EquationEditorModal, ScrubbleNumberEditorModal, ClozeInputEditorModal
+│       ├── EquationEditorModal, ScrubbleNumberEditorModal,
+│       │   ClozeInputEditorModal, ClozeChoiceEditorModal
 │       └── index.ts
 │
 ├── stores/                         # Zustand global variable store
@@ -128,7 +129,7 @@ src/
 
 ### Step 1: Define Variables (`src/data/variables.ts`)
 
-Every interactive number must be defined here first. This centralizes all variable metadata in one place.
+Every interactive value must be defined here first. This centralizes all variable metadata in one place.
 
 ```ts
 export const variableDefinitions: Record<string, VariableDefinition> = {
@@ -151,6 +152,16 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: '90',
         color: '#3B82F6',
     },
+    shapeAnswer: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Shape Answer',
+        description: 'Student answer for the 2D shape question',
+        placeholder: '???',
+        correctAnswer: 'circle',
+        options: ['cube', 'circle', 'square', 'triangle'],
+        color: '#D81B60',
+    },
     waveType: {
         defaultValue: 'sine',
         type: 'select',
@@ -165,7 +176,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
 };
 ```
 
-**Supported types:** `number`, `text` (including cloze), `select`, `boolean`, `array`, `object`
+**Supported types:** `number`, `text` (including cloze input), `select` (including cloze choice), `boolean`, `array`, `object`
 
 ### Step 2: Create Section Blocks (`src/data/sections/`)
 
@@ -176,8 +187,8 @@ Each section exports a **flat array** of `Layout > Block` elements. This is crit
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "../variables";
+import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition } from "../variables";
 
 export const introBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-intro-title" maxWidth="xl">
@@ -270,7 +281,8 @@ All components below are used by the agent to compose lessons. **Every component
 | `EditableSpan` | Inline editable text |
 | `InlineScrubbleNumber` | Draggable number bound to a global variable |
 | `InlineClozeInput` | Fill-in-the-blank input with answer validation |
-| `InlineDropdown` | Inline dropdown selector |
+| `InlineClozeChoice` | Dropdown choice with answer validation |
+| `InlineDropdown` | Alias for `InlineClozeChoice` (backward compat) |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -354,7 +366,13 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
         correctAnswer="90"
         {...clozePropsFromDefinition(getVariableInfo('rightAngle'))}
     />{' '}
-    degrees.
+    degrees. The shape of a wheel is a{' '}
+    <InlineClozeChoice
+        varName="shapeAnswer"
+        correctAnswer="circle"
+        options={["cube", "circle", "square", "triangle"]}
+        {...choicePropsFromDefinition(getVariableInfo('shapeAnswer'))}
+    />.
 </EditableParagraph>
 ```
 
@@ -438,7 +456,34 @@ quarterCircleAngle: {
 },
 ```
 
-**Cloze variable fields:** `correctAnswer`, `placeholder`, `color`, `bgColor`, `caseSensitive`
+**Cloze input variable fields:** `correctAnswer`, `placeholder`, `color`, `bgColor`, `caseSensitive`
+
+### InlineClozeChoice
+
+Dropdown choice bound to a global variable. The variable store holds the **student's selected option**; the `correctAnswer` and `options` stay as props.
+
+```tsx
+// CORRECT — uses centralized variable definition
+<InlineClozeChoice
+    varName="shapeAnswer"
+    correctAnswer="circle"
+    options={["cube", "circle", "square", "triangle"]}
+    {...choicePropsFromDefinition(getVariableInfo('shapeAnswer'))}
+/>
+
+// Variable definition in variables.ts:
+shapeAnswer: {
+    defaultValue: '',
+    type: 'select',
+    label: 'Shape Answer',
+    placeholder: '???',
+    correctAnswer: 'circle',
+    options: ['cube', 'circle', 'square', 'triangle'],
+    color: '#D81B60',
+},
+```
+
+**Cloze choice variable fields:** `correctAnswer`, `options`, `placeholder`, `color`, `bgColor`
 
 ---
 
@@ -464,13 +509,13 @@ setVar('amplitude', 2.5);
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, Equation } from "@/components/atoms";
+import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
 import { Hoverable, MultiChoice } from "@/components/annotations";
-import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "./variables";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition } from "./variables";
 ```
 
 ---

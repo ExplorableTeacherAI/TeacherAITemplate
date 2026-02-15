@@ -151,6 +151,30 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
+    // SELECT (cloze choice) - Dropdown with correct answer validation
+    // ─────────────────────────────────────────
+    shapeAnswer: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Shape Answer',
+        description: 'Student answer for the 2D shape question',
+        placeholder: '???',
+        correctAnswer: 'circle',
+        options: ['cube', 'circle', 'square', 'triangle'],
+        color: '#D81B60',
+    },
+    waveTypeAnswer: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Wave Type Answer',
+        description: 'Student answer for the wave type question',
+        placeholder: '???',
+        correctAnswer: 'transverse',
+        options: ['transverse', 'longitudinal', 'surface'],
+        color: '#00897B',
+    },
+
+    // ─────────────────────────────────────────
     // SELECT - Dropdown with options
     // ─────────────────────────────────────────
     selectedOption: {
@@ -390,6 +414,27 @@ export function numberPropsFromDefinition(def: VariableDefinition | undefined): 
         max: def.max,
         step: def.step,
         ...(def.color ? { color: def.color } : {}),
+    };
+}
+
+/**
+ * Get cloze choice props for InlineClozeChoice from a variable definition.
+ * Same structure as variables.ts: choicePropsFromDefinition(getExampleVariableInfo(name)).
+ */
+export function choicePropsFromDefinition(def: VariableDefinition | undefined): {
+    correctAnswer?: string;
+    options?: string[];
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+} {
+    if (!def || def.type !== 'select') return {};
+    return {
+        ...(def.correctAnswer ? { correctAnswer: def.correctAnswer } : {}),
+        ...(def.options ? { options: def.options } : {}),
+        ...(def.placeholder ? { placeholder: def.placeholder } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
     };
 }
 

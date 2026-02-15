@@ -63,6 +63,25 @@ export interface ClozeInputProps {
     caseSensitive?: boolean;
 }
 
+export interface ClozeChoiceEdit {
+    id: string;
+    type: 'clozeChoice';
+    blockId: string;
+    elementPath: string;
+    originalProps: ClozeChoiceProps;
+    newProps: ClozeChoiceProps;
+    timestamp: number;
+}
+
+export interface ClozeChoiceProps {
+    varName?: string;
+    correctAnswer?: string;
+    options?: string[];
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -75,7 +94,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -84,6 +103,7 @@ interface EditingContextType {
     editingEquation: { latex: string; colorMap?: Record<string, string>; blockId: string; elementPath: string } | null;
     editingScrubbleNumber: (ScrubbleNumberProps & { blockId: string; elementPath: string }) | null;
     editingClozeInput: (ClozeInputProps & { blockId: string; elementPath: string }) | null;
+    editingClozeChoice: (ClozeChoiceProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -92,6 +112,7 @@ interface EditingContextType {
     addEquationEdit: (edit: Omit<EquationEdit, 'id' | 'type' | 'timestamp'>) => void;
     addScrubbleNumberEdit: (edit: Omit<ScrubbleNumberEdit, 'id' | 'type' | 'timestamp'>) => void;
     addClozeInputEdit: (edit: Omit<ClozeInputEdit, 'id' | 'type' | 'timestamp'>) => void;
+    addClozeChoiceEdit: (edit: Omit<ClozeChoiceEdit, 'id' | 'type' | 'timestamp'>) => void;
     addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
@@ -104,6 +125,9 @@ interface EditingContextType {
     openClozeInputEditor: (props: ClozeInputProps, blockId: string, elementPath: string) => void;
     closeClozeInputEditor: () => void;
     saveClozeInputEdit: (newProps: ClozeInputProps) => void;
+    openClozeChoiceEditor: (props: ClozeChoiceProps, blockId: string, elementPath: string) => void;
+    closeClozeChoiceEditor: () => void;
+    saveClozeChoiceEdit: (newProps: ClozeChoiceProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -128,6 +152,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingClozeInput, setEditingClozeInput] = useState<(ClozeInputProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingClozeChoice, setEditingClozeChoice] = useState<(ClozeChoiceProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -487,6 +515,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingClozeInput(null);
     }, [editingClozeInput, addClozeInputEdit]);
 
+    // Cloze Choice editing methods
+    const addClozeChoiceEdit = useCallback((edit: Omit<ClozeChoiceEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: ClozeChoiceEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'clozeChoice',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'clozeChoice' &&
+                    (e as ClozeChoiceEdit).blockId === edit.blockId &&
+                    (e as ClozeChoiceEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as ClozeChoiceEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openClozeChoiceEditor = useCallback((
+        props: ClozeChoiceProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingClozeChoice({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeClozeChoiceEditor = useCallback(() => {
+        setEditingClozeChoice(null);
+    }, []);
+
+    const saveClozeChoiceEdit = useCallback((newProps: ClozeChoiceProps) => {
+        if (!editingClozeChoice) return;
+
+        const { blockId, elementPath, ...originalProps } = editingClozeChoice;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addClozeChoiceEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingClozeChoice(null);
+    }, [editingClozeChoice, addClozeChoiceEdit]);
+
     // Notify parent whenever edits change
     useEffect(() => {
         window.parent.postMessage({
@@ -535,12 +632,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingEquation,
         editingScrubbleNumber,
         editingClozeInput,
+        editingClozeChoice,
         enableEditing,
         disableEditing,
         addTextEdit,
         addEquationEdit,
         addScrubbleNumberEdit,
         addClozeInputEdit,
+        addClozeChoiceEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -553,18 +652,23 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openClozeInputEditor,
         closeClozeInputEditor,
         saveClozeInputEdit,
+        openClozeChoiceEditor,
+        closeClozeChoiceEditor,
+        saveClozeChoiceEdit,
     }), [
         isEditing,
         pendingEdits,
         editingEquation,
         editingScrubbleNumber,
         editingClozeInput,
+        editingClozeChoice,
         enableEditing,
         disableEditing,
         addTextEdit,
         addEquationEdit,
         addScrubbleNumberEdit,
         addClozeInputEdit,
+        addClozeChoiceEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -577,6 +681,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openClozeInputEditor,
         closeClozeInputEditor,
         saveClozeInputEdit,
+        openClozeChoiceEditor,
+        closeClozeChoiceEditor,
+        saveClozeChoiceEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -704,7 +811,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                     color: edit.type === 'text' ? '#60a5fa' :
                                                         edit.type === 'equation' ? '#a78bfa' :
                                                             edit.type === 'structure' ? '#34d399' :
-                                                                edit.type === 'clozeInput' ? '#38bdf8' : '#fbbf24'
+                                                                edit.type === 'clozeInput' ? '#38bdf8' :
+                                                                    edit.type === 'clozeChoice' ? '#f472b6' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -772,6 +880,19 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                             varName: {(edit as ClozeInputEdit).newProps.varName || '(none)'} |
                                                             answer: {(edit as ClozeInputEdit).newProps.correctAnswer || '(none)'} |
                                                             caseSensitive: {String((edit as ClozeInputEdit).newProps.caseSensitive ?? false)}
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'clozeChoice' && (
+                                                    <>
+                                                        <div>📍 {(edit as ClozeChoiceEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            📝 Path: {(edit as ClozeChoiceEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            varName: {(edit as ClozeChoiceEdit).newProps.varName || '(none)'} |
+                                                            answer: {(edit as ClozeChoiceEdit).newProps.correctAnswer || '(none)'} |
+                                                            options: [{(edit as ClozeChoiceEdit).newProps.options?.join(', ') || ''}]
                                                         </div>
                                                     </>
                                                 )}

@@ -6,3 +6,4 @@ export { LoadingScreen } from "./LoadingScreen";
 export { EquationEditorModal } from "./EquationEditorModal";
 export { ScrubbleNumberEditorModal } from "./ScrubbleNumberEditorModal";
 export { ClozeInputEditorModal } from "./ClozeInputEditorModal";
+export { ClozeChoiceEditorModal } from "./ClozeChoiceEditorModal";

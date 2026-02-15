@@ -8,6 +8,7 @@ import {
     getExampleVariableInfo,
     numberPropsFromDefinition,
     clozePropsFromDefinition,
+    choicePropsFromDefinition,
 } from "./exampleVariables";
 useVariableStore.getState().initialize(getExampleDefaultValues());
 
@@ -22,6 +23,7 @@ import {
     EditableParagraph,
     InlineScrubbleNumber,
     InlineClozeInput,
+    InlineClozeChoice,
 } from "@/components/atoms";
 
 /**
@@ -206,6 +208,47 @@ const exampleBlocks: ReactElement[] = [
                     {...clozePropsFromDefinition(getExampleVariableInfo('waveUnit'))}
                 />
                 {" "}(abbreviated Hz).
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // CLOZE CHOICES (Dropdown Fill-in-the-Blank)
+    // ========================================
+    <FullWidthLayout key="layout-heading-h2-cloze-choice" maxWidth="xl">
+        <Block id="block-heading-h2-cloze-choice" padding="sm">
+            <EditableH2 id="h2-cloze-choice-title" blockId="block-heading-h2-cloze-choice">
+                Cloze Choices (Dropdown Fill-in-the-Blank)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-choice-01" maxWidth="xl">
+        <Block id="block-paragraph-choice-01" padding="sm">
+            <EditableParagraph id="para-choice-shape" blockId="block-paragraph-choice-01">
+                The definition of a sphere is similar to a{" "}
+                <InlineClozeChoice
+                    varName="shapeAnswer"
+                    correctAnswer="circle"
+                    options={["cube", "circle", "square", "triangle"]}
+                    {...choicePropsFromDefinition(getExampleVariableInfo('shapeAnswer'))}
+                />
+                {" "}&mdash; except in three dimensions!
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-choice-02" maxWidth="xl">
+        <Block id="block-paragraph-choice-02" padding="sm">
+            <EditableParagraph id="para-choice-wave" blockId="block-paragraph-choice-02">
+                Light waves are an example of{" "}
+                <InlineClozeChoice
+                    varName="waveTypeAnswer"
+                    correctAnswer="transverse"
+                    options={["transverse", "longitudinal", "surface"]}
+                    {...choicePropsFromDefinition(getExampleVariableInfo('waveTypeAnswer'))}
+                />
+                {" "}waves.
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

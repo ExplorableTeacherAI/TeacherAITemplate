@@ -62,12 +62,13 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 style="display: inline-flex; align-items: center; background: rgba(216, 27, 96, 0.9); color: white; border-radius: 4px; padding: 0 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: default;"
             ><span style="padding: 0 2px;">◀</span><span style="min-width: 20px; text-align: center;">10</span><span style="padding: 0 2px;">▶</span></span>`;
         case 'inlineDropdown':
+        case 'inlineClozeChoice':
             return `<span
                 contenteditable="false"
-                data-inline-component="${commandType}"
+                data-inline-component="inlineClozeChoice"
                 data-component-id="${uniqueId}"
                 style="display: inline-flex; align-items: center; background: rgba(59, 130, 246, 0.35); color: #3B82F6; border-radius: 4px; padding: 0 6px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
-            >??? ▾</span>`;
+            >??? &#x25BE;</span>`;
         case 'inlineClozeInput':
             return `<span
                 contenteditable="false"

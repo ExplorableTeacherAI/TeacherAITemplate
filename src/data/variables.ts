@@ -224,6 +224,27 @@ export function numberPropsFromDefinition(def: VariableDefinition | undefined): 
  * Get cloze input props for InlineClozeInput from a variable definition.
  * Use with getVariableInfo(name) in blocks.tsx, or getExampleVariableInfo(name) in exampleBlocks.tsx.
  */
+/**
+ * Get cloze choice props for InlineClozeChoice from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx.
+ */
+export function choicePropsFromDefinition(def: VariableDefinition | undefined): {
+    correctAnswer?: string;
+    options?: string[];
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+} {
+    if (!def || def.type !== 'select') return {};
+    return {
+        ...(def.correctAnswer ? { correctAnswer: def.correctAnswer } : {}),
+        ...(def.options ? { options: def.options } : {}),
+        ...(def.placeholder ? { placeholder: def.placeholder } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+    };
+}
+
 export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
     correctAnswer?: string;
     placeholder?: string;
