@@ -51,7 +51,7 @@ src/
 │   ├── atoms/                      # Smallest reusable building blocks
 │   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
 │   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice,
-│   │   │                           #   InlineDropdown (alias), InteractiveHighlight
+│   │   │                           #   InteractiveHighlight
 │   │   ├── formula/                #   Equation, ColoredEquation
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
 │   │   │                           #   AnimatedGraph, MorphingShapes, ParticleSystem,
@@ -72,7 +72,7 @@ src/
 │   │
 │   ├── annotations/                # Inline annotation wrappers
 │   │   ├── Hoverable, Glossary, Whisper, Toggle
-│   │   ├── MultiChoice, Linked, Trigger
+│   │   ├── Linked, Trigger
 │   │   └── index.ts
 │   │
 │   ├── layouts/                    # Layout containers
@@ -282,7 +282,6 @@ All components below are used by the agent to compose lessons. **Every component
 | `InlineScrubbleNumber` | Draggable number bound to a global variable |
 | `InlineClozeInput` | Fill-in-the-blank input with answer validation |
 | `InlineClozeChoice` | Dropdown choice with answer validation |
-| `InlineDropdown` | Alias for `InlineClozeChoice` (backward compat) |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -350,7 +349,6 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
 | `Glossary` | Dotted underline | Definition popup with pronunciation |
 | `Whisper` | Faded text | Reveals hidden content on hover |
 | `Toggle` | Dashed underline | Cycles through options on click |
-| `MultiChoice` | Dropdown | Quiz selection validation |
 | `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
 | `Trigger` | Solid underline | Triggers an action on click |
 
@@ -514,7 +512,7 @@ import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
-import { Hoverable, MultiChoice } from "@/components/annotations";
+import { Hoverable, Toggle } from "@/components/annotations";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition } from "./variables";
 ```
 

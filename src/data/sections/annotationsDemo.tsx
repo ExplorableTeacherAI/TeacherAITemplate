@@ -12,11 +12,10 @@ import {
     Glossary,
     Whisper,
     Toggle,
-    MultiChoice,
     Linked,
     Trigger,
 } from '@/components/annotations';
-import { InlineClozeInput } from '@/components/atoms';
+import { InlineClozeInput, InlineClozeChoice } from '@/components/atoms';
 
 // Demo visualization component for Linked annotations
 const LinkedVisualization = ({ activeId }: { activeId: string | null }) => (
@@ -133,12 +132,12 @@ export const annotationsDemoSections = [
                     </p>
                 </div>
 
-                {/* MultiChoice */}
+                {/* ClozeChoice */}
                 <div className="p-4 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium mb-2">MultiChoice (Dropdown quiz)</h4>
+                    <h4 className="font-medium mb-2">ClozeChoice (Dropdown quiz)</h4>
                     <p className="text-lg leading-relaxed">
                         The definition of a sphere is similar to a{' '}
-                        <MultiChoice
+                        <InlineClozeChoice
                             correctAnswer="circle"
                             options={['cube', 'circle', 'square', 'triangle']}
                             placeholder="???"

@@ -251,7 +251,6 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - `InlineScrubbleNumber` — draggable inline number bound to global variable
 - `InlineClozeInput` — fill-in-the-blank input with answer validation, bound to global variable
 - `InlineClozeChoice` — dropdown choice with answer validation, bound to global variable
-- `InlineDropdown` — alias for InlineClozeChoice (backward compat)
 
 ### Math Components
 

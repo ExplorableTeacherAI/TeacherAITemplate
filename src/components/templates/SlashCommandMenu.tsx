@@ -24,7 +24,6 @@ export type BlockCommandType =
 // Inline component command types (insert within text)
 export type InlineCommandType =
     | "inlineScrubbleNumber"
-    | "inlineDropdown"
     | "inlineClozeInput"
     | "inlineClozeChoice";
 
@@ -33,7 +32,7 @@ export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineDropdown", "inlineClozeInput", "inlineClozeChoice"].includes(type);
+    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice"].includes(type);
 };
 
 interface SlashCommand {

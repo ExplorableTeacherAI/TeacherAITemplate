@@ -122,29 +122,9 @@ export interface ScrubberProps extends BaseAnnotationProps {
 
 // ============================================================================
 // CATEGORY: VALIDATABLE
+// Note: FillBlank and MultiChoice have been replaced by InlineClozeInput
+// and InlineClozeChoice in @/components/atoms.
 // ============================================================================
-
-export interface FillBlankProps extends BaseAnnotationProps {
-    /** The correct answer */
-    correctAnswer: string;
-    /** Placeholder text */
-    placeholder?: string;
-    /** Case sensitive checking */
-    caseSensitive?: boolean;
-    /** Callback when answer is validated */
-    onChange?: (value: string, isCorrect: boolean) => void;
-}
-
-export interface MultiChoiceProps extends BaseAnnotationProps {
-    /** The correct answer */
-    correctAnswer: string;
-    /** Array of options */
-    options: string[];
-    /** Placeholder text */
-    placeholder?: string;
-    /** Callback when selection changes */
-    onChange?: (value: string, isCorrect: boolean) => void;
-}
 
 export interface SortableProps extends BaseAnnotationProps {
     /** Items to sort */
@@ -284,8 +264,6 @@ export const ANNOTATION_STYLE_CONFIG: Record<string, AnnotationStyleConfig> = {
     Whisper: { category: 'informational', underline: 'none', defaultColor: 'informational' },
     Toggle: { category: 'mutable', underline: 'dashed', defaultColor: 'mutable' },
     Scrubber: { category: 'mutable', underline: 'double', defaultColor: 'mutable' },
-    FillBlank: { category: 'validatable', underline: 'none', defaultColor: 'validatable' },
-    MultiChoice: { category: 'validatable', underline: 'none', defaultColor: 'validatable' },
     Sortable: { category: 'validatable', underline: 'none', defaultColor: 'validatable' },
     Linked: { category: 'connective', underline: 'dotted', defaultColor: 'connective' },
     Trigger: { category: 'connective', underline: 'solid', defaultColor: 'connective' },

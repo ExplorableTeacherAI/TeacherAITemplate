@@ -222,60 +222,8 @@
     color: var(--annotation-validatable);
 }
 
-/* FillBlank & MultiChoice - quiz inputs */
-.annotation-fillblank,
-.annotation-multichoice {
-    display: inline-flex;
-    align-items: center;
-    background: var(--annotation-validatable-bg);
-    border-radius: 4px;
-    padding: 0 4px;
-    min-width: 3ch;
-    cursor: pointer;
-}
-
-.annotation-fillblank:hover,
-.annotation-multichoice:hover {
-    background: var(--annotation-validatable-glow);
-}
-
-/* Placeholder state */
-.annotation-fillblank--placeholder,
-.annotation-multichoice--placeholder {
-    color: var(--annotation-validatable);
-    font-weight: 600;
-}
-
-/* Correct state */
-.annotation-fillblank--correct,
-.annotation-multichoice--correct {
-    color: var(--annotation-success);
-    background: var(--annotation-success-bg);
-    cursor: default;
-}
-
-/* Incorrect state */
-.annotation-fillblank--incorrect,
-.annotation-multichoice--incorrect {
-    background: var(--annotation-error-bg);
-}
-
-.annotation-clear-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 4px;
-    padding: 2px;
-    color: var(--annotation-error);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: transform var(--annotation-transition);
-}
-
-.annotation-clear-button:hover {
-    transform: scale(1.2);
-}
+/* Note: FillBlank & MultiChoice quiz inputs have been replaced by
+   InlineClozeInput and InlineClozeChoice in @/components/atoms. */
 
 /* ============================================================================
    CATEGORY: CONNECTIVE
@@ -540,10 +488,6 @@
     }
 }
 
-.annotation-fillblank--incorrect,
-.annotation-multichoice--incorrect {
-    animation: annotation-shake 0.3s ease-in-out;
-}
 
 @keyframes annotation-glow {
 
