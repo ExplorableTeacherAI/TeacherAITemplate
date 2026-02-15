@@ -124,18 +124,7 @@
     text-shadow: 0 0 12px var(--annotation-informational-glow);
 }
 
-/* Hoverable - tooltip on hover */
-.annotation-hoverable {
-    color: var(--annotation-informational);
-}
-
-.annotation-hoverable:hover {
-    text-shadow: 0 0 8px var(--annotation-informational-glow);
-    background: var(--annotation-informational-bg);
-    border-radius: 2px;
-    padding: 0 2px;
-    margin: 0 -2px;
-}
+/* Note: .annotation-hoverable has been removed. Use InlineTooltip from @/components/atoms instead. */
 
 /* Glossary - definition cards */
 .annotation-glossary {
@@ -477,7 +466,6 @@
     }
 }
 
-.annotation-hoverable:hover,
 .annotation-glossary:hover {
     animation: annotation-glow 1.5s infinite;
 }

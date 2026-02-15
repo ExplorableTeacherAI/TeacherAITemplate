@@ -99,6 +99,25 @@ export interface ToggleProps {
     bgColor?: string;
 }
 
+export interface TooltipProps {
+    text?: string;       // The trigger text (children content)
+    tooltip?: string;    // The tooltip/definition content
+    color?: string;
+    bgColor?: string;
+    position?: string;   // 'top' | 'bottom' | 'auto'
+    maxWidth?: number;
+}
+
+export interface TooltipEdit {
+    id: string;
+    type: 'tooltip';
+    blockId: string;
+    elementPath: string;
+    originalProps: TooltipProps;
+    newProps: TooltipProps;
+    timestamp: number;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -111,7 +130,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -122,6 +141,7 @@ interface EditingContextType {
     editingClozeInput: (ClozeInputProps & { blockId: string; elementPath: string }) | null;
     editingClozeChoice: (ClozeChoiceProps & { blockId: string; elementPath: string }) | null;
     editingToggle: (ToggleProps & { blockId: string; elementPath: string }) | null;
+    editingTooltip: (TooltipProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -132,6 +152,7 @@ interface EditingContextType {
     addClozeInputEdit: (edit: Omit<ClozeInputEdit, 'id' | 'type' | 'timestamp'>) => void;
     addClozeChoiceEdit: (edit: Omit<ClozeChoiceEdit, 'id' | 'type' | 'timestamp'>) => void;
     addToggleEdit: (edit: Omit<ToggleEdit, 'id' | 'type' | 'timestamp'>) => void;
+    addTooltipEdit: (edit: Omit<TooltipEdit, 'id' | 'type' | 'timestamp'>) => void;
     addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
@@ -150,6 +171,9 @@ interface EditingContextType {
     openToggleEditor: (props: ToggleProps, blockId: string, elementPath: string) => void;
     closeToggleEditor: () => void;
     saveToggleEdit: (newProps: ToggleProps) => void;
+    openTooltipEditor: (props: TooltipProps, blockId: string, elementPath: string) => void;
+    closeTooltipEditor: () => void;
+    saveTooltipEdit: (newProps: TooltipProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -182,6 +206,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingToggle, setEditingToggle] = useState<(ToggleProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingTooltip, setEditingTooltip] = useState<(TooltipProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -679,6 +707,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingToggle(null);
     }, [editingToggle, addToggleEdit]);
 
+    // Tooltip editing methods
+    const addTooltipEdit = useCallback((edit: Omit<TooltipEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: TooltipEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'tooltip',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'tooltip' &&
+                    (e as TooltipEdit).blockId === edit.blockId &&
+                    (e as TooltipEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as TooltipEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openTooltipEditor = useCallback((
+        props: TooltipProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingTooltip({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeTooltipEditor = useCallback(() => {
+        setEditingTooltip(null);
+    }, []);
+
+    const saveTooltipEdit = useCallback((newProps: TooltipProps) => {
+        if (!editingTooltip) return;
+
+        const { blockId, elementPath, ...originalProps } = editingTooltip;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addTooltipEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingTooltip(null);
+    }, [editingTooltip, addTooltipEdit]);
+
     // Notify parent whenever edits change
     useEffect(() => {
         window.parent.postMessage({
@@ -729,6 +826,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingClozeInput,
         editingClozeChoice,
         editingToggle,
+        editingTooltip,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -737,6 +835,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addClozeInputEdit,
         addClozeChoiceEdit,
         addToggleEdit,
+        addTooltipEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -755,6 +854,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openToggleEditor,
         closeToggleEditor,
         saveToggleEdit,
+        openTooltipEditor,
+        closeTooltipEditor,
+        saveTooltipEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -763,6 +865,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingClozeInput,
         editingClozeChoice,
         editingToggle,
+        editingTooltip,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -771,6 +874,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addClozeInputEdit,
         addClozeChoiceEdit,
         addToggleEdit,
+        addTooltipEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -789,6 +893,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openToggleEditor,
         closeToggleEditor,
         saveToggleEdit,
+        openTooltipEditor,
+        closeTooltipEditor,
+        saveTooltipEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -918,7 +1025,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                             edit.type === 'structure' ? '#34d399' :
                                                                 edit.type === 'clozeInput' ? '#38bdf8' :
                                                                     edit.type === 'clozeChoice' ? '#f472b6' :
-                                                                        edit.type === 'toggle' ? '#c084fc' : '#fbbf24'
+                                                                        edit.type === 'toggle' ? '#c084fc' :
+                                                                            edit.type === 'tooltip' ? '#f59e0b' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -1011,6 +1119,18 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                         <div style={{ color: '#9ca3af', fontSize: '11px' }}>
                                                             varName: {(edit as ToggleEdit).newProps.varName || '(none)'} |
                                                             options: [{(edit as ToggleEdit).newProps.options?.join(', ') || ''}]
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'tooltip' && (
+                                                    <>
+                                                        <div>📍 {(edit as TooltipEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            💡 Path: {(edit as TooltipEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            text: {(edit as TooltipEdit).newProps.text || '(none)'} |
+                                                            tooltip: {(edit as TooltipEdit).newProps.tooltip?.substring(0, 30) || '(none)'}...
                                                         </div>
                                                     </>
                                                 )}

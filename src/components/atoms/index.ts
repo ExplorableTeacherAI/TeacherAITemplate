@@ -50,6 +50,7 @@ export * from "./ui/use-toast";
 export { InlineClozeChoice } from "./text/InlineClozeChoice";
 export { InlineClozeInput } from "./text/InlineClozeInput";
 export { InlineToggle } from "./text/InlineToggle";
+export { InlineTooltip } from "./text/InlineTooltip";
 export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
 export {
     EditableH1,

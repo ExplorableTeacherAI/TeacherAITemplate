@@ -233,6 +233,35 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 
 The variable store holds the **currently selected option** (text string). Unlike cloze components, toggles have no `correctAnswer` — they are for exploration, not validation.
 
+## InlineTooltip (Hover Tooltip)
+
+`InlineTooltip` shows a tooltip/definition on hover. Unlike other inline components, it does **NOT** use the variable store — tooltips are purely informational with no mutable state. No `varName` prop needed.
+
+### Usage
+
+```tsx
+import { InlineTooltip } from "@/components/atoms";
+
+<EditableParagraph id="para-example" blockId="block-example">
+    Every point on a{" "}
+    <InlineTooltip tooltip="A shape where all points are equidistant from the center.">
+        circle
+    </InlineTooltip>{" "}
+    has the same distance from its center.
+</EditableParagraph>
+```
+
+### InlineTooltip Props
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `children` | `ReactNode` | *(required)* | The trigger text displayed inline |
+| `tooltip` | `string` | *(required)* | The tooltip content shown on hover |
+| `color` | `string` | `#F59E0B` | Text color (amber) |
+| `bgColor` | `string` | `rgba(245, 158, 11, 0.15)` | Background color on hover |
+| `position` | `string` | `'auto'` | Tooltip position: `'auto'`, `'top'`, `'bottom'` |
+| `maxWidth` | `number` | `400` | Maximum tooltip width in pixels |
+
 ## Variable Types
 
 | Type | Example Definition |
@@ -294,6 +323,7 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - `InlineClozeInput` — fill-in-the-blank input with answer validation, bound to global variable
 - `InlineClozeChoice` — dropdown choice with answer validation, bound to global variable
 - `InlineToggle` — click to cycle through options, bound to global variable
+- `InlineTooltip` — hover to show tooltip/definition (no variable store)
 
 ### Math Components
 
@@ -372,7 +402,7 @@ export const mySectionBlocks: ReactElement[] = [
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle } from "@/components/atoms";
+import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip } from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 export const mySectionBlocks: ReactElement[] = [

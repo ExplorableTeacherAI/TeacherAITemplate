@@ -26,6 +26,7 @@ import {
     InlineClozeInput,
     InlineClozeChoice,
     InlineToggle,
+    InlineTooltip,
 } from "@/components/atoms";
 
 /**
@@ -290,6 +291,65 @@ const exampleBlocks: ReactElement[] = [
                     {...togglePropsFromDefinition(getExampleVariableInfo('measurementType'))}
                 />
                 {" "}is an important property of a circle.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // TOOLTIP DEMO (Hover to Reveal)
+    // ========================================
+    <FullWidthLayout key="layout-heading-h2-tooltip" maxWidth="xl">
+        <Block id="block-heading-h2-tooltip" padding="sm">
+            <EditableH2 id="h2-tooltip-title" blockId="block-heading-h2-tooltip">
+                Tooltip (Hover to Reveal)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-tooltip-intro" maxWidth="xl">
+        <Block id="block-paragraph-tooltip-intro" padding="sm">
+            <EditableParagraph id="para-tooltip-intro" blockId="block-paragraph-tooltip-intro">
+                Tooltips show definitions or extra information on hover. Unlike other
+                inline components, they don't use the variable store — they're purely
+                informational. Hover over the highlighted words below to see them in action.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-tooltip-01" maxWidth="xl">
+        <Block id="block-paragraph-tooltip-01" padding="sm">
+            <EditableParagraph id="para-tooltip-circle" blockId="block-paragraph-tooltip-01">
+                Every point on a{" "}
+                <InlineTooltip tooltip="A shape where all points are equidistant from the center.">
+                    circle
+                </InlineTooltip>
+                {" "}is the same distance from its center. This distance is called the{" "}
+                <InlineTooltip tooltip="The distance from the center of a circle to any point on its edge.">
+                    radius
+                </InlineTooltip>
+                .
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-tooltip-02" maxWidth="xl">
+        <Block id="block-paragraph-tooltip-02" padding="sm">
+            <EditableParagraph id="para-tooltip-physics" blockId="block-paragraph-tooltip-02">
+                In physics,{" "}
+                <InlineTooltip
+                    tooltip="A quantity that has both magnitude and direction, represented by an arrow."
+                    color="#3B82F6"
+                >
+                    vectors
+                </InlineTooltip>
+                {" "}are used to describe forces and motion. The{" "}
+                <InlineTooltip
+                    tooltip="The rate of change of velocity with respect to time, measured in m/s²."
+                    color="#10B981"
+                >
+                    acceleration
+                </InlineTooltip>
+                {" "}of an object depends on the net force applied.
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

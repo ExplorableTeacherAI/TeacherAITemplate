@@ -55,16 +55,7 @@ export interface BaseAnnotationProps {
 // CATEGORY: INFORMATIONAL
 // ============================================================================
 
-export interface HoverableProps extends BaseAnnotationProps {
-    /** Content to display inline */
-    children: React.ReactNode;
-    /** Tooltip/panel content */
-    tooltip: React.ReactNode | string;
-    /** Tooltip position */
-    position?: 'top' | 'bottom' | 'auto';
-    /** Maximum tooltip width */
-    maxWidth?: number;
-}
+// Note: HoverableProps has been removed. Use InlineTooltip from @/components/atoms instead.
 
 export interface GlossaryProps extends BaseAnnotationProps {
     /** The term to display */
@@ -248,7 +239,6 @@ export interface AnnotationStyleConfig {
 
 // Mapping of annotation types to their style configuration
 export const ANNOTATION_STYLE_CONFIG: Record<string, AnnotationStyleConfig> = {
-    Hoverable: { category: 'informational', underline: 'none', defaultColor: 'informational' },
     Glossary: { category: 'informational', underline: 'dotted', defaultColor: 'informational' },
     Whisper: { category: 'informational', underline: 'none', defaultColor: 'informational' },
     Scrubber: { category: 'mutable', underline: 'double', defaultColor: 'mutable' },

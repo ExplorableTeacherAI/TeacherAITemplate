@@ -8,3 +8,4 @@ export { ScrubbleNumberEditorModal } from "./ScrubbleNumberEditorModal";
 export { ClozeInputEditorModal } from "./ClozeInputEditorModal";
 export { ClozeChoiceEditorModal } from "./ClozeChoiceEditorModal";
 export { ToggleEditorModal } from "./ToggleEditorModal";
+export { TooltipEditorModal } from "./TooltipEditorModal";

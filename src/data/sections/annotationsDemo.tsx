@@ -8,13 +8,12 @@ import { useState } from 'react';
 import { Block } from '@/components/templates';
 import { FullWidthLayout } from '@/components/layouts';
 import {
-    Hoverable,
     Glossary,
     Whisper,
     Linked,
     Trigger,
 } from '@/components/annotations';
-import { InlineClozeInput, InlineClozeChoice, InlineToggle } from '@/components/atoms';
+import { InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip } from '@/components/atoms';
 
 // Demo visualization component for Linked annotations
 const LinkedVisualization = ({ activeId }: { activeId: string | null }) => (
@@ -52,18 +51,18 @@ export const annotationsDemoSections = [
             <h3 className="text-xl font-semibold mb-4 text-amber-600">🔍 Informational Annotations</h3>
 
             <div className="space-y-6">
-                {/* Hoverable */}
+                {/* InlineTooltip */}
                 <div className="p-4 bg-amber-50 rounded-lg">
-                    <h4 className="font-medium mb-2">Hoverable (Tooltip on hover)</h4>
+                    <h4 className="font-medium mb-2">InlineTooltip (Tooltip on hover)</h4>
                     <p className="text-lg leading-relaxed">
                         Every point on a{' '}
-                        <Hoverable tooltip="A circle is a shape where all points are equidistant from a center point called the origin.">
+                        <InlineTooltip tooltip="A circle is a shape where all points are equidistant from a center point called the origin.">
                             circle
-                        </Hoverable>{' '}
+                        </InlineTooltip>{' '}
                         has the same distance from its center. This distance is called the{' '}
-                        <Hoverable tooltip="The radius is the distance from the center to any point on the circle. It equals half the diameter.">
+                        <InlineTooltip tooltip="The radius is the distance from the center to any point on the circle. It equals half the diameter.">
                             radius
-                        </Hoverable>.
+                        </InlineTooltip>.
                     </p>
                 </div>
 

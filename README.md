@@ -51,7 +51,7 @@ src/
 │   ├── atoms/                      # Smallest reusable building blocks
 │   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
 │   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle,
-│   │   │                           #   InteractiveHighlight
+│   │   │                           #   InlineTooltip, InteractiveHighlight
 │   │   ├── formula/                #   Equation, ColoredEquation
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
 │   │   │                           #   AnimatedGraph, MorphingShapes, ParticleSystem,
@@ -71,7 +71,7 @@ src/
 │   │   └── index.ts                #   Barrel — import from "@/components/organisms"
 │   │
 │   ├── annotations/                # Inline annotation wrappers
-│   │   ├── Hoverable, Glossary, Whisper
+│   │   ├── Glossary, Whisper        # (Hoverable replaced by InlineTooltip in atoms)
 │   │   ├── Linked, Trigger
 │   │   └── index.ts
 │   │
@@ -90,7 +90,8 @@ src/
 │       ├── Spacer, ModeIndicator, InfoTooltip
 │       ├── AnnotationOverlay, LoadingScreen
 │       ├── EquationEditorModal, ScrubbleNumberEditorModal,
-│       │   ClozeInputEditorModal, ClozeChoiceEditorModal, ToggleEditorModal
+│       │   ClozeInputEditorModal, ClozeChoiceEditorModal, ToggleEditorModal,
+│       │   TooltipEditorModal
 │       └── index.ts
 │
 ├── stores/                         # Zustand global variable store
@@ -106,7 +107,7 @@ src/
 | `atoms/` | Agent | Smallest building blocks for composing lesson content |
 | `molecules/` | Agent | Components built from multiple atoms |
 | `organisms/` | Agent | Complex self-contained visualizations |
-| `annotations/` | Agent | Inline wrappers for interactivity (hover, toggle, glossary) |
+| `annotations/` | Agent | Inline wrappers for interactivity (glossary, whisper, linked, trigger) |
 | `layouts/` | Agent | Containers that control width, columns, spacing |
 | `templates/` | System | Page infrastructure (Block, LessonView) — do not modify |
 | `utility/` | System | Editor modals, loading screen, overlays — not lesson content |
@@ -195,7 +196,7 @@ Each section exports a **flat array** of `Layout > Block` elements. This is crit
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle } from "@/components/atoms";
+import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip } from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 export const introBlocks: ReactElement[] = [
@@ -291,6 +292,7 @@ All components below are used by the agent to compose lessons. **Every component
 | `InlineClozeInput` | Fill-in-the-blank input with answer validation |
 | `InlineClozeChoice` | Dropdown choice with answer validation |
 | `InlineToggle` | Click to cycle through options, bound to global variable |
+| `InlineTooltip` | Shows tooltip/definition on hover (no variable store) |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -354,18 +356,19 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
 
 | Annotation | Visual Style | Purpose |
 |-----------|-------------|---------|
-| `Hoverable` | Colored text | Shows tooltip on hover |
 | `Glossary` | Dotted underline | Definition popup with pronunciation |
 | `Whisper` | Faded text | Reveals hidden content on hover |
 | `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
 | `Trigger` | Solid underline | Triggers an action on click |
 
+> **Note:** `Hoverable` has been replaced by `InlineTooltip` (in `@/components/atoms`). Use `InlineTooltip` for hover tooltips.
+
 ```tsx
 <EditableParagraph id="para-example" blockId="block-example">
     Every point on a{' '}
-    <Hoverable tooltip="A shape where all points are equidistant from center">
+    <InlineTooltip tooltip="A shape where all points are equidistant from center">
         circle
-    </Hoverable>{' '}
+    </InlineTooltip>{' '}
     has the same distance from its center. A right angle has{' '}
     <InlineClozeInput
         varName="rightAngle"
@@ -520,6 +523,25 @@ currentShape: {
 
 **Toggle variable fields:** `options`, `color`, `bgColor`
 
+### InlineTooltip
+
+Shows a tooltip/definition on hover. Unlike other inline components, `InlineTooltip` does **not** use the variable store — tooltips are purely informational with no mutable state. No variable definition needed.
+
+```tsx
+<InlineTooltip tooltip="A shape where all points are equidistant from the center.">
+    circle
+</InlineTooltip>
+```
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `children` | `ReactNode` | *(required)* | The trigger text displayed inline |
+| `tooltip` | `string` | *(required)* | Tooltip content shown on hover |
+| `color` | `string` | `#F59E0B` | Text color (amber) |
+| `bgColor` | `string` | `rgba(245, 158, 11, 0.15)` | Background color on hover |
+| `position` | `string` | `'auto'` | `'auto'`, `'top'`, `'bottom'` |
+| `maxWidth` | `number` | `400` | Maximum tooltip width in pixels |
+
 ---
 
 ## Global Variable Store
@@ -544,12 +566,12 @@ setVar('amplitude', 2.5);
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, Equation } from "@/components/atoms";
+import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
-import { Hoverable } from "@/components/annotations";
+import { Glossary } from "@/components/annotations";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "./variables";
 ```
 

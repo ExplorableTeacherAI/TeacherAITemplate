@@ -10,6 +10,7 @@ import {
     Hash,
     ChevronDown,
     TextCursor,
+    Info,
 } from "lucide-react";
 
 // Block-level command types (replace the entire block)
@@ -26,14 +27,15 @@ export type InlineCommandType =
     | "inlineScrubbleNumber"
     | "inlineClozeInput"
     | "inlineClozeChoice"
-    | "inlineToggle";
+    | "inlineToggle"
+    | "inlineTooltip";
 
 // Combined type for all slash commands
 export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle"].includes(type);
+    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip"].includes(type);
 };
 
 interface SlashCommand {
@@ -126,6 +128,14 @@ const slashCommands: SlashCommand[] = [
         description: "Click to cycle through options",
         icon: <Type className="h-4 w-4" />,
         keywords: ["toggle", "cycle", "switch", "options", "click", "mutable"],
+        category: "inline",
+    },
+    {
+        id: "inlineTooltip",
+        label: "Tooltip",
+        description: "Show a tooltip/definition on hover",
+        icon: <Info className="h-4 w-4" />,
+        keywords: ["tooltip", "hover", "definition", "glossary", "info", "explain", "hoverable"],
         category: "inline",
     },
 ];
