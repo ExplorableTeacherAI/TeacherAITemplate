@@ -442,16 +442,12 @@ export function numberPropsFromDefinition(def: VariableDefinition | undefined): 
  * Same structure as variables.ts: choicePropsFromDefinition(getExampleVariableInfo(name)).
  */
 export function choicePropsFromDefinition(def: VariableDefinition | undefined): {
-    correctAnswer?: string;
-    options?: string[];
     placeholder?: string;
     color?: string;
     bgColor?: string;
 } {
     if (!def || def.type !== 'select') return {};
     return {
-        ...(def.correctAnswer ? { correctAnswer: def.correctAnswer } : {}),
-        ...(def.options ? { options: def.options } : {}),
         ...(def.placeholder ? { placeholder: def.placeholder } : {}),
         ...(def.color ? { color: def.color } : {}),
         ...(def.bgColor ? { bgColor: def.bgColor } : {}),
@@ -463,13 +459,11 @@ export function choicePropsFromDefinition(def: VariableDefinition | undefined): 
  * Same structure as variables.ts: togglePropsFromDefinition(getExampleVariableInfo(name)).
  */
 export function togglePropsFromDefinition(def: VariableDefinition | undefined): {
-    options?: string[];
     color?: string;
     bgColor?: string;
 } {
     if (!def || def.type !== 'select') return {};
     return {
-        ...(def.options ? { options: def.options } : {}),
         ...(def.color ? { color: def.color } : {}),
         ...(def.bgColor ? { bgColor: def.bgColor } : {}),
     };
@@ -480,7 +474,6 @@ export function togglePropsFromDefinition(def: VariableDefinition | undefined): 
  * Same structure as variables.ts: clozePropsFromDefinition(getExampleVariableInfo(name)).
  */
 export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
-    correctAnswer?: string;
     placeholder?: string;
     color?: string;
     bgColor?: string;
@@ -488,7 +481,6 @@ export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
 } {
     if (!def || def.type !== 'text') return {};
     return {
-        ...(def.correctAnswer ? { correctAnswer: def.correctAnswer } : {}),
         ...(def.placeholder ? { placeholder: def.placeholder } : {}),
         ...(def.color ? { color: def.color } : {}),
         ...(def.bgColor ? { bgColor: def.bgColor } : {}),
