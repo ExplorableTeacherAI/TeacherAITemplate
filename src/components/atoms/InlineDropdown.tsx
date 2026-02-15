@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -55,6 +55,12 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
     const [isCorrect, setIsCorrect] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    // Stable ID and serialized props for round-trip extraction
+    const inlineIdRef = useRef(`dropdown-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const componentProps = useMemo(() => JSON.stringify({
+        correctAnswer, options, placeholder, color, bgColor,
+    }), [correctAnswer, options, placeholder, color, bgColor]);
+
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -85,14 +91,24 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
         setIsCorrect(false);
     };
 
+    // Wrapper props for round-trip extraction
+    const wrapperProps = {
+        'data-inline-component': 'inlineDropdown' as const,
+        'data-component-id': inlineIdRef.current,
+        'data-component-props': componentProps,
+        contentEditable: false as const,
+    };
+
     // If correct, show as plain colored text
     if (isCorrect && selectedValue) {
         return (
-            <span
-                className="font-medium px-0.5 rounded"
-                style={{ color }}
-            >
-                {selectedValue}
+            <span {...wrapperProps}>
+                <span
+                    className="font-medium px-0.5 rounded"
+                    style={{ color }}
+                >
+                    {selectedValue}
+                </span>
             </span>
         );
     }
@@ -100,82 +116,86 @@ export const InlineDropdown: React.FC<InlineDropdownProps> = ({
     // If incorrect, show with X button
     if (selectedValue && !isCorrect) {
         return (
-            <span
-                className="inline-flex items-center rounded font-medium"
-                style={{
-                    backgroundColor: bgColor,
-                }}
-            >
+            <span {...wrapperProps}>
                 <span
-                    className="px-1"
+                    className="inline-flex items-center rounded font-medium"
                     style={{
-                        color: color,
+                        backgroundColor: bgColor,
                     }}
                 >
-                    {selectedValue}
+                    <span
+                        className="px-1"
+                        style={{
+                            color: color,
+                        }}
+                    >
+                        {selectedValue}
+                    </span>
+                    <button
+                        onClick={handleClear}
+                        className="inline-flex items-center justify-center px-0.5 transition-all hover:scale-110"
+                        style={{
+                            color: '#EF4444',
+                        }}
+                        aria-label="Clear selection"
+                    >
+                        <X className="w-3 h-3" />
+                    </button>
                 </span>
-                <button
-                    onClick={handleClear}
-                    className="inline-flex items-center justify-center px-0.5 transition-all hover:scale-110"
-                    style={{
-                        color: '#EF4444',
-                    }}
-                    aria-label="Clear selection"
-                >
-                    <X className="w-3 h-3" />
-                </button>
             </span>
         );
     }
 
     // Initial state: show dropdown button
     return (
-        <span className="inline-block relative" ref={dropdownRef}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="px-1 rounded font-medium transition-all hover:opacity-80 backdrop-blur-sm"
-                style={{
-                    backgroundColor: bgColor,
-                    color: color,
-                }}
-            >
-                {placeholder}
-            </button>
+        <span {...wrapperProps}>
+            <span className="inline-block relative" ref={dropdownRef}>
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="px-1 rounded font-medium transition-all hover:opacity-80 backdrop-blur-sm"
+                    style={{
+                        backgroundColor: bgColor,
+                        color: color,
+                    }}
+                >
+                    {placeholder}
+                </button>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                        transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-                        className="absolute top-full left-0 mt-1 rounded-lg shadow-lg overflow-hidden z-50 min-w-[140px] backdrop-blur-sm"
-                        style={{
-                            backgroundColor: bgColor.replace(/[\d.]+\)/, '0.75)'), // Medium opacity for dropdown menu
-                        }}
-                    >
-                        {options.map((option, index) => (
-                            <button
-                                key={option}
-                                onClick={() => handleSelect(option)}
-                                className="w-full text-left px-2 py-1 transition-all text-sm font-medium"
-                                style={{
-                                    color: 'white', // White text for better contrast
-                                    borderBottom: index !== options.length - 1 ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'transparent';
-                                }}
-                            >
-                                {option}
-                            </button>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                            className="absolute top-full left-0 mt-1 rounded-lg shadow-lg overflow-hidden z-50 min-w-[140px] backdrop-blur-sm"
+                            style={{
+                                backgroundColor: bgColor.replace(/[\d.]+\)/, '0.75)'),
+                            }}
+                        >
+                            {options.map((option, index) => (
+                                <button
+                                    key={option}
+                                    onClick={() => handleSelect(option)}
+                                    className="w-full text-left px-2 py-1 transition-all text-sm font-medium"
+                                    style={{
+                                        color: 'white',
+                                        borderBottom: index !== options.length - 1 ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                    }}
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </span>
         </span>
     );
 };

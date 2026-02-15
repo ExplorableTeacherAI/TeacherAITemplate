@@ -1,7 +1,10 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { cn } from '@/lib/utils';
+import { useInlineSlashCommands, hasInlineComponentSpans, extractContentWithMarkers } from '@/hooks/useInlineSlashCommands';
+import { SlashCommandMenu } from '@/components/templates/SlashCommandMenu';
 
 interface EditableTextProps {
     children: React.ReactNode;
@@ -9,6 +12,8 @@ interface EditableTextProps {
     blockId?: string;
     className?: string;
     as?: keyof JSX.IntrinsicElements;
+    /** When true, typing "/" opens the inline slash command menu. */
+    enableSlashCommands?: boolean;
 }
 
 // Context to check if we are inside an editable text component
@@ -27,6 +32,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     blockId = '',
     className = '',
     as: Component = 'span',
+    enableSlashCommands = false,
 }) => {
     const { isEditor } = useAppMode();
     const { addTextEdit } = useEditing();
@@ -34,6 +40,20 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const [isContentEditable, setIsContentEditable] = useState(false);
     const originalTextRef = useRef<string>('');
     const originalHtmlRef = useRef<string>('');
+
+    // Inline slash commands (inert when enableSlashCommands is false)
+    const {
+        showSlashMenu,
+        slashQuery,
+        menuPosition,
+        handleSlashInput,
+        handleSlashKeyDown,
+        handleSlashCommandSelect,
+        handleCloseSlashMenu,
+    } = useInlineSlashCommands({
+        enabled: enableSlashCommands && isContentEditable,
+        containerRef,
+    });
 
     // Generate a unique path for this element based on its position in the DOM
     const getElementPath = useCallback(() => {
@@ -95,6 +115,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
         const originalText = originalTextRef.current;
         const originalHtml = originalHtmlRef.current;
 
+        // Check if inline component placeholders were inserted during this edit session
+        const hasNewInlineComponents = enableSlashCommands && hasInlineComponentSpans(containerRef.current);
+
         // Only create edit if the actual content changed (text or inner HTML)
         if (newText !== originalText || newHtml !== originalHtml) {
             addTextEdit({
@@ -107,25 +130,40 @@ export const EditableText: React.FC<EditableTextProps> = ({
             });
         }
 
+        // If inline components were inserted, extract content as markers and
+        // dispatch an event so LessonView can re-render the block with real React components.
+        // This must happen BEFORE setIsContentEditable(false) so LessonView's state update
+        // is batched with our state update — the old component is unmounted and the new one
+        // with real inline components is mounted in a single render.
+        if (hasNewInlineComponents) {
+            const contentWithMarkers = extractContentWithMarkers(containerRef.current);
+            window.dispatchEvent(new CustomEvent('block-inline-content-update', {
+                detail: { blockId, content: contentWithMarkers },
+            }));
+        }
+
         setIsContentEditable(false);
-    }, [blockId, getElementPath, addTextEdit]);
+    }, [blockId, getElementPath, addTextEdit, enableSlashCommands]);
 
     // Handle keyboard events
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        // Let the slash menu consume ArrowDown/ArrowUp/Enter/Escape first
+        if (handleSlashKeyDown(e)) return;
+
         // Save on Enter (for single-line elements)
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             containerRef.current?.blur();
         }
 
-        // Cancel on Escape
+        // Cancel on Escape — restore innerHTML (not innerText) to preserve existing inline components
         if (e.key === 'Escape') {
             if (containerRef.current) {
-                containerRef.current.innerText = originalTextRef.current;
+                containerRef.current.innerHTML = originalHtmlRef.current;
             }
             setIsContentEditable(false);
         }
-    }, []);
+    }, [handleSlashKeyDown]);
 
     // Disable editing when mode changes
     useEffect(() => {
@@ -138,6 +176,17 @@ export const EditableText: React.FC<EditableTextProps> = ({
     if (!isEditor) {
         return React.createElement(Component, { id, className }, children);
     }
+
+    // Handle input events — forward to slash command detector
+    const handleInput = useCallback(() => {
+        handleSlashInput();
+    }, [handleSlashInput]);
+
+    // Close slash menu when leaving edit mode
+    const handleBlurWithSlash = useCallback(() => {
+        handleCloseSlashMenu();
+        handleBlur();
+    }, [handleCloseSlashMenu, handleBlur]);
 
     return (
         <EditableTextContext.Provider value={{ isParentEditable: isContentEditable }}>
@@ -153,12 +202,24 @@ export const EditableText: React.FC<EditableTextProps> = ({
                     contentEditable: isContentEditable,
                     suppressContentEditableWarning: true,
                     onClick: handleClick,
-                    onBlur: handleBlur,
+                    onBlur: handleBlurWithSlash,
                     onKeyDown: handleKeyDown,
+                    onInput: enableSlashCommands ? handleInput : undefined,
                     'data-editable': 'true',
                     'data-editing': isContentEditable ? 'true' : undefined,
                 },
                 children
+            )}
+            {enableSlashCommands && ReactDOM.createPortal(
+                <SlashCommandMenu
+                    isOpen={showSlashMenu}
+                    searchQuery={slashQuery}
+                    onSelect={handleSlashCommandSelect}
+                    onClose={handleCloseSlashMenu}
+                    position={menuPosition}
+                    categories={['inline']}
+                />,
+                document.body
             )}
         </EditableTextContext.Provider>
     );

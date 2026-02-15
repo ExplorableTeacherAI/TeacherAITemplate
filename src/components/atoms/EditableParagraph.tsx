@@ -86,6 +86,7 @@ export const EditableParagraph: React.FC<EditableParagraphProps> = ({
             leadingStyles[leading],
             className
         )}
+        enableSlashCommands
     >
         {children}
     </EditableText>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
     Heading1,
@@ -128,6 +128,8 @@ interface SlashCommandMenuProps {
     onClose: () => void;
     position?: { top: number; left: number };
     anchorRef?: React.RefObject<HTMLElement>;
+    /** Filter commands by category. When omitted, all commands are shown. */
+    categories?: ('block' | 'inline')[];
 }
 
 export const SlashCommandMenu = ({
@@ -137,12 +139,17 @@ export const SlashCommandMenu = ({
     onClose,
     position,
     anchorRef,
+    categories,
 }: SlashCommandMenuProps) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    // Filter commands based on search query
-    const filteredCommands = slashCommands.filter((cmd) => {
+    // Pre-filter by category, then by search query
+    const categoryFiltered = categories
+        ? slashCommands.filter((cmd) => categories.includes(cmd.category))
+        : slashCommands;
+
+    const filteredCommands = categoryFiltered.filter((cmd) => {
         const query = searchQuery.toLowerCase();
         return (
             cmd.label.toLowerCase().includes(query) ||
@@ -196,15 +203,63 @@ export const SlashCommandMenu = ({
         }
     }, [selectedIndex]);
 
-    // Calculate position based on anchor element
-    const menuPosition = position || { top: 0, left: 0 };
+    // Calculate base position from anchor element or explicit position
+    const basePosition = position || { top: 0, left: 0 };
     if (anchorRef?.current && !position) {
         const rect = anchorRef.current.getBoundingClientRect();
-        menuPosition.top = rect.bottom + 4;
-        menuPosition.left = rect.left;
+        basePosition.top = rect.bottom + 4;
+        basePosition.left = rect.left;
     }
 
+    // Viewport-aware adjustment: flip above if overflowing bottom
+    const [adjustedPosition, setAdjustedPosition] = useState<{ top: number; left: number } | null>(null);
+
+    useLayoutEffect(() => {
+        if (!isOpen || !menuRef.current) {
+            setAdjustedPosition(null);
+            return;
+        }
+
+        const menuRect = menuRef.current.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const gap = 4;
+        const margin = 8;
+
+        let newTop = basePosition.top;
+        let newLeft = basePosition.left;
+
+        // If menu overflows the viewport bottom, flip above the anchor
+        if (menuRect.bottom > viewportHeight - margin) {
+            // basePosition.top was set to anchorBottom + gap, so anchorBottom = top - gap
+            const anchorBottom = basePosition.top - gap;
+            // Place menu above: anchorTop (≈ anchorBottom - one line) minus menu height minus gap
+            newTop = anchorBottom - menuRect.height - gap - 20;
+
+            // If flipping above also overflows, clamp to top of viewport
+            if (newTop < margin) {
+                newTop = margin;
+            }
+        }
+
+        // Prevent horizontal overflow
+        if (newLeft + menuRect.width > viewportWidth - margin) {
+            newLeft = viewportWidth - menuRect.width - margin;
+        }
+        if (newLeft < margin) {
+            newLeft = margin;
+        }
+
+        if (newTop !== basePosition.top || newLeft !== basePosition.left) {
+            setAdjustedPosition({ top: newTop, left: newLeft });
+        } else {
+            setAdjustedPosition(null);
+        }
+    }, [isOpen, basePosition.top, basePosition.left]);
+
     if (!isOpen) return null;
+
+    const finalPosition = adjustedPosition || basePosition;
 
     return (
         <div
@@ -214,8 +269,8 @@ export const SlashCommandMenu = ({
                 "rounded-lg border border-border bg-white shadow-lg"
             )}
             style={{
-                top: menuPosition.top,
-                left: menuPosition.left,
+                top: finalPosition.top,
+                left: finalPosition.left,
             }}
         >
             <div className="p-1">

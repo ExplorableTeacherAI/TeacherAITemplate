@@ -319,10 +319,26 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     // Calculate progress percentage
     const progress = ((value - displayMin) / (displayMax - displayMin)) * 100;
 
+    // Stable unique ID for this component instance (for round-trip extraction)
+    const inlineIdRef = useRef(varName || `scrubble-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+
+    // Serialize essential props as a data attribute so extractContentWithMarkers
+    // can preserve them during round-trip re-rendering
+    const componentProps = JSON.stringify({
+        varName: effectiveVarName,
+        defaultValue: effectiveDefaultValue,
+        min: displayMin,
+        max: displayMax,
+        step: displayStep,
+    });
+
     return (
         <span
             ref={containerRef}
             contentEditable={false}
+            data-inline-component="inlineScrubbleNumber"
+            data-component-id={inlineIdRef.current}
+            data-component-props={componentProps}
             className={cn(
                 "inline-flex items-center relative",
                 canEdit && isEditing && "group"

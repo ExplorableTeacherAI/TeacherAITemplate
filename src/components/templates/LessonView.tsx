@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactElement, isValidElement, Children, type ReactNode, cloneElement } from "react";
+import { useEffect, useCallback, useState, type ReactElement, isValidElement, Children, type ReactNode, cloneElement } from "react";
 import { Block } from "./Block";
 import { BlockInput } from "./BlockInput";
 import { type SlashCommandType } from "./SlashCommandMenu";
@@ -23,13 +23,27 @@ import { LoadingScreen } from "@/components/atoms/LoadingScreen";
 import { useOptionalEditing } from "@/contexts/EditingContext";
 
 /**
- * Parse content that may contain inline component markers and convert to React elements
- * Markers are in format: {{componentType:uniqueId}}
- * Example: "Text with {{inlineScrubbleNumber:123}} inline component"
+ * Decode optional base64-encoded props from a marker.
+ * Returns parsed object or null.
+ */
+const decodeMarkerProps = (encoded: string | undefined): Record<string, unknown> | null => {
+    if (!encoded) return null;
+    try {
+        return JSON.parse(atob(encoded));
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Parse content that may contain inline component markers and convert to React elements.
+ * Markers formats:
+ *   {{componentType:uniqueId}}              — new component (default props)
+ *   {{componentType:uniqueId|base64Props}}  — existing component (preserved props)
  */
 const parseContentWithInlineComponents = (content: string): React.ReactNode[] => {
-    // Regex to match inline component markers
-    const markerRegex = /\{\{(inlineScrubbleNumber|inlineDropdown|inlineTextInput):([^}]+)\}\}/g;
+    // Regex: group1=type, group2=id (up to | or }}), group3=optional base64 props
+    const markerRegex = /\{\{(inlineScrubbleNumber|inlineDropdown|inlineTextInput):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
 
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
@@ -41,39 +55,53 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
             parts.push(content.slice(lastIndex, match.index));
         }
 
-        const [, componentType, uniqueId] = match;
+        const [, componentType, uniqueId, encodedProps] = match;
+        const savedProps = decodeMarkerProps(encodedProps);
 
-        // Create the appropriate inline component
+        // Create the appropriate inline component, using saved props when available
         switch (componentType) {
-            case "inlineScrubbleNumber":
+            case "inlineScrubbleNumber": {
+                const p = savedProps as { varName?: string; defaultValue?: number; min?: number; max?: number; step?: number } | null;
                 parts.push(
                     <InlineScrubbleNumber
                         key={uniqueId}
-                        varName={`var_${uniqueId}`}
-                        defaultValue={10}
-                        min={0}
-                        max={100}
+                        varName={p?.varName ?? `var_${uniqueId}`}
+                        defaultValue={p?.defaultValue ?? 10}
+                        min={p?.min ?? 0}
+                        max={p?.max ?? 100}
+                        step={p?.step ?? 1}
                     />
                 );
                 break;
-            case "inlineDropdown":
+            }
+            case "inlineDropdown": {
+                const p = savedProps as { correctAnswer?: string; options?: string[]; placeholder?: string; color?: string; bgColor?: string } | null;
                 parts.push(
                     <InlineDropdown
                         key={uniqueId}
-                        correctAnswer="Option 1"
-                        options={["Option 1", "Option 2", "Option 3"]}
+                        correctAnswer={p?.correctAnswer ?? "Option 1"}
+                        options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
+                        placeholder={p?.placeholder}
+                        color={p?.color}
+                        bgColor={p?.bgColor}
                     />
                 );
                 break;
-            case "inlineTextInput":
+            }
+            case "inlineTextInput": {
+                const p = savedProps as { correctAnswer?: string; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } | null;
                 parts.push(
                     <InlineTextInput
                         key={uniqueId}
-                        correctAnswer="answer"
-                        placeholder="Type answer..."
+                        correctAnswer={p?.correctAnswer ?? "answer"}
+                        placeholder={p?.placeholder ?? "Type answer..."}
+                        color={p?.color}
+                        bgColor={p?.bgColor}
+                        caseSensitive={p?.caseSensitive}
                     />
                 );
                 break;
+            }
             default:
                 // If unknown, just keep the text
                 parts.push(match[0]);
@@ -96,7 +124,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
 };
 
 /**
- * Check if content contains inline component markers
+ * Check if content contains inline component markers (with or without props)
  */
 const hasInlineComponents = (content: string): boolean => {
     return /\{\{(inlineScrubbleNumber|inlineDropdown|inlineTextInput):[^}]+\}\}/.test(content);
@@ -236,6 +264,41 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             console.warn("Editing context not found, cannot batch save block add");
         }
     };
+
+    /**
+     * Handle inline component insertion from EditableText.
+     * When a user inserts an inline component via "/" in an existing paragraph,
+     * the block needs to be re-rendered with real React components.
+     */
+    const handleInlineContentUpdate = useCallback((blockId: string, content: string) => {
+        if (!hasInlineComponents(content)) return;
+
+        const parsedContent = parseContentWithInlineComponents(content);
+
+        setInitialBlocks(prevBlocks => {
+            return prevBlocks.map(block => {
+                if (!hasElementId(block, blockId)) return block;
+
+                const contentElement = (
+                    <EditableParagraph blockId={blockId}>
+                        {parsedContent}
+                    </EditableParagraph>
+                );
+
+                return replaceBlockContent(block, blockId, contentElement);
+            });
+        });
+    }, []);
+
+    // Listen for inline component insertions from EditableText
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const { blockId, content } = (e as CustomEvent).detail;
+            handleInlineContentUpdate(blockId, content);
+        };
+        window.addEventListener('block-inline-content-update', handler);
+        return () => window.removeEventListener('block-inline-content-update', handler);
+    }, [handleInlineContentUpdate]);
 
     const handleAddBlock = (targetId: string) => {
         console.log("handleAddBlock called with targetId:", targetId);

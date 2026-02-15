@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { X } from 'lucide-react';
 
 interface InlineTextInputProps {
@@ -54,6 +54,12 @@ export const InlineTextInput: React.FC<InlineTextInputProps> = ({
     const [isChecked, setIsChecked] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Stable ID and serialized props for round-trip extraction
+    const inlineIdRef = useRef(`textinput-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const componentProps = useMemo(() => JSON.stringify({
+        correctAnswer, placeholder, color, bgColor, caseSensitive,
+    }), [correctAnswer, placeholder, color, bgColor, caseSensitive]);
 
     // Focus input when entering edit mode
     useEffect(() => {
@@ -120,14 +126,24 @@ export const InlineTextInput: React.FC<InlineTextInputProps> = ({
         }
     };
 
+    // Wrapper props for round-trip extraction
+    const wrapperProps = {
+        'data-inline-component': 'inlineTextInput' as const,
+        'data-component-id': inlineIdRef.current,
+        'data-component-props': componentProps,
+        contentEditable: false as const,
+    };
+
     // If correct, show as plain colored text
     if (isCorrect && inputValue) {
         return (
-            <span
-                className="font-medium px-0.5 rounded"
-                style={{ color }}
-            >
-                {inputValue}
+            <span {...wrapperProps}>
+                <span
+                    className="font-medium px-0.5 rounded"
+                    style={{ color }}
+                >
+                    {inputValue}
+                </span>
             </span>
         );
     }
@@ -135,30 +151,32 @@ export const InlineTextInput: React.FC<InlineTextInputProps> = ({
     // If checked but incorrect, show with X button
     if (isChecked && !isCorrect && inputValue) {
         return (
-            <span
-                className="inline-flex items-center rounded font-medium"
-                style={{
-                    backgroundColor: bgColor,
-                }}
-            >
+            <span {...wrapperProps}>
                 <span
-                    className="px-1"
+                    className="inline-flex items-center rounded font-medium"
                     style={{
-                        color: color,
+                        backgroundColor: bgColor,
                     }}
                 >
-                    {inputValue}
+                    <span
+                        className="px-1"
+                        style={{
+                            color: color,
+                        }}
+                    >
+                        {inputValue}
+                    </span>
+                    <button
+                        onClick={handleClear}
+                        className="inline-flex items-center justify-center px-0.5 transition-all hover:scale-110"
+                        style={{
+                            color: '#EF4444',
+                        }}
+                        aria-label="Clear input"
+                    >
+                        <X className="w-3 h-3" />
+                    </button>
                 </span>
-                <button
-                    onClick={handleClear}
-                    className="inline-flex items-center justify-center px-0.5 transition-all hover:scale-110"
-                    style={{
-                        color: '#EF4444',
-                    }}
-                    aria-label="Clear input"
-                >
-                    <X className="w-3 h-3" />
-                </button>
             </span>
         );
     }
@@ -166,37 +184,41 @@ export const InlineTextInput: React.FC<InlineTextInputProps> = ({
     // Editing state: show input field
     if (isEditing) {
         return (
-            <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                onBlur={handleBlur}
-                className="px-1 rounded font-medium transition-all backdrop-blur-sm outline-none"
-                style={{
-                    backgroundColor: bgColor,
-                    color: color,
-                    minWidth: '60px',
-                    width: `${Math.max(60, inputValue.length * 10)}px`,
-                }}
-                placeholder={placeholder}
-            />
+            <span {...wrapperProps}>
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputValue}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    onBlur={handleBlur}
+                    className="px-1 rounded font-medium transition-all backdrop-blur-sm outline-none"
+                    style={{
+                        backgroundColor: bgColor,
+                        color: color,
+                        minWidth: '60px',
+                        width: `${Math.max(60, inputValue.length * 10)}px`,
+                    }}
+                    placeholder={placeholder}
+                />
+            </span>
         );
     }
 
     // Initial state: show button with placeholder
     return (
-        <button
-            onClick={handleClick}
-            className="px-1 rounded font-medium transition-all hover:opacity-80 backdrop-blur-sm"
-            style={{
-                backgroundColor: bgColor,
-                color: color,
-            }}
-        >
-            {placeholder}
-        </button>
+        <span {...wrapperProps}>
+            <button
+                onClick={handleClick}
+                className="px-1 rounded font-medium transition-all hover:opacity-80 backdrop-blur-sm"
+                style={{
+                    backgroundColor: bgColor,
+                    color: color,
+                }}
+            >
+                {placeholder}
+            </button>
+        </span>
     );
 };
 

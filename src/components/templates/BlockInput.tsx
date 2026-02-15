@@ -1,34 +1,7 @@
 import { type KeyboardEvent, useRef, useEffect, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { SlashCommandMenu, type SlashCommandType, isInlineCommand, type BlockCommandType } from "./SlashCommandMenu";
-
-/**
- * Extract content from contentEditable element, converting inline component elements to markers
- */
-const extractContentWithMarkers = (element: HTMLElement): string => {
-    let result = '';
-
-    const processNode = (node: Node) => {
-        if (node.nodeType === Node.TEXT_NODE) {
-            result += node.textContent || '';
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-            const el = node as HTMLElement;
-            const componentType = el.getAttribute('data-inline-component');
-            const componentId = el.getAttribute('data-component-id');
-
-            if (componentType && componentId) {
-                // This is an inline component - convert to marker format
-                result += `{{${componentType}:${componentId}}}`;
-            } else {
-                // Regular element - process children
-                node.childNodes.forEach(processNode);
-            }
-        }
-    };
-
-    element.childNodes.forEach(processNode);
-    return result.trim();
-};
+import { getInlineComponentHTML, extractContentWithMarkers } from "@/hooks/useInlineSlashCommands";
 
 interface BlockInputProps {
     id: string;
@@ -171,67 +144,55 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
 
         // Check if this is an inline component command
         if (isInlineCommand(commandType)) {
-            // For inline components, insert an actual HTML element that represents the component
             const uniqueId = `${commandType}-${Date.now()}`;
+            const componentHTML = getInlineComponentHTML(commandType, uniqueId);
 
-            // Get text before the slash command
-            const textBeforeSlash = lastSlashIndex > 0 ? currentText.substring(0, lastSlashIndex) : "";
+            // Restore focus (may have moved to the menu)
+            contentRef.current.focus();
 
-            // First, update the text to remove the slash command
-            contentRef.current.innerHTML = textBeforeSlash;
+            // Surgically remove only the "/query" text from the DOM using
+            // TreeWalker + Range API so existing inline components are preserved.
+            const treeWalker = document.createTreeWalker(
+                contentRef.current,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: (node) => {
+                        if (node.parentElement?.closest('[data-inline-component]')) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
+                    },
+                },
+            );
 
-            // Now insert the component HTML at the end using Selection API
-            const selection = window.getSelection();
-            const range = document.createRange();
+            let targetNode: Text | null = null;
+            let slashOffset = -1;
 
-            // Move to end of current content
-            if (contentRef.current.childNodes.length > 0) {
-                range.selectNodeContents(contentRef.current);
-                range.collapse(false);
-            } else {
-                range.setStart(contentRef.current, 0);
-                range.collapse(true);
-            }
-            selection?.removeAllRanges();
-            selection?.addRange(range);
-
-            // Create the inline component placeholder HTML
-            let componentHTML = '';
-            switch (commandType) {
-                case 'inlineScrubbleNumber':
-                    componentHTML = `<span 
-                        contenteditable="false" 
-                        data-inline-component="${commandType}" 
-                        data-component-id="${uniqueId}"
-                        style="display: inline-flex; align-items: center; background: rgba(216, 27, 96, 0.9); color: white; border-radius: 4px; padding: 0 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: default;"
-                    ><span style="padding: 0 2px;">◀</span><span style="min-width: 20px; text-align: center;">10</span><span style="padding: 0 2px;">▶</span></span>`;
-                    break;
-                case 'inlineDropdown':
-                    componentHTML = `<span 
-                        contenteditable="false" 
-                        data-inline-component="${commandType}" 
-                        data-component-id="${uniqueId}"
-                        style="display: inline-flex; align-items: center; background: rgba(59, 130, 246, 0.35); color: #3B82F6; border-radius: 4px; padding: 0 6px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
-                    >??? ▾</span>`;
-                    break;
-                case 'inlineTextInput':
-                    componentHTML = `<span 
-                        contenteditable="false" 
-                        data-inline-component="${commandType}" 
-                        data-component-id="${uniqueId}"
-                        style="display: inline-flex; align-items: center; background: rgba(59, 130, 246, 0.35); color: #3B82F6; border-radius: 4px; padding: 0 6px; font-weight: 500; margin: 0 2px; user-select: none; cursor: text;"
-                    >???</span>`;
-                    break;
+            while (treeWalker.nextNode()) {
+                const textNode = treeWalker.currentNode as Text;
+                const text = textNode.textContent || '';
+                const idx = text.lastIndexOf('/');
+                if (idx !== -1) {
+                    targetNode = textNode;
+                    slashOffset = idx;
+                }
             }
 
-            // Insert the HTML
-            document.execCommand('insertHTML', false, componentHTML);
+            if (targetNode && slashOffset !== -1) {
+                const text = targetNode.textContent || '';
+                const sel = window.getSelection();
+                const deleteRange = document.createRange();
+                deleteRange.setStart(targetNode, slashOffset);
+                deleteRange.setEnd(targetNode, text.length);
 
-            // Add a space after the component for easier typing
-            document.execCommand('insertText', false, ' ');
+                sel?.removeAllRanges();
+                sel?.addRange(deleteRange);
+                document.execCommand('delete', false);
+                document.execCommand('insertHTML', false, componentHTML);
+                document.execCommand('insertText', false, ' ');
+            }
 
             slashPositionRef.current = -1;
-            contentRef.current.focus();
             return;
         }
 
