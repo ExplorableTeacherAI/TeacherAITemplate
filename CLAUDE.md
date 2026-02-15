@@ -116,7 +116,7 @@ quarterCircleAngle: {
     type: 'text',
     label: 'Quarter Circle Angle',
     description: 'Student answer for the quarter circle angle question',
-    placeholder: 'Type answer...',
+    placeholder: '???',
     correctAnswer: '90',
     color: '#3B82F6',
 },

@@ -25,6 +25,19 @@ export const ClozeInputEditorModal: React.FC = () => {
         '#546E7A', // Blue Grey
     ];
 
+    const BG_COLOR_PRESETS = [
+        'rgba(59, 130, 246, 0.35)',   // Blue (default)
+        'rgba(216, 27, 96, 0.35)',    // Pink/Red
+        'rgba(229, 57, 53, 0.35)',    // Red
+        'rgba(245, 124, 0, 0.35)',    // Orange
+        'rgba(253, 216, 53, 0.35)',   // Yellow
+        'rgba(67, 160, 71, 0.35)',    // Green
+        'rgba(0, 137, 123, 0.35)',    // Teal
+        'rgba(94, 53, 177, 0.35)',    // Purple
+        'rgba(109, 76, 65, 0.35)',    // Brown
+        'rgba(84, 110, 122, 0.35)',   // Blue Grey
+    ];
+
     // Initialize state when modal opens
     useEffect(() => {
         if (editingClozeInput) {
@@ -199,6 +212,35 @@ export const ClozeInputEditorModal: React.FC = () => {
                                 maxLength={7}
                             />
                         </div>
+                    </div>
+
+                    {/* Background Color */}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Background Color</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {BG_COLOR_PRESETS.map((preset, i) => (
+                                <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => setBgColor(preset)}
+                                    className="w-7 h-7 rounded-full border-2 transition-all duration-150 hover:scale-110"
+                                    style={{
+                                        backgroundColor: preset,
+                                        borderColor: bgColor === preset ? COLOR_PRESETS[i] : 'transparent',
+                                        boxShadow: bgColor === preset ? `0 0 0 2px ${COLOR_PRESETS[i]}40` : 'none',
+                                    }}
+                                    title={preset}
+                                />
+                            ))}
+                        </div>
+                        <input
+                            type="text"
+                            value={bgColor}
+                            onChange={(e) => setBgColor(e.target.value)}
+                            className="w-full px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
+                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            placeholder="rgba(59, 130, 246, 0.35)"
+                        />
                     </div>
 
                     {/* Preview */}

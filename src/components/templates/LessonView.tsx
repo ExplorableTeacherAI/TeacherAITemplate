@@ -97,7 +97,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                         key={uniqueId}
                         varName={p?.varName}
                         correctAnswer={p?.correctAnswer ?? "answer"}
-                        placeholder={p?.placeholder ?? "Type answer..."}
+                        placeholder={p?.placeholder ?? "???"}
                         color={p?.color}
                         bgColor={p?.bgColor}
                         caseSensitive={p?.caseSensitive}

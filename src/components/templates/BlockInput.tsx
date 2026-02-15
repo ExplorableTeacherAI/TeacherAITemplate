@@ -1,4 +1,5 @@
 import { type KeyboardEvent, useRef, useEffect, useState, useCallback } from "react";
+import ReactDOM from "react-dom";
 import { cn } from "@/lib/utils";
 import { SlashCommandMenu, type SlashCommandType, isInlineCommand, type BlockCommandType } from "./SlashCommandMenu";
 import { getInlineComponentHTML, extractContentWithMarkers } from "@/hooks/useInlineSlashCommands";
@@ -25,16 +26,22 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
         }
     }, []);
 
-    // Update menu position when showing
-    useEffect(() => {
-        if (showSlashMenu && containerRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            setMenuPosition({
-                top: rect.bottom + 4,
-                left: rect.left,
-            });
+    // Compute menu position from caret, with container fallback
+    const computeMenuPosition = useCallback(() => {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            if (rect.width || rect.height) {
+                return { top: rect.bottom + 4, left: rect.left };
+            }
         }
-    }, [showSlashMenu]);
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            return { top: rect.bottom + 4, left: rect.left };
+        }
+        return { top: 0, left: 0 };
+    }, []);
 
     const handleInput = useCallback(() => {
         let text = contentRef.current?.innerText || "";
@@ -65,6 +72,9 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
             // Only show the menu if there's no space after the slash
             // (once user types space, they're done with the command)
             if (!queryAfterSlash.includes(" ")) {
+                // Compute position in the same batch as showing the menu
+                // so the first render already has the correct position
+                setMenuPosition(computeMenuPosition());
                 setShowSlashMenu(true);
                 setSlashQuery(queryAfterSlash);
                 slashPositionRef.current = lastSlashIndex;
@@ -78,7 +88,7 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
             setSlashQuery("");
             slashPositionRef.current = -1;
         }
-    }, [selectedBlockType, placeholder]);
+    }, [selectedBlockType, placeholder, computeMenuPosition]);
 
     const handleKeyDown = (e: KeyboardEvent<HTMLParagraphElement>) => {
         // Don't interfere if slash menu is handling navigation
@@ -277,13 +287,16 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
                 data-placeholder={placeholder}
             />
 
-            <SlashCommandMenu
-                isOpen={showSlashMenu}
-                searchQuery={slashQuery}
-                onSelect={handleSlashCommandSelect}
-                onClose={handleCloseSlashMenu}
-                position={menuPosition}
-            />
+            {ReactDOM.createPortal(
+                <SlashCommandMenu
+                    isOpen={showSlashMenu}
+                    searchQuery={slashQuery}
+                    onSelect={handleSlashCommandSelect}
+                    onClose={handleCloseSlashMenu}
+                    position={menuPosition}
+                />,
+                document.body
+            )}
         </div>
     );
 };
