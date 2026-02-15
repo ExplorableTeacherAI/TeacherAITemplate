@@ -2,92 +2,117 @@
 
 Interactive explorable-explanation template for creating mathematics lessons. Built with React + TypeScript + Vite + Tailwind CSS. Content is organized as **blocks** inside **layouts**, with shared state via a **global variable store** (Zustand).
 
+---
+
+## Core Concept: Everything Lives in a Block
+
+The **Block** is the fundamental unit of content. Every piece of a lesson — a paragraph, an equation, a chart, a visualization — must live inside a `<Block>`. This is what makes the system work:
+
+- **Rearrangeable** — teachers drag-and-drop blocks to reorder content
+- **Editable** — each block has its own toolbar for inline editing, deleting, and inserting
+- **Trackable** — the block manager sees and controls every piece individually
+
+**Rule: never use a component outside a Block.** Unwrapped components are invisible to the editing and reordering system.
+
+```tsx
+// CORRECT — component lives inside a Block, can be rearranged and edited
+<FullWidthLayout key="layout-chart" maxWidth="xl">
+    <Block id="block-chart" padding="sm">
+        <D3BarChart data={myData} />
+    </Block>
+</FullWidthLayout>
+
+// WRONG — not in a Block, invisible to the block manager
+<D3BarChart data={myData} />
+```
+
+Every block follows the pattern: **Layout > Block > Component(s)**.
+
+```
+Layout (controls width, columns, spacing)
+  └── Block (unit of editing — has toolbar, id tracking)
+        └── Component(s) (atoms, molecules, organisms)
+```
+
+---
 
 ## Project Structure
 
 ```
 src/
-├── data/                        # LESSON CONTENT (edit these files)
-│   ├── variables.ts             # Define all shared variables (EDIT FIRST)
-│   ├── blocks.tsx               # Define all blocks (main entry point)
-│   ├── sections/                # Extract section blocks here
-│   ├── exampleBlocks.tsx        # Reference only — copy patterns from here
-│   └── exampleVariables.ts      # Reference only — copy structure from here
+├── data/                           # LESSON CONTENT (edit these files)
+│   ├── variables.ts                # Define all shared variables (EDIT FIRST)
+│   ├── blocks.tsx                  # Define all blocks (main entry point)
+│   ├── sections/                   # Extract section blocks here
+│   ├── exampleBlocks.tsx           # Reference only — copy patterns from here
+│   └── exampleVariables.ts         # Reference only — copy structure from here
 │
 ├── components/
-│   ├── atoms/                   # Base components (text, inline, math, viz)
-│   │   ├── EditableHeadings.tsx  # EditableH1–H6
-│   │   ├── EditableParagraph.tsx # EditableParagraph, EditableSpan
-│   │   ├── InlineScrubbleNumber.tsx
-│   │   ├── InlineDropdown.tsx
-│   │   ├── InlineTextInput.tsx
-│   │   ├── Equation.tsx          # KaTeX math rendering
-│   │   ├── ColoredEquation.tsx   # Colored/highlighted equations
-│   │   ├── InfoTooltip.tsx
-│   │   ├── MafsBasic.tsx         # Math graphing (Mafs)
-│   │   ├── MafsInteractive.tsx
-│   │   ├── CoordinateSystem.tsx  # 2D coordinate system (Two.js)
-│   │   ├── AnimatedGraph.tsx     # 2D animated graphs
-│   │   ├── ThreeCanvas.tsx       # 3D graphics (Three.js)
-│   │   ├── D3BarChart.tsx        # Data visualization (D3)
-│   │   ├── FlowDiagram.tsx       # Flow diagrams (React Flow)
-│   │   ├── InteractiveHighlight.tsx
-│   │   └── ui/                   # shadcn/ui components (60+)
+│   ├── atoms/                      # Smallest reusable building blocks
+│   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
+│   │   │                           #   InlineScrubbleNumber, InlineTextInput, InlineDropdown,
+│   │   │                           #   InteractiveHighlight
+│   │   ├── formula/                #   Equation, ColoredEquation
+│   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
+│   │   │                           #   AnimatedGraph, MorphingShapes, ParticleSystem,
+│   │   │                           #   CoordinateSystem, FlowDiagram, ExpandableFlowDiagram
+│   │   ├── ui/                     #   shadcn/ui primitives (Button, Card, Dialog, etc.)
+│   │   └── index.ts                #   Barrel — import from "@/components/atoms"
 │   │
-│   ├── molecules/               # Compound components
-│   │   ├── MathBlock.tsx
-│   │   ├── InteractiveEquation.tsx
-│   │   └── InteractiveTerm.tsx
+│   ├── molecules/                  # Composed from multiple atoms
+│   │   ├── text/                   #   InteractiveTerm
+│   │   ├── formula/                #   MathBlock, InteractiveEquation
+│   │   └── index.ts                #   Barrel — import from "@/components/molecules"
 │   │
-│   ├── organisms/               # Complex interactive components
-│   │   ├── DesmosGraph.tsx       # Desmos graphing calculator
-│   │   ├── GeoGebraGraph.tsx     # GeoGebra geometry
-│   │   ├── ExcalidrawRenderer.tsx # Hand-drawn diagrams
-│   │   ├── MermaidRenderer.tsx    # Diagram syntax
-│   │   └── InteractiveAnimation.tsx
+│   ├── organisms/                  # Complex self-contained visualizations
+│   │   ├── visual/                 #   DesmosGraph, GeoGebraGraph, InteractiveAnimation,
+│   │   │                           #   DesmosRenderer, GeogebraRenderer, ExcalidrawRenderer,
+│   │   │                           #   MermaidRenderer, DiagramEditorDialog
+│   │   └── index.ts                #   Barrel — import from "@/components/organisms"
 │   │
-│   ├── layouts/                 # Page layout components
-│   │   ├── FullWidthLayout.tsx   # Single column
-│   │   ├── SplitLayout.tsx       # Side-by-side
-│   │   ├── GridLayout.tsx        # Multi-column grid
-│   │   └── SidebarLayout.tsx     # Main + sidebar
+│   ├── annotations/                # Inline annotation wrappers
+│   │   ├── Hoverable, Glossary, Whisper, Toggle
+│   │   ├── FillBlank, MultiChoice, Linked, Trigger
+│   │   └── index.ts
 │   │
-│   ├── templates/               # Block management
-│   │   ├── Block.tsx             # Content block container
-│   │   ├── BlockRenderer.tsx     # Renders block array
-│   │   ├── BlockInput.tsx        # New block input
-│   │   └── LessonView.tsx        # Main lesson wrapper
+│   ├── layouts/                    # Layout containers
+│   │   ├── FullWidthLayout, SplitLayout, GridLayout, SidebarLayout
+│   │   └── index.ts
 │   │
-│   ├── editing/                 # Editing system
-│   │   ├── EditableText.tsx      # Base editable text wrapper
-│   │   ├── ScrubbleNumberEditorModal.tsx
-│   │   └── EquationEditorModal.tsx
+│   ├── templates/                  # Page-level infrastructure (system)
+│   │   ├── Block.tsx               # Content block container
+│   │   ├── BlockRenderer.tsx       # Renders block array
+│   │   ├── BlockInput.tsx          # New block input
+│   │   ├── LessonView.tsx          # Main lesson wrapper
+│   │   └── SlashCommandMenu.tsx
 │   │
-│   └── annotations/             # Interactive text annotations
-│       ├── Hoverable.tsx         # Tooltip on hover
-│       ├── Glossary.tsx          # Definition popup
-│       ├── Whisper.tsx           # Hidden content reveal
-│       ├── Toggle.tsx            # Click to toggle
-│       ├── FillBlank.tsx         # Input validation
-│       ├── MultiChoice.tsx       # Quiz selection
-│       ├── Linked.tsx            # Cross-reference highlighting
-│       └── Trigger.tsx           # Event trigger
+│   └── utility/                    # Infrastructure — NOT for lesson content
+│       ├── Spacer, ModeIndicator, InfoTooltip
+│       ├── AnnotationOverlay, LoadingScreen
+│       ├── EquationEditorModal, ScrubbleNumberEditorModal
+│       └── index.ts
 │
-├── stores/
-│   ├── variableStore.ts          # Zustand global variable store
-│   └── index.ts                  # useVar, useSetVar, useVariableStore
-│
-├── contexts/
-│   ├── AppModeContext.tsx         # Editor vs preview mode
-│   ├── BlockContext.tsx           # Block management context
-│   └── EditingContext.tsx         # Edit tracking context
-│
-└── lib/
-    ├── block-loader.ts           # Dynamic block loading
-    └── utils.ts                  # Utilities
+├── stores/                         # Zustand global variable store
+├── contexts/                       # React contexts (AppMode, Editing, Block)
+├── hooks/                          # Custom hooks
+└── lib/                            # Utilities
 ```
 
-### Key Files
+### Folder Roles
+
+| Folder | Used by | Purpose |
+|--------|---------|---------|
+| `atoms/` | Agent | Smallest building blocks for composing lesson content |
+| `molecules/` | Agent | Components built from multiple atoms |
+| `organisms/` | Agent | Complex self-contained visualizations |
+| `annotations/` | Agent | Inline wrappers for interactivity (hover, toggle, glossary) |
+| `layouts/` | Agent | Containers that control width, columns, spacing |
+| `templates/` | System | Page infrastructure (Block, LessonView) — do not modify |
+| `utility/` | System | Editor modals, loading screen, overlays — not lesson content |
+
+---
+
+## Key Files
 
 | File | Purpose |
 |------|---------|
@@ -135,7 +160,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
 
 ### Step 2: Create Section Blocks (`src/data/sections/`)
 
-Each section exports a **flat array** of `Layout > Block` elements. This is critical for the block management system (add, delete, reorder) to work.
+Each section exports a **flat array** of `Layout > Block` elements. This is critical — the block management system can only manage blocks that are individual top-level elements in the array.
 
 ```tsx
 // src/data/sections/Introduction.tsx
@@ -177,36 +202,6 @@ import { introBlocks } from "./sections/Introduction";
 export const blocks: ReactElement[] = [
     ...introBlocks,
 ];
-```
-
----
-
-## Text Components
-
-**Always use editable components for all text content.** These support inline editing in editor mode.
-
-| Component | Purpose | Import from |
-|-----------|---------|-------------|
-| `EditableH1` | Page/section title | `@/components/atoms` |
-| `EditableH2` | Section heading | `@/components/atoms` |
-| `EditableH3` | Subsection heading | `@/components/atoms` |
-| `EditableH4`–`H6` | Minor headings | `@/components/atoms` |
-| `EditableParagraph` | Body text | `@/components/atoms` |
-| `EditableSpan` | Inline editable text | `@/components/atoms` |
-
-### Required Props
-
-Every text component needs:
-- `id` — unique element identifier (e.g., `"para-intro"`)
-- `blockId` — must match the parent `Block`'s `id` (e.g., `"block-intro"`)
-
-```tsx
-<Block id="block-intro" padding="sm">
-    <EditableH2 id="h2-intro" blockId="block-intro">Heading</EditableH2>
-    <EditableParagraph id="para-intro" blockId="block-intro">
-        Body text here.
-    </EditableParagraph>
-</Block>
 ```
 
 ---
@@ -253,55 +248,102 @@ export const mySectionBlocks: ReactElement[] = [
 
 ---
 
-## Inline Interactive Components
+## Component Reference
 
-### InlineScrubbleNumber
+All components below are used by the agent to compose lessons. **Every component must be placed inside a `<Block>`.**
 
-Draggable inline number bound to a global variable. **Never hardcode numeric props.**
+### Text — `atoms/text/`
+
+| Component | Purpose |
+|-----------|---------|
+| `EditableH1` ... `EditableH6` | Headings (never use plain `<h1>` tags) |
+| `EditableParagraph` | Body text — supports inline components |
+| `EditableSpan` | Inline editable text |
+| `InlineScrubbleNumber` | Draggable number bound to a global variable |
+| `InlineDropdown` | Inline dropdown selector |
+| `InlineTextInput` | Inline text input |
+| `InteractiveHighlightProvider` | Bidirectional highlighting context |
+| `InteractiveText` | Text that highlights on hover |
+
+All text components require `id` and `blockId` props:
 
 ```tsx
-import { InlineScrubbleNumber } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition } from "./variables";
-
-// CORRECT — uses centralized variable definition
-<InlineScrubbleNumber
-    varName="amplitude"
-    {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
-/>
-
-// With format function (the only allowed inline prop)
-<InlineScrubbleNumber
-    varName="temperature"
-    {...numberPropsFromDefinition(getVariableInfo('temperature'))}
-    formatValue={(v) => `${v}°C`}
-/>
-
-// WRONG — never hardcode props
-<InlineScrubbleNumber defaultValue={5} min={0} max={10} step={1} />
+<Block id="block-intro" padding="sm">
+    <EditableH2 id="h2-intro" blockId="block-intro">Heading</EditableH2>
+    <EditableParagraph id="para-intro" blockId="block-intro">
+        Body text here.
+    </EditableParagraph>
+</Block>
 ```
 
-### InlineDropdown / InlineTextInput
+### Formula — `atoms/formula/` + `molecules/formula/`
+
+| Component | Level | Purpose |
+|-----------|-------|---------|
+| `Equation` | atom | Static LaTeX equation |
+| `ColoredEquation` | atom | LaTeX with color-coded terms |
+| `MathBlock` | molecule | Block-level math display |
+| `InteractiveEquation` | molecule | Equation with interactive variable terms |
 
 ```tsx
-<InlineDropdown varName="waveType" options={['sine', 'cosine', 'square']} />
-<InlineTextInput correctAnswer="90" placeholder="???" />
+<Block id="block-eq" padding="sm">
+    <Equation latex="E = mc^2" />
+</Block>
 ```
 
----
+### Visual — `atoms/visual/` + `organisms/visual/`
 
-## Global Variable Store
-
-Share state between blocks using Zustand hooks.
+| Component | Level | Library |
+|-----------|-------|---------|
+| `D3BarChart` | atom | D3 |
+| `MafsBasic`, `MafsAnimated`, `MafsInteractive` | atom | Mafs |
+| `AnimatedBackground`, `AnimatedGraph`, `MorphingShapes`, `ParticleSystem` | atom | Two.js |
+| `CoordinateSystem` | atom | Two.js |
+| `ThreeCanvas`, `ThreeVisuals`, `ThreeCoordinateSystem` | atom | Three.js |
+| `FlowDiagram`, `ExpandableFlowDiagram` | atom | React Flow |
+| `DesmosGraph` | organism | Desmos |
+| `GeoGebraGraph` | organism | GeoGebra |
+| `InteractiveAnimation` | organism | — |
+| `DesmosRenderer`, `GeogebraRenderer`, `ExcalidrawRenderer`, `MermaidRenderer` | organism | Various |
 
 ```tsx
-import { useVar, useSetVar } from '@/stores';
+<SplitLayout key="layout-viz" ratio="1:1">
+    <Block id="block-text" padding="sm">
+        <EditableParagraph id="para-explain" blockId="block-text">
+            Drag the point to change the amplitude.
+        </EditableParagraph>
+    </Block>
+    <Block id="block-graph" padding="sm">
+        <MafsInteractive />
+    </Block>
+</SplitLayout>
+```
 
-// Read (reactive — auto-updates when value changes)
-const amplitude = useVar('amplitude', 1);
+### Annotations — `annotations/`
 
-// Write
-const setVar = useSetVar();
-setVar('amplitude', 2.5);
+Inline wrappers that go inside `EditableParagraph`. Import from `@/components/annotations`.
+
+| Annotation | Visual Style | Purpose |
+|-----------|-------------|---------|
+| `Hoverable` | Colored text | Shows tooltip on hover |
+| `Glossary` | Dotted underline | Definition popup with pronunciation |
+| `Whisper` | Faded text | Reveals hidden content on hover |
+| `Toggle` | Dashed underline | Cycles through options on click |
+| `FillBlank` | Input field | Text answer validation |
+| `MultiChoice` | Dropdown | Quiz selection validation |
+| `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
+| `Trigger` | Solid underline | Triggers an action on click |
+
+```tsx
+<EditableParagraph id="para-example" blockId="block-example">
+    Every point on a{' '}
+    <Hoverable tooltip="A shape where all points are equidistant from center">
+        circle
+    </Hoverable>{' '}
+    has the same distance from its center. A right angle has{' '}
+    <FillBlank correctAnswer="90" placeholder="???" />{' '}
+    degrees.
+</EditableParagraph>
 ```
 
 ---
@@ -333,82 +375,65 @@ setVar('amplitude', 2.5);
     <Block id="block-b" padding="sm">...</Block>
     <Block id="block-c" padding="sm">...</Block>
 </GridLayout>
-
-// Sidebar
-<SidebarLayout key="layout-sidebar" sidebarPosition="left" sidebarWidth="medium">
-    <Sidebar><Block id="block-sidebar" padding="md">...</Block></Sidebar>
-    <Main><Block id="block-main" padding="md">...</Block></Main>
-</SidebarLayout>
 ```
 
 ---
 
-## Annotation System
+## Inline Interactive Components
 
-Interactive inline annotations for explorable explanations. Import from `@/components/annotations`.
+### InlineScrubbleNumber
 
-| Annotation | Visual Style | Purpose |
-|-----------|-------------|---------|
-| `Hoverable` | Colored text | Shows tooltip on hover |
-| `Glossary` | Dotted underline | Definition popup with pronunciation |
-| `Whisper` | Faded text | Reveals hidden content on hover |
-| `Toggle` | Dashed underline | Cycles through options on click |
-| `FillBlank` | Input field | Text answer validation |
-| `MultiChoice` | Dropdown | Quiz selection validation |
-| `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
-| `Trigger` | Solid underline | Triggers an action on click |
+Draggable inline number bound to a global variable. **Never hardcode numeric props.**
 
 ```tsx
-import { Hoverable, FillBlank, Toggle } from '@/components/annotations';
-
-<EditableParagraph id="para-example" blockId="block-example">
-    Every point on a{' '}
-    <Hoverable tooltip="A shape where all points are equidistant from center">
-        circle
-    </Hoverable>{' '}
-    has the same distance from its center. A right angle has{' '}
-    <FillBlank correctAnswer="90" placeholder="???" />{' '}
-    degrees. The shape is a{' '}
-    <Toggle options={['triangle', 'square', 'pentagon']} />.
-</EditableParagraph>
-```
-
----
-
-## Math Components
-
-```tsx
-import { Equation, ColoredEquation } from '@/components/atoms';
-import { InteractiveEquation } from '@/components/molecules';
-
-// Static equation (KaTeX)
-<Equation latex="E = mc^2" />
-
-// Interactive equation (updates with variables)
-<InteractiveEquation latex="y = {amplitude} \sin({frequency} x)" />
-
-// Colored equation with highlighted terms
-<ColoredEquation
-    latex="F = ma"
-    terms={{ F: '#ef4444', m: '#3b82f6', a: '#22c55e' }}
+// CORRECT — uses centralized variable definition
+<InlineScrubbleNumber
+    varName="amplitude"
+    {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
 />
+
+// With format function (the only allowed inline prop)
+<InlineScrubbleNumber
+    varName="temperature"
+    {...numberPropsFromDefinition(getVariableInfo('temperature'))}
+    formatValue={(v) => `${v}°C`}
+/>
+
+// WRONG — never hardcode props
+<InlineScrubbleNumber defaultValue={5} min={0} max={10} step={1} />
 ```
 
 ---
 
-## Visualization Libraries
+## Global Variable Store
 
-| Library | Components | Use For |
-|---------|-----------|---------|
-| **Mafs** | `MafsBasic`, `MafsInteractive`, `MafsAnimated` | Interactive math graphs, function plots |
-| **Two.js** | `CoordinateSystem`, `AnimatedGraph`, `AnimatedBackground` | 2D coordinate systems, animations |
-| **Three.js** | `ThreeCanvas`, `ThreeCoordinateSystem`, `ThreeVisuals` | 3D graphics, spatial geometry |
-| **D3** | `D3BarChart` | Data visualization, charts |
-| **React Flow** | `FlowDiagram`, `ExpandableFlowDiagram` | Node/edge diagrams, flowcharts |
-| **Desmos** | `DesmosGraph` | Graphing calculator |
-| **GeoGebra** | `GeoGebraGraph` | Geometry constructions |
-| **Excalidraw** | `ExcalidrawRenderer` | Hand-drawn diagrams |
-| **Mermaid** | `MermaidRenderer` | Diagram syntax (flowcharts, sequences) |
+Share state between blocks using Zustand hooks.
+
+```tsx
+import { useVar, useSetVar } from '@/stores';
+
+// Read (reactive — auto-updates when value changes)
+const amplitude = useVar('amplitude', 1);
+
+// Write
+const setVar = useSetVar();
+setVar('amplitude', 2.5);
+```
+
+---
+
+## Imports
+
+Use barrel imports for agent-facing components:
+
+```tsx
+import { EditableParagraph, InlineScrubbleNumber, Equation } from "@/components/atoms";
+import { MathBlock, InteractiveEquation } from "@/components/molecules";
+import { DesmosGraph } from "@/components/organisms";
+import { Block } from "@/components/templates";
+import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { Hoverable, FillBlank } from "@/components/annotations";
+```
 
 ---
 
