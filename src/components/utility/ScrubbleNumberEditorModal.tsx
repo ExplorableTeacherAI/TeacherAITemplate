@@ -261,8 +261,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                        style={{ backgroundColor: '#D81B60' }}
+                        className="px-4 py-2 text-sm font-medium bg-[#3cc499] text-white rounded-lg hover:bg-[#3cc499]/90 transition-colors"
                     >
                         Apply Changes
                     </button>
