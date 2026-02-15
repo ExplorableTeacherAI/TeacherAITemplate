@@ -9,7 +9,7 @@ import {
     EditableParagraph,
     InlineScrubbleNumber,
     InlineDropdown,
-    InlineTextInput
+    InlineClozeInput
 } from "@/components/atoms";
 import { EditableText } from "@/components/atoms/text/EditableText";
 import { FullWidthLayout } from "@/components/layouts";
@@ -43,7 +43,7 @@ const decodeMarkerProps = (encoded: string | undefined): Record<string, unknown>
  */
 const parseContentWithInlineComponents = (content: string): React.ReactNode[] => {
     // Regex: group1=type, group2=id (up to | or }}), group3=optional base64 props
-    const markerRegex = /\{\{(inlineScrubbleNumber|inlineDropdown|inlineTextInput):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
+    const markerRegex = /\{\{(inlineScrubbleNumber|inlineDropdown|inlineClozeInput|inlineTextInput):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
 
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
@@ -89,11 +89,13 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 );
                 break;
             }
+            case "inlineClozeInput":
             case "inlineTextInput": {
-                const p = savedProps as { correctAnswer?: string; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } | null;
+                const p = savedProps as { varName?: string; correctAnswer?: string; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } | null;
                 parts.push(
-                    <InlineTextInput
+                    <InlineClozeInput
                         key={uniqueId}
+                        varName={p?.varName}
                         correctAnswer={p?.correctAnswer ?? "answer"}
                         placeholder={p?.placeholder ?? "Type answer..."}
                         color={p?.color}
@@ -128,7 +130,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
  * Check if content contains inline component markers (with or without props)
  */
 const hasInlineComponents = (content: string): boolean => {
-    return /\{\{(inlineScrubbleNumber|inlineDropdown|inlineTextInput):[^}]+\}\}/.test(content);
+    return /\{\{(inlineScrubbleNumber|inlineDropdown|inlineClozeInput|inlineTextInput):[^}]+\}\}/.test(content);
 };
 
 interface LessonViewProps {

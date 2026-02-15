@@ -5,3 +5,4 @@ export { AnnotationOverlay } from "./AnnotationOverlay";
 export { LoadingScreen } from "./LoadingScreen";
 export { EquationEditorModal } from "./EquationEditorModal";
 export { ScrubbleNumberEditorModal } from "./ScrubbleNumberEditorModal";
+export { ClozeInputEditorModal } from "./ClozeInputEditorModal";

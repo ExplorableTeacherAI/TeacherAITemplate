@@ -25,14 +25,14 @@ export type BlockCommandType =
 export type InlineCommandType =
     | "inlineScrubbleNumber"
     | "inlineDropdown"
-    | "inlineTextInput";
+    | "inlineClozeInput";
 
 // Combined type for all slash commands
 export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineDropdown", "inlineTextInput"].includes(type);
+    return ["inlineScrubbleNumber", "inlineDropdown", "inlineClozeInput"].includes(type);
 };
 
 interface SlashCommand {
@@ -112,11 +112,11 @@ const slashCommands: SlashCommand[] = [
         category: "inline",
     },
     {
-        id: "inlineTextInput",
-        label: "Text Input",
-        description: "Inline text input field",
+        id: "inlineClozeInput",
+        label: "Cloze Input",
+        description: "Fill-in-the-blank input with answer validation",
         icon: <TextCursor className="h-4 w-4" />,
-        keywords: ["input", "text", "inline", "field", "type"],
+        keywords: ["cloze", "fill", "blank", "answer", "input", "text"],
         category: "inline",
     },
 ];

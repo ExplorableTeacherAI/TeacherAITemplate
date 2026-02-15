@@ -102,12 +102,57 @@ setVar('amplitude', 2.5);
 />
 ```
 
+## Critical Rule: InlineClozeInput (Fill-in-the-Blank)
+
+**NEVER pass inline props directly to `InlineClozeInput`.** Always define the variable in the central variables file first, then reference it — same pattern as `InlineScrubbleNumber`.
+
+### Two-Step Workflow for Cloze Inputs
+
+#### Step 1: Define the variable in `src/data/variables.ts`
+
+```ts
+quarterCircleAngle: {
+    defaultValue: '',
+    type: 'text',
+    label: 'Quarter Circle Angle',
+    description: 'Student answer for the quarter circle angle question',
+    placeholder: 'Type answer...',
+    correctAnswer: '90',
+    color: '#3B82F6',
+},
+```
+
+#### Step 2: Use the variable in `src/data/blocks.tsx`
+
+```tsx
+import { getVariableInfo, clozePropsFromDefinition } from "./variables";
+
+<InlineClozeInput
+    varName="quarterCircleAngle"
+    correctAnswer="90"
+    {...clozePropsFromDefinition(getVariableInfo('quarterCircleAngle'))}
+/>
+```
+
+### Key Cloze Variable Fields
+
+| Field | Purpose |
+|-------|---------|
+| `correctAnswer` | The expected answer string (not stored in variable store — stays as a prop) |
+| `caseSensitive` | Whether matching is case sensitive (default: `false`) |
+| `placeholder` | Button text shown before student types (default: `"???"`) |
+| `color` | Text/border color |
+| `bgColor` | Background color (supports RGBA) |
+
+The variable store holds the **student's typed answer** (text string). The `correctAnswer` stays as a prop configured via the editor modal.
+
 ## Variable Types
 
 | Type | Example Definition |
 |------|--------------------|
 | `number` | `{ defaultValue: 5, type: 'number', min: 0, max: 10, step: 1 }` |
 | `text` | `{ defaultValue: 'Hello', type: 'text', placeholder: 'Enter...' }` |
+| `text` (cloze) | `{ defaultValue: '', type: 'text', correctAnswer: '90', placeholder: '???', color: '#3B82F6' }` |
 | `select` | `{ defaultValue: 'sine', type: 'select', options: ['sine', 'cosine'] }` |
 | `boolean` | `{ defaultValue: true, type: 'boolean' }` |
 | `array` | `{ defaultValue: [1, 2, 3], type: 'array' }` |
@@ -157,8 +202,8 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 ### Inline Interactive Components
 
 - `InlineScrubbleNumber` — draggable inline number bound to global variable
+- `InlineClozeInput` — fill-in-the-blank input with answer validation, bound to global variable
 - `InlineDropdown` — inline dropdown
-- `InlineTextInput` — inline text input
 
 ### Math Components
 
@@ -237,8 +282,8 @@ export const mySectionBlocks: ReactElement[] = [
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition } from "../variables";
+import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "../variables";
 
 export const mySectionBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-my-title" maxWidth="xl">

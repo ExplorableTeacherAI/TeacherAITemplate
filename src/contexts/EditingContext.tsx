@@ -44,6 +44,25 @@ export interface ScrubbleNumberProps {
     color?: string;
 }
 
+export interface ClozeInputEdit {
+    id: string;
+    type: 'clozeInput';
+    blockId: string;
+    elementPath: string;
+    originalProps: ClozeInputProps;
+    newProps: ClozeInputProps;
+    timestamp: number;
+}
+
+export interface ClozeInputProps {
+    varName?: string;
+    correctAnswer?: string;
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+    caseSensitive?: boolean;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -56,7 +75,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -64,6 +83,7 @@ interface EditingContextType {
     pendingEdits: PendingEdit[];
     editingEquation: { latex: string; colorMap?: Record<string, string>; blockId: string; elementPath: string } | null;
     editingScrubbleNumber: (ScrubbleNumberProps & { blockId: string; elementPath: string }) | null;
+    editingClozeInput: (ClozeInputProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -71,6 +91,7 @@ interface EditingContextType {
     addTextEdit: (edit: Omit<TextEdit, 'id' | 'type' | 'timestamp'>) => void;
     addEquationEdit: (edit: Omit<EquationEdit, 'id' | 'type' | 'timestamp'>) => void;
     addScrubbleNumberEdit: (edit: Omit<ScrubbleNumberEdit, 'id' | 'type' | 'timestamp'>) => void;
+    addClozeInputEdit: (edit: Omit<ClozeInputEdit, 'id' | 'type' | 'timestamp'>) => void;
     addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
@@ -80,6 +101,9 @@ interface EditingContextType {
     openScrubbleNumberEditor: (props: ScrubbleNumberProps, blockId: string, elementPath: string) => void;
     closeScrubbleNumberEditor: () => void;
     saveScrubbleNumberEdit: (newProps: ScrubbleNumberProps) => void;
+    openClozeInputEditor: (props: ClozeInputProps, blockId: string, elementPath: string) => void;
+    closeClozeInputEditor: () => void;
+    saveClozeInputEdit: (newProps: ClozeInputProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -100,6 +124,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     } | null>(null);
     const [editingScrubbleNumber, setEditingScrubbleNumber] = useState<(ScrubbleNumberProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingClozeInput, setEditingClozeInput] = useState<(ClozeInputProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -390,6 +418,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingScrubbleNumber(null);
     }, [editingScrubbleNumber, addScrubbleNumberEdit]);
 
+    // Cloze Input editing methods
+    const addClozeInputEdit = useCallback((edit: Omit<ClozeInputEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: ClozeInputEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'clozeInput',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'clozeInput' &&
+                    (e as ClozeInputEdit).blockId === edit.blockId &&
+                    (e as ClozeInputEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as ClozeInputEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openClozeInputEditor = useCallback((
+        props: ClozeInputProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingClozeInput({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeClozeInputEditor = useCallback(() => {
+        setEditingClozeInput(null);
+    }, []);
+
+    const saveClozeInputEdit = useCallback((newProps: ClozeInputProps) => {
+        if (!editingClozeInput) return;
+
+        const { blockId, elementPath, ...originalProps } = editingClozeInput;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addClozeInputEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingClozeInput(null);
+    }, [editingClozeInput, addClozeInputEdit]);
+
     // Notify parent whenever edits change
     useEffect(() => {
         window.parent.postMessage({
@@ -437,11 +534,13 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         pendingEdits,
         editingEquation,
         editingScrubbleNumber,
+        editingClozeInput,
         enableEditing,
         disableEditing,
         addTextEdit,
         addEquationEdit,
         addScrubbleNumberEdit,
+        addClozeInputEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -451,16 +550,21 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openScrubbleNumberEditor,
         closeScrubbleNumberEditor,
         saveScrubbleNumberEdit,
+        openClozeInputEditor,
+        closeClozeInputEditor,
+        saveClozeInputEdit,
     }), [
         isEditing,
         pendingEdits,
         editingEquation,
         editingScrubbleNumber,
+        editingClozeInput,
         enableEditing,
         disableEditing,
         addTextEdit,
         addEquationEdit,
         addScrubbleNumberEdit,
+        addClozeInputEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -470,6 +574,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openScrubbleNumberEditor,
         closeScrubbleNumberEditor,
         saveScrubbleNumberEdit,
+        openClozeInputEditor,
+        closeClozeInputEditor,
+        saveClozeInputEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -596,7 +703,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                     fontWeight: 600,
                                                     color: edit.type === 'text' ? '#60a5fa' :
                                                         edit.type === 'equation' ? '#a78bfa' :
-                                                            edit.type === 'structure' ? '#34d399' : '#fbbf24'
+                                                            edit.type === 'structure' ? '#34d399' :
+                                                                edit.type === 'clozeInput' ? '#38bdf8' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -651,6 +759,19 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                             default: {(edit as ScrubbleNumberEdit).newProps.defaultValue} |
                                                             range: [{(edit as ScrubbleNumberEdit).newProps.min}, {(edit as ScrubbleNumberEdit).newProps.max}] |
                                                             step: {(edit as ScrubbleNumberEdit).newProps.step}
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'clozeInput' && (
+                                                    <>
+                                                        <div>📍 {(edit as ClozeInputEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            📝 Path: {(edit as ClozeInputEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            varName: {(edit as ClozeInputEdit).newProps.varName || '(none)'} |
+                                                            answer: {(edit as ClozeInputEdit).newProps.correctAnswer || '(none)'} |
+                                                            caseSensitive: {String((edit as ClozeInputEdit).newProps.caseSensitive ?? false)}
                                                         </div>
                                                     </>
                                                 )}

@@ -12,11 +12,11 @@ import {
     Glossary,
     Whisper,
     Toggle,
-    FillBlank,
     MultiChoice,
     Linked,
     Trigger,
 } from '@/components/annotations';
+import { InlineClozeInput } from '@/components/atoms';
 
 // Demo visualization component for Linked annotations
 const LinkedVisualization = ({ activeId }: { activeId: string | null }) => (
@@ -123,12 +123,12 @@ export const annotationsDemoSections = [
             <h3 className="text-xl font-semibold mb-4 text-blue-600">✅ Validatable Annotations</h3>
 
             <div className="space-y-6">
-                {/* FillBlank */}
+                {/* ClozeInput */}
                 <div className="p-4 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium mb-2">FillBlank (Text input quiz)</h4>
+                    <h4 className="font-medium mb-2">ClozeInput (Fill-in-the-blank quiz)</h4>
                     <p className="text-lg leading-relaxed">
                         A right angle has exactly{' '}
-                        <FillBlank correctAnswer="90" placeholder="???" />{' '}
+                        <InlineClozeInput correctAnswer="90" placeholder="???" />{' '}
                         degrees. Type your answer!
                     </p>
                 </div>

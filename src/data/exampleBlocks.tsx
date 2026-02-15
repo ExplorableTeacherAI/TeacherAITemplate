@@ -7,6 +7,7 @@ import {
     getExampleDefaultValues,
     getExampleVariableInfo,
     numberPropsFromDefinition,
+    clozePropsFromDefinition,
 } from "./exampleVariables";
 useVariableStore.getState().initialize(getExampleDefaultValues());
 
@@ -19,7 +20,8 @@ import {
     EditableH2,
     EditableH3,
     EditableParagraph,
-    InlineScrubbleNumber
+    InlineScrubbleNumber,
+    InlineClozeInput,
 } from "@/components/atoms";
 
 /**
@@ -156,6 +158,54 @@ const exampleBlocks: ReactElement[] = [
                     {...numberPropsFromDefinition(getExampleVariableInfo('count'))}
                 />
                 {" "}items in the collection. Try dragging the number to adjust.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // CLOZE INPUT (Fill-in-the-blank) DEMO
+    // ========================================
+    <FullWidthLayout key="layout-heading-h2-cloze" maxWidth="xl">
+        <Block id="block-heading-h2-cloze" padding="sm">
+            <EditableH2 id="h2-cloze-title" blockId="block-heading-h2-cloze">
+                Cloze Inputs (Fill-in-the-Blank)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-cloze-intro" maxWidth="xl">
+        <Block id="block-paragraph-cloze-intro" padding="sm">
+            <EditableParagraph id="para-cloze-intro" blockId="block-paragraph-cloze-intro">
+                Cloze inputs let students type answers inline. They auto-validate as
+                you type and turn green when correct. Try the examples below.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-cloze-01" maxWidth="xl">
+        <Block id="block-paragraph-cloze-01" padding="sm">
+            <EditableParagraph id="para-cloze-angle" blockId="block-paragraph-cloze-01">
+                A quarter circle is{" "}
+                <InlineClozeInput
+                    varName="quarterCircleAngle"
+                    correctAnswer="90"
+                    {...clozePropsFromDefinition(getExampleVariableInfo('quarterCircleAngle'))}
+                />
+                {" "}degrees, representing one-fourth of a complete rotation.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-cloze-02" maxWidth="xl">
+        <Block id="block-paragraph-cloze-02" padding="sm">
+            <EditableParagraph id="para-cloze-unit" blockId="block-paragraph-cloze-02">
+                The SI unit of frequency is{" "}
+                <InlineClozeInput
+                    varName="waveUnit"
+                    correctAnswer="Hertz"
+                    {...clozePropsFromDefinition(getExampleVariableInfo('waveUnit'))}
+                />
+                {" "}(abbreviated Hz).
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

@@ -41,6 +41,12 @@ export interface VariableDefinition {
     options?: string[];
     /** Placeholder text for text inputs */
     placeholder?: string;
+    /** Correct answer for cloze input validation */
+    correctAnswer?: string;
+    /** Whether cloze matching is case sensitive */
+    caseSensitive?: boolean;
+    /** Background color for inline components */
+    bgColor?: string;
     /** Schema hint for object types (for AI agents) */
     schema?: string;
 }
@@ -74,6 +80,16 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
     // ========================================
     // ADD YOUR VARIABLES HERE
     // ========================================
+
+    quarterCircleAngle: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Quarter Circle Angle',
+        description: 'Student answer for the quarter circle angle question',
+        placeholder: 'Type answer...',
+        correctAnswer: '90',
+        color: '#3B82F6',
+    },
 
     // Uncomment and modify these examples for your lesson:
 
@@ -201,5 +217,26 @@ export function numberPropsFromDefinition(def: VariableDefinition | undefined): 
         max: def.max,
         step: def.step,
         ...(def.color ? { color: def.color } : {}),
+    };
+}
+
+/**
+ * Get cloze input props for InlineClozeInput from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx, or getExampleVariableInfo(name) in exampleBlocks.tsx.
+ */
+export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
+    correctAnswer?: string;
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+    caseSensitive?: boolean;
+} {
+    if (!def || def.type !== 'text') return {};
+    return {
+        ...(def.correctAnswer ? { correctAnswer: def.correctAnswer } : {}),
+        ...(def.placeholder ? { placeholder: def.placeholder } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+        ...(def.caseSensitive !== undefined ? { caseSensitive: def.caseSensitive } : {}),
     };
 }

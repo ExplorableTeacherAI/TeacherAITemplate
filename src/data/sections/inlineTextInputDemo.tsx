@@ -1,4 +1,5 @@
-import { InlineTextInput } from "@/components/atoms";
+import { InlineClozeInput } from "@/components/atoms";
+import { getVariableInfo, clozePropsFromDefinition } from "../variables";
 
 export const inlineTextInputDemoSection = {
     id: "inline-text-input-demo",
@@ -6,10 +7,10 @@ export const inlineTextInputDemoSection = {
     content: (
         <p className="text-lg leading-relaxed">
             A quarter circle is{" "}
-            <InlineTextInput
+            <InlineClozeInput
+                varName="quarterCircleAngle"
                 correctAnswer="90"
-                color="#3B82F6"
-                bgColor="rgba(59, 130, 246, 0.35)"
+                {...clozePropsFromDefinition(getVariableInfo('quarterCircleAngle'))}
             />{" "}
             angle, and it represents one-fourth of a complete rotation around a point.
         </p>

@@ -48,6 +48,7 @@ export * from "./ui/use-toast";
 
 // Text Components
 export { InlineDropdown } from "./text/InlineDropdown";
+export { InlineClozeInput } from "./text/InlineClozeInput";
 export { InlineTextInput } from "./text/InlineTextInput";
 export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
 export {

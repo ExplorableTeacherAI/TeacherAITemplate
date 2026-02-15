@@ -128,6 +128,29 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
+    // TEXT (cloze) - Fill-in-the-blank with correct answer
+    // ─────────────────────────────────────────
+    quarterCircleAngle: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Quarter Circle Angle',
+        description: 'Student answer for the quarter circle angle question',
+        placeholder: 'Type answer...',
+        correctAnswer: '90',
+        color: '#3B82F6',
+    },
+    waveUnit: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Wave Unit',
+        description: 'Student answer for the unit of frequency',
+        placeholder: '???',
+        correctAnswer: 'Hertz',
+        color: '#5E35B1',
+        caseSensitive: false,
+    },
+
+    // ─────────────────────────────────────────
     // SELECT - Dropdown with options
     // ─────────────────────────────────────────
     selectedOption: {
@@ -367,5 +390,26 @@ export function numberPropsFromDefinition(def: VariableDefinition | undefined): 
         max: def.max,
         step: def.step,
         ...(def.color ? { color: def.color } : {}),
+    };
+}
+
+/**
+ * Get cloze input props for InlineClozeInput from a variable definition.
+ * Same structure as variables.ts: clozePropsFromDefinition(getExampleVariableInfo(name)).
+ */
+export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
+    correctAnswer?: string;
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+    caseSensitive?: boolean;
+} {
+    if (!def || def.type !== 'text') return {};
+    return {
+        ...(def.correctAnswer ? { correctAnswer: def.correctAnswer } : {}),
+        ...(def.placeholder ? { placeholder: def.placeholder } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+        ...(def.caseSensitive !== undefined ? { caseSensitive: def.caseSensitive } : {}),
     };
 }
