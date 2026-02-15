@@ -1,7 +1,6 @@
-// Content Components
-export { MathBlock } from "./MathBlock";
+// Formula Components
+export { MathBlock } from "./formula/MathBlock";
+export { InteractiveEquation } from "./formula/InteractiveEquation";
 
-// Interactive Components
-export { InteractiveTerm } from "./InteractiveTerm";
-export { InteractiveEquation } from "./InteractiveEquation";
-
+// Text Components
+export { InteractiveTerm } from "./text/InteractiveTerm";

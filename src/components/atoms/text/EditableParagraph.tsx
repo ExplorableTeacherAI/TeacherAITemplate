@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditableText } from '@/components/editing/EditableText';
+import { EditableText } from './EditableText';
 import { cn } from '@/lib/utils';
 
 interface EditableParagraphProps {

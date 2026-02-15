@@ -11,7 +11,7 @@ import {
     InlineDropdown,
     InlineTextInput
 } from "@/components/atoms";
-import { EditableText } from "@/components/editing/EditableText";
+import { EditableText } from "@/components/atoms/text/EditableText";
 import { FullWidthLayout } from "@/components/layouts";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { Card } from "@/components/atoms/ui/card";
@@ -19,7 +19,7 @@ import BlockRenderer from "./BlockRenderer";
 import { loadBlocks, createBlocksWatcher } from "@/lib/block-loader";
 import blockLoaderConfig from "@/config/blocks-loader.config";
 import { useAppMode } from "@/contexts/AppModeContext";
-import { LoadingScreen } from "@/components/atoms/LoadingScreen";
+import { LoadingScreen } from "@/components/utility/LoadingScreen";
 import { useOptionalEditing } from "@/contexts/EditingContext";
 
 /**

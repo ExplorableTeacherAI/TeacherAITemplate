@@ -46,13 +46,10 @@ export * from "./ui/toggle-group";
 export * from "./ui/tooltip";
 export * from "./ui/use-toast";
 
-// Basic Atoms
-export { Spacer } from "./Spacer";
-export { ModeIndicator } from "./ModeIndicator";
-export { InfoTooltip } from "./InfoTooltip";
-export { InlineDropdown } from "./InlineDropdown";
-export { InlineTextInput } from "./InlineTextInput";
-export { InlineScrubbleNumber } from "./InlineScrubbleNumber";
+// Text Components
+export { InlineDropdown } from "./text/InlineDropdown";
+export { InlineTextInput } from "./text/InlineTextInput";
+export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
 export {
     EditableH1,
     EditableH2,
@@ -61,47 +58,9 @@ export {
     EditableH5,
     EditableH6,
     headingStyles
-} from "./EditableHeadings";
-export { EditableParagraph, EditableSpan } from "./EditableParagraph";
-export { AnnotationOverlay } from "./AnnotationOverlay";
-export { LoadingScreen } from "./LoadingScreen";
-
-// Two.js Animation Components
-export { AnimatedBackground } from "./AnimatedBackground";
-export { MorphingShapes } from "./MorphingShapes";
-export { ParticleSystem } from "./ParticleSystem";
-export { AnimatedGraph } from "./AnimatedGraph";
-export { CoordinateSystem } from "./CoordinateSystem";
-
-// Three.js Components
-export { ThreeCanvas } from "./ThreeCanvas";
-export { ThreeCoordinateSystem } from "./ThreeCoordinateSystem";
-export * from "./ThreeVisuals";
-
-// Colored Equation Components
-export { Equation } from "./Equation";
-export {
-    ColoredEquationProvider,
-    ColoredEquation,
-    HighlightedTerm,
-    TermReveal
-} from "./ColoredEquation";
-
-// D3 Components
-export { D3BarChart } from "./D3BarChart";
-export type { D3BarChartProps, DataPoint } from "./D3BarChart";
-
-// Mafs Components
-export { MafsBasic } from "./MafsBasic";
-export { MafsAnimated } from "./MafsAnimated";
-export { MafsInteractive } from "./MafsInteractive";
-export { MafsInteractiveDemo } from "./MafsInteractiveDemo";
-
-// React Flow Components
-export { FlowDiagram } from "./FlowDiagram";
-export type { FlowNode, FlowEdge, FlowDiagramProps } from "./FlowDiagram";
-export { ExpandableFlowDiagram } from "./ExpandableFlowDiagram";
-export type { TreeNode, TreeEdge, ExpandableFlowDiagramProps } from "./ExpandableFlowDiagram";
+} from "./text/EditableHeadings";
+export { EditableParagraph, EditableSpan } from "./text/EditableParagraph";
+export { EditableText, withEditableText, useEditableTextContext } from "./text/EditableText";
 
 // Interactive Highlight Components (unified bidirectional highlighting system)
 export {
@@ -111,10 +70,47 @@ export {
     useActiveHighlight,
     useSetActiveHighlight,
     useHighlightState
-} from "./InteractiveHighlight";
+} from "./text/InteractiveHighlight";
 export type {
     HighlightStyle,
     InteractiveHighlightContextValue,
     InteractiveHighlightProviderProps,
     InteractiveTextProps
-} from "./InteractiveHighlight";
+} from "./text/InteractiveHighlight";
+
+// Formula Components
+export { Equation } from "./formula/Equation";
+export {
+    ColoredEquationProvider,
+    ColoredEquation,
+    HighlightedTerm,
+    TermReveal
+} from "./formula/ColoredEquation";
+
+// Visual — Two.js Animation Components
+export { AnimatedBackground } from "./visual/AnimatedBackground";
+export { MorphingShapes } from "./visual/MorphingShapes";
+export { ParticleSystem } from "./visual/ParticleSystem";
+export { AnimatedGraph } from "./visual/AnimatedGraph";
+export { CoordinateSystem } from "./visual/CoordinateSystem";
+
+// Visual — Three.js Components
+export { ThreeCanvas } from "./visual/ThreeCanvas";
+export { ThreeCoordinateSystem } from "./visual/ThreeCoordinateSystem";
+export * from "./visual/ThreeVisuals";
+
+// Visual — D3 Components
+export { D3BarChart } from "./visual/D3BarChart";
+export type { D3BarChartProps, DataPoint } from "./visual/D3BarChart";
+
+// Visual — Mafs Components
+export { MafsBasic } from "./visual/MafsBasic";
+export { MafsAnimated } from "./visual/MafsAnimated";
+export { MafsInteractive } from "./visual/MafsInteractive";
+export { MafsInteractiveDemo } from "./visual/MafsInteractiveDemo";
+
+// Visual — React Flow Components
+export { FlowDiagram } from "./visual/FlowDiagram";
+export type { FlowNode, FlowEdge, FlowDiagramProps } from "./visual/FlowDiagram";
+export { ExpandableFlowDiagram } from "./visual/ExpandableFlowDiagram";
+export type { TreeNode, TreeEdge, ExpandableFlowDiagramProps } from "./visual/ExpandableFlowDiagram";

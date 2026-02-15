@@ -1,4 +1,4 @@
-import { InfoTooltip } from "@/components/atoms";
+import { InfoTooltip } from "@/components/utility";
 
 export const infoTooltipDemoSection = {
     id: "info-tooltip-demo",

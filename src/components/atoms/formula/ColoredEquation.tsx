@@ -3,7 +3,7 @@ import { Equation } from './Equation';
 import { cn } from '@/lib/utils';
 import { useOptionalEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
-import { useEditableTextContext } from '@/components/editing/EditableText';
+import { useEditableTextContext } from '../text/EditableText';
 
 // Context for sharing hover state between equation and text
 interface ColoredEquationContextValue {

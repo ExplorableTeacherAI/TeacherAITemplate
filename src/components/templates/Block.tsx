@@ -8,7 +8,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/atoms/ui/dropdown-menu";
 import { GripVertical, Plus, Send, Pencil } from "lucide-react";
-import { AnnotationOverlay } from "@/components/atoms/AnnotationOverlay";
+import { AnnotationOverlay } from "@/components/utility/AnnotationOverlay";
 import { useBlockContext } from "@/contexts/BlockContext";
 
 export interface BlockProps {

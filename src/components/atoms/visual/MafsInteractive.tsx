@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Mafs, Coordinates, Plot, Point, Line, useMovablePoint, Circle } from "mafs";
-import { useInteractiveHighlight } from "./InteractiveHighlight";
+import { useInteractiveHighlight } from "../text/InteractiveHighlight";
 
 export interface MafsInteractiveProps {
     /** Controlled amplitude value (0-4) */
