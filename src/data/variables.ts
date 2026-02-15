@@ -35,6 +35,8 @@ export interface VariableDefinition {
     max?: number;
     /** Step increment (for number sliders) */
     step?: number;
+    /** Display color for InlineScrubbleNumber (e.g. '#D81B60') */
+    color?: string;
     /** Options for 'select' type variables */
     options?: string[];
     /** Placeholder text for text inputs */
@@ -190,6 +192,7 @@ export function numberPropsFromDefinition(def: VariableDefinition | undefined): 
     min?: number;
     max?: number;
     step?: number;
+    color?: string;
 } {
     if (!def || def.type !== 'number') return {};
     return {
@@ -197,5 +200,6 @@ export function numberPropsFromDefinition(def: VariableDefinition | undefined): 
         min: def.min,
         max: def.max,
         step: def.step,
+        ...(def.color ? { color: def.color } : {}),
     };
 }
