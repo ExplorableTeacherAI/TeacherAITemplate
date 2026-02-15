@@ -174,31 +174,7 @@
     text-shadow: 0 0 8px var(--annotation-mutable-glow);
 }
 
-/* Toggle - cycles through options */
-.annotation-toggle {
-    color: var(--annotation-mutable);
-    border-bottom: 2px dashed var(--annotation-mutable);
-    padding-bottom: 1px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.annotation-toggle:hover {
-    background: var(--annotation-mutable-bg);
-    border-radius: 2px 2px 0 0;
-}
-
-.annotation-toggle::after {
-    content: '⟳';
-    font-size: 0.75em;
-    margin-left: 2px;
-    opacity: 0;
-    transition: opacity var(--annotation-transition);
-}
-
-.annotation-toggle:hover::after {
-    opacity: 0.6;
-}
+/* Note: Toggle has been replaced by InlineToggle in @/components/atoms */
 
 /* Scrubber - precision number control */
 .annotation-scrubber {

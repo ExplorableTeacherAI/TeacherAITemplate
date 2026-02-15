@@ -5,7 +5,7 @@
  *
  * Categories:
  * - Informational: Hoverable, Glossary, Whisper
- * - Mutable: Toggle
+ * - Mutable: (Toggle has been replaced by InlineToggle in @/components/atoms)
  * - Connective: Linked, Trigger
  *
  * For fill-in-the-blank / quiz interactions, use InlineClozeInput and
@@ -13,7 +13,7 @@
  *
  * Visual Style Guide:
  * - Solid underline ─────── : Draggable values
- * - Dashed underline - - -  : Toggleable states (Toggle)
+ * - Dashed underline - - -  : Toggleable states (use InlineToggle from atoms)
  * - Dotted underline ······ : Definitions (Glossary, Linked)
  * - No underline (color)    : Tooltips (Hoverable, Whisper)
  */
@@ -22,7 +22,6 @@
 export { Hoverable } from './Hoverable';
 export { Glossary } from './Glossary';
 export { Whisper } from './Whisper';
-export { Toggle } from './Toggle';
 export { Linked, LinkedProvider, useLinkedContext, useActiveLink, useSetActiveLink } from './Linked';
 export { Trigger } from './Trigger';
 

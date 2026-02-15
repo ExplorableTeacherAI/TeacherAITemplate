@@ -245,6 +245,23 @@ export function choicePropsFromDefinition(def: VariableDefinition | undefined): 
     };
 }
 
+/**
+ * Get toggle props for InlineToggle from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx.
+ */
+export function togglePropsFromDefinition(def: VariableDefinition | undefined): {
+    options?: string[];
+    color?: string;
+    bgColor?: string;
+} {
+    if (!def || def.type !== 'select') return {};
+    return {
+        ...(def.options ? { options: def.options } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+    };
+}
+
 export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
     correctAnswer?: string;
     placeholder?: string;

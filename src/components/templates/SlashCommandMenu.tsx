@@ -25,14 +25,15 @@ export type BlockCommandType =
 export type InlineCommandType =
     | "inlineScrubbleNumber"
     | "inlineClozeInput"
-    | "inlineClozeChoice";
+    | "inlineClozeChoice"
+    | "inlineToggle";
 
 // Combined type for all slash commands
 export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice"].includes(type);
+    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle"].includes(type);
 };
 
 interface SlashCommand {
@@ -117,6 +118,14 @@ const slashCommands: SlashCommand[] = [
         description: "Dropdown choice with answer validation",
         icon: <ChevronDown className="h-4 w-4" />,
         keywords: ["cloze", "choice", "dropdown", "select", "options", "multiple"],
+        category: "inline",
+    },
+    {
+        id: "inlineToggle",
+        label: "Toggle",
+        description: "Click to cycle through options",
+        icon: <Type className="h-4 w-4" />,
+        keywords: ["toggle", "cycle", "switch", "options", "click", "mutable"],
         category: "inline",
     },
 ];

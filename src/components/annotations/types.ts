@@ -90,17 +90,6 @@ export interface WhisperProps extends BaseAnnotationProps {
 // CATEGORY: MUTABLE
 // ============================================================================
 
-export interface ToggleProps extends BaseAnnotationProps {
-    /** Array of options to cycle through */
-    options: string[];
-    /** Current value index */
-    value?: number;
-    /** Initial value index */
-    initialValue?: number;
-    /** Callback when option changes */
-    onChange?: (value: string, index: number) => void;
-}
-
 export interface ScrubberProps extends BaseAnnotationProps {
     /** Current value */
     value?: number;
@@ -262,7 +251,6 @@ export const ANNOTATION_STYLE_CONFIG: Record<string, AnnotationStyleConfig> = {
     Hoverable: { category: 'informational', underline: 'none', defaultColor: 'informational' },
     Glossary: { category: 'informational', underline: 'dotted', defaultColor: 'informational' },
     Whisper: { category: 'informational', underline: 'none', defaultColor: 'informational' },
-    Toggle: { category: 'mutable', underline: 'dashed', defaultColor: 'mutable' },
     Scrubber: { category: 'mutable', underline: 'double', defaultColor: 'mutable' },
     Sortable: { category: 'validatable', underline: 'none', defaultColor: 'validatable' },
     Linked: { category: 'connective', underline: 'dotted', defaultColor: 'connective' },

@@ -192,6 +192,47 @@ import { getVariableInfo, choicePropsFromDefinition } from "./variables";
 
 The variable store holds the **student's selected option** (text string). The `correctAnswer` and `options` stay as props configured via the editor modal.
 
+## Critical Rule: InlineToggle (Click to Cycle)
+
+**NEVER pass inline props directly to `InlineToggle`.** Always define the variable in the central variables file first, then reference it — same pattern as `InlineClozeChoice`.
+
+### Two-Step Workflow for Toggles
+
+#### Step 1: Define the variable in `src/data/variables.ts`
+
+```ts
+currentShape: {
+    defaultValue: 'triangle',
+    type: 'select',
+    label: 'Current Shape',
+    description: 'The currently selected polygon shape',
+    options: ['triangle', 'square', 'pentagon', 'hexagon'],
+    color: '#D946EF',
+},
+```
+
+#### Step 2: Use the variable in `src/data/blocks.tsx`
+
+```tsx
+import { getVariableInfo, togglePropsFromDefinition } from "./variables";
+
+<InlineToggle
+    varName="currentShape"
+    options={["triangle", "square", "pentagon", "hexagon"]}
+    {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
+/>
+```
+
+### Key Toggle Variable Fields
+
+| Field | Purpose |
+|-------|---------|
+| `options` | Array of strings to cycle through (at least 2) |
+| `color` | Text/border color (default: `#D946EF` fuchsia) |
+| `bgColor` | Background color (supports RGBA) |
+
+The variable store holds the **currently selected option** (text string). Unlike cloze components, toggles have no `correctAnswer` — they are for exploration, not validation.
+
 ## Variable Types
 
 | Type | Example Definition |
@@ -201,6 +242,7 @@ The variable store holds the **student's selected option** (text string). The `c
 | `text` (cloze) | `{ defaultValue: '', type: 'text', correctAnswer: '90', placeholder: '???', color: '#3B82F6' }` |
 | `select` | `{ defaultValue: 'sine', type: 'select', options: ['sine', 'cosine'] }` |
 | `select` (cloze choice) | `{ defaultValue: '', type: 'select', correctAnswer: 'circle', options: ['cube', 'circle'], placeholder: '???', color: '#D81B60' }` |
+| `select` (toggle) | `{ defaultValue: 'triangle', type: 'select', options: ['triangle', 'square', 'pentagon'], color: '#D946EF' }` |
 | `boolean` | `{ defaultValue: true, type: 'boolean' }` |
 | `array` | `{ defaultValue: [1, 2, 3], type: 'array' }` |
 | `object` | `{ defaultValue: { x: 0, y: 0 }, type: 'object', schema: '{ x: number, y: number }' }` |
@@ -251,6 +293,7 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - `InlineScrubbleNumber` — draggable inline number bound to global variable
 - `InlineClozeInput` — fill-in-the-blank input with answer validation, bound to global variable
 - `InlineClozeChoice` — dropdown choice with answer validation, bound to global variable
+- `InlineToggle` — click to cycle through options, bound to global variable
 
 ### Math Components
 
@@ -329,8 +372,8 @@ export const mySectionBlocks: ReactElement[] = [
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "../variables";
+import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 export const mySectionBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-my-title" maxWidth="xl">

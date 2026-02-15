@@ -11,11 +11,10 @@ import {
     Hoverable,
     Glossary,
     Whisper,
-    Toggle,
     Linked,
     Trigger,
 } from '@/components/annotations';
-import { InlineClozeInput, InlineClozeChoice } from '@/components/atoms';
+import { InlineClozeInput, InlineClozeChoice, InlineToggle } from '@/components/atoms';
 
 // Demo visualization component for Linked annotations
 const LinkedVisualization = ({ activeId }: { activeId: string | null }) => (
@@ -108,7 +107,7 @@ export const annotationsDemoSections = [
                     <h4 className="font-medium mb-2">Toggle (Cycle through options)</h4>
                     <p className="text-lg leading-relaxed">
                         The current shape is a{' '}
-                        <Toggle options={['triangle', 'square', 'pentagon', 'hexagon']} />{' '}
+                        <InlineToggle options={['triangle', 'square', 'pentagon', 'hexagon']} />{' '}
                         with equal sides. Click to cycle through options!
                     </p>
                 </div>

@@ -75,6 +75,13 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 data-component-id="${uniqueId}"
                 style="display: inline-flex; align-items: center; background: rgba(59, 130, 246, 0.35); color: #3B82F6; border-radius: 4px; padding: 0 6px; font-weight: 500; margin: 0 2px; user-select: none; cursor: text;"
             >???</span>`;
+        case 'inlineToggle':
+            return `<span
+                contenteditable="false"
+                data-inline-component="${commandType}"
+                data-component-id="${uniqueId}"
+                style="display: inline-flex; align-items: center; color: #D946EF; border-bottom: 2px dashed #D946EF; padding-bottom: 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
+            >option</span>`;
         default:
             return '';
     }

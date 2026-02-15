@@ -9,7 +9,8 @@ import {
     EditableParagraph,
     InlineScrubbleNumber,
     InlineClozeInput,
-    InlineClozeChoice
+    InlineClozeChoice,
+    InlineToggle
 } from "@/components/atoms";
 import { EditableText } from "@/components/atoms/text/EditableText";
 import { FullWidthLayout } from "@/components/layouts";
@@ -43,7 +44,7 @@ const decodeMarkerProps = (encoded: string | undefined): Record<string, unknown>
  */
 const parseContentWithInlineComponents = (content: string): React.ReactNode[] => {
     // Regex: group1=type, group2=id (up to | or }}), group3=optional base64 props
-    const markerRegex = /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
+    const markerRegex = /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
 
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
@@ -105,6 +106,19 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 );
                 break;
             }
+            case "inlineToggle": {
+                const p = savedProps as { varName?: string; options?: string[]; color?: string; bgColor?: string } | null;
+                parts.push(
+                    <InlineToggle
+                        key={uniqueId}
+                        varName={p?.varName}
+                        options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
+                        color={p?.color}
+                        bgColor={p?.bgColor}
+                    />
+                );
+                break;
+            }
             default:
                 // If unknown, just keep the text
                 parts.push(match[0]);
@@ -130,7 +144,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
  * Check if content contains inline component markers (with or without props)
  */
 const hasInlineComponents = (content: string): boolean => {
-    return /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice):[^}]+\}\}/.test(content);
+    return /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle):[^}]+\}\}/.test(content);
 };
 
 interface LessonViewProps {

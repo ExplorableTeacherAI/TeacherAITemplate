@@ -50,7 +50,7 @@ src/
 ├── components/
 │   ├── atoms/                      # Smallest reusable building blocks
 │   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
-│   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice,
+│   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle,
 │   │   │                           #   InteractiveHighlight
 │   │   ├── formula/                #   Equation, ColoredEquation
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
@@ -71,7 +71,7 @@ src/
 │   │   └── index.ts                #   Barrel — import from "@/components/organisms"
 │   │
 │   ├── annotations/                # Inline annotation wrappers
-│   │   ├── Hoverable, Glossary, Whisper, Toggle
+│   │   ├── Hoverable, Glossary, Whisper
 │   │   ├── Linked, Trigger
 │   │   └── index.ts
 │   │
@@ -90,7 +90,7 @@ src/
 │       ├── Spacer, ModeIndicator, InfoTooltip
 │       ├── AnnotationOverlay, LoadingScreen
 │       ├── EquationEditorModal, ScrubbleNumberEditorModal,
-│       │   ClozeInputEditorModal, ClozeChoiceEditorModal
+│       │   ClozeInputEditorModal, ClozeChoiceEditorModal, ToggleEditorModal
 │       └── index.ts
 │
 ├── stores/                         # Zustand global variable store
@@ -162,6 +162,14 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         options: ['cube', 'circle', 'square', 'triangle'],
         color: '#D81B60',
     },
+    currentShape: {
+        defaultValue: 'triangle',
+        type: 'select',
+        label: 'Current Shape',
+        description: 'Currently selected polygon shape',
+        options: ['triangle', 'square', 'pentagon', 'hexagon'],
+        color: '#D946EF',
+    },
     waveType: {
         defaultValue: 'sine',
         type: 'select',
@@ -176,7 +184,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
 };
 ```
 
-**Supported types:** `number`, `text` (including cloze input), `select` (including cloze choice), `boolean`, `array`, `object`
+**Supported types:** `number`, `text` (including cloze input), `select` (including cloze choice and toggle), `boolean`, `array`, `object`
 
 ### Step 2: Create Section Blocks (`src/data/sections/`)
 
@@ -187,8 +195,8 @@ Each section exports a **flat array** of `Layout > Block` elements. This is crit
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition } from "../variables";
+import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 export const introBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-intro-title" maxWidth="xl">
@@ -282,6 +290,7 @@ All components below are used by the agent to compose lessons. **Every component
 | `InlineScrubbleNumber` | Draggable number bound to a global variable |
 | `InlineClozeInput` | Fill-in-the-blank input with answer validation |
 | `InlineClozeChoice` | Dropdown choice with answer validation |
+| `InlineToggle` | Click to cycle through options, bound to global variable |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -348,7 +357,6 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
 | `Hoverable` | Colored text | Shows tooltip on hover |
 | `Glossary` | Dotted underline | Definition popup with pronunciation |
 | `Whisper` | Faded text | Reveals hidden content on hover |
-| `Toggle` | Dashed underline | Cycles through options on click |
 | `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
 | `Trigger` | Solid underline | Triggers an action on click |
 
@@ -370,6 +378,11 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
         correctAnswer="circle"
         options={["cube", "circle", "square", "triangle"]}
         {...choicePropsFromDefinition(getVariableInfo('shapeAnswer'))}
+    />. The current shape is a{' '}
+    <InlineToggle
+        varName="currentShape"
+        options={["triangle", "square", "pentagon", "hexagon"]}
+        {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
     />.
 </EditableParagraph>
 ```
@@ -483,6 +496,30 @@ shapeAnswer: {
 
 **Cloze choice variable fields:** `correctAnswer`, `options`, `placeholder`, `color`, `bgColor`
 
+### InlineToggle
+
+Click to cycle through options, bound to a global variable. Unlike cloze components, toggles have no `correctAnswer` — they are for exploration, not validation.
+
+```tsx
+// CORRECT — uses centralized variable definition
+<InlineToggle
+    varName="currentShape"
+    options={["triangle", "square", "pentagon", "hexagon"]}
+    {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
+/>
+
+// Variable definition in variables.ts:
+currentShape: {
+    defaultValue: 'triangle',
+    type: 'select',
+    label: 'Current Shape',
+    options: ['triangle', 'square', 'pentagon', 'hexagon'],
+    color: '#D946EF',
+},
+```
+
+**Toggle variable fields:** `options`, `color`, `bgColor`
+
 ---
 
 ## Global Variable Store
@@ -507,13 +544,13 @@ setVar('amplitude', 2.5);
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, Equation } from "@/components/atoms";
+import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
-import { Hoverable, Toggle } from "@/components/annotations";
-import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition } from "./variables";
+import { Hoverable } from "@/components/annotations";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "./variables";
 ```
 
 ---

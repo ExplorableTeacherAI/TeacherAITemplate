@@ -9,6 +9,7 @@ import {
     numberPropsFromDefinition,
     clozePropsFromDefinition,
     choicePropsFromDefinition,
+    togglePropsFromDefinition,
 } from "./exampleVariables";
 useVariableStore.getState().initialize(getExampleDefaultValues());
 
@@ -24,6 +25,7 @@ import {
     InlineScrubbleNumber,
     InlineClozeInput,
     InlineClozeChoice,
+    InlineToggle,
 } from "@/components/atoms";
 
 /**
@@ -249,6 +251,45 @@ const exampleBlocks: ReactElement[] = [
                     {...choicePropsFromDefinition(getExampleVariableInfo('waveTypeAnswer'))}
                 />
                 {" "}waves.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // TOGGLE DEMO (Click to Cycle)
+    // ========================================
+    <FullWidthLayout key="layout-heading-h2-toggle" maxWidth="xl">
+        <Block id="block-heading-h2-toggle" padding="sm">
+            <EditableH2 id="h2-toggle-title" blockId="block-heading-h2-toggle">
+                Toggle (Click to Cycle)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-toggle-01" maxWidth="xl">
+        <Block id="block-paragraph-toggle-01" padding="sm">
+            <EditableParagraph id="para-toggle-shapes" blockId="block-paragraph-toggle-01">
+                The current shape is a{" "}
+                <InlineToggle
+                    varName="currentShape"
+                    options={["triangle", "square", "pentagon", "hexagon"]}
+                    {...togglePropsFromDefinition(getExampleVariableInfo('currentShape'))}
+                />
+                {" "}with equal sides. Click to cycle through the shapes!
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-paragraph-toggle-02" maxWidth="xl">
+        <Block id="block-paragraph-toggle-02" padding="sm">
+            <EditableParagraph id="para-toggle-measurement" blockId="block-paragraph-toggle-02">
+                A circle has three key measurements. The{" "}
+                <InlineToggle
+                    varName="measurementType"
+                    options={["radius", "diameter", "circumference"]}
+                    {...togglePropsFromDefinition(getExampleVariableInfo('measurementType'))}
+                />
+                {" "}is an important property of a circle.
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

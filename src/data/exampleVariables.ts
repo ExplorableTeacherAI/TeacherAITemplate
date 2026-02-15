@@ -175,6 +175,26 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
+    // SELECT (toggle) - Click to cycle through options
+    // ─────────────────────────────────────────
+    currentShape: {
+        defaultValue: 'triangle',
+        type: 'select',
+        label: 'Current Shape',
+        description: 'The currently selected polygon shape',
+        options: ['triangle', 'square', 'pentagon', 'hexagon'],
+        color: '#D946EF',
+    },
+    measurementType: {
+        defaultValue: 'radius',
+        type: 'select',
+        label: 'Measurement Type',
+        description: 'The type of circle measurement being discussed',
+        options: ['radius', 'diameter', 'circumference'],
+        color: '#00897B',
+    },
+
+    // ─────────────────────────────────────────
     // SELECT - Dropdown with options
     // ─────────────────────────────────────────
     selectedOption: {
@@ -433,6 +453,23 @@ export function choicePropsFromDefinition(def: VariableDefinition | undefined): 
         ...(def.correctAnswer ? { correctAnswer: def.correctAnswer } : {}),
         ...(def.options ? { options: def.options } : {}),
         ...(def.placeholder ? { placeholder: def.placeholder } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+    };
+}
+
+/**
+ * Get toggle props for InlineToggle from a variable definition.
+ * Same structure as variables.ts: togglePropsFromDefinition(getExampleVariableInfo(name)).
+ */
+export function togglePropsFromDefinition(def: VariableDefinition | undefined): {
+    options?: string[];
+    color?: string;
+    bgColor?: string;
+} {
+    if (!def || def.type !== 'select') return {};
+    return {
+        ...(def.options ? { options: def.options } : {}),
         ...(def.color ? { color: def.color } : {}),
         ...(def.bgColor ? { bgColor: def.bgColor } : {}),
     };

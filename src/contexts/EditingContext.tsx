@@ -82,6 +82,23 @@ export interface ClozeChoiceProps {
     bgColor?: string;
 }
 
+export interface ToggleEdit {
+    id: string;
+    type: 'toggle';
+    blockId: string;
+    elementPath: string;
+    originalProps: ToggleProps;
+    newProps: ToggleProps;
+    timestamp: number;
+}
+
+export interface ToggleProps {
+    varName?: string;
+    options?: string[];
+    color?: string;
+    bgColor?: string;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -94,7 +111,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -104,6 +121,7 @@ interface EditingContextType {
     editingScrubbleNumber: (ScrubbleNumberProps & { blockId: string; elementPath: string }) | null;
     editingClozeInput: (ClozeInputProps & { blockId: string; elementPath: string }) | null;
     editingClozeChoice: (ClozeChoiceProps & { blockId: string; elementPath: string }) | null;
+    editingToggle: (ToggleProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -113,6 +131,7 @@ interface EditingContextType {
     addScrubbleNumberEdit: (edit: Omit<ScrubbleNumberEdit, 'id' | 'type' | 'timestamp'>) => void;
     addClozeInputEdit: (edit: Omit<ClozeInputEdit, 'id' | 'type' | 'timestamp'>) => void;
     addClozeChoiceEdit: (edit: Omit<ClozeChoiceEdit, 'id' | 'type' | 'timestamp'>) => void;
+    addToggleEdit: (edit: Omit<ToggleEdit, 'id' | 'type' | 'timestamp'>) => void;
     addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
@@ -128,6 +147,9 @@ interface EditingContextType {
     openClozeChoiceEditor: (props: ClozeChoiceProps, blockId: string, elementPath: string) => void;
     closeClozeChoiceEditor: () => void;
     saveClozeChoiceEdit: (newProps: ClozeChoiceProps) => void;
+    openToggleEditor: (props: ToggleProps, blockId: string, elementPath: string) => void;
+    closeToggleEditor: () => void;
+    saveToggleEdit: (newProps: ToggleProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -156,6 +178,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingClozeChoice, setEditingClozeChoice] = useState<(ClozeChoiceProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingToggle, setEditingToggle] = useState<(ToggleProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -584,6 +610,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingClozeChoice(null);
     }, [editingClozeChoice, addClozeChoiceEdit]);
 
+    // Toggle editing methods
+    const addToggleEdit = useCallback((edit: Omit<ToggleEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: ToggleEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'toggle',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'toggle' &&
+                    (e as ToggleEdit).blockId === edit.blockId &&
+                    (e as ToggleEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as ToggleEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openToggleEditor = useCallback((
+        props: ToggleProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingToggle({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeToggleEditor = useCallback(() => {
+        setEditingToggle(null);
+    }, []);
+
+    const saveToggleEdit = useCallback((newProps: ToggleProps) => {
+        if (!editingToggle) return;
+
+        const { blockId, elementPath, ...originalProps } = editingToggle;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addToggleEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingToggle(null);
+    }, [editingToggle, addToggleEdit]);
+
     // Notify parent whenever edits change
     useEffect(() => {
         window.parent.postMessage({
@@ -633,6 +728,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingScrubbleNumber,
         editingClozeInput,
         editingClozeChoice,
+        editingToggle,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -640,6 +736,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addScrubbleNumberEdit,
         addClozeInputEdit,
         addClozeChoiceEdit,
+        addToggleEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -655,6 +752,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openClozeChoiceEditor,
         closeClozeChoiceEditor,
         saveClozeChoiceEdit,
+        openToggleEditor,
+        closeToggleEditor,
+        saveToggleEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -662,6 +762,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingScrubbleNumber,
         editingClozeInput,
         editingClozeChoice,
+        editingToggle,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -669,6 +770,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addScrubbleNumberEdit,
         addClozeInputEdit,
         addClozeChoiceEdit,
+        addToggleEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -684,6 +786,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openClozeChoiceEditor,
         closeClozeChoiceEditor,
         saveClozeChoiceEdit,
+        openToggleEditor,
+        closeToggleEditor,
+        saveToggleEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -812,7 +917,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                         edit.type === 'equation' ? '#a78bfa' :
                                                             edit.type === 'structure' ? '#34d399' :
                                                                 edit.type === 'clozeInput' ? '#38bdf8' :
-                                                                    edit.type === 'clozeChoice' ? '#f472b6' : '#fbbf24'
+                                                                    edit.type === 'clozeChoice' ? '#f472b6' :
+                                                                        edit.type === 'toggle' ? '#c084fc' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -893,6 +999,18 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                             varName: {(edit as ClozeChoiceEdit).newProps.varName || '(none)'} |
                                                             answer: {(edit as ClozeChoiceEdit).newProps.correctAnswer || '(none)'} |
                                                             options: [{(edit as ClozeChoiceEdit).newProps.options?.join(', ') || ''}]
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'toggle' && (
+                                                    <>
+                                                        <div>📍 {(edit as ToggleEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            🔄 Path: {(edit as ToggleEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            varName: {(edit as ToggleEdit).newProps.varName || '(none)'} |
+                                                            options: [{(edit as ToggleEdit).newProps.options?.join(', ') || ''}]
                                                         </div>
                                                     </>
                                                 )}
