@@ -50,7 +50,7 @@ src/
 ├── components/
 │   ├── atoms/                      # Smallest reusable building blocks
 │   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
-│   │   │                           #   InlineScrubbleNumber, InlineTextInput, InlineDropdown,
+│   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineDropdown,
 │   │   │                           #   InteractiveHighlight
 │   │   ├── formula/                #   Equation, ColoredEquation
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
@@ -72,7 +72,7 @@ src/
 │   │
 │   ├── annotations/                # Inline annotation wrappers
 │   │   ├── Hoverable, Glossary, Whisper, Toggle
-│   │   ├── FillBlank, MultiChoice, Linked, Trigger
+│   │   ├── MultiChoice, Linked, Trigger
 │   │   └── index.ts
 │   │
 │   ├── layouts/                    # Layout containers
@@ -89,7 +89,7 @@ src/
 │   └── utility/                    # Infrastructure — NOT for lesson content
 │       ├── Spacer, ModeIndicator, InfoTooltip
 │       ├── AnnotationOverlay, LoadingScreen
-│       ├── EquationEditorModal, ScrubbleNumberEditorModal
+│       ├── EquationEditorModal, ScrubbleNumberEditorModal, ClozeInputEditorModal
 │       └── index.ts
 │
 ├── stores/                         # Zustand global variable store
@@ -142,6 +142,15 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
         max: 10,
         step: 0.1,
     },
+    quarterCircleAngle: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Quarter Circle Angle',
+        description: 'Student answer for quarter circle angle',
+        placeholder: 'Type answer...',
+        correctAnswer: '90',
+        color: '#3B82F6',
+    },
     waveType: {
         defaultValue: 'sine',
         type: 'select',
@@ -156,7 +165,7 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
 };
 ```
 
-**Supported types:** `number`, `text`, `select`, `boolean`, `array`, `object`
+**Supported types:** `number`, `text` (including cloze), `select`, `boolean`, `array`, `object`
 
 ### Step 2: Create Section Blocks (`src/data/sections/`)
 
@@ -167,8 +176,8 @@ Each section exports a **flat array** of `Layout > Block` elements. This is crit
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition } from "../variables";
+import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput } from "@/components/atoms";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "../variables";
 
 export const introBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-intro-title" maxWidth="xl">
@@ -260,8 +269,8 @@ All components below are used by the agent to compose lessons. **Every component
 | `EditableParagraph` | Body text — supports inline components |
 | `EditableSpan` | Inline editable text |
 | `InlineScrubbleNumber` | Draggable number bound to a global variable |
+| `InlineClozeInput` | Fill-in-the-blank input with answer validation |
 | `InlineDropdown` | Inline dropdown selector |
-| `InlineTextInput` | Inline text input |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -329,7 +338,6 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
 | `Glossary` | Dotted underline | Definition popup with pronunciation |
 | `Whisper` | Faded text | Reveals hidden content on hover |
 | `Toggle` | Dashed underline | Cycles through options on click |
-| `FillBlank` | Input field | Text answer validation |
 | `MultiChoice` | Dropdown | Quiz selection validation |
 | `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
 | `Trigger` | Solid underline | Triggers an action on click |
@@ -341,7 +349,11 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
         circle
     </Hoverable>{' '}
     has the same distance from its center. A right angle has{' '}
-    <FillBlank correctAnswer="90" placeholder="???" />{' '}
+    <InlineClozeInput
+        varName="rightAngle"
+        correctAnswer="90"
+        {...clozePropsFromDefinition(getVariableInfo('rightAngle'))}
+    />{' '}
     degrees.
 </EditableParagraph>
 ```
@@ -403,6 +415,31 @@ Draggable inline number bound to a global variable. **Never hardcode numeric pro
 <InlineScrubbleNumber defaultValue={5} min={0} max={10} step={1} />
 ```
 
+### InlineClozeInput
+
+Fill-in-the-blank input bound to a global variable. The variable store holds the **student's typed answer**; the `correctAnswer` stays as a prop (not exposed to students).
+
+```tsx
+// CORRECT — uses centralized variable definition
+<InlineClozeInput
+    varName="quarterCircleAngle"
+    correctAnswer="90"
+    {...clozePropsFromDefinition(getVariableInfo('quarterCircleAngle'))}
+/>
+
+// Variable definition in variables.ts:
+quarterCircleAngle: {
+    defaultValue: '',
+    type: 'text',
+    label: 'Quarter Circle Angle',
+    placeholder: 'Type answer...',
+    correctAnswer: '90',
+    color: '#3B82F6',
+},
+```
+
+**Cloze variable fields:** `correctAnswer`, `placeholder`, `color`, `bgColor`, `caseSensitive`
+
 ---
 
 ## Global Variable Store
@@ -427,12 +464,13 @@ setVar('amplitude', 2.5);
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, Equation } from "@/components/atoms";
+import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
-import { Hoverable, FillBlank } from "@/components/annotations";
+import { Hoverable, MultiChoice } from "@/components/annotations";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "./variables";
 ```
 
 ---
