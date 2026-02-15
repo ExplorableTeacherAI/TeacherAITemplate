@@ -61,7 +61,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
         // Create the appropriate inline component, using saved props when available
         switch (componentType) {
             case "inlineScrubbleNumber": {
-                const p = savedProps as { varName?: string; defaultValue?: number; min?: number; max?: number; step?: number } | null;
+                const p = savedProps as { varName?: string; defaultValue?: number; min?: number; max?: number; step?: number; color?: string } | null;
                 parts.push(
                     <InlineScrubbleNumber
                         key={uniqueId}
@@ -70,6 +70,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                         min={p?.min ?? 0}
                         max={p?.max ?? 100}
                         step={p?.step ?? 1}
+                        {...(p?.color ? { color: p.color } : {})}
                     />
                 );
                 break;

@@ -134,7 +134,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             (e as any).elementPath === elementPath
         );
 
-        return edit as { newProps: { varName?: string; min?: number; max?: number; step?: number; defaultValue?: number } } | null;
+        return edit as { newProps: { varName?: string; min?: number; max?: number; step?: number; defaultValue?: number; color?: string } } | null;
     }, [isEditing, canEdit, pendingEdits, editIdentity]);
 
     // Use edited values if available
@@ -144,6 +144,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     const displayMin = pendingEdit?.newProps.min ?? min;
     const displayMax = pendingEdit?.newProps.max ?? max;
     const displayStep = pendingEdit?.newProps.step ?? step;
+    const effectiveColor = pendingEdit?.newProps.color ?? color;
 
     // Get value from variable store if varName is provided (using effective name)
     const storeValue = useVar(effectiveVarName || '', effectiveDefaultValue);
@@ -283,12 +284,13 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                 defaultValue: effectiveDefaultValue,
                 min: displayMin,
                 max: displayMax,
-                step: displayStep
+                step: displayStep,
+                color: effectiveColor,
             },
             blockId,
             elementPath
         );
-    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveDefaultValue, displayMin, displayMax, displayStep, openScrubbleNumberEditor, varName, defaultValue]);
+    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveDefaultValue, displayMin, displayMax, displayStep, effectiveColor, openScrubbleNumberEditor, varName, defaultValue]);
 
     // Handle dragging with useEffect
     useEffect(() => {
@@ -330,6 +332,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         min: displayMin,
         max: displayMax,
         step: displayStep,
+        color: effectiveColor,
     });
 
     return (
@@ -355,14 +358,14 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                     transition={{ duration: 0.15 }}
                     className="absolute -top-3 left-0 right-0 h-1.5 rounded-full overflow-hidden"
                     style={{
-                        backgroundColor: `${color}20`,
+                        backgroundColor: `${effectiveColor}20`,
                     }}
                 >
                     <div
                         className="h-full rounded-full transition-all duration-200"
                         style={{
                             width: `${progress}%`,
-                            backgroundColor: color,
+                            backgroundColor: effectiveColor,
                         }}
                     />
                 </motion.div>
@@ -380,8 +383,8 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                     canEdit && isEditing && "cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 rounded px-0.5 -mx-0.5"
                 )}
                 style={{
-                    color: color,
-                    borderBottom: `2px solid ${color}`,
+                    color: effectiveColor,
+                    borderBottom: `2px solid ${effectiveColor}`,
                     paddingBottom: '1px',
                 }}
             >
@@ -394,7 +397,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                     onClick={handleEditClick}
                     className="absolute -top-2 -right-4 w-5 h-5 rounded-full shadow-lg flex items-center justify-center text-xs hover:opacity-90 transition-all duration-150 z-10"
                     style={{
-                        backgroundColor: color,
+                        backgroundColor: effectiveColor,
                         color: 'white',
                     }}
                     title="Edit scrubbable number"

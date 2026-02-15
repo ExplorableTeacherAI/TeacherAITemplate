@@ -13,7 +13,21 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
     const [min, setMin] = useState(0);
     const [max, setMax] = useState(100);
     const [step, setStep] = useState(1);
+    const [color, setColor] = useState('#D81B60');
     const [error, setError] = useState<string | null>(null);
+
+    const COLOR_PRESETS = [
+        '#D81B60', // Pink/Red (default)
+        '#E53935', // Red
+        '#F57C00', // Orange
+        '#FDD835', // Yellow
+        '#43A047', // Green
+        '#00897B', // Teal
+        '#1E88E5', // Blue
+        '#5E35B1', // Purple
+        '#6D4C41', // Brown
+        '#546E7A', // Blue Grey
+    ];
 
     // Initialize state when modal opens
     useEffect(() => {
@@ -23,6 +37,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
             setMin(editingScrubbleNumber.min ?? 0);
             setMax(editingScrubbleNumber.max ?? 100);
             setStep(editingScrubbleNumber.step ?? 1);
+            setColor(editingScrubbleNumber.color ?? '#D81B60');
             setError(null);
         }
     }, [editingScrubbleNumber]);
@@ -55,8 +70,9 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
             min,
             max,
             step,
+            color,
         });
-    }, [varName, defaultValue, min, max, step, validate, saveScrubbleNumberEdit]);
+    }, [varName, defaultValue, min, max, step, color, validate, saveScrubbleNumberEdit]);
 
     // Handle cancel
     const handleCancel = useCallback(() => {
@@ -109,7 +125,8 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                             type="text"
                             value={varName}
                             onChange={(e) => setVarName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D81B60]"
+                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
+                            style={{ '--tw-ring-color': color } as React.CSSProperties}
                             placeholder="e.g., wedgeCount"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -124,7 +141,8 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                             type="number"
                             value={defaultValue}
                             onChange={(e) => setDefaultValue(parseFloat(e.target.value) || 0)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D81B60]"
+                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
+                            style={{ '--tw-ring-color': color } as React.CSSProperties}
                         />
                     </div>
 
@@ -136,7 +154,8 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                                 type="number"
                                 value={min}
                                 onChange={(e) => setMin(parseFloat(e.target.value) || 0)}
-                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D81B60]"
+                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
+                                style={{ '--tw-ring-color': color } as React.CSSProperties}
                             />
                         </div>
                         <div>
@@ -145,7 +164,8 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                                 type="number"
                                 value={max}
                                 onChange={(e) => setMax(parseFloat(e.target.value) || 0)}
-                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D81B60]"
+                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
+                                style={{ '--tw-ring-color': color } as React.CSSProperties}
                             />
                         </div>
                     </div>
@@ -157,10 +177,52 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                             type="number"
                             value={step}
                             onChange={(e) => setStep(parseFloat(e.target.value) || 1)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D81B60]"
+                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
+                            style={{ '--tw-ring-color': color } as React.CSSProperties}
                             min={0.001}
                             step={0.1}
                         />
+                    </div>
+
+                    {/* Color */}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Color</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {COLOR_PRESETS.map((preset) => (
+                                <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => setColor(preset)}
+                                    className="w-7 h-7 rounded-full border-2 transition-all duration-150 hover:scale-110"
+                                    style={{
+                                        backgroundColor: preset,
+                                        borderColor: color === preset ? 'currentColor' : 'transparent',
+                                        boxShadow: color === preset ? `0 0 0 2px ${preset}40` : 'none',
+                                    }}
+                                    title={preset}
+                                />
+                            ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="color"
+                                value={color}
+                                onChange={(e) => setColor(e.target.value)}
+                                className="w-8 h-8 rounded cursor-pointer border-0 p-0"
+                            />
+                            <input
+                                type="text"
+                                value={color}
+                                onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setColor(v);
+                                }}
+                                className="flex-1 px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
+                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                placeholder="#D81B60"
+                                maxLength={7}
+                            />
+                        </div>
                     </div>
 
                     {/* Preview */}
@@ -172,8 +234,8 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                                 <span
                                     className="font-medium cursor-ew-resize"
                                     style={{
-                                        color: '#D81B60',
-                                        borderBottom: '2px solid #D81B60',
+                                        color: color,
+                                        borderBottom: `2px solid ${color}`,
                                         paddingBottom: '1px',
                                     }}
                                 >

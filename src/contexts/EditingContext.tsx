@@ -41,6 +41,7 @@ export interface ScrubbleNumberProps {
     min?: number;
     max?: number;
     step?: number;
+    color?: string;
 }
 
 export interface StructureEdit {
