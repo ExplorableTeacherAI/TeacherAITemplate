@@ -41,6 +41,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const originalTextRef = useRef<string>('');
     const originalHtmlRef = useRef<string>('');
     const originalInlineCountRef = useRef<number>(0);
+    const originalTextWithoutInlineRef = useRef<string>('');
 
     // Inline slash commands (inert when enableSlashCommands is false)
     const {
@@ -77,6 +78,22 @@ export const EditableText: React.FC<EditableTextProps> = ({
         return path.join(' > ');
     }, []);
 
+    // Extract text content from an element, skipping inline component subtrees.
+    // Used to compare only the "real" text (not rendered inline component output)
+    // when deciding whether a text edit should be created.
+    const extractTextWithoutInline = useCallback((el: HTMLElement): string => {
+        let text = '';
+        for (const node of Array.from(el.childNodes)) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                text += node.textContent || '';
+            } else if (node instanceof HTMLElement) {
+                if (node.hasAttribute('data-inline-component')) continue;
+                text += extractTextWithoutInline(node);
+            }
+        }
+        return text;
+    }, []);
+
     // Handle click to enable editing
     const handleClick = useCallback((e: React.MouseEvent) => {
         if (!isEditor) return;
@@ -92,6 +109,8 @@ export const EditableText: React.FC<EditableTextProps> = ({
             // Track how many inline components exist BEFORE editing so we can detect
             // truly new insertions on blur (not pre-existing ones like InlineTrigger).
             originalInlineCountRef.current = containerRef.current.querySelectorAll('[data-inline-component]').length;
+            // Capture text excluding inline component output for accurate change detection
+            originalTextWithoutInlineRef.current = extractTextWithoutInline(containerRef.current);
             setIsContentEditable(true);
 
             // Focus and select the content
@@ -108,7 +127,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
                 }
             }, 0);
         }
-    }, [isEditor, isContentEditable]);
+    }, [isEditor, isContentEditable, extractTextWithoutInline]);
 
     // Handle blur to save changes
     const handleBlur = useCallback(() => {
@@ -125,9 +144,23 @@ export const EditableText: React.FC<EditableTextProps> = ({
         // (e.g. InlineTrigger, InlineScrubbleNumber) are already in the paragraph.
         const currentInlineCount = containerRef.current.querySelectorAll('[data-inline-component]').length;
         const hasNewInlineComponents = enableSlashCommands && currentInlineCount > originalInlineCountRef.current;
+        const hasAnyInlineComponents = currentInlineCount > 0;
 
-        // Only create edit if the actual content changed (text or inner HTML)
-        if (newText !== originalText || newHtml !== originalHtml) {
+        // Decide whether the actual (non-component) text changed.
+        // For paragraphs with inline components, innerText/innerHTML will differ
+        // whenever an inline component re-renders (e.g. after editing its props
+        // via the editor modal) even though the surrounding text is unchanged.
+        // Sending such a text edit to the backend fails because the rendered
+        // inline component text doesn't exist in the JSX source.
+        let textContentChanged: boolean;
+        if (hasAnyInlineComponents) {
+            const newTextWithout = extractTextWithoutInline(containerRef.current);
+            textContentChanged = newTextWithout !== originalTextWithoutInlineRef.current;
+        } else {
+            textContentChanged = newText !== originalText || newHtml !== originalHtml;
+        }
+
+        if (textContentChanged) {
             addTextEdit({
                 blockId: blockId,
                 elementPath: getElementPath(),
@@ -151,7 +184,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         }
 
         setIsContentEditable(false);
-    }, [blockId, getElementPath, addTextEdit, enableSlashCommands]);
+    }, [blockId, getElementPath, addTextEdit, enableSlashCommands, extractTextWithoutInline]);
 
     // Handle keyboard events
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
