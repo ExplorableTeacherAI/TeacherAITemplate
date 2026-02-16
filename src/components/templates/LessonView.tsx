@@ -219,6 +219,23 @@ const hasElementId = (element: ReactNode, targetId: string): boolean => {
 };
 
 /**
+ * Find the id prop of an EditableParagraph (or similar) that has a matching blockId,
+ * so we can preserve it when replacing block content after inline component insertion.
+ */
+const findParagraphId = (element: ReactNode, targetBlockId: string): string | undefined => {
+    if (!isValidElement(element)) return undefined;
+    const el = element as ReactElement<Record<string, unknown>>;
+    if (el.props.blockId === targetBlockId && typeof el.props.id === 'string') {
+        return el.props.id;
+    }
+    let found: string | undefined;
+    Children.forEach(el.props.children, (child) => {
+        if (!found) found = findParagraphId(child, targetBlockId);
+    });
+    return found;
+};
+
+/**
  * Helper to replace content of a block with given ID
  */
 const replaceBlockContent = (element: ReactElement, targetId: string, newContent: ReactNode): ReactElement => {
@@ -345,8 +362,11 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             return prevBlocks.map(block => {
                 if (!hasElementId(block, blockId)) return block;
 
+                // Preserve the original EditableParagraph's id prop
+                const paraId = findParagraphId(block, blockId);
+
                 const contentElement = (
-                    <EditableParagraph blockId={blockId}>
+                    <EditableParagraph id={paraId} blockId={blockId}>
                         {parsedContent}
                     </EditableParagraph>
                 );

@@ -108,11 +108,20 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
 
         const { blockId, elementPath } = editIdentity;
 
-        const edit = [...pendingEdits].reverse().find(e =>
-            e.type === 'trigger' &&
+        const triggerEdits = pendingEdits.filter(e => e.type === 'trigger');
+        const edit = [...triggerEdits].reverse().find(e =>
             (e as any).blockId === blockId &&
             (e as any).elementPath === elementPath
         );
+
+        if (import.meta.env.DEV && triggerEdits.length > 0) {
+            console.log('[InlineTrigger] Matching edit:', {
+                editIdentity: { blockId, elementPath },
+                triggerEditCount: triggerEdits.length,
+                matched: !!edit,
+                effectiveProps: edit ? (edit as any).newProps : null,
+            });
+        }
 
         return edit as { newProps: { text?: string; varName?: string; value?: string | number | boolean; color?: string; bgColor?: string; icon?: string } } | null;
     }, [isEditing, canEdit, pendingEdits, editIdentity]);

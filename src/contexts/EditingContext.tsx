@@ -882,11 +882,18 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const saveTriggerEdit = useCallback((newProps: TriggerComponentProps) => {
-        if (!editingTrigger) return;
+        if (!editingTrigger) {
+            console.warn('[TriggerEdit] saveTriggerEdit called but editingTrigger is null');
+            return;
+        }
 
         const { blockId, elementPath, ...originalProps } = editingTrigger;
 
         const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (import.meta.env.DEV) {
+            console.log('[TriggerEdit] Save:', { blockId, elementPath, propsChanged, originalProps, newProps });
+        }
 
         if (propsChanged) {
             addTriggerEdit({
