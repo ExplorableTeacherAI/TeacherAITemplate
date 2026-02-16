@@ -81,16 +81,6 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
     // ADD YOUR VARIABLES HERE
     // ========================================
 
-    quarterCircleAngle: {
-        defaultValue: '',
-        type: 'text',
-        label: 'Quarter Circle Angle',
-        description: 'Student answer for the quarter circle angle question',
-        placeholder: '???',
-        correctAnswer: '90',
-        color: '#3B82F6',
-    },
-
     // Uncomment and modify these examples for your lesson:
 
     /*
