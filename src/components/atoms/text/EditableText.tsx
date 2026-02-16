@@ -166,14 +166,28 @@ export const EditableText: React.FC<EditableTextProps> = ({
         // text edit causes duplicates: the backend writes the rendered text as plain
         // text AND the component edit inserts the real <InlineTrigger> / etc.
         if (textContentChanged && !hasNewInlineComponents) {
-            addTextEdit({
-                blockId: blockId,
-                elementPath: getElementPath(),
-                originalText,
-                originalHtml,
-                newText,
-                newHtml,
-            });
+            if (hasAnyInlineComponents) {
+                // Strip inline component rendered text — source has JSX tags, not rendered values
+                const cleanOriginal = originalTextWithoutInlineRef.current;
+                const cleanNew = extractTextWithoutInline(containerRef.current);
+                addTextEdit({
+                    blockId: blockId,
+                    elementPath: getElementPath(),
+                    originalText: cleanOriginal,
+                    originalHtml,
+                    newText: cleanNew,
+                    newHtml,
+                });
+            } else {
+                addTextEdit({
+                    blockId: blockId,
+                    elementPath: getElementPath(),
+                    originalText,
+                    originalHtml,
+                    newText,
+                    newHtml,
+                });
+            }
         }
 
         // If inline components were inserted, extract content as markers and
