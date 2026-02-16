@@ -136,16 +136,7 @@ export interface LinkedProps extends BaseAnnotationProps {
     dimOthers?: boolean;
 }
 
-export interface TriggerProps extends BaseAnnotationProps {
-    /** Content to display */
-    children: React.ReactNode;
-    /** The action to trigger */
-    action: () => void;
-    /** Icon to show */
-    icon?: 'play' | 'refresh' | 'toggle' | 'none';
-    /** Whether the action has been triggered */
-    triggered?: boolean;
-}
+// Note: TriggerProps has been removed. Use InlineTrigger from @/components/atoms instead.
 
 export interface FocusProps extends BaseAnnotationProps {
     /** Content to display */
@@ -244,7 +235,6 @@ export const ANNOTATION_STYLE_CONFIG: Record<string, AnnotationStyleConfig> = {
     Scrubber: { category: 'mutable', underline: 'double', defaultColor: 'mutable' },
     Sortable: { category: 'validatable', underline: 'none', defaultColor: 'validatable' },
     Linked: { category: 'connective', underline: 'dotted', defaultColor: 'connective' },
-    Trigger: { category: 'connective', underline: 'solid', defaultColor: 'connective' },
     Focus: { category: 'connective', underline: 'dashed', defaultColor: 'connective' },
     DragWord: { category: 'draggable', underline: 'dashed', defaultColor: 'draggable' },
     Movable: { category: 'draggable', underline: 'none', defaultColor: 'draggable' },

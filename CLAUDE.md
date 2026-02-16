@@ -262,6 +262,42 @@ import { InlineTooltip } from "@/components/atoms";
 | `position` | `string` | `'auto'` | Tooltip position: `'auto'`, `'top'`, `'bottom'` |
 | `maxWidth` | `number` | `400` | Maximum tooltip width in pixels |
 
+## InlineTrigger (Click to Set Variable)
+
+`InlineTrigger` is a clickable inline element that **sets a global variable to a specific value** on click. It belongs to the connective category (emerald `#10B981`) and integrates with the variable store.
+
+### Usage
+
+```tsx
+import { InlineTrigger } from "@/components/atoms";
+
+<EditableParagraph id="para-example" blockId="block-example">
+    The speed is <InlineScrubbleNumber varName="speed" ... />.
+    You can{" "}
+    <InlineTrigger varName="speed" value={1} icon="refresh">
+        reset it to 1
+    </InlineTrigger>{" "}
+    or{" "}
+    <InlineTrigger varName="speed" value={5} icon="zap">
+        max it out
+    </InlineTrigger>.
+</EditableParagraph>
+```
+
+### InlineTrigger Props
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `children` | `ReactNode` | *(required)* | The clickable text displayed inline |
+| `varName` | `string` | `undefined` | Variable to set on click |
+| `value` | `string \| number \| boolean` | `undefined` | Value to set the variable to |
+| `color` | `string` | `#10B981` | Text color (emerald) |
+| `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
+| `icon` | `string` | `undefined` | Icon after text: `'play'`, `'refresh'`, `'zap'`, `'none'` |
+| `onTrigger` | `() => void` | `undefined` | Optional callback after click (not serializable) |
+
+**Note:** Unlike `InlineScrubbleNumber`, `InlineTrigger` does not need a variable definition in `variables.ts` — it only *writes* to the store, it does not read from it. The `varName` should reference a variable already defined for another component (like a scrubble number) that you want to reset or set.
+
 ## Variable Types
 
 | Type | Example Definition |
@@ -324,6 +360,7 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - `InlineClozeChoice` — dropdown choice with answer validation, bound to global variable
 - `InlineToggle` — click to cycle through options, bound to global variable
 - `InlineTooltip` — hover to show tooltip/definition (no variable store)
+- `InlineTrigger` — click to set a variable to a specific value (connective, emerald)
 
 ### Math Components
 

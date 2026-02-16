@@ -51,6 +51,7 @@ export { InlineClozeChoice } from "./text/InlineClozeChoice";
 export { InlineClozeInput } from "./text/InlineClozeInput";
 export { InlineToggle } from "./text/InlineToggle";
 export { InlineTooltip } from "./text/InlineTooltip";
+export { InlineTrigger } from "./text/InlineTrigger";
 export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
 export {
     EditableH1,

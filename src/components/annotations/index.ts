@@ -6,7 +6,7 @@
  * Categories:
  * - Informational: Glossary, Whisper (Hoverable has been replaced by InlineTooltip in @/components/atoms)
  * - Mutable: (Toggle has been replaced by InlineToggle in @/components/atoms)
- * - Connective: Linked, Trigger
+ * - Connective: Linked (Trigger has been replaced by InlineTrigger in @/components/atoms)
  *
  * For fill-in-the-blank / quiz interactions, use InlineClozeInput and
  * InlineClozeChoice from @/components/atoms instead.
@@ -24,7 +24,6 @@
 export { Glossary } from './Glossary';
 export { Whisper } from './Whisper';
 export { Linked, LinkedProvider, useLinkedContext, useActiveLink, useSetActiveLink } from './Linked';
-export { Trigger } from './Trigger';
 
 // Types
 export * from './types';

@@ -51,7 +51,7 @@ src/
 │   ├── atoms/                      # Smallest reusable building blocks
 │   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
 │   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle,
-│   │   │                           #   InlineTooltip, InteractiveHighlight
+│   │   │                           #   InlineTooltip, InlineTrigger, InteractiveHighlight
 │   │   ├── formula/                #   Equation, ColoredEquation
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
 │   │   │                           #   AnimatedGraph, MorphingShapes, ParticleSystem,
@@ -72,7 +72,7 @@ src/
 │   │
 │   ├── annotations/                # Inline annotation wrappers
 │   │   ├── Glossary, Whisper        # (Hoverable replaced by InlineTooltip in atoms)
-│   │   ├── Linked, Trigger
+│   │   ├── Linked                   # (Trigger replaced by InlineTrigger in atoms)
 │   │   └── index.ts
 │   │
 │   ├── layouts/                    # Layout containers
@@ -91,7 +91,7 @@ src/
 │       ├── AnnotationOverlay, LoadingScreen
 │       ├── EquationEditorModal, ScrubbleNumberEditorModal,
 │       │   ClozeInputEditorModal, ClozeChoiceEditorModal, ToggleEditorModal,
-│       │   TooltipEditorModal
+│       │   TooltipEditorModal, TriggerEditorModal
 │       └── index.ts
 │
 ├── stores/                         # Zustand global variable store
@@ -107,7 +107,7 @@ src/
 | `atoms/` | Agent | Smallest building blocks for composing lesson content |
 | `molecules/` | Agent | Components built from multiple atoms |
 | `organisms/` | Agent | Complex self-contained visualizations |
-| `annotations/` | Agent | Inline wrappers for interactivity (glossary, whisper, linked, trigger) |
+| `annotations/` | Agent | Inline wrappers for interactivity (glossary, whisper, linked) |
 | `layouts/` | Agent | Containers that control width, columns, spacing |
 | `templates/` | System | Page infrastructure (Block, LessonView) — do not modify |
 | `utility/` | System | Editor modals, loading screen, overlays — not lesson content |
@@ -196,7 +196,7 @@ Each section exports a **flat array** of `Layout > Block` elements. This is crit
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip } from "@/components/atoms";
+import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger } from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 export const introBlocks: ReactElement[] = [
@@ -293,6 +293,7 @@ All components below are used by the agent to compose lessons. **Every component
 | `InlineClozeChoice` | Dropdown choice with answer validation |
 | `InlineToggle` | Click to cycle through options, bound to global variable |
 | `InlineTooltip` | Shows tooltip/definition on hover (no variable store) |
+| `InlineTrigger` | Click to set a variable to a specific value (connective, emerald) |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -359,9 +360,8 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
 | `Glossary` | Dotted underline | Definition popup with pronunciation |
 | `Whisper` | Faded text | Reveals hidden content on hover |
 | `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
-| `Trigger` | Solid underline | Triggers an action on click |
 
-> **Note:** `Hoverable` has been replaced by `InlineTooltip` (in `@/components/atoms`). Use `InlineTooltip` for hover tooltips.
+> **Note:** `Hoverable` has been replaced by `InlineTooltip` and `Trigger` has been replaced by `InlineTrigger` (both in `@/components/atoms`).
 
 ```tsx
 <EditableParagraph id="para-example" blockId="block-example">
@@ -386,7 +386,10 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
         varName="currentShape"
         options={["triangle", "square", "pentagon", "hexagon"]}
         {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
-    />.
+    />. You can{' '}
+    <InlineTrigger varName="amplitude" value={1} icon="refresh">
+        reset amplitude
+    </InlineTrigger>.
 </EditableParagraph>
 ```
 
@@ -542,6 +545,30 @@ Shows a tooltip/definition on hover. Unlike other inline components, `InlineTool
 | `position` | `string` | `'auto'` | `'auto'`, `'top'`, `'bottom'` |
 | `maxWidth` | `number` | `400` | Maximum tooltip width in pixels |
 
+### InlineTrigger
+
+Clickable inline text that **sets a global variable to a specific value** on click. Belongs to the connective category (emerald `#10B981`). Unlike other inline components, `InlineTrigger` does not need its own variable definition — it *writes* to a variable defined for another component (like a scrubble number).
+
+```tsx
+<InlineTrigger varName="amplitude" value={1} icon="refresh">
+    reset it to 1
+</InlineTrigger>
+
+<InlineTrigger varName="amplitude" value={5} icon="zap">
+    max it out
+</InlineTrigger>
+```
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `children` | `ReactNode` | *(required)* | Clickable text displayed inline |
+| `varName` | `string` | `undefined` | Variable to set on click |
+| `value` | `string \| number \| boolean` | `undefined` | Value to set the variable to |
+| `color` | `string` | `#10B981` | Text color (emerald) |
+| `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
+| `icon` | `string` | `undefined` | `'play'`, `'refresh'`, `'zap'`, `'none'` |
+| `onTrigger` | `() => void` | `undefined` | Optional callback after click |
+
 ---
 
 ## Global Variable Store
@@ -566,7 +593,7 @@ setVar('amplitude', 2.5);
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, Equation } from "@/components/atoms";
+import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";

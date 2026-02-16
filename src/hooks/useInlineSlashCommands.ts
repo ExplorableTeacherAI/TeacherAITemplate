@@ -89,6 +89,13 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 data-component-id="${uniqueId}"
                 style="color: #F59E0B; cursor: help; font-weight: 500; margin: 0 2px; user-select: none;"
             >term</span>`;
+        case 'inlineTrigger':
+            return `<span
+                contenteditable="false"
+                data-inline-component="${commandType}"
+                data-component-id="${uniqueId}"
+                style="display: inline-flex; align-items: center; color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
+            >trigger</span>`;
         default:
             return '';
     }

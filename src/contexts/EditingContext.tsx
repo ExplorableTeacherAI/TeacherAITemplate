@@ -118,6 +118,25 @@ export interface TooltipEdit {
     timestamp: number;
 }
 
+export interface TriggerComponentProps {
+    text?: string;
+    varName?: string;
+    value?: string | number | boolean;
+    color?: string;
+    bgColor?: string;
+    icon?: string;
+}
+
+export interface TriggerComponentEdit {
+    id: string;
+    type: 'trigger';
+    blockId: string;
+    elementPath: string;
+    originalProps: TriggerComponentProps;
+    newProps: TriggerComponentProps;
+    timestamp: number;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -130,7 +149,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -142,6 +161,7 @@ interface EditingContextType {
     editingClozeChoice: (ClozeChoiceProps & { blockId: string; elementPath: string }) | null;
     editingToggle: (ToggleProps & { blockId: string; elementPath: string }) | null;
     editingTooltip: (TooltipProps & { blockId: string; elementPath: string }) | null;
+    editingTrigger: (TriggerComponentProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -153,6 +173,7 @@ interface EditingContextType {
     addClozeChoiceEdit: (edit: Omit<ClozeChoiceEdit, 'id' | 'type' | 'timestamp'>) => void;
     addToggleEdit: (edit: Omit<ToggleEdit, 'id' | 'type' | 'timestamp'>) => void;
     addTooltipEdit: (edit: Omit<TooltipEdit, 'id' | 'type' | 'timestamp'>) => void;
+    addTriggerEdit: (edit: Omit<TriggerComponentEdit, 'id' | 'type' | 'timestamp'>) => void;
     addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
@@ -174,6 +195,9 @@ interface EditingContextType {
     openTooltipEditor: (props: TooltipProps, blockId: string, elementPath: string) => void;
     closeTooltipEditor: () => void;
     saveTooltipEdit: (newProps: TooltipProps) => void;
+    openTriggerEditor: (props: TriggerComponentProps, blockId: string, elementPath: string) => void;
+    closeTriggerEditor: () => void;
+    saveTriggerEdit: (newProps: TriggerComponentProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -210,6 +234,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingTooltip, setEditingTooltip] = useState<(TooltipProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingTrigger, setEditingTrigger] = useState<(TriggerComponentProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -776,6 +804,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingTooltip(null);
     }, [editingTooltip, addTooltipEdit]);
 
+    // Trigger editing methods
+    const addTriggerEdit = useCallback((edit: Omit<TriggerComponentEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: TriggerComponentEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'trigger',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'trigger' &&
+                    (e as TriggerComponentEdit).blockId === edit.blockId &&
+                    (e as TriggerComponentEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as TriggerComponentEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openTriggerEditor = useCallback((
+        props: TriggerComponentProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingTrigger({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeTriggerEditor = useCallback(() => {
+        setEditingTrigger(null);
+    }, []);
+
+    const saveTriggerEdit = useCallback((newProps: TriggerComponentProps) => {
+        if (!editingTrigger) return;
+
+        const { blockId, elementPath, ...originalProps } = editingTrigger;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addTriggerEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingTrigger(null);
+    }, [editingTrigger, addTriggerEdit]);
+
     // Notify parent whenever edits change
     useEffect(() => {
         window.parent.postMessage({
@@ -827,6 +924,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingClozeChoice,
         editingToggle,
         editingTooltip,
+        editingTrigger,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -836,6 +934,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addClozeChoiceEdit,
         addToggleEdit,
         addTooltipEdit,
+        addTriggerEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -857,6 +956,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openTooltipEditor,
         closeTooltipEditor,
         saveTooltipEdit,
+        openTriggerEditor,
+        closeTriggerEditor,
+        saveTriggerEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -866,6 +968,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingClozeChoice,
         editingToggle,
         editingTooltip,
+        editingTrigger,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -875,6 +978,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addClozeChoiceEdit,
         addToggleEdit,
         addTooltipEdit,
+        addTriggerEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -1026,7 +1130,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                                 edit.type === 'clozeInput' ? '#38bdf8' :
                                                                     edit.type === 'clozeChoice' ? '#f472b6' :
                                                                         edit.type === 'toggle' ? '#c084fc' :
-                                                                            edit.type === 'tooltip' ? '#f59e0b' : '#fbbf24'
+                                                                            edit.type === 'tooltip' ? '#f59e0b' :
+                                                                            edit.type === 'trigger' ? '#10B981' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -1131,6 +1236,19 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                         <div style={{ color: '#9ca3af', fontSize: '11px' }}>
                                                             text: {(edit as TooltipEdit).newProps.text || '(none)'} |
                                                             tooltip: {(edit as TooltipEdit).newProps.tooltip?.substring(0, 30) || '(none)'}...
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'trigger' && (
+                                                    <>
+                                                        <div>📍 {(edit as TriggerComponentEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            ⚡ Path: {(edit as TriggerComponentEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            text: {(edit as TriggerComponentEdit).newProps.text || '(none)'} |
+                                                            varName: {(edit as TriggerComponentEdit).newProps.varName || '(none)'} |
+                                                            value: {String((edit as TriggerComponentEdit).newProps.value ?? '(none)')}
                                                         </div>
                                                     </>
                                                 )}

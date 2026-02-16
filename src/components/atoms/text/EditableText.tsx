@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { cn } from '@/lib/utils';
-import { useInlineSlashCommands, hasInlineComponentSpans, extractContentWithMarkers } from '@/hooks/useInlineSlashCommands';
+import { useInlineSlashCommands, extractContentWithMarkers } from '@/hooks/useInlineSlashCommands';
 import { SlashCommandMenu } from '@/components/templates/SlashCommandMenu';
 
 interface EditableTextProps {
@@ -40,6 +40,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const [isContentEditable, setIsContentEditable] = useState(false);
     const originalTextRef = useRef<string>('');
     const originalHtmlRef = useRef<string>('');
+    const originalInlineCountRef = useRef<number>(0);
 
     // Inline slash commands (inert when enableSlashCommands is false)
     const {
@@ -88,6 +89,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
             // which change when entering/leaving edit mode and cause false-positive diffs
             originalTextRef.current = containerRef.current.innerText;
             originalHtmlRef.current = containerRef.current.innerHTML;
+            // Track how many inline components exist BEFORE editing so we can detect
+            // truly new insertions on blur (not pre-existing ones like InlineTrigger).
+            originalInlineCountRef.current = containerRef.current.querySelectorAll('[data-inline-component]').length;
             setIsContentEditable(true);
 
             // Focus and select the content
@@ -115,8 +119,12 @@ export const EditableText: React.FC<EditableTextProps> = ({
         const originalText = originalTextRef.current;
         const originalHtml = originalHtmlRef.current;
 
-        // Check if inline component placeholders were inserted during this edit session
-        const hasNewInlineComponents = enableSlashCommands && hasInlineComponentSpans(containerRef.current);
+        // Check if NEW inline component placeholders were inserted during this edit session.
+        // Compare the current count against the count recorded when editing started.
+        // This prevents unnecessary round-trips when pre-existing inline components
+        // (e.g. InlineTrigger, InlineScrubbleNumber) are already in the paragraph.
+        const currentInlineCount = containerRef.current.querySelectorAll('[data-inline-component]').length;
+        const hasNewInlineComponents = enableSlashCommands && currentInlineCount > originalInlineCountRef.current;
 
         // Only create edit if the actual content changed (text or inner HTML)
         if (newText !== originalText || newHtml !== originalHtml) {

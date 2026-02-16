@@ -93,6 +93,19 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
+    // NUMBER - Trigger demo variable
+    // ─────────────────────────────────────────
+    animationSpeed: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Animation Speed',
+        description: 'Speed multiplier for animations',
+        min: 0,
+        max: 5,
+        step: 0.5,
+    },
+
+    // ─────────────────────────────────────────
     // SELECT - Dropdown with options
     // ─────────────────────────────────────────
     waveType: {

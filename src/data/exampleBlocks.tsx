@@ -27,6 +27,7 @@ import {
     InlineClozeChoice,
     InlineToggle,
     InlineTooltip,
+    InlineTrigger,
 } from "@/components/atoms";
 
 /**
@@ -403,6 +404,46 @@ const exampleBlocks: ReactElement[] = [
                     formatValue={(v) => `${v.toFixed(1)} m/s²`}
                 />
                 . You can adjust these values to see how they affect the trajectory.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // TRIGGER (CLICK TO SET VARIABLE) DEMO
+    // ========================================
+    <FullWidthLayout key="layout-heading-trigger" maxWidth="xl">
+        <Block id="block-heading-trigger" padding="md">
+            <EditableH2 id="h2-trigger-title" blockId="block-heading-trigger">
+                Trigger (Click to Set Variable)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-trigger-intro" maxWidth="xl">
+        <Block id="block-trigger-intro" padding="sm">
+            <EditableParagraph id="para-trigger-intro" blockId="block-trigger-intro">
+                InlineTrigger lets you set a variable to a specific value on click. Combine it with
+                InlineScrubbleNumber so students can explore a value and quickly snap it to key points.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-trigger-example" maxWidth="xl">
+        <Block id="block-trigger-example" padding="sm">
+            <EditableParagraph id="para-trigger-example" blockId="block-trigger-example">
+                The animation speed is{" "}
+                <InlineScrubbleNumber
+                    varName="animationSpeed"
+                    {...numberPropsFromDefinition(getExampleVariableInfo('animationSpeed'))}
+                />
+                . You can{" "}
+                <InlineTrigger varName="animationSpeed" value={1} icon="refresh">
+                    reset it to 1
+                </InlineTrigger>{" "}
+                or{" "}
+                <InlineTrigger varName="animationSpeed" value={5} icon="zap">
+                    max it out
+                </InlineTrigger>.
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

@@ -11,9 +11,8 @@ import {
     Glossary,
     Whisper,
     Linked,
-    Trigger,
 } from '@/components/annotations';
-import { InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip } from '@/components/atoms';
+import { InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger } from '@/components/atoms';
 
 // Demo visualization component for Linked annotations
 const LinkedVisualization = ({ activeId }: { activeId: string | null }) => (
@@ -156,13 +155,13 @@ export const annotationsDemoSections = [
                 {/* Linked with visualization */}
                 <LinkedDemoSection />
 
-                {/* Trigger */}
+                {/* InlineTrigger */}
                 <div className="p-4 bg-emerald-50 rounded-lg">
-                    <h4 className="font-medium mb-2">Trigger (Click to activate)</h4>
+                    <h4 className="font-medium mb-2">InlineTrigger (Click to activate)</h4>
                     <p className="text-lg leading-relaxed">
-                        <Trigger action={() => alert('Animation triggered!')} icon="play">
+                        <InlineTrigger onTrigger={() => alert('Animation triggered!')} icon="play">
                             Click here to trigger an animation
-                        </Trigger>{' '}
+                        </InlineTrigger>{' '}
                         and watch the magic happen!
                     </p>
                 </div>
