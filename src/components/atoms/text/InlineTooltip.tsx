@@ -63,8 +63,18 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
     const [tooltipPosition, setTooltipPosition] = useState<'top' | 'bottom'>('bottom');
     const [tooltipCoords, setTooltipCoords] = useState({ top: 0, left: 0 });
 
-    // Extract text from children for identity
-    const childText = typeof children === 'string' ? children : undefined;
+    // Extract text from children for identity (handles string, number, arrays)
+    const childText = useMemo(() => {
+        if (typeof children === 'string') return children;
+        if (typeof children === 'number') return String(children);
+        if (Array.isArray(children)) {
+            const texts = children
+                .filter(c => typeof c === 'string' || typeof c === 'number')
+                .map(String);
+            return texts.length > 0 ? texts.join('') : undefined;
+        }
+        return undefined;
+    }, [children]);
 
     // Element identity for matching pending edits
     const [editIdentity, setEditIdentity] = useState<{ blockId: string; elementPath: string } | null>(null);
@@ -106,16 +116,29 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
     const effectivePosition = pendingEdit?.newProps.position ?? position;
     const effectiveMaxWidth = pendingEdit?.newProps.maxWidth ?? maxWidth;
 
-    // Stable ID and serialized props for round-trip extraction
+    // DOM text fallback — captured after mount for when childText extraction fails
+    const domTextRef = useRef<string | undefined>(undefined);
+    useEffect(() => {
+        if (containerRef.current) {
+            const text = containerRef.current.textContent?.trim();
+            if (text) domTextRef.current = text;
+        }
+    });
+
+    // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
     const inlineIdRef = useRef(`tooltip-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
-    const componentProps = useMemo(() => JSON.stringify({
-        text: effectiveText,
-        tooltip: effectiveTooltip,
-        color: effectiveColor,
-        bgColor: effectiveBgColor,
-        position: effectivePosition,
-        maxWidth: effectiveMaxWidth,
-    }), [effectiveText, effectiveTooltip, effectiveColor, effectiveBgColor, effectivePosition, effectiveMaxWidth]);
+    const componentProps = useMemo(() => {
+        const textForProps = effectiveText ?? domTextRef.current;
+        const json = JSON.stringify({
+            text: textForProps,
+            tooltip: effectiveTooltip,
+            color: effectiveColor,
+            bgColor: effectiveBgColor,
+            position: effectivePosition,
+            maxWidth: effectiveMaxWidth,
+        });
+        try { return btoa(json); } catch { return ''; }
+    }, [effectiveText, effectiveTooltip, effectiveColor, effectiveBgColor, effectivePosition, effectiveMaxWidth]);
 
     // Calculate tooltip position on hover
     useEffect(() => {
@@ -166,9 +189,11 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
             elementPath = `tooltip-${blockId}-${childText ?? tooltip?.substring(0, 20)}`;
         }
 
+        const text = effectiveText ?? containerRef.current?.textContent?.trim();
+
         openTooltipEditor(
             {
-                text: effectiveText,
+                text,
                 tooltip: effectiveTooltip,
                 color: effectiveColor,
                 bgColor: effectiveBgColor,

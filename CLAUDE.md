@@ -298,6 +298,45 @@ import { InlineTrigger } from "@/components/atoms";
 
 **Note:** Unlike `InlineScrubbleNumber`, `InlineTrigger` does not need a variable definition in `variables.ts` — it only *writes* to the store, it does not read from it. The `varName` should reference a variable already defined for another component (like a scrubble number) that you want to reset or set.
 
+## InlineHyperlink (Click to Navigate)
+
+`InlineHyperlink` is a clickable inline element that either **opens an external URL** in a new tab or **smooth-scrolls to a block** on the page. It belongs to the connective category (emerald `#10B981`) and does **NOT** use the variable store.
+
+### Usage
+
+```tsx
+import { InlineHyperlink } from "@/components/atoms";
+
+<EditableParagraph id="para-example" blockId="block-example">
+    Read the{" "}
+    <InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
+        Wikipedia article on circles
+    </InlineHyperlink>{" "}
+    for more background, or{" "}
+    <InlineHyperlink targetBlockId="block-intro">
+        jump to the intro
+    </InlineHyperlink>{" "}
+    to start over.
+</EditableParagraph>
+```
+
+### InlineHyperlink Props
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `children` | `ReactNode` | *(required)* | The clickable text displayed inline |
+| `href` | `string` | `undefined` | External URL — opens in new tab (`noopener,noreferrer`) |
+| `targetBlockId` | `string` | `undefined` | Block ID to scroll to on page (smooth scroll) |
+| `color` | `string` | `#10B981` | Text color (emerald) |
+| `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
+
+**Click behavior:**
+- `href` set → opens URL in new tab
+- `targetBlockId` set → smooth scrolls to the target block
+- Both set → `href` takes priority
+
+**Note:** `InlineHyperlink` does not use the variable store — it is purely navigational. No `varName` prop needed.
+
 ## Variable Types
 
 | Type | Example Definition |
@@ -361,6 +400,7 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - `InlineToggle` — click to cycle through options, bound to global variable
 - `InlineTooltip` — hover to show tooltip/definition (no variable store)
 - `InlineTrigger` — click to set a variable to a specific value (connective, emerald)
+- `InlineHyperlink` — click to open external URL or scroll to a block on page (connective, emerald)
 
 ### Math Components
 

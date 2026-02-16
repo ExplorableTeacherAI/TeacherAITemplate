@@ -51,7 +51,7 @@ src/
 │   ├── atoms/                      # Smallest reusable building blocks
 │   │   ├── text/                   #   EditableHeadings, EditableParagraph, EditableText,
 │   │   │                           #   InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle,
-│   │   │                           #   InlineTooltip, InlineTrigger, InteractiveHighlight
+│   │   │                           #   InlineTooltip, InlineTrigger, InlineHyperlink, InteractiveHighlight
 │   │   ├── formula/                #   Equation, ColoredEquation
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedBackground,
 │   │   │                           #   AnimatedGraph, MorphingShapes, ParticleSystem,
@@ -91,7 +91,7 @@ src/
 │       ├── AnnotationOverlay, LoadingScreen
 │       ├── EquationEditorModal, ScrubbleNumberEditorModal,
 │       │   ClozeInputEditorModal, ClozeChoiceEditorModal, ToggleEditorModal,
-│       │   TooltipEditorModal, TriggerEditorModal
+│       │   TooltipEditorModal, TriggerEditorModal, HyperlinkEditorModal
 │       └── index.ts
 │
 ├── stores/                         # Zustand global variable store
@@ -196,7 +196,7 @@ Each section exports a **flat array** of `Layout > Block` elements. This is crit
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger } from "@/components/atoms";
+import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, InlineHyperlink } from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 export const introBlocks: ReactElement[] = [
@@ -294,6 +294,7 @@ All components below are used by the agent to compose lessons. **Every component
 | `InlineToggle` | Click to cycle through options, bound to global variable |
 | `InlineTooltip` | Shows tooltip/definition on hover (no variable store) |
 | `InlineTrigger` | Click to set a variable to a specific value (connective, emerald) |
+| `InlineHyperlink` | Click to open external URL or scroll to a block on page (connective, emerald) |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -361,7 +362,7 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
 | `Whisper` | Faded text | Reveals hidden content on hover |
 | `Linked` | Dotted underline | Bidirectional cross-reference highlighting |
 
-> **Note:** `Hoverable` has been replaced by `InlineTooltip` and `Trigger` has been replaced by `InlineTrigger` (both in `@/components/atoms`).
+> **Note:** `Hoverable` has been replaced by `InlineTooltip`, `Trigger` has been replaced by `InlineTrigger`, and `Focus` has been replaced by `InlineHyperlink` with `targetBlockId` (all in `@/components/atoms`).
 
 ```tsx
 <EditableParagraph id="para-example" blockId="block-example">
@@ -389,7 +390,14 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
     />. You can{' '}
     <InlineTrigger varName="amplitude" value={1} icon="refresh">
         reset amplitude
-    </InlineTrigger>.
+    </InlineTrigger>. Read the{' '}
+    <InlineHyperlink href="https://en.wikipedia.org/wiki/Wave">
+        Wikipedia article
+    </InlineHyperlink>{' '}
+    or{' '}
+    <InlineHyperlink targetBlockId="block-intro-title">
+        jump to the intro
+    </InlineHyperlink>.
 </EditableParagraph>
 ```
 
@@ -569,6 +577,30 @@ Clickable inline text that **sets a global variable to a specific value** on cli
 | `icon` | `string` | `undefined` | `'play'`, `'refresh'`, `'zap'`, `'none'` |
 | `onTrigger` | `() => void` | `undefined` | Optional callback after click |
 
+### InlineHyperlink
+
+Clickable inline text that either **opens an external URL** in a new tab or **smooth-scrolls to a block** on the page. Belongs to the connective category (emerald `#10B981`). Does **not** use the variable store — purely navigational.
+
+```tsx
+<InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
+    Wikipedia article on circles
+</InlineHyperlink>
+
+<InlineHyperlink targetBlockId="block-intro">
+    jump to the intro
+</InlineHyperlink>
+```
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `children` | `ReactNode` | *(required)* | Clickable text displayed inline |
+| `href` | `string` | `undefined` | External URL — opens in new tab |
+| `targetBlockId` | `string` | `undefined` | Block ID to scroll to on page |
+| `color` | `string` | `#10B981` | Text color (emerald) |
+| `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
+
+**Click behavior:** `href` → opens new tab; `targetBlockId` → smooth scrolls to block; both set → `href` takes priority.
+
 ---
 
 ## Global Variable Store
@@ -593,7 +625,7 @@ setVar('amplitude', 2.5);
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, Equation } from "@/components/atoms";
+import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, InlineHyperlink, Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";

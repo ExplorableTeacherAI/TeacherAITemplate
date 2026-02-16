@@ -224,19 +224,7 @@
 }
 
 /* Note: .annotation-trigger rules removed — use InlineTrigger from @/components/atoms instead */
-
-/* Focus - highlights target on hover */
-.annotation-focus {
-    color: var(--annotation-connective);
-    border-bottom: 2px dashed var(--annotation-connective);
-    padding-bottom: 1px;
-    cursor: zoom-in;
-}
-
-.annotation-focus:hover {
-    background: var(--annotation-connective-bg);
-    border-radius: 2px 2px 0 0;
-}
+/* Note: .annotation-focus rules removed — use InlineHyperlink with targetBlockId from @/components/atoms instead */
 
 /* ============================================================================
    CATEGORY: DRAGGABLE

@@ -20,16 +20,36 @@ export const extractContentWithMarkers = (element: HTMLElement): string => {
 
             if (componentType && componentId) {
                 // Check for saved props (present on real React-rendered components)
-                const propsJson = el.getAttribute('data-component-props');
-                if (propsJson) {
+                const propsAttr = el.getAttribute('data-component-props');
+                if (propsAttr) {
+                    // Props are stored as base64-encoded JSON on the element.
+                    // Validate it's valid base64 by attempting a decode round-trip.
                     try {
-                        const encoded = btoa(propsJson);
-                        result += `{{${componentType}:${componentId}|${encoded}}}`;
+                        atob(propsAttr); // validate
+                        result += `{{${componentType}:${componentId}|${propsAttr}}}`;
                     } catch {
-                        result += `{{${componentType}:${componentId}}}`;
+                        // Fallback: attribute might be raw JSON (legacy), try encoding it
+                        try {
+                            const encoded = btoa(propsAttr);
+                            result += `{{${componentType}:${componentId}|${encoded}}}`;
+                        } catch {
+                            result += `{{${componentType}:${componentId}}}`;
+                        }
                     }
                 } else {
-                    result += `{{${componentType}:${componentId}}}`;
+                    // No saved props (e.g. newly inserted placeholder via slash command).
+                    // Extract visible text from DOM so the round-trip preserves it.
+                    const domText = el.textContent?.trim();
+                    if (domText) {
+                        try {
+                            const minimalProps = btoa(JSON.stringify({ text: domText }));
+                            result += `{{${componentType}:${componentId}|${minimalProps}}}`;
+                        } catch {
+                            result += `{{${componentType}:${componentId}}}`;
+                        }
+                    } else {
+                        result += `{{${componentType}:${componentId}}}`;
+                    }
                 }
             } else {
                 node.childNodes.forEach(processNode);
@@ -94,8 +114,15 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 contenteditable="false"
                 data-inline-component="${commandType}"
                 data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
+                style="display: inline-flex; align-items: center; color: #10B981; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
             >trigger</span>`;
+        case 'inlineHyperlink':
+            return `<span
+                contenteditable="false"
+                data-inline-component="${commandType}"
+                data-component-id="${uniqueId}"
+                style="display: inline-flex; align-items: center; color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
+            >link</span>`;
         default:
             return '';
     }

@@ -10,3 +10,4 @@ export { ClozeChoiceEditorModal } from "./ClozeChoiceEditorModal";
 export { ToggleEditorModal } from "./ToggleEditorModal";
 export { TooltipEditorModal } from "./TooltipEditorModal";
 export { TriggerEditorModal } from "./TriggerEditorModal";
+export { HyperlinkEditorModal } from "./HyperlinkEditorModal";

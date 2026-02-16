@@ -1,21 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Zap } from 'lucide-react';
+import { ExternalLink, Link } from 'lucide-react';
 import { useEditing } from '@/contexts/EditingContext';
 
-const parseValue = (raw: string): string | number | boolean => {
-    if (raw === 'true') return true;
-    if (raw === 'false') return false;
-    const num = Number(raw);
-    if (!isNaN(num) && raw.trim() !== '') return num;
-    return raw;
-};
+type LinkType = 'external' | 'block';
 
-export const TriggerEditorModal: React.FC = () => {
-    const { editingTrigger, closeTriggerEditor, saveTriggerEdit } = useEditing();
+export const HyperlinkEditorModal: React.FC = () => {
+    const { editingHyperlink, closeHyperlinkEditor, saveHyperlinkEdit } = useEditing();
 
     const [text, setText] = useState('');
-    const [varName, setVarName] = useState('');
-    const [valueStr, setValueStr] = useState('');
+    const [linkType, setLinkType] = useState<LinkType>('external');
+    const [href, setHref] = useState('');
+    const [targetBlockId, setTargetBlockId] = useState('');
     const [color, setColor] = useState('#10B981');
     const [bgColor, setBgColor] = useState('rgba(16, 185, 129, 0.15)');
 
@@ -47,28 +42,29 @@ export const TriggerEditorModal: React.FC = () => {
 
     // Initialize state when modal opens
     useEffect(() => {
-        if (editingTrigger) {
-            setText(editingTrigger.text || '');
-            setVarName(editingTrigger.varName || '');
-            setValueStr(editingTrigger.value !== undefined ? String(editingTrigger.value) : '');
-            setColor(editingTrigger.color || '#10B981');
-            setBgColor(editingTrigger.bgColor || 'rgba(16, 185, 129, 0.15)');
+        if (editingHyperlink) {
+            setText(editingHyperlink.text || '');
+            setHref(editingHyperlink.href || '');
+            setTargetBlockId(editingHyperlink.targetBlockId || '');
+            setLinkType(editingHyperlink.href ? 'external' : 'block');
+            setColor(editingHyperlink.color || '#10B981');
+            setBgColor(editingHyperlink.bgColor || 'rgba(16, 185, 129, 0.15)');
         }
-    }, [editingTrigger]);
+    }, [editingHyperlink]);
 
     const handleSave = useCallback(() => {
-        saveTriggerEdit({
+        saveHyperlinkEdit({
             text: text || undefined,
-            varName: varName || undefined,
-            value: valueStr ? parseValue(valueStr) : undefined,
+            href: linkType === 'external' ? (href || undefined) : undefined,
+            targetBlockId: linkType === 'block' ? (targetBlockId || undefined) : undefined,
             color,
             bgColor: bgColor || undefined,
         });
-    }, [text, varName, valueStr, color, bgColor, saveTriggerEdit]);
+    }, [text, linkType, href, targetBlockId, color, bgColor, saveHyperlinkEdit]);
 
     const handleCancel = useCallback(() => {
-        closeTriggerEditor();
-    }, [closeTriggerEditor]);
+        closeHyperlinkEditor();
+    }, [closeHyperlinkEditor]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Escape') {
@@ -76,7 +72,7 @@ export const TriggerEditorModal: React.FC = () => {
         }
     }, [handleCancel]);
 
-    if (!editingTrigger) return null;
+    if (!editingHyperlink) return null;
 
     return (
         <div
@@ -87,8 +83,8 @@ export const TriggerEditorModal: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
-                        <Zap className="w-5 h-5" style={{ color: '#10B981' }} />
-                        Edit Trigger
+                        <Link className="w-5 h-5" style={{ color: '#10B981' }} />
+                        Edit Hyperlink
                     </h2>
                     <button
                         onClick={handleCancel}
@@ -102,10 +98,10 @@ export const TriggerEditorModal: React.FC = () => {
 
                 {/* Content */}
                 <div className="flex-1 overflow-auto p-4 space-y-4">
-                    {/* Trigger Text */}
+                    {/* Link Text */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Trigger Text
+                            Link Text
                         </label>
                         <input
                             type="text"
@@ -113,48 +109,85 @@ export const TriggerEditorModal: React.FC = () => {
                             onChange={(e) => setText(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
                             style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            placeholder="e.g., reset speed, max it out"
+                            placeholder="e.g., Wikipedia article, jump to section"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                             The clickable label text
                         </p>
                     </div>
 
-                    {/* Variable Name */}
+                    {/* Link Type */}
                     <div>
-                        <label className="block text-sm font-medium mb-2">
-                            Variable Name
-                        </label>
-                        <input
-                            type="text"
-                            value={varName}
-                            onChange={(e) => setVarName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            placeholder="e.g., animationSpeed"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Which global variable to set on click
-                        </p>
+                        <label className="block text-sm font-medium mb-2">Link Type</label>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setLinkType('external')}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border-2 transition-all duration-150"
+                                style={{
+                                    borderColor: linkType === 'external' ? color : 'transparent',
+                                    backgroundColor: linkType === 'external' ? `${color}15` : 'var(--muted)',
+                                    color: linkType === 'external' ? color : 'inherit',
+                                }}
+                            >
+                                <ExternalLink size={14} />
+                                External URL
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setLinkType('block')}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border-2 transition-all duration-150"
+                                style={{
+                                    borderColor: linkType === 'block' ? color : 'transparent',
+                                    backgroundColor: linkType === 'block' ? `${color}15` : 'var(--muted)',
+                                    color: linkType === 'block' ? color : 'inherit',
+                                }}
+                            >
+                                <Link size={14} />
+                                Block on Page
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Value */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">
-                            Value
-                        </label>
-                        <input
-                            type="text"
-                            value={valueStr}
-                            onChange={(e) => setValueStr(e.target.value)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            placeholder="e.g., 0, true, fast"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Value to set (numbers, true/false, or strings)
-                        </p>
-                    </div>
+                    {/* URL (shown for external) */}
+                    {linkType === 'external' && (
+                        <div>
+                            <label className="block text-sm font-medium mb-2">
+                                URL
+                            </label>
+                            <input
+                                type="text"
+                                value={href}
+                                onChange={(e) => setHref(e.target.value)}
+                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
+                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                placeholder="https://example.com"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Opens in a new tab
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Target Block ID (shown for block) */}
+                    {linkType === 'block' && (
+                        <div>
+                            <label className="block text-sm font-medium mb-2">
+                                Target Block ID
+                            </label>
+                            <input
+                                type="text"
+                                value={targetBlockId}
+                                onChange={(e) => setTargetBlockId(e.target.value)}
+                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
+                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                placeholder="block-intro"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Smooth scrolls to the block with this ID
+                            </p>
+                        </div>
+                    )}
 
                     {/* Color */}
                     <div>
@@ -235,12 +268,17 @@ export const TriggerEditorModal: React.FC = () => {
                                 <span
                                     className="font-medium cursor-pointer"
                                     style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
                                         color: color,
+                                        borderBottom: `2px solid ${color}`,
+                                        paddingBottom: '1px',
                                     }}
                                 >
-                                    {text || 'trigger'}
+                                    {text || 'link'}
                                 </span>
-                                {" "}to set {varName || 'variable'} = {valueStr || '?'}
+                                {" "}to {linkType === 'external' ? `open ${href || 'URL'}` : `scroll to ${targetBlockId || 'block'}`}
                             </span>
                         </div>
                     </div>
@@ -266,4 +304,4 @@ export const TriggerEditorModal: React.FC = () => {
     );
 };
 
-export default TriggerEditorModal;
+export default HyperlinkEditorModal;

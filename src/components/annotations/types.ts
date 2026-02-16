@@ -137,15 +137,7 @@ export interface LinkedProps extends BaseAnnotationProps {
 }
 
 // Note: TriggerProps has been removed. Use InlineTrigger from @/components/atoms instead.
-
-export interface FocusProps extends BaseAnnotationProps {
-    /** Content to display */
-    children: React.ReactNode;
-    /** Target element selector or ref */
-    target: string | React.RefObject<HTMLElement>;
-    /** Zoom level when focused */
-    zoomLevel?: number;
-}
+// Note: FocusProps has been removed. Use InlineHyperlink with targetBlockId from @/components/atoms instead.
 
 // ============================================================================
 // CATEGORY: DRAGGABLE
@@ -235,7 +227,6 @@ export const ANNOTATION_STYLE_CONFIG: Record<string, AnnotationStyleConfig> = {
     Scrubber: { category: 'mutable', underline: 'double', defaultColor: 'mutable' },
     Sortable: { category: 'validatable', underline: 'none', defaultColor: 'validatable' },
     Linked: { category: 'connective', underline: 'dotted', defaultColor: 'connective' },
-    Focus: { category: 'connective', underline: 'dashed', defaultColor: 'connective' },
     DragWord: { category: 'draggable', underline: 'dashed', defaultColor: 'draggable' },
     Movable: { category: 'draggable', underline: 'none', defaultColor: 'draggable' },
 };

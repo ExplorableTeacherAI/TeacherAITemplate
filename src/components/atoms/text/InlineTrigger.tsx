@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Play, RefreshCw, Zap } from 'lucide-react';
 import { useSetVar } from '@/stores/variableStore';
 import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
@@ -18,21 +17,11 @@ interface InlineTriggerProps {
     color?: string;
     /** Optional background color on hover */
     bgColor?: string;
-    /** Icon to show: 'play' | 'refresh' | 'zap' | 'none' */
+    /** @deprecated Icon prop is no longer rendered */
     icon?: string;
     /** Optional callback on trigger */
     onTrigger?: () => void;
 }
-
-const getIconComponent = (icon: string | undefined) => {
-    switch (icon) {
-        case 'play': return Play;
-        case 'refresh': return RefreshCw;
-        case 'zap': return Zap;
-        case 'none': return null;
-        default: return null;
-    }
-};
 
 /**
  * InlineTrigger Component
@@ -76,8 +65,18 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
     // Hover state
     const [isHovered, setIsHovered] = useState(false);
 
-    // Extract text from children for identity
-    const childText = typeof children === 'string' ? children : undefined;
+    // Extract text from children for identity (handles string, number, arrays)
+    const childText = useMemo(() => {
+        if (typeof children === 'string') return children;
+        if (typeof children === 'number') return String(children);
+        if (Array.isArray(children)) {
+            const texts = children
+                .filter(c => typeof c === 'string' || typeof c === 'number')
+                .map(String);
+            return texts.length > 0 ? texts.join('') : undefined;
+        }
+        return undefined;
+    }, [children]);
 
     // Element identity for matching pending edits
     const [editIdentity, setEditIdentity] = useState<{ blockId: string; elementPath: string } | null>(null);
@@ -124,18 +123,30 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
     const effectiveValue = pendingEdit?.newProps.value ?? value;
     const effectiveColor = pendingEdit?.newProps.color ?? color;
     const effectiveBgColor = pendingEdit?.newProps.bgColor ?? bgColor;
-    const effectiveIcon = pendingEdit?.newProps.icon ?? icon;
 
-    // Stable ID and serialized props for round-trip extraction
+    // DOM text fallback — captured after mount for when childText extraction fails
+    const domTextRef = useRef<string | undefined>(undefined);
+    useEffect(() => {
+        if (containerRef.current) {
+            const text = containerRef.current.textContent?.trim();
+            if (text) domTextRef.current = text;
+        }
+    });
+
+    // Stable ID and serialized props for round-trip extraction (base64-encoded for HTML attribute safety)
     const inlineIdRef = useRef(`trigger-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
-    const componentProps = useMemo(() => JSON.stringify({
-        text: effectiveText,
-        varName: effectiveVarName,
-        value: effectiveValue,
-        color: effectiveColor,
-        bgColor: effectiveBgColor,
-        icon: effectiveIcon,
-    }), [effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor, effectiveIcon]);
+    const componentProps = useMemo(() => {
+        // Always include text to survive round-trip; fall back to DOM text or default
+        const textForProps = effectiveText ?? domTextRef.current;
+        const json = JSON.stringify({
+            text: textForProps,
+            varName: effectiveVarName,
+            value: effectiveValue,
+            color: effectiveColor,
+            bgColor: effectiveBgColor,
+        });
+        try { return btoa(json); } catch { return ''; }
+    }, [effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor]);
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
@@ -150,19 +161,21 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
             elementPath = `trigger-${blockId}-${identitySuffix}`;
         }
 
+        // Use effectiveText, falling back to DOM textContent for robustness
+        const text = effectiveText ?? containerRef.current?.textContent?.trim();
+
         openTriggerEditor(
             {
-                text: effectiveText,
+                text,
                 varName: effectiveVarName,
                 value: effectiveValue,
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
-                icon: effectiveIcon,
             },
             blockId,
             elementPath
         );
-    }, [editIdentity, blockIdFromContext, effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor, effectiveIcon, openTriggerEditor, identitySuffix]);
+    }, [editIdentity, blockIdFromContext, effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor, openTriggerEditor, identitySuffix]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (canEdit && isEditing) {
@@ -187,8 +200,6 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
         contentEditable: false as const,
     };
 
-    const IconComponent = getIconComponent(effectiveIcon);
-
     // Editor mode rendering
     if (canEdit && isEditing) {
         return (
@@ -205,16 +216,9 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
                     className="font-medium cursor-pointer"
                     style={{
                         color: effectiveColor,
-                        borderBottom: `2px solid ${effectiveColor}`,
-                        paddingBottom: '2px',
                     }}
                 >
                     {effectiveText ?? children}
-                    {IconComponent && (
-                        <span style={{ display: 'inline-flex', marginLeft: '4px', opacity: 0.6 }}>
-                            <IconComponent size={14} />
-                        </span>
-                    )}
                 </span>
 
                 {/* Edit button on hover */}
@@ -249,12 +253,9 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
                 style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '4px',
                     color: effectiveColor,
-                    borderBottom: `2px solid ${effectiveColor}`,
-                    paddingBottom: '1px',
                     background: isHovered ? effectiveBgColor : 'transparent',
-                    borderRadius: isHovered ? '3px 3px 0 0' : '0',
+                    borderRadius: isHovered ? '3px' : '0',
                     transition: 'all 0.2s ease',
                 }}
                 whileTap={{ scale: 0.97 }}
@@ -262,14 +263,6 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
                 role="button"
             >
                 {effectiveText ?? children}
-                {IconComponent && (
-                    <motion.span
-                        animate={{ opacity: isHovered ? 0.8 : 0.5 }}
-                        style={{ display: 'inline-flex' }}
-                    >
-                        <IconComponent size={14} />
-                    </motion.span>
-                )}
             </motion.span>
         </span>
     );

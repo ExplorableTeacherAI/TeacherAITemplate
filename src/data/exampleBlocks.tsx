@@ -28,6 +28,7 @@ import {
     InlineToggle,
     InlineTooltip,
     InlineTrigger,
+    InlineHyperlink,
 } from "@/components/atoms";
 
 /**
@@ -437,13 +438,49 @@ const exampleBlocks: ReactElement[] = [
                     {...numberPropsFromDefinition(getExampleVariableInfo('animationSpeed'))}
                 />
                 . You can{" "}
-                <InlineTrigger varName="animationSpeed" value={1} icon="refresh">
+                <InlineTrigger varName="animationSpeed" value={1}>
                     reset it to 1
                 </InlineTrigger>{" "}
                 or{" "}
-                <InlineTrigger varName="animationSpeed" value={5} icon="zap">
+                <InlineTrigger varName="animationSpeed" value={5}>
                     max it out
                 </InlineTrigger>.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // HYPERLINK (CLICK TO NAVIGATE) DEMO
+    // ========================================
+    <FullWidthLayout key="layout-heading-hyperlink" maxWidth="xl">
+        <Block id="block-heading-hyperlink" padding="md">
+            <EditableH2 id="h2-hyperlink-title" blockId="block-heading-hyperlink">
+                Hyperlink (Click to Navigate)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-hyperlink-intro" maxWidth="xl">
+        <Block id="block-hyperlink-intro" padding="sm">
+            <EditableParagraph id="para-hyperlink-intro" blockId="block-hyperlink-intro">
+                InlineHyperlink turns text into a clickable link that either opens an external URL in a
+                new tab or smooth-scrolls to another block on the page.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-hyperlink-examples" maxWidth="xl">
+        <Block id="block-hyperlink-examples" padding="sm">
+            <EditableParagraph id="para-hyperlink-examples" blockId="block-hyperlink-examples">
+                Read the{" "}
+                <InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
+                    Wikipedia article on circles
+                </InlineHyperlink>{" "}
+                for more background, or{" "}
+                <InlineHyperlink targetBlockId="block-heading-trigger">
+                    jump to the Trigger section
+                </InlineHyperlink>{" "}
+                above to see how triggers work.
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

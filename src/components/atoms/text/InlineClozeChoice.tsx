@@ -151,16 +151,19 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
         };
     }, [isOpen]);
 
-    // Stable ID and serialized props for round-trip extraction
+    // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
     const inlineIdRef = useRef(varName || `choice-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
-    const componentProps = useMemo(() => JSON.stringify({
-        varName: effectiveVarName,
-        correctAnswer: effectiveCorrectAnswer,
-        options: effectiveOptions,
-        placeholder: effectivePlaceholder,
-        color: effectiveColor,
-        bgColor: effectiveBgColor,
-    }), [effectiveVarName, effectiveCorrectAnswer, effectiveOptions, effectivePlaceholder, effectiveColor, effectiveBgColor]);
+    const componentProps = useMemo(() => {
+        const json = JSON.stringify({
+            varName: effectiveVarName,
+            correctAnswer: effectiveCorrectAnswer,
+            options: effectiveOptions,
+            placeholder: effectivePlaceholder,
+            color: effectiveColor,
+            bgColor: effectiveBgColor,
+        });
+        try { return btoa(json); } catch { return ''; }
+    }, [effectiveVarName, effectiveCorrectAnswer, effectiveOptions, effectivePlaceholder, effectiveColor, effectiveBgColor]);
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();

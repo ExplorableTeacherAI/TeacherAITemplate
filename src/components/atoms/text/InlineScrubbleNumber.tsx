@@ -324,16 +324,19 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     // Stable unique ID for this component instance (for round-trip extraction)
     const inlineIdRef = useRef(varName || `scrubble-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
-    // Serialize essential props as a data attribute so extractContentWithMarkers
-    // can preserve them during round-trip re-rendering
-    const componentProps = JSON.stringify({
-        varName: effectiveVarName,
-        defaultValue: effectiveDefaultValue,
-        min: displayMin,
-        max: displayMax,
-        step: displayStep,
-        color: effectiveColor,
-    });
+    // Serialize essential props as a base64-encoded data attribute so extractContentWithMarkers
+    // can preserve them during round-trip re-rendering (base64 is HTML-attribute-safe)
+    const componentProps = (() => {
+        const json = JSON.stringify({
+            varName: effectiveVarName,
+            defaultValue: effectiveDefaultValue,
+            min: displayMin,
+            max: displayMax,
+            step: displayStep,
+            color: effectiveColor,
+        });
+        try { return btoa(json); } catch { return ''; }
+    })();
 
     return (
         <span

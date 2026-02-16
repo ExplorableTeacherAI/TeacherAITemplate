@@ -137,6 +137,24 @@ export interface TriggerComponentEdit {
     timestamp: number;
 }
 
+export interface HyperlinkComponentProps {
+    text?: string;
+    href?: string;
+    targetBlockId?: string;
+    color?: string;
+    bgColor?: string;
+}
+
+export interface HyperlinkComponentEdit {
+    id: string;
+    type: 'hyperlink';
+    blockId: string;
+    elementPath: string;
+    originalProps: HyperlinkComponentProps;
+    newProps: HyperlinkComponentProps;
+    timestamp: number;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -149,7 +167,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -162,6 +180,7 @@ interface EditingContextType {
     editingToggle: (ToggleProps & { blockId: string; elementPath: string }) | null;
     editingTooltip: (TooltipProps & { blockId: string; elementPath: string }) | null;
     editingTrigger: (TriggerComponentProps & { blockId: string; elementPath: string }) | null;
+    editingHyperlink: (HyperlinkComponentProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -198,6 +217,10 @@ interface EditingContextType {
     openTriggerEditor: (props: TriggerComponentProps, blockId: string, elementPath: string) => void;
     closeTriggerEditor: () => void;
     saveTriggerEdit: (newProps: TriggerComponentProps) => void;
+    addHyperlinkEdit: (edit: Omit<HyperlinkComponentEdit, 'id' | 'type' | 'timestamp'>) => void;
+    openHyperlinkEditor: (props: HyperlinkComponentProps, blockId: string, elementPath: string) => void;
+    closeHyperlinkEditor: () => void;
+    saveHyperlinkEdit: (newProps: HyperlinkComponentProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -238,6 +261,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingTrigger, setEditingTrigger] = useState<(TriggerComponentProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingHyperlink, setEditingHyperlink] = useState<(HyperlinkComponentProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -873,6 +900,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingTrigger(null);
     }, [editingTrigger, addTriggerEdit]);
 
+    // Hyperlink editing methods
+    const addHyperlinkEdit = useCallback((edit: Omit<HyperlinkComponentEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: HyperlinkComponentEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'hyperlink',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'hyperlink' &&
+                    (e as HyperlinkComponentEdit).blockId === edit.blockId &&
+                    (e as HyperlinkComponentEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as HyperlinkComponentEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openHyperlinkEditor = useCallback((
+        props: HyperlinkComponentProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingHyperlink({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeHyperlinkEditor = useCallback(() => {
+        setEditingHyperlink(null);
+    }, []);
+
+    const saveHyperlinkEdit = useCallback((newProps: HyperlinkComponentProps) => {
+        if (!editingHyperlink) return;
+
+        const { blockId, elementPath, ...originalProps } = editingHyperlink;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addHyperlinkEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingHyperlink(null);
+    }, [editingHyperlink, addHyperlinkEdit]);
+
     // Notify parent whenever edits change
     useEffect(() => {
         window.parent.postMessage({
@@ -925,6 +1021,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingToggle,
         editingTooltip,
         editingTrigger,
+        editingHyperlink,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -935,6 +1032,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addToggleEdit,
         addTooltipEdit,
         addTriggerEdit,
+        addHyperlinkEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -959,6 +1057,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openTriggerEditor,
         closeTriggerEditor,
         saveTriggerEdit,
+        openHyperlinkEditor,
+        closeHyperlinkEditor,
+        saveHyperlinkEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -969,6 +1070,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingToggle,
         editingTooltip,
         editingTrigger,
+        editingHyperlink,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -979,6 +1081,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addToggleEdit,
         addTooltipEdit,
         addTriggerEdit,
+        addHyperlinkEdit,
         addStructureEdit,
         removeEdit,
         clearAllEdits,
@@ -1000,6 +1103,12 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openTooltipEditor,
         closeTooltipEditor,
         saveTooltipEdit,
+        openTriggerEditor,
+        closeTriggerEditor,
+        saveTriggerEdit,
+        openHyperlinkEditor,
+        closeHyperlinkEditor,
+        saveHyperlinkEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -1131,7 +1240,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                                     edit.type === 'clozeChoice' ? '#f472b6' :
                                                                         edit.type === 'toggle' ? '#c084fc' :
                                                                             edit.type === 'tooltip' ? '#f59e0b' :
-                                                                            edit.type === 'trigger' ? '#10B981' : '#fbbf24'
+                                                                            edit.type === 'trigger' ? '#10B981' :
+                                                                            edit.type === 'hyperlink' ? '#10B981' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -1249,6 +1359,19 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                             text: {(edit as TriggerComponentEdit).newProps.text || '(none)'} |
                                                             varName: {(edit as TriggerComponentEdit).newProps.varName || '(none)'} |
                                                             value: {String((edit as TriggerComponentEdit).newProps.value ?? '(none)')}
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'hyperlink' && (
+                                                    <>
+                                                        <div>📍 {(edit as HyperlinkComponentEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            🔗 Path: {(edit as HyperlinkComponentEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            text: {(edit as HyperlinkComponentEdit).newProps.text || '(none)'} |
+                                                            href: {(edit as HyperlinkComponentEdit).newProps.href || '(none)'} |
+                                                            target: {(edit as HyperlinkComponentEdit).newProps.targetBlockId || '(none)'}
                                                         </div>
                                                     </>
                                                 )}

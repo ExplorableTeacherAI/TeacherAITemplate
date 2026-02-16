@@ -12,6 +12,7 @@ import {
     TextCursor,
     Info,
     Zap,
+    Link,
 } from "lucide-react";
 
 // Block-level command types (replace the entire block)
@@ -30,14 +31,15 @@ export type InlineCommandType =
     | "inlineClozeChoice"
     | "inlineToggle"
     | "inlineTooltip"
-    | "inlineTrigger";
+    | "inlineTrigger"
+    | "inlineHyperlink";
 
 // Combined type for all slash commands
 export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip", "inlineTrigger"].includes(type);
+    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip", "inlineTrigger", "inlineHyperlink"].includes(type);
 };
 
 interface SlashCommand {
@@ -146,6 +148,14 @@ const slashCommands: SlashCommand[] = [
         description: "Click to set a variable value",
         icon: <Zap className="h-4 w-4" />,
         keywords: ["trigger", "click", "action", "event", "activate", "run", "fire"],
+        category: "inline",
+    },
+    {
+        id: "inlineHyperlink",
+        label: "Hyperlink",
+        description: "Link to URL or scroll to block",
+        icon: <Link className="h-4 w-4" />,
+        keywords: ["link", "hyperlink", "url", "href", "anchor", "navigate", "scroll", "goto"],
         category: "inline",
     },
 ];
