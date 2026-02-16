@@ -160,7 +160,12 @@ export const EditableText: React.FC<EditableTextProps> = ({
             textContentChanged = newText !== originalText || newHtml !== originalHtml;
         }
 
-        if (textContentChanged) {
+        // Only create a text edit when no NEW inline components were inserted.
+        // New inline components (from slash commands) have their own edit pipeline
+        // (trigger/hyperlink/tooltip edits). Including their rendered text in the
+        // text edit causes duplicates: the backend writes the rendered text as plain
+        // text AND the component edit inserts the real <InlineTrigger> / etc.
+        if (textContentChanged && !hasNewInlineComponents) {
             addTextEdit({
                 blockId: blockId,
                 elementPath: getElementPath(),
