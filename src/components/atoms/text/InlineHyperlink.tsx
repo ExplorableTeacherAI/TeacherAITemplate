@@ -6,6 +6,8 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineHyperlinkProps {
+    /** Unique identifier for this component instance */
+    id?: string;
     /** Link text content */
     children: React.ReactNode;
     /** External URL (opens new tab) */
@@ -39,6 +41,7 @@ interface InlineHyperlinkProps {
  * ```
  */
 export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
+    id,
     children,
     href,
     targetBlockId,
@@ -122,7 +125,7 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
     });
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(`hyperlink-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || `hyperlink-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const textForProps = effectiveText ?? domTextRef.current;
         const json = JSON.stringify({

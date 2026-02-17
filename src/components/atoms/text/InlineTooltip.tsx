@@ -7,6 +7,8 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineTooltipProps {
+    /** Unique identifier for this component instance */
+    id?: string;
     /** The trigger text content */
     children: React.ReactNode;
     /** The tooltip/definition content shown on hover */
@@ -40,6 +42,7 @@ interface InlineTooltipProps {
  * ```
  */
 export const InlineTooltip: React.FC<InlineTooltipProps> = ({
+    id,
     children,
     tooltip,
     color = '#F59E0B',
@@ -126,7 +129,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
     });
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(`tooltip-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || `tooltip-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const textForProps = effectiveText ?? domTextRef.current;
         const json = JSON.stringify({

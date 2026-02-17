@@ -135,6 +135,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-radius-example" blockId="block-paragraph-04">
                 The circle has a radius of{" "}
                 <InlineScrubbleNumber
+                    id="scrubble-radius"
                     varName="radius"
                     {...numberPropsFromDefinition(getExampleVariableInfo('radius'))}
                 />
@@ -148,6 +149,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-temperature-example" blockId="block-paragraph-05">
                 If we increase the temperature to{" "}
                 <InlineScrubbleNumber
+                    id="scrubble-temperature"
                     varName="temperature"
                     {...numberPropsFromDefinition(getExampleVariableInfo('temperature'))}
                     formatValue={(v) => `${v}°C`}
@@ -162,6 +164,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-count-example" blockId="block-paragraph-06">
                 There are{" "}
                 <InlineScrubbleNumber
+                    id="scrubble-count"
                     varName="count"
                     {...numberPropsFromDefinition(getExampleVariableInfo('count'))}
                 />
@@ -195,6 +198,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-cloze-angle" blockId="block-paragraph-cloze-01">
                 A quarter circle is{" "}
                 <InlineClozeInput
+                    id="cloze-quarter-circle-angle"
                     varName="quarterCircleAngle"
                     correctAnswer="90"
                     {...clozePropsFromDefinition(getExampleVariableInfo('quarterCircleAngle'))}
@@ -209,6 +213,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-cloze-unit" blockId="block-paragraph-cloze-02">
                 The SI unit of frequency is{" "}
                 <InlineClozeInput
+                    id="cloze-wave-unit"
                     varName="waveUnit"
                     correctAnswer="Hertz"
                     {...clozePropsFromDefinition(getExampleVariableInfo('waveUnit'))}
@@ -234,6 +239,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-choice-shape" blockId="block-paragraph-choice-01">
                 The definition of a sphere is similar to a{" "}
                 <InlineClozeChoice
+                    id="choice-shape-answer"
                     varName="shapeAnswer"
                     correctAnswer="circle"
                     options={["cube", "circle", "square", "triangle"]}
@@ -249,6 +255,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-choice-wave" blockId="block-paragraph-choice-02">
                 Light waves are an example of{" "}
                 <InlineClozeChoice
+                    id="choice-wave-type"
                     varName="waveTypeAnswer"
                     correctAnswer="transverse"
                     options={["transverse", "longitudinal", "surface"]}
@@ -275,6 +282,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-toggle-shapes" blockId="block-paragraph-toggle-01">
                 The current shape is a{" "}
                 <InlineToggle
+                    id="toggle-current-shape"
                     varName="currentShape"
                     options={["triangle", "square", "pentagon", "hexagon"]}
                     {...togglePropsFromDefinition(getExampleVariableInfo('currentShape'))}
@@ -289,6 +297,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-toggle-measurement" blockId="block-paragraph-toggle-02">
                 A circle has three key measurements. The{" "}
                 <InlineToggle
+                    id="toggle-measurement-type"
                     varName="measurementType"
                     options={["radius", "diameter", "circumference"]}
                     {...togglePropsFromDefinition(getExampleVariableInfo('measurementType'))}
@@ -323,11 +332,11 @@ const exampleBlocks: ReactElement[] = [
         <Block id="block-paragraph-tooltip-01" padding="sm">
             <EditableParagraph id="para-tooltip-circle" blockId="block-paragraph-tooltip-01">
                 Every point on a{" "}
-                <InlineTooltip tooltip="A shape where all points are equidistant from the center.">
+                <InlineTooltip id="tooltip-circle-def" tooltip="A shape where all points are equidistant from the center.">
                     circle
                 </InlineTooltip>
                 {" "}is the same distance from its center. This distance is called the{" "}
-                <InlineTooltip tooltip="The distance from the center of a circle to any point on its edge.">
+                <InlineTooltip id="tooltip-radius-def" tooltip="The distance from the center of a circle to any point on its edge.">
                     radius
                 </InlineTooltip>
                 .
@@ -340,6 +349,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-tooltip-physics" blockId="block-paragraph-tooltip-02">
                 In physics,{" "}
                 <InlineTooltip
+                    id="tooltip-vectors-def"
                     tooltip="A quantity that has both magnitude and direction, represented by an arrow."
                     color="#3B82F6"
                 >
@@ -347,6 +357,7 @@ const exampleBlocks: ReactElement[] = [
                 </InlineTooltip>
                 {" "}are used to describe forces and motion. The{" "}
                 <InlineTooltip
+                    id="tooltip-acceleration-def"
                     tooltip="The rate of change of velocity with respect to time, measured in m/s²."
                     color="#10B981"
                 >
@@ -373,12 +384,14 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-projectile-intro" blockId="block-paragraph-07">
                 Consider a projectile launched at an angle. The initial velocity is{" "}
                 <InlineScrubbleNumber
+                    id="scrubble-velocity"
                     varName="velocity"
                     {...numberPropsFromDefinition(getExampleVariableInfo('velocity'))}
                     formatValue={(v) => `${v} m/s`}
                 />
                 {" "}and the launch angle is{" "}
                 <InlineScrubbleNumber
+                    id="scrubble-angle"
                     varName="angle"
                     {...numberPropsFromDefinition(getExampleVariableInfo('angle'))}
                     formatValue={(v) => `${v}°`}
@@ -401,6 +414,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-gravity-example" blockId="block-paragraph-08">
                 The gravitational acceleration is{" "}
                 <InlineScrubbleNumber
+                    id="scrubble-acceleration"
                     varName="acceleration"
                     {...numberPropsFromDefinition(getExampleVariableInfo('acceleration'))}
                     formatValue={(v) => `${v.toFixed(1)} m/s²`}
@@ -435,15 +449,16 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-trigger-example" blockId="block-trigger-example">
                 The animation speed is{" "}
                 <InlineScrubbleNumber
+                    id="scrubble-animation-speed"
                     varName="animationSpeed"
                     {...numberPropsFromDefinition(getExampleVariableInfo('animationSpeed'))}
                 />
                 . You can{" "}
-                <InlineTrigger varName="animationSpeed" value={1}>
+                <InlineTrigger id="trigger-speed-reset" varName="animationSpeed" value={1}>
                     reset it to 1
                 </InlineTrigger>{" "}
                 or{" "}
-                <InlineTrigger varName="animationSpeed" value={5}>
+                <InlineTrigger id="trigger-speed-max" varName="animationSpeed" value={5}>
                     max it out
                 </InlineTrigger>.
             </EditableParagraph>
@@ -474,11 +489,11 @@ const exampleBlocks: ReactElement[] = [
         <Block id="block-hyperlink-examples" padding="sm">
             <EditableParagraph id="para-hyperlink-examples" blockId="block-hyperlink-examples">
                 Read the{" "}
-                <InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
+                <InlineHyperlink id="link-wikipedia-circles" href="https://en.wikipedia.org/wiki/Circle">
                     Wikipedia article on circles
                 </InlineHyperlink>{" "}
                 for more background, or{" "}
-                <InlineHyperlink targetBlockId="block-heading-trigger">
+                <InlineHyperlink id="link-jump-trigger" targetBlockId="block-heading-trigger">
                     jump to the Trigger section
                 </InlineHyperlink>{" "}
                 above to see how triggers work.
@@ -503,7 +518,7 @@ const exampleBlocks: ReactElement[] = [
                 InlineFormula renders KaTeX math formulas directly within paragraph text.
                 Like InlineTooltip, it does not use the variable store — it's purely for
                 display. Use the{" "}
-                <InlineTooltip tooltip="Syntax: \clr{name}{content} — maps term names to colors via the colorMap prop.">
+                <InlineTooltip id="tooltip-clr-syntax" tooltip="Syntax: \clr{name}{content} — maps term names to colors via the colorMap prop.">
                     \clr syntax
                 </InlineTooltip>{" "}
                 to color individual terms in the formula.
@@ -516,6 +531,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-formula-area" blockId="block-formula-01">
                 The area of a circle is{" "}
                 <InlineFormula
+                    id="formula-circle-area"
                     latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
                     colorMap={{ area: '#ef4444', pi: '#3b82f6', radius: '#3cc499' }}
                 />
@@ -529,6 +545,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-formula-einstein" blockId="block-formula-02">
                 Einstein's famous equation{" "}
                 <InlineFormula
+                    id="formula-einstein"
                     latex="\clr{energy}{E} = \clr{mass}{m}\clr{speed}{c}^2"
                     colorMap={{ energy: '#f97316', mass: '#a855f7', speed: '#06b6d4' }}
                 />
@@ -542,6 +559,7 @@ const exampleBlocks: ReactElement[] = [
             <EditableParagraph id="para-formula-quadratic" blockId="block-formula-03">
                 The quadratic formula{" "}
                 <InlineFormula
+                    id="formula-quadratic"
                     latex="\clr{x}{x} = \frac{-\clr{b}{b} \pm \sqrt{\clr{b}{b}^2 - 4\clr{a}{a}\clr{c}{c}}}{2\clr{a}{a}}"
                     colorMap={{ x: '#ef4444', a: '#3b82f6', b: '#3cc499', c: '#f97316' }}
                 />

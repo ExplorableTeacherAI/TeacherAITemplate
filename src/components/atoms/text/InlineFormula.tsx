@@ -8,6 +8,8 @@ import { useBlockContext } from '@/contexts/BlockContext';
 import { useEditableTextContext } from './EditableText';
 
 interface InlineFormulaProps {
+    /** Unique identifier for this formula instance */
+    id?: string;
     /** LaTeX formula string (required) */
     latex: string;
     /** Term name -> hex color mapping for \clr{}{} syntax */
@@ -38,6 +40,7 @@ interface InlineFormulaProps {
  * ```
  */
 export const InlineFormula: React.FC<InlineFormulaProps> = ({
+    id,
     latex,
     colorMap = {},
     color = '#8B5CF6',
@@ -98,7 +101,7 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
     const effectiveColor = pendingEdit?.newProps.color ?? color;
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(`inlineFormula-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || `inlineFormula-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             latex: effectiveLatex,

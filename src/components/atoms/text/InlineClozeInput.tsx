@@ -7,6 +7,8 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineClozeInputProps {
+    /** Unique identifier for this component instance */
+    id?: string;
     /** Variable name in the shared store (stores student's typed answer) */
     varName?: string;
     /** The correct answer */
@@ -50,6 +52,7 @@ interface InlineClozeInputProps {
  * ```
  */
 export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
+    id,
     varName,
     correctAnswer,
     placeholder = "???",
@@ -140,7 +143,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     }, [isInputting]);
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(varName || `cloze-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || varName || `cloze-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             varName: effectiveVarName,

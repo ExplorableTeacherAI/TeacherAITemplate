@@ -7,6 +7,8 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineTriggerProps {
+    /** Unique identifier for this component instance */
+    id?: string;
     /** Clickable text content */
     children: React.ReactNode;
     /** Variable to set on click */
@@ -41,6 +43,7 @@ interface InlineTriggerProps {
  * ```
  */
 export const InlineTrigger: React.FC<InlineTriggerProps> = ({
+    id,
     children,
     varName,
     value,
@@ -143,7 +146,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
     });
 
     // Stable ID and serialized props for round-trip extraction (base64-encoded for HTML attribute safety)
-    const inlineIdRef = useRef(`trigger-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || `trigger-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         // Always include text to survive round-trip; fall back to DOM text or default
         const textForProps = effectiveText ?? domTextRef.current;

@@ -7,6 +7,8 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineScrubbleNumberProps {
+    /** Unique identifier for this component instance */
+    id?: string;
     /** Variable name in the shared store */
     varName?: string;
     /** Default value (used when varName is not set or as initial value) */
@@ -77,6 +79,7 @@ interface InlineScrubbleNumberProps {
  * ```
  */
 export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
+    id,
     varName,
     defaultValue = 10,
     value: controlledValue,
@@ -322,7 +325,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     const progress = ((value - displayMin) / (displayMax - displayMin)) * 100;
 
     // Stable unique ID for this component instance (for round-trip extraction)
-    const inlineIdRef = useRef(varName || `scrubble-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || varName || `scrubble-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
     // Serialize essential props as a base64-encoded data attribute so extractContentWithMarkers
     // can preserve them during round-trip re-rendering (base64 is HTML-attribute-safe)

@@ -273,6 +273,7 @@ export const mySectionBlocks: ReactElement[] = [
 - Layout keys: `layout-<name>` (e.g., `layout-intro-title`)
 - Block IDs: `block-<name>` (e.g., `block-intro-title`)
 - Element IDs: `<type>-<name>` (e.g., `para-intro-text`, `h1-main-title`)
+- Inline component IDs: `<type>-<name>` (e.g., `scrubble-radius`, `tooltip-circle-def`, `formula-circle-area`, `cloze-angle`, `choice-shape`, `toggle-shape`, `trigger-reset`, `link-wikipedia`)
 - `blockId` prop must match the parent `Block`'s `id`
 
 ---
@@ -295,6 +296,7 @@ All components below are used by the agent to compose lessons. **Every component
 | `InlineTooltip` | Shows tooltip/definition on hover (no variable store) |
 | `InlineTrigger` | Click to set a variable to a specific value (connective, emerald) |
 | `InlineHyperlink` | Click to open external URL or scroll to a block on page (connective, emerald) |
+| `InlineFormula` | Inline KaTeX math formula with colored terms |
 | `InteractiveHighlightProvider` | Bidirectional highlighting context |
 | `InteractiveText` | Text that highlights on hover |
 
@@ -367,35 +369,38 @@ Inline wrappers that go inside `EditableParagraph`. Import from `@/components/an
 ```tsx
 <EditableParagraph id="para-example" blockId="block-example">
     Every point on a{' '}
-    <InlineTooltip tooltip="A shape where all points are equidistant from center">
+    <InlineTooltip id="tooltip-circle" tooltip="A shape where all points are equidistant from center">
         circle
     </InlineTooltip>{' '}
     has the same distance from its center. A right angle has{' '}
     <InlineClozeInput
+        id="cloze-right-angle"
         varName="rightAngle"
         correctAnswer="90"
         {...clozePropsFromDefinition(getVariableInfo('rightAngle'))}
     />{' '}
     degrees. The shape of a wheel is a{' '}
     <InlineClozeChoice
+        id="choice-shape"
         varName="shapeAnswer"
         correctAnswer="circle"
         options={["cube", "circle", "square", "triangle"]}
         {...choicePropsFromDefinition(getVariableInfo('shapeAnswer'))}
     />. The current shape is a{' '}
     <InlineToggle
+        id="toggle-shape"
         varName="currentShape"
         options={["triangle", "square", "pentagon", "hexagon"]}
         {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
     />. You can{' '}
-    <InlineTrigger varName="amplitude" value={1} icon="refresh">
+    <InlineTrigger id="trigger-reset-amplitude" varName="amplitude" value={1} icon="refresh">
         reset amplitude
     </InlineTrigger>. Read the{' '}
-    <InlineHyperlink href="https://en.wikipedia.org/wiki/Wave">
+    <InlineHyperlink id="link-wikipedia" href="https://en.wikipedia.org/wiki/Wave">
         Wikipedia article
     </InlineHyperlink>{' '}
     or{' '}
-    <InlineHyperlink targetBlockId="block-intro-title">
+    <InlineHyperlink id="link-jump-intro" targetBlockId="block-intro-title">
         jump to the intro
     </InlineHyperlink>.
 </EditableParagraph>
@@ -443,12 +448,14 @@ Draggable inline number bound to a global variable. **Never hardcode numeric pro
 ```tsx
 // CORRECT — uses centralized variable definition
 <InlineScrubbleNumber
+    id="scrubble-amplitude"
     varName="amplitude"
     {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
 />
 
 // With format function (the only allowed inline prop)
 <InlineScrubbleNumber
+    id="scrubble-temperature"
     varName="temperature"
     {...numberPropsFromDefinition(getVariableInfo('temperature'))}
     formatValue={(v) => `${v}°C`}
@@ -465,6 +472,7 @@ Fill-in-the-blank input bound to a global variable. The variable store holds the
 ```tsx
 // CORRECT — uses centralized variable definition
 <InlineClozeInput
+    id="cloze-quarter-angle"
     varName="quarterCircleAngle"
     correctAnswer="90"
     {...clozePropsFromDefinition(getVariableInfo('quarterCircleAngle'))}
@@ -490,6 +498,7 @@ Dropdown choice bound to a global variable. The variable store holds the **stude
 ```tsx
 // CORRECT — uses centralized variable definition
 <InlineClozeChoice
+    id="choice-shape"
     varName="shapeAnswer"
     correctAnswer="circle"
     options={["cube", "circle", "square", "triangle"]}
@@ -517,6 +526,7 @@ Click to cycle through options, bound to a global variable. Unlike cloze compone
 ```tsx
 // CORRECT — uses centralized variable definition
 <InlineToggle
+    id="toggle-shape"
     varName="currentShape"
     options={["triangle", "square", "pentagon", "hexagon"]}
     {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
@@ -539,13 +549,14 @@ currentShape: {
 Shows a tooltip/definition on hover. Unlike other inline components, `InlineTooltip` does **not** use the variable store — tooltips are purely informational with no mutable state. No variable definition needed.
 
 ```tsx
-<InlineTooltip tooltip="A shape where all points are equidistant from the center.">
+<InlineTooltip id="tooltip-circle" tooltip="A shape where all points are equidistant from the center.">
     circle
 </InlineTooltip>
 ```
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
+| `id` | `string` | *(auto-generated)* | Unique identifier for this component instance |
 | `children` | `ReactNode` | *(required)* | The trigger text displayed inline |
 | `tooltip` | `string` | *(required)* | Tooltip content shown on hover |
 | `color` | `string` | `#F59E0B` | Text color (amber) |
@@ -558,17 +569,18 @@ Shows a tooltip/definition on hover. Unlike other inline components, `InlineTool
 Clickable inline text that **sets a global variable to a specific value** on click. Belongs to the connective category (emerald `#10B981`). Unlike other inline components, `InlineTrigger` does not need its own variable definition — it *writes* to a variable defined for another component (like a scrubble number).
 
 ```tsx
-<InlineTrigger varName="amplitude" value={1} icon="refresh">
+<InlineTrigger id="trigger-reset" varName="amplitude" value={1} icon="refresh">
     reset it to 1
 </InlineTrigger>
 
-<InlineTrigger varName="amplitude" value={5} icon="zap">
+<InlineTrigger id="trigger-max" varName="amplitude" value={5} icon="zap">
     max it out
 </InlineTrigger>
 ```
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
+| `id` | `string` | *(auto-generated)* | Unique identifier for this component instance |
 | `children` | `ReactNode` | *(required)* | Clickable text displayed inline |
 | `varName` | `string` | `undefined` | Variable to set on click |
 | `value` | `string \| number \| boolean` | `undefined` | Value to set the variable to |
@@ -582,17 +594,18 @@ Clickable inline text that **sets a global variable to a specific value** on cli
 Clickable inline text that either **opens an external URL** in a new tab or **smooth-scrolls to a block** on the page. Belongs to the connective category (emerald `#10B981`). Does **not** use the variable store — purely navigational.
 
 ```tsx
-<InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
+<InlineHyperlink id="link-wiki" href="https://en.wikipedia.org/wiki/Circle">
     Wikipedia article on circles
 </InlineHyperlink>
 
-<InlineHyperlink targetBlockId="block-intro">
+<InlineHyperlink id="link-jump" targetBlockId="block-intro">
     jump to the intro
 </InlineHyperlink>
 ```
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
+| `id` | `string` | *(auto-generated)* | Unique identifier for this component instance |
 | `children` | `ReactNode` | *(required)* | Clickable text displayed inline |
 | `href` | `string` | `undefined` | External URL — opens in new tab |
 | `targetBlockId` | `string` | `undefined` | Block ID to scroll to on page |
@@ -600,6 +613,45 @@ Clickable inline text that either **opens an external URL** in a new tab or **sm
 | `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
 
 **Click behavior:** `href` → opens new tab; `targetBlockId` → smooth scrolls to block; both set → `href` takes priority.
+
+### InlineFormula
+
+Inline KaTeX math formula rendered directly within paragraph text. Supports colored terms via `\clr{name}{content}` syntax, which maps term names to colors through the `colorMap` prop. Like `InlineTooltip`, it does **not** use the variable store — purely for display.
+
+```tsx
+// Basic formula
+<InlineFormula
+    id="formula-area"
+    latex="A = \pi r^2"
+/>
+
+// With colored terms
+<InlineFormula
+    id="formula-circle-area"
+    latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
+    colorMap={{ area: '#ef4444', pi: '#3b82f6', radius: '#3cc499' }}
+/>
+
+// Inside a paragraph
+<EditableParagraph id="para-math" blockId="block-math">
+    Einstein's famous equation{" "}
+    <InlineFormula
+        id="formula-einstein"
+        latex="\clr{energy}{E} = \clr{mass}{m}\clr{speed}{c}^2"
+        colorMap={{ energy: '#f97316', mass: '#a855f7', speed: '#06b6d4' }}
+    />
+    {" "}shows the equivalence of mass and energy.
+</EditableParagraph>
+```
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `id` | `string` | *(auto-generated)* | Unique identifier for this formula instance |
+| `latex` | `string` | *(required)* | LaTeX formula string |
+| `colorMap` | `Record<string, string>` | `{}` | Term name → hex color mapping for `\clr{name}{content}` syntax |
+| `color` | `string` | `#8B5CF6` | Wrapper accent color (violet) |
+
+**Colored terms:** Use `\clr{termName}{content}` in the LaTeX string, then provide `colorMap={{ termName: '#hexcolor' }}`. Each term gets its own color in the rendered formula.
 
 ---
 
@@ -625,7 +677,7 @@ setVar('amplitude', 2.5);
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, InlineHyperlink, Equation } from "@/components/atoms";
+import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, InlineHyperlink, InlineFormula, Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 import { Block } from "@/components/templates";

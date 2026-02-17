@@ -7,6 +7,8 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineToggleProps {
+    /** Unique identifier for this component instance */
+    id?: string;
     /** Variable name in the shared store (stores the current selected option) */
     varName?: string;
     /** Array of options to cycle through on click */
@@ -46,6 +48,7 @@ interface InlineToggleProps {
  * ```
  */
 export const InlineToggle: React.FC<InlineToggleProps> = ({
+    id,
     varName,
     options,
     color = '#D946EF',
@@ -123,7 +126,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
     }, [usesVarStore, effectiveVarName, setVar]);
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(varName || `toggle-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || varName || `toggle-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             varName: effectiveVarName,

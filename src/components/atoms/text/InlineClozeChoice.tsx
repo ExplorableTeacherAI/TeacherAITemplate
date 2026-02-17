@@ -8,6 +8,8 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 
 interface InlineClozeChoiceProps {
+    /** Unique identifier for this component instance */
+    id?: string;
     /** Variable name in the shared store (stores student's selected answer) */
     varName?: string;
     /** The correct answer */
@@ -53,6 +55,7 @@ interface InlineClozeChoiceProps {
  * ```
  */
 export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
+    id,
     varName,
     correctAnswer,
     options,
@@ -152,7 +155,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     }, [isOpen]);
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(varName || `choice-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+    const inlineIdRef = useRef(id || varName || `choice-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             varName: effectiveVarName,
