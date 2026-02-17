@@ -405,10 +405,12 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 ## Available Layouts
 
+Import from `@/components/layouts`.
+
 - `FullWidthLayout` — single column, use `maxWidth` prop (`sm`, `md`, `lg`, `xl`, `2xl`, `full`)
-- `SplitLayout` — side-by-side, use `ratio` (`1:1`, `1:2`, `2:1`) and `gap`
-- `GridLayout` — grid of items, use `columns` and `gap`
-- `SidebarLayout` — main + sidebar, use `<Sidebar>` and `<Main>` children
+- `SplitLayout` — side-by-side (ideal for text + visual), use `ratio` (`1:1`, `1:2`, `2:1`, `1:3`, `3:1`, `2:3`, `3:2`), `gap` (`none`, `sm`, `md`, `lg`, `xl`), `align` (`start`, `center`, `end`, `stretch`)
+- `GridLayout` — grid of items (ideal for visual galleries), use `columns` (2–6), `gap`, `mobileColumns`
+- `SidebarLayout` — main + sidebar, use `<Sidebar>` and `<Main>` children, `sidebarPosition`, `sidebarWidth`
 
 ## Available Components
 
@@ -433,6 +435,61 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 - `Equation`, `ColoredEquation` — math equations (block-level)
 - `InlineFormula` — inline math formula with colored variables (no variable store)
+
+### Visual Components (import from `@/components/atoms`)
+
+#### 2D Graphs & Animations (Two.js)
+
+- `AnimatedGraph` — animated mathematical graphs
+  - `variant`: `"sine-wave"` | `"parametric"` | `"pendulum"` | `"fourier"` | `"lissajous"`
+  - `color`, `secondaryColor`, `width`, `height`, `speed`, `showAxes`, `showGrid`
+- `CoordinateSystem` — 2D coordinate plane with axes and grid
+  - `width`, `height`, `gridSpacing`, `showGrid`, `showLabels`, `axisColor`, `gridColor`
+
+#### Interactive Math (Mafs)
+
+- `MafsBasic` — static sine wave on a coordinate system (no props)
+- `MafsAnimated` — auto-animated points tracing curves (no props)
+- `MafsInteractive` — **controllable** sine wave with draggable points
+  - `amplitude`, `frequency` — controlled values
+  - `onAmplitudeChange`, `onFrequencyChange` — callbacks when points are dragged
+  - Supports bidirectional control: text controls update graph, graph dragging updates text
+
+#### 3D Visualizations (Three.js) — import from `@/components/atoms`
+
+- `ThreeCanvas` — React Three Fiber canvas wrapper (required parent for 3D components)
+  - `height`, `cameraPosition`, `showControls`, `shadows`, `autoRotate`
+- `RotatingCube` — floating cube (`color`, `size`, `speed`)
+- `PulsingSphere` — distorted sphere (`color`)
+- `GeometricCollection` — group of floating shapes
+- `AtomicStructure` — electron orbit simulation
+- `ThreeCoordinateSystem` — 3D axes with grid (`size`, `showGrid`, `showLabels`, `gridSize`)
+
+#### Data Visualization (D3)
+
+- `D3BarChart` — animated bar chart with hover tooltips
+  - `data: { label: string, value: number }[]`, `width`, `height`, `color`
+
+#### Flow Diagrams (React Flow)
+
+- `FlowDiagram` — interactive node-edge diagrams
+  - `nodes: FlowNode[]`, `edges: FlowEdge[]`
+  - `height`, `width`, `showBackground`, `backgroundVariant`, `showControls`, `showMinimap`, `nodesDraggable`, `fitView`
+- `ExpandableFlowDiagram` — collapsible tree diagrams
+  - `rootNode: TreeNode`, `horizontalSpacing`, `verticalSpacing`
+
+#### Block-Level Equation
+
+- `Equation` — large KaTeX equation with colored terms and hover highlighting
+  - `latex`, `colorMap`, `activeTerm`, `onTermHover`, `onTermClick`
+
+### External Graph Tools (import from `@/components/organisms`)
+
+- `DesmosGraph` — embedded Desmos graphing calculator
+  - `expressions: { latex: string, color?: string }[]`, `height`, `options`
+- `GeoGebraGraph` — embedded GeoGebra applet
+  - `app`: `"classic"` | `"graphing"` | `"geometry"` | `"3d"` | `"cas"`
+  - `materialId`, `commands`, `width`, `height`
 
 ### Required Props for All Text Components
 
@@ -506,9 +563,20 @@ export const mySectionBlocks: ReactElement[] = [
 // src/data/sections/MySection.tsx
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
-import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableH2, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip } from "@/components/atoms";
+import { FullWidthLayout, SplitLayout, GridLayout } from "@/components/layouts";
+import {
+    EditableH1, EditableH2, EditableParagraph,
+    InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice,
+    InlineToggle, InlineTooltip, InlineTrigger, InlineFormula,
+} from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, togglePropsFromDefinition } from "../variables";
+
+// Visual components (import only what you need)
+import { AnimatedGraph, D3BarChart, ThreeCanvas, RotatingCube, MafsInteractive, Equation, FlowDiagram } from "@/components/atoms";
+import { DesmosGraph } from "@/components/organisms";
+
+// Store hooks for reactive visual wrappers
+import { useVar, useSetVar } from "@/stores";
 
 export const mySectionBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-my-title" maxWidth="xl">
@@ -542,6 +610,120 @@ export const blocks: ReactElement[] = [
     ...mySectionBlocks,
 ];
 ```
+
+## Linking Variables to Visual Components
+
+The most powerful pattern is connecting `InlineScrubbleNumber` / `InlineTrigger` in the text to a visual component so that dragging a number or clicking a trigger instantly updates the graphic.
+
+### Pattern: Reactive Visual Wrapper
+
+Create a small React component that reads from the store with `useVar` and passes values as props to the visual:
+
+```tsx
+import { useVar, useSetVar } from '@/stores';
+import { ThreeCanvas, RotatingCube } from "@/components/atoms";
+
+/** Cube whose size and speed are driven by global variables */
+function ReactiveCube() {
+    const size = useVar('cubeSize', 1.5) as number;
+    const speed = useVar('cubeSpeed', 1) as number;
+
+    return (
+        <ThreeCanvas height={320}>
+            <RotatingCube size={size} speed={speed} color="#4F46E5" />
+        </ThreeCanvas>
+    );
+}
+```
+
+Then use it inside a `SplitLayout` with scrubble numbers and triggers in the text:
+
+```tsx
+<SplitLayout key="layout-cube" ratio="1:1" gap="lg">
+    <Block id="block-cube-text" padding="sm">
+        <EditableParagraph id="para-cube" blockId="block-cube-text">
+            The cube size is{" "}
+            <InlineScrubbleNumber
+                varName="cubeSize"
+                {...numberPropsFromDefinition(getVariableInfo('cubeSize'))}
+            />
+            . You can{" "}
+            <InlineTrigger varName="cubeSize" value={0.5}>make it tiny</InlineTrigger>{" "}
+            or{" "}
+            <InlineTrigger varName="cubeSize" value={3} icon="zap">make it huge</InlineTrigger>.
+        </EditableParagraph>
+    </Block>
+    <Block id="block-cube-viz" padding="sm">
+        <ReactiveCube />
+    </Block>
+</SplitLayout>
+```
+
+### Bidirectional Control (Mafs)
+
+`MafsInteractive` supports bidirectional linking — dragging scrubble numbers updates the graph, and dragging graph points updates the scrubble numbers:
+
+```tsx
+function ReactiveSineWave() {
+    const amp = useVar('amplitude', 1) as number;
+    const freq = useVar('frequency', 1) as number;
+    const setVar = useSetVar();
+
+    return (
+        <MafsInteractive
+            amplitude={amp}
+            frequency={freq}
+            onAmplitudeChange={(v) => setVar('amplitude', v)}
+            onFrequencyChange={(v) => setVar('frequency', v)}
+        />
+    );
+}
+```
+
+### Important: Wrapper Components vs Block Arrays
+
+Reactive wrappers are **inner** components used inside a `<Block>`, not top-level block wrappers. The flat array rule still applies — each `<Layout>` in the exported array is one manageable block.
+
+```tsx
+// CORRECT — ReactiveCube is used inside a Block, not wrapping it
+<SplitLayout key="layout-cube" ratio="1:1" gap="lg">
+    <Block id="block-text" padding="sm">
+        <EditableParagraph ...>text with scrubble numbers</EditableParagraph>
+    </Block>
+    <Block id="block-viz" padding="sm">
+        <ReactiveCube />  {/* ← reactive wrapper inside a Block */}
+    </Block>
+</SplitLayout>
+```
+
+### Using Visual Components Without Variables
+
+Visual components can also be used standalone (not linked to the store). Just pass static props directly:
+
+```tsx
+<SplitLayout key="layout-pendulum" ratio="1:1" gap="lg">
+    <Block id="block-text" padding="sm">
+        <EditableParagraph id="para-pendulum" blockId="block-text">
+            This pendulum demonstrates simple harmonic motion.
+        </EditableParagraph>
+    </Block>
+    <Block id="block-viz" padding="sm">
+        <AnimatedGraph variant="pendulum" color="#8B5CF6" width={500} height={350} />
+    </Block>
+</SplitLayout>
+```
+
+### Visual Component Quick Reference
+
+| Component | Import From | Controllable Props | Use Case |
+|-----------|------------|-------------------|----------|
+| `AnimatedGraph` | `@/components/atoms` | `speed` | Animated math curves |
+| `MafsInteractive` | `@/components/atoms` | `amplitude`, `frequency` | Bidirectional sine wave |
+| `RotatingCube` | `@/components/atoms` | `size`, `speed`, `color` | 3D geometry |
+| `D3BarChart` | `@/components/atoms` | `data` | Data visualization |
+| `DesmosGraph` | `@/components/organisms` | `expressions` | Full graphing calculator |
+| `FlowDiagram` | `@/components/atoms` | `nodes`, `edges` | Process/relationship diagrams |
+| `Equation` | `@/components/atoms` | `latex`, `colorMap` | Block-level math |
 
 ## Environment Variables
 

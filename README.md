@@ -195,9 +195,18 @@ Each section exports a **flat array** of `Layout > Block` elements. This is crit
 // src/data/sections/Introduction.tsx
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
-import { FullWidthLayout } from "@/components/layouts";
-import { EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, InlineHyperlink } from "@/components/atoms";
+import { FullWidthLayout, SplitLayout, GridLayout } from "@/components/layouts";
+import {
+    EditableH1, EditableParagraph, InlineScrubbleNumber, InlineClozeInput,
+    InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger,
+    InlineHyperlink, InlineFormula,
+} from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "../variables";
+
+// Visual components (import only what you need)
+import { AnimatedGraph, ThreeCanvas, RotatingCube, MafsInteractive, D3BarChart, Equation, FlowDiagram } from "@/components/atoms";
+import { DesmosGraph } from "@/components/organisms";
+import { useVar, useSetVar } from "@/stores";
 
 export const introBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-intro-title" maxWidth="xl">
@@ -328,21 +337,94 @@ All text components require `id` and `blockId` props:
 
 ### Visual — `atoms/visual/` + `organisms/visual/`
 
-| Component | Level | Library |
-|-----------|-------|---------|
-| `D3BarChart` | atom | D3 |
-| `MafsBasic`, `MafsAnimated`, `MafsInteractive` | atom | Mafs |
-| `AnimatedBackground`, `AnimatedGraph`, `MorphingShapes`, `ParticleSystem` | atom | Two.js |
-| `CoordinateSystem` | atom | Two.js |
-| `ThreeCanvas`, `ThreeVisuals`, `ThreeCoordinateSystem` | atom | Three.js |
-| `FlowDiagram`, `ExpandableFlowDiagram` | atom | React Flow |
-| `DesmosGraph` | organism | Desmos |
-| `GeoGebraGraph` | organism | GeoGebra |
-| `InteractiveAnimation` | organism | — |
-| `DesmosRenderer`, `GeogebraRenderer`, `ExcalidrawRenderer`, `MermaidRenderer` | organism | Various |
+| Component | Level | Library | Key Props |
+|-----------|-------|---------|-----------|
+| `D3BarChart` | atom | D3 | `data`, `width`, `height`, `color` |
+| `MafsBasic` | atom | Mafs | *(none — static sine wave)* |
+| `MafsAnimated` | atom | Mafs | *(none — auto-animated)* |
+| `MafsInteractive` | atom | Mafs | `amplitude`, `frequency`, `onAmplitudeChange`, `onFrequencyChange` |
+| `AnimatedGraph` | atom | Two.js | `variant`, `color`, `secondaryColor`, `speed`, `width`, `height`, `showAxes`, `showGrid` |
+| `CoordinateSystem` | atom | Two.js | `width`, `height`, `gridSpacing`, `showGrid`, `showLabels`, `axisColor`, `gridColor` |
+| `AnimatedBackground` | atom | Two.js | `variant`, `color`, `secondaryColor`, `speed` |
+| `MorphingShapes` | atom | Two.js | `variant`, `color`, `speed` |
+| `ThreeCanvas` | atom | Three.js | `height`, `cameraPosition`, `showControls`, `shadows`, `autoRotate` |
+| `RotatingCube` | atom | Three.js | `color`, `size`, `speed` |
+| `PulsingSphere` | atom | Three.js | `color` |
+| `GeometricCollection` | atom | Three.js | *(none)* |
+| `AtomicStructure` | atom | Three.js | *(none)* |
+| `ThreeCoordinateSystem` | atom | Three.js | `size`, `showGrid`, `showLabels`, `gridSize` |
+| `FlowDiagram` | atom | React Flow | `nodes`, `edges`, `height`, `showBackground`, `backgroundVariant`, `showControls`, `showMinimap`, `nodesDraggable`, `fitView` |
+| `ExpandableFlowDiagram` | atom | React Flow | `rootNode`, `horizontalSpacing`, `verticalSpacing` |
+| `DesmosGraph` | organism | Desmos | `expressions`, `height`, `options`, `latex`, `aspectRatio` |
+| `GeoGebraGraph` | organism | GeoGebra | `app`, `materialId`, `commands`, `width`, `height` |
+| `InteractiveAnimation` | organism | Two.js | `type`, `initialVariant`, `showControls`, `width`, `height` |
+
+#### AnimatedGraph Variants
+
+| Variant | Description |
+|---------|-------------|
+| `"sine-wave"` | Continuously moving sine wave with phase dot |
+| `"parametric"` | Parametric rose curve pattern |
+| `"pendulum"` | Simple pendulum swinging under gravity |
+| `"fourier"` | Fourier series — circles combining into wave patterns |
+| `"lissajous"` | Complex curve from two perpendicular oscillations |
+
+#### Three.js Usage
+
+Three.js components must be placed inside a `ThreeCanvas` wrapper:
 
 ```tsx
-<SplitLayout key="layout-viz" ratio="1:1">
+<Block id="block-3d" padding="sm">
+    <ThreeCanvas height={320} cameraPosition={[5, 5, 5]}>
+        <RotatingCube size={1.5} color="#4F46E5" />
+    </ThreeCanvas>
+</Block>
+```
+
+#### Flow Diagram Usage
+
+```tsx
+import type { FlowNode, FlowEdge } from "@/components/atoms";
+
+<FlowDiagram
+    nodes={[
+        { id: "1", label: "Start", position: { x: 0, y: 100 }, type: "input",
+          style: { background: '#DBEAFE', border: '2px solid #3B82F6' } },
+        { id: "2", label: "Process", position: { x: 250, y: 100 },
+          style: { background: '#D1FAE5', border: '2px solid #10B981' } },
+        { id: "3", label: "End", position: { x: 500, y: 100 }, type: "output",
+          style: { background: '#EDE9FE', border: '2px solid #8B5CF6' } },
+    ] as FlowNode[]}
+    edges={[
+        { id: "e1-2", source: "1", target: "2", animated: true, label: "next" },
+        { id: "e2-3", source: "2", target: "3", label: "done" },
+    ] as FlowEdge[]}
+    height={300}
+    fitView={true}
+    showBackground={true}
+    backgroundVariant="dots"
+/>
+```
+
+#### Desmos Usage
+
+```tsx
+<DesmosGraph
+    expressions={[
+        { latex: "y = x^2", color: "#2d70b3" },
+        { latex: "y = \\sin(x)", color: "#c74440" },
+    ]}
+    height={400}
+    options={{ expressions: true, settingsMenu: false, zoomButtons: true }}
+/>
+```
+
+#### Common Visual Layout Pattern
+
+Most visuals pair well with `SplitLayout` — text on one side, visual on the other:
+
+```tsx
+<SplitLayout key="layout-viz" ratio="1:1" gap="lg">
     <Block id="block-text" padding="sm">
         <EditableParagraph id="para-explain" blockId="block-text">
             Drag the point to change the amplitude.
@@ -352,6 +434,22 @@ All text components require `id` and `blockId` props:
         <MafsInteractive />
     </Block>
 </SplitLayout>
+```
+
+Use `GridLayout` for galleries of multiple visuals:
+
+```tsx
+<GridLayout key="layout-gallery" columns={3} gap="md">
+    <Block id="block-sine" padding="sm">
+        <AnimatedGraph variant="sine-wave" color="#10B981" width={320} height={280} />
+    </Block>
+    <Block id="block-fourier" padding="sm">
+        <AnimatedGraph variant="fourier" color="#F59E0B" width={320} height={280} />
+    </Block>
+    <Block id="block-lissajous" padding="sm">
+        <AnimatedGraph variant="lissajous" color="#06B6D4" width={320} height={280} />
+    </Block>
+</GridLayout>
 ```
 
 ### Annotations — `annotations/`
@@ -672,18 +770,137 @@ setVar('amplitude', 2.5);
 
 ---
 
+## Linking Variables to Visual Components
+
+The most powerful pattern connects inline controls (`InlineScrubbleNumber`, `InlineTrigger`) to visual components so that interacting with text instantly updates graphics.
+
+### Reactive Visual Wrapper Pattern
+
+Create a small React component that reads from the store with `useVar` and passes the values as props to a visual:
+
+```tsx
+import { useVar, useSetVar } from '@/stores';
+import { ThreeCanvas, RotatingCube } from "@/components/atoms";
+
+function ReactiveCube() {
+    const size = useVar('cubeSize', 1.5) as number;
+    const speed = useVar('cubeSpeed', 1) as number;
+
+    return (
+        <ThreeCanvas height={320}>
+            <RotatingCube size={size} speed={speed} color="#4F46E5" />
+        </ThreeCanvas>
+    );
+}
+```
+
+Then use it inside a `SplitLayout` paired with scrubble numbers and triggers:
+
+```tsx
+<SplitLayout key="layout-cube" ratio="1:1" gap="lg">
+    <Block id="block-cube-text" padding="sm">
+        <EditableParagraph id="para-cube" blockId="block-cube-text">
+            The cube size is{" "}
+            <InlineScrubbleNumber
+                varName="cubeSize"
+                {...numberPropsFromDefinition(getVariableInfo('cubeSize'))}
+            />
+            . You can{" "}
+            <InlineTrigger varName="cubeSize" value={0.5}>make it tiny</InlineTrigger>{" "}
+            or{" "}
+            <InlineTrigger varName="cubeSize" value={3} icon="zap">make it huge</InlineTrigger>.
+        </EditableParagraph>
+    </Block>
+    <Block id="block-cube-viz" padding="sm">
+        <ReactiveCube />
+    </Block>
+</SplitLayout>
+```
+
+### Bidirectional Control (Mafs)
+
+`MafsInteractive` supports bidirectional linking — scrubble numbers update the graph, and dragging graph points updates the scrubble numbers:
+
+```tsx
+function ReactiveSineWave() {
+    const amp = useVar('amplitude', 1) as number;
+    const freq = useVar('frequency', 1) as number;
+    const setVar = useSetVar();
+
+    return (
+        <MafsInteractive
+            amplitude={amp}
+            frequency={freq}
+            onAmplitudeChange={(v) => setVar('amplitude', v)}
+            onFrequencyChange={(v) => setVar('frequency', v)}
+        />
+    );
+}
+```
+
+### Important: Wrappers Go Inside Blocks
+
+Reactive wrappers are **inner** components used inside a `<Block>`, not top-level block wrappers. The flat array rule still applies — each `<Layout>` in the exported array is a separate manageable block.
+
+### Controllable Props Reference
+
+| Component | Controllable Props | Best Paired With |
+|-----------|-------------------|-----------------|
+| `RotatingCube` | `size`, `speed`, `color` | `InlineScrubbleNumber` + `InlineTrigger` |
+| `MafsInteractive` | `amplitude`, `frequency` | `InlineScrubbleNumber` (bidirectional) |
+| `AnimatedGraph` | `speed` | `InlineScrubbleNumber` |
+| `D3BarChart` | `data` | Computed from variables |
+| `DesmosGraph` | `expressions` | Dynamic LaTeX strings |
+| SVG elements | any attribute | `useVar` for reactive rendering |
+
+---
+
 ## Imports
 
 Use barrel imports for agent-facing components:
 
 ```tsx
-import { EditableParagraph, InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice, InlineToggle, InlineTooltip, InlineTrigger, InlineHyperlink, InlineFormula, Equation } from "@/components/atoms";
+// Text & inline components
+import {
+    EditableH1, EditableH2, EditableH3, EditableParagraph,
+    InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice,
+    InlineToggle, InlineTooltip, InlineTrigger, InlineHyperlink,
+    InlineFormula, InlineSpotColor,
+} from "@/components/atoms";
+
+// Math / equation components
+import { Equation } from "@/components/atoms";
 import { MathBlock, InteractiveEquation } from "@/components/molecules";
-import { DesmosGraph } from "@/components/organisms";
+
+// Visual components (import only what you need)
+import {
+    AnimatedGraph, CoordinateSystem,                          // Two.js
+    MafsBasic, MafsAnimated, MafsInteractive,                 // Mafs
+    ThreeCanvas, RotatingCube, PulsingSphere,                  // Three.js
+    ThreeCoordinateSystem, GeometricCollection, AtomicStructure,
+    D3BarChart,                                                // D3
+    FlowDiagram, ExpandableFlowDiagram,                        // React Flow
+} from "@/components/atoms";
+import type { FlowNode, FlowEdge } from "@/components/atoms";
+
+// External graph tools
+import { DesmosGraph, GeoGebraGraph } from "@/components/organisms";
+
+// Layouts & templates
 import { Block } from "@/components/templates";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { FullWidthLayout, SplitLayout, GridLayout, SidebarLayout, Sidebar, Main } from "@/components/layouts";
+
+// Global variable store (for reactive visual wrappers)
+import { useVar, useSetVar } from "@/stores";
+
+// Variable definitions & helpers
+import {
+    getVariableInfo, numberPropsFromDefinition,
+    clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition,
+} from "./variables";
+
+// Annotations
 import { Glossary } from "@/components/annotations";
-import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "./variables";
 ```
 
 ---

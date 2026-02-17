@@ -109,6 +109,30 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
+    // NUMBER - Visuals linked to scrubble numbers / triggers
+    // ─────────────────────────────────────────
+    cubeSize: {
+        defaultValue: 1.5,
+        type: 'number',
+        label: 'Cube Size',
+        description: 'Side length of the 3D cube',
+        min: 0.3,
+        max: 3,
+        step: 0.1,
+        color: '#4F46E5',
+    },
+    cubeSpeed: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Cube Speed',
+        description: 'Rotation speed of the 3D cube',
+        min: 0,
+        max: 5,
+        step: 0.25,
+        color: '#EC4899',
+    },
+
+    // ─────────────────────────────────────────
     // SELECT - Dropdown with options
     // ─────────────────────────────────────────
     waveType: {
