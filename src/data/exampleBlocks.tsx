@@ -29,6 +29,7 @@ import {
     InlineTooltip,
     InlineTrigger,
     InlineHyperlink,
+    InlineFormula,
 } from "@/components/atoms";
 
 /**
@@ -481,6 +482,70 @@ const exampleBlocks: ReactElement[] = [
                     jump to the Trigger section
                 </InlineHyperlink>{" "}
                 above to see how triggers work.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // INLINE FORMULA DEMO (Inline Math)
+    // ========================================
+    <FullWidthLayout key="layout-heading-formula" maxWidth="xl">
+        <Block id="block-heading-formula" padding="md">
+            <EditableH2 id="h2-formula-title" blockId="block-heading-formula">
+                Inline Formula (Inline Math)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-intro" maxWidth="xl">
+        <Block id="block-formula-intro" padding="sm">
+            <EditableParagraph id="para-formula-intro" blockId="block-formula-intro">
+                InlineFormula renders KaTeX math formulas directly within paragraph text.
+                Like InlineTooltip, it does not use the variable store — it's purely for
+                display. Use the{" "}
+                <InlineTooltip tooltip="Syntax: \clr{name}{content} — maps term names to colors via the colorMap prop.">
+                    \clr syntax
+                </InlineTooltip>{" "}
+                to color individual terms in the formula.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-01" maxWidth="xl">
+        <Block id="block-formula-01" padding="sm">
+            <EditableParagraph id="para-formula-area" blockId="block-formula-01">
+                The area of a circle is{" "}
+                <InlineFormula
+                    latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
+                    colorMap={{ area: '#ef4444', pi: '#3b82f6', radius: '#3cc499' }}
+                />
+                {" "}where r is the radius.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-02" maxWidth="xl">
+        <Block id="block-formula-02" padding="sm">
+            <EditableParagraph id="para-formula-einstein" blockId="block-formula-02">
+                Einstein's famous equation{" "}
+                <InlineFormula
+                    latex="\clr{energy}{E} = \clr{mass}{m}\clr{speed}{c}^2"
+                    colorMap={{ energy: '#f97316', mass: '#a855f7', speed: '#06b6d4' }}
+                />
+                {" "}shows the equivalence of mass and energy.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-03" maxWidth="xl">
+        <Block id="block-formula-03" padding="sm">
+            <EditableParagraph id="para-formula-quadratic" blockId="block-formula-03">
+                The quadratic formula{" "}
+                <InlineFormula
+                    latex="\clr{x}{x} = \frac{-\clr{b}{b} \pm \sqrt{\clr{b}{b}^2 - 4\clr{a}{a}\clr{c}{c}}}{2\clr{a}{a}}"
+                    colorMap={{ x: '#ef4444', a: '#3b82f6', b: '#3cc499', c: '#f97316' }}
+                />
+                {" "}gives the roots of any quadratic equation.
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

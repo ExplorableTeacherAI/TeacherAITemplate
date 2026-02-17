@@ -16,8 +16,19 @@ interface EditableTextProps {
     enableSlashCommands?: boolean;
 }
 
-// Context to check if we are inside an editable text component
-const EditableTextContext = React.createContext<{ isParentEditable: boolean }>({ isParentEditable: false });
+// Context to check if we are inside an editable text component.
+// `skipBlurRef` allows child inline components (InlineFormula, InlineTooltip, etc.)
+// to suppress the parent EditableText's handleBlur when opening their editor modal.
+interface EditableTextContextValue {
+    isParentEditable: boolean;
+    skipBlurRef: React.MutableRefObject<boolean>;
+}
+
+const defaultSkipBlurRef = { current: false };
+const EditableTextContext = React.createContext<EditableTextContextValue>({
+    isParentEditable: false,
+    skipBlurRef: defaultSkipBlurRef,
+});
 
 export const useEditableTextContext = () => React.useContext(EditableTextContext);
 
@@ -42,6 +53,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const originalHtmlRef = useRef<string>('');
     const originalInlineCountRef = useRef<number>(0);
     const originalTextWithoutInlineRef = useRef<string>('');
+    const skipBlurRef = useRef(false);
 
     // Inline slash commands (inert when enableSlashCommands is false)
     const {
@@ -133,6 +145,15 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const handleBlur = useCallback(() => {
         if (!containerRef.current) return;
 
+        // If a child inline component editor is opening, skip blur processing entirely.
+        // The inline editor has its own edit pipeline — creating text edits here
+        // would be incorrect (the text hasn't changed, only the inline component's props).
+        if (skipBlurRef.current) {
+            skipBlurRef.current = false;
+            setIsContentEditable(false);
+            return;
+        }
+
         const newText = containerRef.current.innerText;
         const newHtml = containerRef.current.innerHTML;
         const originalText = originalTextRef.current;
@@ -146,16 +167,25 @@ export const EditableText: React.FC<EditableTextProps> = ({
         const hasNewInlineComponents = enableSlashCommands && currentInlineCount > originalInlineCountRef.current;
         const hasAnyInlineComponents = currentInlineCount > 0;
 
+        // Debug: log inline component counts to diagnose duplication issues
+        if (hasAnyInlineComponents) {
+            console.log(`[EditableText blur] blockId=${blockId} inline: current=${currentInlineCount} original=${originalInlineCountRef.current} hasNew=${hasNewInlineComponents}`);
+        }
+
         // Decide whether the actual (non-component) text changed.
         // For paragraphs with inline components, innerText/innerHTML will differ
         // whenever an inline component re-renders (e.g. after editing its props
         // via the editor modal) even though the surrounding text is unchanged.
         // Sending such a text edit to the backend fails because the rendered
         // inline component text doesn't exist in the JSX source.
+        // When inline components are present, normalize whitespace before
+        // comparing — browsers may reformat the DOM when entering
+        // contentEditable mode, causing spurious diffs.
+        const normalizeWs = (s: string) => s.replace(/[\s\u200B\u200C\u200D\uFEFF]+/g, ' ').trim();
         let textContentChanged: boolean;
         if (hasAnyInlineComponents) {
             const newTextWithout = extractTextWithoutInline(containerRef.current);
-            textContentChanged = newTextWithout !== originalTextWithoutInlineRef.current;
+            textContentChanged = normalizeWs(newTextWithout) !== normalizeWs(originalTextWithoutInlineRef.current);
         } else {
             textContentChanged = newText !== originalText || newHtml !== originalHtml;
         }
@@ -166,6 +196,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         // text edit causes duplicates: the backend writes the rendered text as plain
         // text AND the component edit inserts the real <InlineTrigger> / etc.
         if (textContentChanged && !hasNewInlineComponents) {
+            console.log(`[EditableText blur] Creating text edit for blockId=${blockId} hasInline=${hasAnyInlineComponents}`);
             if (hasAnyInlineComponents) {
                 // Strip inline component rendered text — source has JSX tags, not rendered values
                 const cleanOriginal = originalTextWithoutInlineRef.current;
@@ -197,6 +228,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         // with real inline components is mounted in a single render.
         if (hasNewInlineComponents) {
             const contentWithMarkers = extractContentWithMarkers(containerRef.current);
+            console.log(`[EditableText blur] Dispatching block-inline-content-update for blockId=${blockId} markers=${contentWithMarkers.substring(0, 100)}`);
             window.dispatchEvent(new CustomEvent('block-inline-content-update', {
                 detail: { blockId, content: contentWithMarkers },
             }));
@@ -249,7 +281,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     }, [handleCloseSlashMenu, handleBlur]);
 
     return (
-        <EditableTextContext.Provider value={{ isParentEditable: isContentEditable }}>
+        <EditableTextContext.Provider value={{ isParentEditable: isContentEditable, skipBlurRef }}>
             {React.createElement(
                 Component,
                 {

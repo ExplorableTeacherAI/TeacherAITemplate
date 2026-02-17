@@ -262,6 +262,33 @@ import { InlineTooltip } from "@/components/atoms";
 | `position` | `string` | `'auto'` | Tooltip position: `'auto'`, `'top'`, `'bottom'` |
 | `maxWidth` | `number` | `400` | Maximum tooltip width in pixels |
 
+## InlineFormula (Inline Math)
+
+`InlineFormula` renders a KaTeX math formula inline within paragraph text, with optional colored variables using `\clr{name}{content}` syntax. It does **NOT** use the variable store.
+
+### Usage
+
+```tsx
+import { InlineFormula } from "@/components/atoms";
+
+<EditableParagraph id="para-example" blockId="block-example">
+    The area of a circle is{" "}
+    <InlineFormula
+        latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
+        colorMap={{ area: '#ef4444', pi: '#3b82f6', radius: '#3cc499' }}
+    />{" "}
+    where r is the radius.
+</EditableParagraph>
+```
+
+### InlineFormula Props
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `latex` | `string` | *(required)* | LaTeX formula string |
+| `colorMap` | `Record<string, string>` | `{}` | Term name → hex color mapping for `\clr{}{}` |
+| `color` | `string` | `#8B5CF6` | Wrapper accent color (violet) |
+
 ## InlineTrigger (Click to Set Variable)
 
 `InlineTrigger` is a clickable inline element that **sets a global variable to a specific value** on click. It belongs to the connective category (emerald `#10B981`) and integrates with the variable store.
@@ -404,7 +431,8 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 ### Math Components
 
-- `Equation`, `InteractiveEquation`, `ColoredEquation` — math equations
+- `Equation`, `ColoredEquation` — math equations (block-level)
+- `InlineFormula` — inline math formula with colored variables (no variable store)
 
 ### Required Props for All Text Components
 

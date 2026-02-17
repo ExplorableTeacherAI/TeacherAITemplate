@@ -18,7 +18,7 @@ export interface EquationEdit {
     id: string;
     type: 'equation';
     blockId: string;
-    componentType: 'Equation' | 'InteractiveEquation' | 'ColoredEquation';
+    componentType: 'Equation' | 'ColoredEquation';
     originalLatex: string;
     newLatex: string;
     colorMap?: Record<string, string>;
@@ -155,6 +155,22 @@ export interface HyperlinkComponentEdit {
     timestamp: number;
 }
 
+export interface InlineFormulaProps {
+    latex?: string;
+    colorMap?: Record<string, string>;
+    color?: string;       // wrapper text color (default: #8B5CF6 violet)
+}
+
+export interface InlineFormulaEdit {
+    id: string;
+    type: 'inlineFormula';
+    blockId: string;
+    elementPath: string;
+    originalProps: InlineFormulaProps;
+    newProps: InlineFormulaProps;
+    timestamp: number;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -167,7 +183,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -181,6 +197,7 @@ interface EditingContextType {
     editingTooltip: (TooltipProps & { blockId: string; elementPath: string }) | null;
     editingTrigger: (TriggerComponentProps & { blockId: string; elementPath: string }) | null;
     editingHyperlink: (HyperlinkComponentProps & { blockId: string; elementPath: string }) | null;
+    editingInlineFormula: (InlineFormulaProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -221,6 +238,10 @@ interface EditingContextType {
     openHyperlinkEditor: (props: HyperlinkComponentProps, blockId: string, elementPath: string) => void;
     closeHyperlinkEditor: () => void;
     saveHyperlinkEdit: (newProps: HyperlinkComponentProps) => void;
+    addInlineFormulaEdit: (edit: Omit<InlineFormulaEdit, 'id' | 'type' | 'timestamp'>) => void;
+    openInlineFormulaEditor: (props: InlineFormulaProps, blockId: string, elementPath: string) => void;
+    closeInlineFormulaEditor: () => void;
+    saveInlineFormulaEdit: (newProps: InlineFormulaProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -265,6 +286,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingHyperlink, setEditingHyperlink] = useState<(HyperlinkComponentProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingInlineFormula, setEditingInlineFormula] = useState<(InlineFormulaProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -976,14 +1001,168 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingHyperlink(null);
     }, [editingHyperlink, addHyperlinkEdit]);
 
+    // InlineFormula editing methods
+    const addInlineFormulaEdit = useCallback((edit: Omit<InlineFormulaEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: InlineFormulaEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'inlineFormula',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            // 1. Check if there is a pending STRUCTURE edit with action 'add' for this block.
+            //    If so, update the inlineFormula marker props in the structure edit content
+            //    so the structure agent creates the formula with the correct (edited) props.
+            //    This prevents a stale InlineFormulaEdit from inserting a duplicate formula
+            //    when the backend processes text edits before structure edits.
+            const structureAddIndex = prev.findIndex(
+                e => e.type === 'structure' &&
+                    (e as StructureEdit).action === 'add' &&
+                    (e as StructureEdit).blockId === edit.blockId
+            );
+
+            if (structureAddIndex !== -1) {
+                const updated = [...prev];
+                const existingStructure = updated[structureAddIndex] as StructureEdit;
+                const content = existingStructure.content || '';
+
+                // Update the first inlineFormula marker with the new props
+                const markerRegex = /\{\{inlineFormula:([^|}]+)(?:\|[A-Za-z0-9+/=]*)?\}\}/;
+                const markerMatch = content.match(markerRegex);
+
+                if (markerMatch) {
+                    try {
+                        const updatedProps: Record<string, unknown> = {
+                            latex: edit.newProps.latex,
+                        };
+                        if (edit.newProps.colorMap && Object.keys(edit.newProps.colorMap).length > 0) {
+                            updatedProps.colorMap = edit.newProps.colorMap;
+                        }
+                        if (edit.newProps.color && edit.newProps.color !== '#8B5CF6') {
+                            updatedProps.color = edit.newProps.color;
+                        }
+                        const newBase64 = btoa(JSON.stringify(updatedProps));
+                        const newContent = content.replace(
+                            markerRegex,
+                            `{{inlineFormula:${markerMatch[1]}|${newBase64}}}`
+                        );
+                        updated[structureAddIndex] = {
+                            ...existingStructure,
+                            content: newContent,
+                            timestamp: Date.now(),
+                        };
+                    } catch {
+                        // Encoding failed — fall through to add as normal edit
+                    }
+                }
+
+                // Still add the InlineFormulaEdit for frontend visual feedback
+                // (the InlineFormula component reads pending edits for effectiveLatex)
+                const existingEditIndex = updated.findIndex(
+                    e => e.type === 'inlineFormula' &&
+                        (e as InlineFormulaEdit).blockId === edit.blockId &&
+                        (e as InlineFormulaEdit).elementPath === edit.elementPath
+                );
+                if (existingEditIndex !== -1) {
+                    updated[existingEditIndex] = {
+                        ...(updated[existingEditIndex] as InlineFormulaEdit),
+                        newProps: edit.newProps,
+                        timestamp: Date.now(),
+                    };
+                } else {
+                    updated.push(newEdit);
+                }
+                return updated;
+            }
+
+            // 2. Normal flow: check for existing formula edit for the same element
+            const existingIndex = prev.findIndex(
+                e => e.type === 'inlineFormula' &&
+                    (e as InlineFormulaEdit).blockId === edit.blockId &&
+                    (e as InlineFormulaEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as InlineFormulaEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openInlineFormulaEditor = useCallback((
+        props: InlineFormulaProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingInlineFormula({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeInlineFormulaEditor = useCallback(() => {
+        setEditingInlineFormula(null);
+    }, []);
+
+    const saveInlineFormulaEdit = useCallback((newProps: InlineFormulaProps) => {
+        if (!editingInlineFormula) return;
+
+        const { blockId, elementPath, ...originalProps } = editingInlineFormula;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addInlineFormulaEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingInlineFormula(null);
+    }, [editingInlineFormula, addInlineFormulaEdit]);
+
+    // Filter out inlineFormulaEdits whose block already has a structure 'add' edit
+    // with an updated marker.  The structure edit carries the new props in its marker,
+    // so processing both would duplicate the formula on the backend.  The inlineFormulaEdit
+    // is kept in local state purely for frontend visual feedback (effectiveLatex).
+    const filterEditsForBackend = useCallback((edits: PendingEdit[]): PendingEdit[] => {
+        const structureAddBlockIds = new Set(
+            edits
+                .filter(e => e.type === 'structure' && (e as StructureEdit).action === 'add')
+                .map(e => (e as StructureEdit).blockId)
+        );
+        return edits.filter(e => {
+            if (e.type === 'inlineFormula' && structureAddBlockIds.has((e as InlineFormulaEdit).blockId)) {
+                return false;
+            }
+            return true;
+        });
+    }, []);
+
     // Notify parent whenever edits change
     useEffect(() => {
+        const editsForBackend = filterEditsForBackend(pendingEdits);
         window.parent.postMessage({
             type: 'edits-changed',
-            edits: pendingEdits,
-            count: pendingEdits.length,
+            edits: editsForBackend,
+            count: editsForBackend.length,
         }, '*');
-    }, [pendingEdits]);
+    }, [pendingEdits, filterEditsForBackend]);
 
     // Listen for messages from parent
     useEffect(() => {
@@ -1006,10 +1185,11 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
             // Parent requesting current edits
             if (event.data.type === 'request-edits') {
+                const editsForBackend = filterEditsForBackend(pendingEditsRef.current);
                 window.parent.postMessage({
                     type: 'edits-response',
-                    edits: pendingEditsRef.current,
-                    count: pendingEditsRef.current.length,
+                    edits: editsForBackend,
+                    count: editsForBackend.length,
                 }, '*');
             }
         };
@@ -1029,6 +1209,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingTooltip,
         editingTrigger,
         editingHyperlink,
+        editingInlineFormula,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1067,6 +1248,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openHyperlinkEditor,
         closeHyperlinkEditor,
         saveHyperlinkEdit,
+        addInlineFormulaEdit,
+        openInlineFormulaEditor,
+        closeInlineFormulaEditor,
+        saveInlineFormulaEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -1078,6 +1263,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingTooltip,
         editingTrigger,
         editingHyperlink,
+        editingInlineFormula,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1116,6 +1302,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openHyperlinkEditor,
         closeHyperlinkEditor,
         saveHyperlinkEdit,
+        addInlineFormulaEdit,
+        openInlineFormulaEditor,
+        closeInlineFormulaEditor,
+        saveInlineFormulaEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -1248,7 +1438,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                                         edit.type === 'toggle' ? '#c084fc' :
                                                                             edit.type === 'tooltip' ? '#f59e0b' :
                                                                             edit.type === 'trigger' ? '#10B981' :
-                                                                            edit.type === 'hyperlink' ? '#10B981' : '#fbbf24'
+                                                                            edit.type === 'hyperlink' ? '#10B981' :
+                                                                            edit.type === 'inlineFormula' ? '#8B5CF6' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -1379,6 +1570,17 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                             text: {(edit as HyperlinkComponentEdit).newProps.text || '(none)'} |
                                                             href: {(edit as HyperlinkComponentEdit).newProps.href || '(none)'} |
                                                             target: {(edit as HyperlinkComponentEdit).newProps.targetBlockId || '(none)'}
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'inlineFormula' && (
+                                                    <>
+                                                        <div>📍 {(edit as InlineFormulaEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            📐 Path: {(edit as InlineFormulaEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px', fontFamily: 'monospace' }}>
+                                                            latex: {(edit as InlineFormulaEdit).newProps.latex?.substring(0, 40) || '(none)'}
                                                         </div>
                                                     </>
                                                 )}

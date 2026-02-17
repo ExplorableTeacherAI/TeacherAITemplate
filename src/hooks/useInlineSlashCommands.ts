@@ -123,6 +123,13 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 data-component-id="${uniqueId}"
                 style="display: inline-flex; align-items: center; color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
             >link</span>`;
+        case 'inlineFormula':
+            return `<span
+                contenteditable="false"
+                data-inline-component="${commandType}"
+                data-component-id="${uniqueId}"
+                style="display: inline-flex; align-items: center; color: #8B5CF6; font-weight: 500; margin: 0 2px; user-select: none; cursor: default; font-style: italic;"
+            >f(x)</span>`;
         default:
             return '';
     }
