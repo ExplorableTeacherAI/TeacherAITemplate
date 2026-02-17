@@ -128,16 +128,12 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
     // SpotColor is the authoritative source for a variable's display color.
     // Writing here makes the color reactively available to InlineScrubbleNumber,
     // InlineFormula, Equation, etc. without them scanning pending edits.
-    //
-    // We sync the *prop* color (or pending-edit color) — NOT storeColor —
-    // so that the saved JSX prop overrides whatever initializeVariableColors
-    // set from the variable definitions on page load.
     const setColor = useVariableStore(s => s.setColor);
     useEffect(() => {
         if (effectiveVarName) {
-            setColor(effectiveVarName, pendingEdit?.newProps.color ?? color);
+            setColor(effectiveVarName, effectiveColor);
         }
-    }, [effectiveVarName, color, pendingEdit?.newProps.color, setColor]);
+    }, [effectiveVarName, effectiveColor, setColor]);
 
     // DOM text fallback — captured after mount for when childText extraction fails
     const domTextRef = useRef<string | undefined>(undefined);
@@ -172,9 +168,10 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
                 color: effectiveColor,
             },
             blockId,
-            elementPath
+            elementPath,
+            color // raw JSX prop color for backend source matching
         );
-    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveText, effectiveColor, openSpotColorEditor, identitySuffix]);
+    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveText, effectiveColor, color, openSpotColorEditor, identitySuffix]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (canEdit && isEditing) {
