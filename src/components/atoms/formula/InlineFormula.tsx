@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
-import { useEditableTextContext } from './EditableText';
+import { useEditableTextContext } from '../text/EditableText';
 
 interface InlineFormulaProps {
     /** Unique identifier for this formula instance */

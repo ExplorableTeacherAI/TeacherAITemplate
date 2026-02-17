@@ -52,7 +52,6 @@ export { InlineClozeInput } from "./text/InlineClozeInput";
 export { InlineToggle } from "./text/InlineToggle";
 export { InlineTooltip } from "./text/InlineTooltip";
 export { InlineTrigger } from "./text/InlineTrigger";
-export { InlineFormula } from "./text/InlineFormula";
 export { InlineHyperlink } from "./text/InlineHyperlink";
 export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
 export {
@@ -84,6 +83,7 @@ export type {
 } from "./text/InteractiveHighlight";
 
 // Formula Components
+export { InlineFormula } from "./formula/InlineFormula";
 export { Equation } from "./formula/Equation";
 export {
     ColoredEquationProvider,
