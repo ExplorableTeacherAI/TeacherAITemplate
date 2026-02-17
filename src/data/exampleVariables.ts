@@ -43,6 +43,9 @@ import { type VariableDefinition } from './variables';
  *
  * 6. OBJECT (complex data):
  *    { defaultValue: { x: 5, y: 10 }, type: 'object', schema: '{ x: number, y: number }' }
+ *
+ * 7. SPOT COLOR (color-coded variable label):
+ *    { defaultValue: 'radius', type: 'spotColor', color: '#3cc499' }
  */
 export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     // ========================================
@@ -278,6 +281,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         min: 1,
         max: 20,
         step: 0.5,
+        color: '#3cc499',
     },
     temperature: {
         defaultValue: 25,
@@ -321,6 +325,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         min: 0.1,
         max: 100,
         step: 0.1,
+        color: '#a855f7',
     },
     velocity: {
         defaultValue: 0,
@@ -331,6 +336,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         min: -50,
         max: 50,
         step: 0.5,
+        color: '#f97316',
     },
     acceleration: {
         defaultValue: 9.8,
@@ -341,6 +347,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         min: -20,
         max: 20,
         step: 0.1,
+        color: '#06b6d4',
     },
 
     // ─────────────────────────────────────────
@@ -498,5 +505,25 @@ export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
         ...(def.color ? { color: def.color } : {}),
         ...(def.bgColor ? { bgColor: def.bgColor } : {}),
         ...(def.caseSensitive !== undefined ? { caseSensitive: def.caseSensitive } : {}),
+    };
+}
+
+/**
+ * Get spot-color props for InlineSpotColor from a variable definition.
+ * Extracts the `color` field.
+ *
+ * @example
+ * <InlineSpotColor
+ *     varName="radius"
+ *     {...spotColorPropsFromDefinition(getExampleVariableInfo('radius'))}
+ * >
+ *     radius
+ * </InlineSpotColor>
+ */
+export function spotColorPropsFromDefinition(def: VariableDefinition | undefined): {
+    color: string;
+} {
+    return {
+        color: def?.color ?? '#8B5CF6',
     };
 }

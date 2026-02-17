@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useVar, useSetVar } from '@/stores/variableStore';
+import { useVarColor } from '@/stores';
 import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
@@ -147,7 +148,10 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     const displayMin = pendingEdit?.newProps.min ?? min;
     const displayMax = pendingEdit?.newProps.max ?? max;
     const displayStep = pendingEdit?.newProps.step ?? step;
-    const effectiveColor = pendingEdit?.newProps.color ?? color;
+
+    // Color: pending scrubble edit > central variable color store > prop default
+    const storeColor = useVarColor(effectiveVarName, color);
+    const effectiveColor = pendingEdit?.newProps.color ?? storeColor;
 
     // Get value from variable store if varName is provided (using effective name)
     const storeValue = useVar(effectiveVarName || '', effectiveDefaultValue);

@@ -2,91 +2,76 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
 
-interface ScrubbleNumberEditorModalProps {
+interface SpotColorEditorModalProps {
     // Props are managed via EditingContext
 }
 
-export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps> = () => {
-    const { editingScrubbleNumber, closeScrubbleNumberEditor, saveScrubbleNumberEdit } = useEditing();
+export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
+    const { editingSpotColor, closeSpotColorEditor, saveSpotColorEdit } = useEditing();
 
     const [varName, setVarName] = useState('');
-    const [defaultValue, setDefaultValue] = useState(10);
-    const [min, setMin] = useState(0);
-    const [max, setMax] = useState(100);
-    const [step, setStep] = useState(1);
-    const [color, setColor] = useState('#D81B60');
-    const [error, setError] = useState<string | null>(null);
+    const [text, setText] = useState('');
+    const [color, setColor] = useState('#3cc499');
 
     const COLOR_PRESETS = [
-        '#D81B60', // Pink/Red (default)
+        '#D81B60', // Pink/Red
         '#E53935', // Red
+        '#ef4444', // Light Red
         '#F57C00', // Orange
+        '#f97316', // Orange
         '#FDD835', // Yellow
         '#43A047', // Green
+        '#3cc499', // Teal Green
         '#00897B', // Teal
+        '#06b6d4', // Cyan
         '#1E88E5', // Blue
+        '#3b82f6', // Light Blue
         '#5E35B1', // Purple
+        '#a855f7', // Violet
         '#6D4C41', // Brown
         '#546E7A', // Blue Grey
     ];
 
+    // Compute contrast text color for preview
+    const getTextColor = useCallback((bgColor: string) => {
+        const hex = bgColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16) / 255;
+        const g = parseInt(hex.substring(2, 4), 16) / 255;
+        const b = parseInt(hex.substring(4, 6), 16) / 255;
+        const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        return lum > 0.45 ? '#1a1a2e' : '#ffffff';
+    }, []);
+
     // Initialize state when modal opens
     useEffect(() => {
-        if (editingScrubbleNumber) {
-            setVarName(editingScrubbleNumber.varName || '');
-            setDefaultValue(editingScrubbleNumber.defaultValue ?? 10);
-            setMin(editingScrubbleNumber.min ?? 0);
-            setMax(editingScrubbleNumber.max ?? 100);
-            setStep(editingScrubbleNumber.step ?? 1);
-            setColor(editingScrubbleNumber.color ?? '#D81B60');
-            setError(null);
+        if (editingSpotColor) {
+            setVarName(editingSpotColor.varName || '');
+            setText(editingSpotColor.text || '');
+            setColor(editingSpotColor.color || '#3cc499');
         }
-    }, [editingScrubbleNumber]);
-
-    // Validate inputs
-    const validate = useCallback(() => {
-        if (min >= max) {
-            setError('Min must be less than max');
-            return false;
-        }
-        if (step <= 0) {
-            setError('Step must be greater than 0');
-            return false;
-        }
-        if (defaultValue < min || defaultValue > max) {
-            setError('Default value must be between min and max');
-            return false;
-        }
-        setError(null);
-        return true;
-    }, [min, max, step, defaultValue]);
+    }, [editingSpotColor]);
 
     // Central color store — update when saving a color change
     const setVarColor = useVariableStore(s => s.setColor);
 
     // Handle save
     const handleSave = useCallback(() => {
-        if (!validate()) return;
-
         // Update the central variable color store so all components pick up the change
         if (varName) {
             setVarColor(varName, color);
         }
 
-        saveScrubbleNumberEdit({
+        saveSpotColorEdit({
             varName: varName || undefined,
-            defaultValue,
-            min,
-            max,
-            step,
+            text: text || undefined,
             color,
         });
-    }, [varName, defaultValue, min, max, step, color, validate, saveScrubbleNumberEdit, setVarColor]);
+    }, [varName, text, color, saveSpotColorEdit, setVarColor]);
 
     // Handle cancel
     const handleCancel = useCallback(() => {
-        closeScrubbleNumberEditor();
-    }, [closeScrubbleNumberEditor]);
+        closeSpotColorEditor();
+    }, [closeSpotColorEditor]);
 
     // Handle key press
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -97,7 +82,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
         }
     }, [handleSave, handleCancel]);
 
-    if (!editingScrubbleNumber) return null;
+    if (!editingSpotColor) return null;
 
     return (
         <div
@@ -109,9 +94,9 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                 <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                         </svg>
-                        Edit Scrubbable Number
+                        Edit Spot Color
                     </h2>
                     <button
                         onClick={handleCancel}
@@ -128,7 +113,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                     {/* Variable Name */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Variable Name <span className="text-muted-foreground">(optional)</span>
+                            Variable Name <span className="text-muted-foreground">(required)</span>
                         </label>
                         <input
                             type="text"
@@ -136,61 +121,29 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                             onChange={(e) => setVarName(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
                             style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            placeholder="e.g., wedgeCount"
+                            placeholder="e.g., radius"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                            If set, this variable will be synced with global state
+                            Unique name to identify this color (used in formulas with \clr&#123;name&#125;&#123;...&#125;)
                         </p>
                     </div>
 
-                    {/* Default Value */}
+                    {/* Display Text */}
                     <div>
-                        <label className="block text-sm font-medium mb-2">Default Value</label>
+                        <label className="block text-sm font-medium mb-2">
+                            Display Text <span className="text-muted-foreground">(optional)</span>
+                        </label>
                         <input
-                            type="number"
-                            value={defaultValue}
-                            onChange={(e) => setDefaultValue(parseFloat(e.target.value) || 0)}
+                            type="text"
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
                             style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            placeholder="e.g., radius"
                         />
-                    </div>
-
-                    {/* Min / Max Row */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Min</label>
-                            <input
-                                type="number"
-                                value={min}
-                                onChange={(e) => setMin(parseFloat(e.target.value) || 0)}
-                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Max</label>
-                            <input
-                                type="number"
-                                value={max}
-                                onChange={(e) => setMax(parseFloat(e.target.value) || 0)}
-                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Step */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Step</label>
-                        <input
-                            type="number"
-                            value={step}
-                            onChange={(e) => setStep(parseFloat(e.target.value) || 1)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            min={0.001}
-                            step={0.1}
-                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                            The text shown inside the colored pill
+                        </p>
                     </div>
 
                     {/* Color */}
@@ -228,7 +181,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                                 }}
                                 className="flex-1 px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
                                 style={{ '--tw-ring-color': color } as React.CSSProperties}
-                                placeholder="#D81B60"
+                                placeholder="#3cc499"
                                 maxLength={7}
                             />
                         </div>
@@ -239,25 +192,24 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                         <label className="text-sm font-medium mb-2 block">Preview</label>
                         <div className="p-4 bg-muted/20 rounded-lg flex items-center justify-center">
                             <span className="inline-flex items-center gap-1 text-lg">
-                                The value is{" "}
+                                The{" "}
                                 <span
-                                    className="font-medium cursor-ew-resize"
+                                    className="inline-flex items-center rounded-md font-semibold"
                                     style={{
-                                        color: color,
-                                        borderBottom: `2px solid ${color}`,
-                                        paddingBottom: '1px',
+                                        backgroundColor: color,
+                                        color: getTextColor(color),
+                                        padding: '1px 6px',
+                                        fontSize: '0.92em',
+                                        letterSpacing: '0.01em',
+                                        boxShadow: `0 1px 3px ${color}44`,
                                     }}
                                 >
-                                    {defaultValue}
+                                    {text || varName || 'variable'}
                                 </span>
+                                {" "}is important.
                             </span>
                         </div>
                     </div>
-
-                    {/* Error */}
-                    {error && (
-                        <p className="text-sm text-destructive">{error}</p>
-                    )}
                 </div>
 
                 {/* Footer */}
@@ -280,4 +232,4 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
     );
 };
 
-export default ScrubbleNumberEditorModal;
+export default SpotColorEditorModal;

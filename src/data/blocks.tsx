@@ -2,10 +2,11 @@ import { type ReactElement } from "react";
 // import { Block } from "@/components/templates";
 // import { FullWidthLayout, SplitLayout, GridLayout, SidebarLayout, Sidebar, Main } from "@/components/layouts";
 
-// Initialize variables from this file's variable definitions
-import { useVariableStore } from "@/stores";
-import { getDefaultValues } from "./variables";
+// Initialize variables and their colors from this file's variable definitions
+import { useVariableStore, initializeVariableColors } from "@/stores";
+import { getDefaultValues, variableDefinitions } from "./variables";
 useVariableStore.getState().initialize(getDefaultValues());
+initializeVariableColors(variableDefinitions);
 
 /**
  * ------------------------------------------------------------------

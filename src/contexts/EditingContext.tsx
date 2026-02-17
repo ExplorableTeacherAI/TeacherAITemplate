@@ -158,7 +158,7 @@ export interface HyperlinkComponentEdit {
 export interface InlineFormulaProps {
     latex?: string;
     colorMap?: Record<string, string>;
-    color?: string;       // wrapper text color (default: #8B5CF6 violet)
+    color?: string;       // wrapper text color (default: #000000 black)
 }
 
 export interface InlineFormulaEdit {
@@ -168,6 +168,22 @@ export interface InlineFormulaEdit {
     elementPath: string;
     originalProps: InlineFormulaProps;
     newProps: InlineFormulaProps;
+    timestamp: number;
+}
+
+export interface SpotColorComponentProps {
+    varName?: string;
+    text?: string;
+    color?: string;
+}
+
+export interface SpotColorEdit {
+    id: string;
+    type: 'spotColor';
+    blockId: string;
+    elementPath: string;
+    originalProps: SpotColorComponentProps;
+    newProps: SpotColorComponentProps;
     timestamp: number;
 }
 
@@ -183,7 +199,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -198,6 +214,7 @@ interface EditingContextType {
     editingTrigger: (TriggerComponentProps & { blockId: string; elementPath: string }) | null;
     editingHyperlink: (HyperlinkComponentProps & { blockId: string; elementPath: string }) | null;
     editingInlineFormula: (InlineFormulaProps & { blockId: string; elementPath: string }) | null;
+    editingSpotColor: (SpotColorComponentProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -242,6 +259,10 @@ interface EditingContextType {
     openInlineFormulaEditor: (props: InlineFormulaProps, blockId: string, elementPath: string) => void;
     closeInlineFormulaEditor: () => void;
     saveInlineFormulaEdit: (newProps: InlineFormulaProps) => void;
+    addSpotColorEdit: (edit: Omit<SpotColorEdit, 'id' | 'type' | 'timestamp'>) => void;
+    openSpotColorEditor: (props: SpotColorComponentProps, blockId: string, elementPath: string) => void;
+    closeSpotColorEditor: () => void;
+    saveSpotColorEdit: (newProps: SpotColorComponentProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -290,6 +311,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingInlineFormula, setEditingInlineFormula] = useState<(InlineFormulaProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingSpotColor, setEditingSpotColor] = useState<(SpotColorComponentProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -1039,7 +1064,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                         if (edit.newProps.colorMap && Object.keys(edit.newProps.colorMap).length > 0) {
                             updatedProps.colorMap = edit.newProps.colorMap;
                         }
-                        if (edit.newProps.color && edit.newProps.color !== '#8B5CF6') {
+                        if (edit.newProps.color && edit.newProps.color !== '#000000') {
                             updatedProps.color = edit.newProps.color;
                         }
                         const newBase64 = btoa(JSON.stringify(updatedProps));
@@ -1136,6 +1161,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingInlineFormula(null);
     }, [editingInlineFormula, addInlineFormulaEdit]);
 
+    // SpotColor editing methods
+    const addSpotColorEdit = useCallback((edit: Omit<SpotColorEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: SpotColorEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'spotColor',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'spotColor' &&
+                    (e as SpotColorEdit).blockId === edit.blockId &&
+                    (e as SpotColorEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as SpotColorEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openSpotColorEditor = useCallback((
+        props: SpotColorComponentProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingSpotColor({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeSpotColorEditor = useCallback(() => {
+        setEditingSpotColor(null);
+    }, []);
+
+    const saveSpotColorEdit = useCallback((newProps: SpotColorComponentProps) => {
+        if (!editingSpotColor) return;
+
+        const { blockId, elementPath, ...originalProps } = editingSpotColor;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addSpotColorEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingSpotColor(null);
+    }, [editingSpotColor, addSpotColorEdit]);
+
     // Filter out inlineFormulaEdits whose block already has a structure 'add' edit
     // with an updated marker.  The structure edit carries the new props in its marker,
     // so processing both would duplicate the formula on the backend.  The inlineFormulaEdit
@@ -1210,6 +1304,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingTrigger,
         editingHyperlink,
         editingInlineFormula,
+        editingSpotColor,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1252,6 +1347,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openInlineFormulaEditor,
         closeInlineFormulaEditor,
         saveInlineFormulaEdit,
+        addSpotColorEdit,
+        openSpotColorEditor,
+        closeSpotColorEditor,
+        saveSpotColorEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -1264,6 +1363,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingTrigger,
         editingHyperlink,
         editingInlineFormula,
+        editingSpotColor,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1306,6 +1406,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openInlineFormulaEditor,
         closeInlineFormulaEditor,
         saveInlineFormulaEdit,
+        addSpotColorEdit,
+        openSpotColorEditor,
+        closeSpotColorEditor,
+        saveSpotColorEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -1437,9 +1541,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                                     edit.type === 'clozeChoice' ? '#f472b6' :
                                                                         edit.type === 'toggle' ? '#c084fc' :
                                                                             edit.type === 'tooltip' ? '#f59e0b' :
-                                                                            edit.type === 'trigger' ? '#10B981' :
-                                                                            edit.type === 'hyperlink' ? '#10B981' :
-                                                                            edit.type === 'inlineFormula' ? '#8B5CF6' : '#fbbf24'
+                                                                                edit.type === 'trigger' ? '#10B981' :
+                                                                                    edit.type === 'hyperlink' ? '#10B981' :
+                                                                                        edit.type === 'inlineFormula' ? '#8B5CF6' :
+                                                                                            edit.type === 'spotColor' ? '#3cc499' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -1581,6 +1686,19 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                         </div>
                                                         <div style={{ color: '#9ca3af', fontSize: '11px', fontFamily: 'monospace' }}>
                                                             latex: {(edit as InlineFormulaEdit).newProps.latex?.substring(0, 40) || '(none)'}
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'spotColor' && (
+                                                    <>
+                                                        <div>📍 {(edit as SpotColorEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            🎨 Path: {(edit as SpotColorEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            varName: {(edit as SpotColorEdit).newProps.varName || '(none)'} |
+                                                            text: {(edit as SpotColorEdit).newProps.text || '(none)'} |
+                                                            color: <span style={{ color: (edit as SpotColorEdit).newProps.color }}>{(edit as SpotColorEdit).newProps.color || '(none)'}</span>
                                                         </div>
                                                     </>
                                                 )}

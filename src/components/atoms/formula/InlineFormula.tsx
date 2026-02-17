@@ -6,6 +6,7 @@ import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 import { useEditableTextContext } from '../text/EditableText';
+import { useVariableStore } from '@/stores';
 
 interface InlineFormulaProps {
     /** Unique identifier for this formula instance */
@@ -14,7 +15,7 @@ interface InlineFormulaProps {
     latex: string;
     /** Term name -> hex color mapping for \clr{}{} syntax */
     colorMap?: Record<string, string>;
-    /** Wrapper accent color (default: #8B5CF6 violet) */
+    /** Wrapper accent color (default: #000000 black) */
     color?: string;
     /** Fallback display text (used in editor placeholder) */
     children?: React.ReactNode;
@@ -43,7 +44,7 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
     id,
     latex,
     colorMap = {},
-    color = '#8B5CF6',
+    color = '#000000',
     children,
 }) => {
     const katexRef = useRef<HTMLSpanElement>(null);
@@ -95,9 +96,27 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
         return edit as { newProps: { latex?: string; colorMap?: Record<string, string>; color?: string } } | null;
     }, [isEditing, canEdit, pendingEdits, editIdentity]);
 
+    // Read the central variable color store to override colorMap entries.
+    // When a SpotColor changes a variable's color, formulas using that variable update reactively.
+    const allVarColors = useVariableStore(s => s.colors);
+
     // Effective prop values (pending edits override)
     const effectiveLatex = pendingEdit?.newProps.latex ?? latex;
-    const effectiveColorMap = pendingEdit?.newProps.colorMap ?? colorMap;
+    const baseColorMap = pendingEdit?.newProps.colorMap ?? colorMap;
+    const effectiveColorMap = useMemo(() => {
+        const keys = Object.keys(baseColorMap);
+        if (keys.length === 0) return baseColorMap;
+        const merged = { ...baseColorMap };
+        let changed = false;
+        for (const key of keys) {
+            const storeColor = allVarColors[key];
+            if (storeColor && storeColor !== merged[key]) {
+                merged[key] = storeColor;
+                changed = true;
+            }
+        }
+        return changed ? merged : baseColorMap;
+    }, [baseColorMap, allVarColors]);
     const effectiveColor = pendingEdit?.newProps.color ?? color;
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)

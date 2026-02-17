@@ -130,6 +130,13 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 data-component-id="${uniqueId}"
                 style="display: inline-flex; align-items: center; color: #8B5CF6; font-weight: 500; margin: 0 2px; user-select: none; cursor: default; font-style: italic;"
             >f(x)</span>`;
+        case 'inlineSpotColor':
+            return `<span
+                contenteditable="false"
+                data-inline-component="${commandType}"
+                data-component-id="${uniqueId}"
+                style="display: inline-flex; align-items: center; background: #3B82F6; color: #ffffff; border-radius: 6px; padding: 1px 6px; font-weight: 600; margin: 0 2px; user-select: none; cursor: default; font-size: 0.92em; letter-spacing: 0.01em;"
+            >variable</span>`;
         default:
             return '';
     }

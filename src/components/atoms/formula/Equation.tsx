@@ -4,6 +4,7 @@ import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
+import { useVariableStore } from '@/stores';
 
 interface EquationProps {
     latex: string;
@@ -74,9 +75,26 @@ export const Equation: React.FC<EquationProps> = ({
         return edit as { newLatex: string, colorMap?: Record<string, string> } | null;
     }, [isEditing, isEditor, pendingEdits, latex, getElementPath]);
 
+    // Read the central variable color store to override colorMap entries reactively.
+    const allVarColors = useVariableStore(s => s.colors);
+
     // Use edited values if available
     const displayLatex = pendingEdit ? pendingEdit.newLatex : latex;
-    const displayColorMap = pendingEdit && pendingEdit.colorMap ? pendingEdit.colorMap : colorMap;
+    const baseColorMap = pendingEdit && pendingEdit.colorMap ? pendingEdit.colorMap : colorMap;
+    const displayColorMap = useMemo(() => {
+        const keys = Object.keys(baseColorMap);
+        if (keys.length === 0) return baseColorMap;
+        const merged = { ...baseColorMap };
+        let changed = false;
+        for (const key of keys) {
+            const storeColor = allVarColors[key];
+            if (storeColor && storeColor !== merged[key]) {
+                merged[key] = storeColor;
+                changed = true;
+            }
+        }
+        return changed ? merged : baseColorMap;
+    }, [baseColorMap, allVarColors]);
 
     // Pre-process the latex to replace \clr{term}{content} with colored spans
     const processedLatex = useMemo(() => {

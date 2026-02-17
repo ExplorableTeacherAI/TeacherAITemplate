@@ -3,6 +3,7 @@ import { useEditing } from '@/contexts/EditingContext';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
+import { useVariableStore } from '@/stores';
 
 import { createPortal } from 'react-dom';
 
@@ -280,6 +281,11 @@ export const EquationEditorModal: React.FC = () => {
 
     // Handle save
     const handleSave = useCallback(() => {
+        // Sync changed colors to the central variable color store
+        const setColor = useVariableStore.getState().setColor;
+        for (const [varName, hexColor] of Object.entries(colorMap)) {
+            setColor(varName, hexColor);
+        }
         saveEquationEdit(latex, colorMap);
     }, [latex, colorMap, saveEquationEdit]);
 
@@ -527,6 +533,11 @@ export const InlineFormulaEditorModal: React.FC = () => {
     }, []);
 
     const handleSave = useCallback(() => {
+        // Sync changed colors to the central variable color store
+        const setColor = useVariableStore.getState().setColor;
+        for (const [varName, hexColor] of Object.entries(colorMap)) {
+            setColor(varName, hexColor);
+        }
         // Include color from the original props to avoid spurious diffs
         // (originalProps has {latex, colorMap, color} but we were only sending {latex, colorMap}).
         const color = editingInlineFormula?.color;

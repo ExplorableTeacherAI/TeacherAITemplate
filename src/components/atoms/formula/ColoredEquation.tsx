@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useOptionalEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useEditableTextContext } from '../text/EditableText';
+import { useVariableStore } from '@/stores';
 
 // Context for sharing hover state between equation and text
 interface ColoredEquationContextValue {
@@ -57,22 +58,40 @@ export const ColoredEquationProvider: React.FC<ColoredEquationProviderProps> = (
     const pendingEdits = editingContext?.pendingEdits || [];
     const isEditing = editingContext?.isEditing && isEditor;
 
-    // Derived color map from pending edits
+    // Read the central variable color store for reactive color overrides.
+    const allVarColors = useVariableStore(s => s.colors);
+
+    // Derived color map from pending edits + variable color store
     const effectiveColorMap = React.useMemo(() => {
-        if (!isEditing || pendingEdits.length === 0) return colorMap;
+        let result = colorMap;
 
-        // Try to find an equation edit that has a color map
-        // We look for the most recent one. 
-        // Note: This is a heuristics-based approach since we don't strictly know if the equation belongs to this provider.
-        // But typically, a section shares a color scheme.
-        const colorEdit = [...pendingEdits].reverse().find(e =>
-            e.type === 'equation' &&
-            e.colorMap &&
-            Object.keys(e.colorMap).length > 0
-        );
+        // Apply equation edit colorMap if any
+        if (isEditing && pendingEdits.length > 0) {
+            const colorEdit = [...pendingEdits].reverse().find(e =>
+                e.type === 'equation' &&
+                e.colorMap &&
+                Object.keys(e.colorMap).length > 0
+            );
+            if (colorEdit) {
+                result = (colorEdit as any).colorMap;
+            }
+        }
 
-        return (colorEdit as any)?.colorMap || colorMap;
-    }, [isEditing, pendingEdits, colorMap]);
+        // Apply variable color store overrides
+        const keys = Object.keys(result);
+        if (keys.length === 0) return result;
+        const merged = { ...result };
+        let changed = false;
+        for (const key of keys) {
+            const storeColor = allVarColors[key];
+            if (storeColor && storeColor !== merged[key]) {
+                merged[key] = storeColor;
+                changed = true;
+            }
+        }
+
+        return changed ? merged : result;
+    }, [isEditing, pendingEdits, colorMap, allVarColors]);
 
     return (
         <ColoredEquationContext.Provider value={{ activeTerm, setActiveTerm, colorMap: effectiveColorMap }}>

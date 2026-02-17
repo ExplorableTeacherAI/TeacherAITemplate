@@ -1,17 +1,20 @@
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 
-// Initialize variables from example variable definitions (single source of truth)
-import { useVariableStore } from "@/stores";
+// Initialize variables and their colors from example variable definitions (single source of truth)
+import { useVariableStore, initializeVariableColors } from "@/stores";
 import {
+    exampleVariableDefinitions,
     getExampleDefaultValues,
     getExampleVariableInfo,
     numberPropsFromDefinition,
     clozePropsFromDefinition,
     choicePropsFromDefinition,
     togglePropsFromDefinition,
+    spotColorPropsFromDefinition,
 } from "./exampleVariables";
 useVariableStore.getState().initialize(getExampleDefaultValues());
+initializeVariableColors(exampleVariableDefinitions);
 
 // Import layout components
 import { FullWidthLayout } from "@/components/layouts";
@@ -30,6 +33,7 @@ import {
     InlineTrigger,
     InlineHyperlink,
     InlineFormula,
+    InlineSpotColor,
 } from "@/components/atoms";
 
 /**
@@ -564,6 +568,86 @@ const exampleBlocks: ReactElement[] = [
                     colorMap={{ x: '#ef4444', a: '#3b82f6', b: '#3cc499', c: '#f97316' }}
                 />
                 {" "}gives the roots of any quadratic equation.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // SPOT COLOR DEMO (Color-Coded Variables)
+    // ========================================
+    <FullWidthLayout key="layout-heading-spotcolor" maxWidth="xl">
+        <Block id="block-heading-spotcolor" padding="md">
+            <EditableH2 id="h2-spotcolor-title" blockId="block-heading-spotcolor">
+                Spot Color (Color-Coded Variables)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-spotcolor-intro" maxWidth="xl">
+        <Block id="block-spotcolor-intro" padding="sm">
+            <EditableParagraph id="para-spotcolor-intro" blockId="block-spotcolor-intro">
+                InlineSpotColor defines a color for a variable. When the same variable
+                appears in a formula, the formula picks up the same color from the
+                variable definition — creating a consistent visual link between
+                prose and math.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-spotcolor-01" maxWidth="xl">
+        <Block id="block-spotcolor-01" padding="sm">
+            <EditableParagraph id="para-spotcolor-circle" blockId="block-spotcolor-01">
+                With the{" "}
+                <InlineSpotColor id="spot-mass" varName="mass"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('mass'))}
+                >
+                    mass
+                </InlineSpotColor>
+                {" "}of an object and its{" "}
+                <InlineSpotColor id="spot-velocity" varName="velocity"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('velocity'))}
+                >
+                    velocity
+                </InlineSpotColor>
+                , you can compute the kinetic energy:{" "}
+                <InlineFormula
+                    id="formula-spotcolor-kinetic"
+                    latex="KE = \frac{1}{2} \clr{mass}{m} \clr{velocity}{v}^2"
+                    colorMap={{
+                        mass: getExampleVariableInfo('mass')?.color ?? '#a855f7',
+                        velocity: getExampleVariableInfo('velocity')?.color ?? '#f97316',
+                    }}
+                />
+                .
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-spotcolor-02" maxWidth="xl">
+        <Block id="block-spotcolor-02" padding="sm">
+            <EditableParagraph id="para-spotcolor-physics" blockId="block-spotcolor-02">
+                The{" "}
+                <InlineSpotColor id="spot-acceleration" varName="acceleration"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('acceleration'))}
+                >
+                    acceleration
+                </InlineSpotColor>
+                {" "}of an object is determined by the net force and its{" "}
+                <InlineSpotColor id="spot-mass-2" varName="mass"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('mass'))}
+                >
+                    mass
+                </InlineSpotColor>
+                . Newton's second law states{" "}
+                <InlineFormula
+                    id="formula-spotcolor-newton"
+                    latex="F = \clr{mass}{m} \clr{acceleration}{a}"
+                    colorMap={{
+                        mass: getExampleVariableInfo('mass')?.color ?? '#a855f7',
+                        acceleration: getExampleVariableInfo('acceleration')?.color ?? '#06b6d4',
+                    }}
+                />
+                .
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,

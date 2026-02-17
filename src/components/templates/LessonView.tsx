@@ -14,7 +14,8 @@ import {
     InlineTooltip,
     InlineTrigger,
     InlineHyperlink,
-    InlineFormula
+    InlineFormula,
+    InlineSpotColor
 } from "@/components/atoms";
 import { EditableText } from "@/components/atoms/text/EditableText";
 import { FullWidthLayout } from "@/components/layouts";
@@ -48,7 +49,7 @@ const decodeMarkerProps = (encoded: string | undefined): Record<string, unknown>
  */
 const parseContentWithInlineComponents = (content: string): React.ReactNode[] => {
     // Regex: group1=type, group2=id (up to | or }}), group3=optional base64 props
-    const markerRegex = /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle|inlineTooltip|inlineTrigger|inlineHyperlink|inlineFormula):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
+    const markerRegex = /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle|inlineTooltip|inlineTrigger|inlineHyperlink|inlineFormula|inlineSpotColor):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
 
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
@@ -181,6 +182,19 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 );
                 break;
             }
+            case "inlineSpotColor": {
+                const p = savedProps as { varName?: string; color?: string; text?: string } | null;
+                parts.push(
+                    <InlineSpotColor
+                        key={uniqueId}
+                        varName={p?.varName ?? `var_${uniqueId}`}
+                        color={p?.color ?? "#3B82F6"}
+                    >
+                        {p?.text ?? "variable"}
+                    </InlineSpotColor>
+                );
+                break;
+            }
             default:
                 // If unknown, just keep the text
                 parts.push(match[0]);
@@ -206,7 +220,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
  * Check if content contains inline component markers (with or without props)
  */
 const hasInlineComponents = (content: string): boolean => {
-    return /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle|inlineTooltip|inlineTrigger|inlineHyperlink|inlineFormula):[^}]+\}\}/.test(content);
+    return /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle|inlineTooltip|inlineTrigger|inlineHyperlink|inlineFormula|inlineSpotColor):[^}]+\}\}/.test(content);
 };
 
 interface LessonViewProps {

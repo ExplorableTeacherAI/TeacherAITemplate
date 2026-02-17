@@ -14,6 +14,7 @@ import {
     Zap,
     Link,
     Sigma,
+    Palette,
 } from "lucide-react";
 
 // Block-level command types (replace the entire block)
@@ -34,14 +35,15 @@ export type InlineCommandType =
     | "inlineTooltip"
     | "inlineTrigger"
     | "inlineHyperlink"
-    | "inlineFormula";
+    | "inlineFormula"
+    | "inlineSpotColor";
 
 // Combined type for all slash commands
 export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip", "inlineTrigger", "inlineHyperlink", "inlineFormula"].includes(type);
+    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip", "inlineTrigger", "inlineHyperlink", "inlineFormula", "inlineSpotColor"].includes(type);
 };
 
 interface SlashCommand {
@@ -166,6 +168,14 @@ const slashCommands: SlashCommand[] = [
         description: "Inline math formula with colored variables",
         icon: <Sigma className="h-4 w-4" />,
         keywords: ["formula", "math", "equation", "latex", "katex", "inline", "expression"],
+        category: "inline",
+    },
+    {
+        id: "inlineSpotColor",
+        label: "Spot Color",
+        description: "Colored pill highlighting a variable name",
+        icon: <Palette className="h-4 w-4" />,
+        keywords: ["spot", "color", "highlight", "variable", "pill", "tag", "label"],
         category: "inline",
     },
 ];

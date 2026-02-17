@@ -26,7 +26,7 @@ export interface VariableDefinition {
     /** Description for AI agents */
     description?: string;
     /** Variable type hint */
-    type?: 'number' | 'text' | 'boolean' | 'select' | 'array' | 'object';
+    type?: 'number' | 'text' | 'boolean' | 'select' | 'array' | 'object' | 'spotColor';
     /** Unit (e.g., 'Hz', '°', 'm/s') - for numbers */
     unit?: string;
     /** Minimum value (for number sliders) */
@@ -35,7 +35,7 @@ export interface VariableDefinition {
     max?: number;
     /** Step increment (for number sliders) */
     step?: number;
-    /** Display color for InlineScrubbleNumber (e.g. '#D81B60') */
+    /** Display color for InlineScrubbleNumber / InlineSpotColor (e.g. '#D81B60') */
     color?: string;
     /** Options for 'select' type variables */
     options?: string[];
@@ -260,3 +260,24 @@ export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
         ...(def.caseSensitive !== undefined ? { caseSensitive: def.caseSensitive } : {}),
     };
 }
+
+/**
+ * Get spot-color props for InlineSpotColor from a variable definition.
+ * Extracts the `color` field.
+ *
+ * @example
+ * <InlineSpotColor
+ *     varName="radius"
+ *     {...spotColorPropsFromDefinition(getVariableInfo('radius'))}
+ * >
+ *     radius
+ * </InlineSpotColor>
+ */
+export function spotColorPropsFromDefinition(def: VariableDefinition | undefined): {
+    color: string;
+} {
+    return {
+        color: def?.color ?? '#8B5CF6',
+    };
+}
+
