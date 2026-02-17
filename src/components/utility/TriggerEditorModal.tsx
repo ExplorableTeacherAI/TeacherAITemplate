@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Zap } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Zap, ChevronDown } from 'lucide-react';
 import { useEditing } from '@/contexts/EditingContext';
+import { useVariableStore } from '@/stores';
+import { useShallow } from 'zustand/react/shallow';
 
 const parseValue = (raw: string): string | number | boolean => {
     if (raw === 'true') return true;
@@ -13,8 +15,13 @@ const parseValue = (raw: string): string | number | boolean => {
 export const TriggerEditorModal: React.FC = () => {
     const { editingTrigger, closeTriggerEditor, saveTriggerEdit } = useEditing();
 
+    // Get all existing variable names from the store
+    const variableNames = useVariableStore(useShallow((state) => Object.keys(state.variables)));
+    const sortedVarNames = useMemo(() => [...variableNames].sort(), [variableNames]);
+
     const [text, setText] = useState('');
     const [varName, setVarName] = useState('');
+    const [isCustomVar, setIsCustomVar] = useState(false);
     const [valueStr, setValueStr] = useState('');
     const [color, setColor] = useState('#10B981');
     const [bgColor, setBgColor] = useState('rgba(16, 185, 129, 0.15)');
@@ -49,12 +56,26 @@ export const TriggerEditorModal: React.FC = () => {
     useEffect(() => {
         if (editingTrigger) {
             setText(editingTrigger.text || '');
-            setVarName(editingTrigger.varName || '');
+            const incoming = editingTrigger.varName || '';
+            setVarName(incoming);
+            // If the incoming varName is not in the store, switch to custom mode
+            setIsCustomVar(incoming !== '' && !variableNames.includes(incoming));
             setValueStr(editingTrigger.value !== undefined ? String(editingTrigger.value) : '');
             setColor(editingTrigger.color || '#10B981');
             setBgColor(editingTrigger.bgColor || 'rgba(16, 185, 129, 0.15)');
         }
     }, [editingTrigger]);
+
+    const handleVarSelect = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selected = e.target.value;
+        if (selected === '__custom__') {
+            setIsCustomVar(true);
+            setVarName('');
+        } else {
+            setIsCustomVar(false);
+            setVarName(selected);
+        }
+    }, []);
 
     const handleSave = useCallback(() => {
         saveTriggerEdit({
@@ -120,19 +141,39 @@ export const TriggerEditorModal: React.FC = () => {
                         </p>
                     </div>
 
-                    {/* Variable Name */}
+                    {/* Variable Name - Dropdown */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
                             Variable Name
                         </label>
-                        <input
-                            type="text"
-                            value={varName}
-                            onChange={(e) => setVarName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            placeholder="e.g., animationSpeed"
-                        />
+                        <div className="relative">
+                            <select
+                                value={isCustomVar ? '__custom__' : varName}
+                                onChange={handleVarSelect}
+                                className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono appearance-none cursor-pointer pr-8"
+                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            >
+                                <option value="">— Select a variable —</option>
+                                {sortedVarNames.map((name) => (
+                                    <option key={name} value={name}>
+                                        {name}
+                                    </option>
+                                ))}
+                                <option value="__custom__">✏️ Custom...</option>
+                            </select>
+                            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
+                        </div>
+                        {isCustomVar && (
+                            <input
+                                type="text"
+                                value={varName}
+                                onChange={(e) => setVarName(e.target.value)}
+                                className="w-full mt-2 px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
+                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                placeholder="Enter custom variable name"
+                                autoFocus
+                            />
+                        )}
                         <p className="text-xs text-muted-foreground mt-1">
                             Which global variable to set on click
                         </p>
