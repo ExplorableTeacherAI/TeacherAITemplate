@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
-import { useVar, useSetVar, useVarColor } from '@/stores';
+import { useVar, useSetVar, useVarColor, useVariableStore } from '@/stores';
 
 interface InlineLinkedHighlightProps {
     /** Unique identifier for this component instance */
@@ -64,8 +64,15 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
     const activeHighlightId = useVar(varName || '', '') as string;
     const setVar = useSetVar();
 
-    // Color from store (may have been updated by SpotColor or editor)
-    const storeColor = useVarColor(varName, color);
+    // Color from store keyed by highlightId (per-instance, not per-group).
+    // Seeded from the JSX prop on mount so it survives pending-edit round-trips.
+    const storeColor = useVarColor(highlightId, color);
+    const setStoreColor = useVariableStore(s => s.setColor);
+    useEffect(() => {
+        if (highlightId) {
+            setStoreColor(highlightId, color);
+        }
+    }, [highlightId, color, setStoreColor]);
 
     const childText = useMemo(() => {
         if (typeof children === 'string') return children;
