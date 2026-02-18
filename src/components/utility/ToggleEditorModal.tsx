@@ -157,7 +157,7 @@ export const ToggleEditorModal: React.FC = () => {
                             type="button"
                             onClick={handleAddOption}
                             className="mt-2 text-sm font-medium transition-colors hover:opacity-80"
-                            style={{ color }}
+                            style={{ color: BRAND_GREEN }}
                         >
                             + Add Option
                         </button>
