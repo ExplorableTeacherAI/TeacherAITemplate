@@ -160,18 +160,18 @@ export const EquationEditorModal: React.FC = () => {
         if (editingEquation) {
             setLatex(editingEquation.latex);
             setColorMap(editingEquation.colorMap || {});
+            setActiveTab('latex');
             parseTermsFromLatex(editingEquation.latex, editingEquation.colorMap || {});
         }
     }, [editingEquation]);
 
-    // Parse \clr{term}{content} from LaTeX
+    // Parse \clr{term}{content} from LaTeX (deduplicated by term name)
     const parseTermsFromLatex = useCallback((latexStr: string, currentColors: Record<string, string>) => {
-        // Regex to match \clr{term}{content}, allowing for whitespace
         const pattern = /\\clr\s*\{\s*([^}]+)\s*\}\s*\{\s*([^}]+)\s*\}/g;
         const foundTerms: { name: string; content: string; color: string }[] = [];
+        const seenNames = new Set<string>();
         let match;
 
-        // Track colors to potentially update state
         const updatedColors = { ...currentColors };
         let hasNewColors = false;
 
@@ -179,7 +179,9 @@ export const EquationEditorModal: React.FC = () => {
             const [, termName, content] = match;
             const cleanName = termName.trim();
 
-            // If color doesn't exist for this term, assign a default one
+            if (seenNames.has(cleanName)) continue;
+            seenNames.add(cleanName);
+
             if (!updatedColors[cleanName]) {
                 const defaultColor = COLOR_PRESETS_NAMED[foundTerms.length % COLOR_PRESETS_NAMED.length].value;
                 updatedColors[cleanName] = defaultColor;
@@ -195,7 +197,6 @@ export const EquationEditorModal: React.FC = () => {
 
         setTerms(foundTerms);
 
-        // If we assigned new default colors, update the map so preview picks it up
         if (hasNewColors) {
             setColorMap(updatedColors);
         }
@@ -429,14 +430,16 @@ export const InlineFormulaEditorModal: React.FC = () => {
         if (editingInlineFormula) {
             setLatex(editingInlineFormula.latex || '');
             setColorMap(editingInlineFormula.colorMap || {});
+            setActiveTab('latex');
             parseTermsFromLatex(editingInlineFormula.latex || '', editingInlineFormula.colorMap || {});
         }
     }, [editingInlineFormula]);
 
-    // Parse \clr{term}{content} from LaTeX
+    // Parse \clr{term}{content} from LaTeX (deduplicated by term name)
     const parseTermsFromLatex = useCallback((latexStr: string, currentColors: Record<string, string>) => {
         const pattern = /\\clr\s*\{\s*([^}]+)\s*\}\s*\{\s*([^}]+)\s*\}/g;
         const foundTerms: { name: string; content: string; color: string }[] = [];
+        const seenNames = new Set<string>();
         let match;
 
         const updatedColors = { ...currentColors };
@@ -445,6 +448,9 @@ export const InlineFormulaEditorModal: React.FC = () => {
         while ((match = pattern.exec(latexStr)) !== null) {
             const [, termName, content] = match;
             const cleanName = termName.trim();
+
+            if (seenNames.has(cleanName)) continue;
+            seenNames.add(cleanName);
 
             if (!updatedColors[cleanName]) {
                 const defaultColor = COLOR_PRESETS_NAMED[foundTerms.length % COLOR_PRESETS_NAMED.length].value;
@@ -563,7 +569,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'latex'
-                                ? `border-b-2 border-[${ACCENT_VIOLET}] text-[${ACCENT_VIOLET}]`
+                                ? `border-b-2 border-[${BRAND_GREEN}] text-[${BRAND_GREEN}]`
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('latex')}
@@ -574,7 +580,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'terms'
-                                ? `border-b-2 border-[${ACCENT_VIOLET}] text-[${ACCENT_VIOLET}]`
+                                ? `border-b-2 border-[${BRAND_GREEN}] text-[${BRAND_GREEN}]`
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('terms')}
@@ -656,7 +662,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className={`px-4 py-2 text-sm font-medium bg-[${ACCENT_VIOLET}] text-white rounded-lg hover:bg-[${ACCENT_VIOLET}]/90 transition-colors`}
+                        className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         Apply Changes
                     </button>
