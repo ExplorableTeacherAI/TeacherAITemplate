@@ -23,7 +23,7 @@ export const ClozeInputEditorModal: React.FC = () => {
             setCorrectAnswer(editingClozeInput.correctAnswer || '');
             setPlaceholder(editingClozeInput.placeholder || '???');
             setCaseSensitive(editingClozeInput.caseSensitive ?? false);
-            setColor(BRAND_GREEN);
+            setColor(editingClozeInput.color || BRAND_GREEN);
             setBgColor(editingClozeInput.bgColor || 'rgba(59, 130, 246, 0.35)');
             setError(null);
         }

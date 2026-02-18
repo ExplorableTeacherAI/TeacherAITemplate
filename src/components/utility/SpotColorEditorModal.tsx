@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
-import { COLOR_PRESETS_STANDARD, BRAND_GREEN } from './editorColors';
+import { COLOR_PRESETS_EXTENDED, BRAND_GREEN } from './editorColors';
 
 interface SpotColorEditorModalProps {
     // Props are managed via EditingContext
@@ -14,7 +14,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
     const [text, setText] = useState('');
     const [color, setColor] = useState(BRAND_GREEN);
 
-    const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
+    const COLOR_PRESETS = COLOR_PRESETS_EXTENDED;
 
     // Compute contrast text color for preview
     const getTextColor = useCallback((bgColor: string) => {
@@ -31,7 +31,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
         if (editingSpotColor) {
             setVarName(editingSpotColor.varName || '');
             setText(editingSpotColor.text || '');
-            setColor(BRAND_GREEN);
+            setColor(editingSpotColor.color || BRAND_GREEN);
         }
     }, [editingSpotColor]);
 

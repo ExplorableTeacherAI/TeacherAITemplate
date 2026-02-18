@@ -28,7 +28,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
             setMin(editingScrubbleNumber.min ?? 0);
             setMax(editingScrubbleNumber.max ?? 100);
             setStep(editingScrubbleNumber.step ?? 1);
-            setColor(BRAND_GREEN);
+            setColor(editingScrubbleNumber.color || BRAND_GREEN);
             setError(null);
         }
     }, [editingScrubbleNumber]);
