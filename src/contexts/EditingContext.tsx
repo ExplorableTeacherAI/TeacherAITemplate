@@ -232,7 +232,7 @@ interface EditingContextType {
     editingTrigger: (TriggerComponentProps & { blockId: string; elementPath: string }) | null;
     editingHyperlink: (HyperlinkComponentProps & { blockId: string; elementPath: string }) | null;
     editingInlineFormula: (InlineFormulaProps & { blockId: string; elementPath: string }) | null;
-    editingSpotColor: (SpotColorComponentProps & { blockId: string; elementPath: string; sourceColor?: string }) | null;
+    editingSpotColor: (SpotColorComponentProps & { blockId: string; elementPath: string }) | null;
     editingLinkedHighlight: (LinkedHighlightComponentProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
@@ -279,7 +279,7 @@ interface EditingContextType {
     closeInlineFormulaEditor: () => void;
     saveInlineFormulaEdit: (newProps: InlineFormulaProps) => void;
     addSpotColorEdit: (edit: Omit<SpotColorEdit, 'id' | 'type' | 'timestamp'>) => void;
-    openSpotColorEditor: (props: SpotColorComponentProps, blockId: string, elementPath: string, sourceColor?: string) => void;
+    openSpotColorEditor: (props: SpotColorComponentProps, blockId: string, elementPath: string) => void;
     closeSpotColorEditor: () => void;
     saveSpotColorEdit: (newProps: SpotColorComponentProps) => void;
     addLinkedHighlightEdit: (edit: Omit<LinkedHighlightEdit, 'id' | 'type' | 'timestamp'>) => void;
@@ -340,7 +340,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const [editingSpotColor, setEditingSpotColor] = useState<(SpotColorComponentProps & {
         blockId: string;
         elementPath: string;
-        sourceColor?: string;
     }) | null>(null);
     const [editingLinkedHighlight, setEditingLinkedHighlight] = useState<(LinkedHighlightComponentProps & {
         blockId: string;
@@ -1230,10 +1229,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const openSpotColorEditor = useCallback((
         props: SpotColorComponentProps,
         blockId: string,
-        elementPath: string,
-        sourceColor?: string
+        elementPath: string
     ) => {
-        setEditingSpotColor({ ...props, blockId, elementPath, sourceColor });
+        setEditingSpotColor({ ...props, blockId, elementPath });
     }, []);
 
     const closeSpotColorEditor = useCallback(() => {
@@ -1243,15 +1241,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveSpotColorEdit = useCallback((newProps: SpotColorComponentProps) => {
         if (!editingSpotColor) return;
 
-        const { blockId, elementPath, sourceColor, ...originalProps } = editingSpotColor;
-
-        // Use the raw JSX prop color (sourceColor) for originalProps so the backend
-        // regex can match the actual source code, not the effective display color
-        // which may differ due to the variable color store.
-        const backendOriginalProps: SpotColorComponentProps = {
-            ...originalProps,
-            ...(sourceColor != null ? { color: sourceColor } : {}),
-        };
+        const { blockId, elementPath, ...originalProps } = editingSpotColor;
 
         const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -1259,7 +1249,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addSpotColorEdit({
                 blockId,
                 elementPath,
-                originalProps: backendOriginalProps,
+                originalProps,
                 newProps,
             });
         }

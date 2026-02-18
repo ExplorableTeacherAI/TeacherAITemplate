@@ -344,7 +344,7 @@ export const LinkedHighlightEditorModal: React.FC = () => {
                     <button
                         onClick={handleSave}
                         className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 transition-colors"
-                        style={{ backgroundColor: color }}
+                        style={{ backgroundColor: BRAND_GREEN }}
                     >
                         Apply Changes
                     </button>

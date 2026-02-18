@@ -168,10 +168,9 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
                 color: effectiveColor,
             },
             blockId,
-            elementPath,
-            color // raw JSX prop color for backend source matching
+            elementPath
         );
-    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveText, effectiveColor, color, openSpotColorEditor, identitySuffix]);
+    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveText, effectiveColor, openSpotColorEditor, identitySuffix]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (canEdit && isEditing) {
