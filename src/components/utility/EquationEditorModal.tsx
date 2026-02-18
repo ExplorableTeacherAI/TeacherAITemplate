@@ -4,23 +4,9 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
 import { useVariableStore } from '@/stores';
+import { COLOR_PRESETS_NAMED, BRAND_GREEN, ACCENT_VIOLET } from './editorColors';
 
 import { createPortal } from 'react-dom';
-
-// Color presets matching Tailwind colors used elsewhere
-// These can be updated to specific theme values if needed
-const COLOR_PRESETS = [
-    { name: 'Red', value: '#ef4444' },    // red-500
-    { name: 'Blue', value: '#3b82f6' },   // blue-500
-    { name: 'Green', value: '#3cc499' },  // Custom Brand Green
-    { name: 'Orange', value: '#f97316' }, // orange-500
-    { name: 'Purple', value: '#a855f7' }, // purple-500
-    { name: 'Cyan', value: '#06b6d4' },   // cyan-500
-    { name: 'Pink', value: '#ec4899' },   // pink-500
-    { name: 'Yellow', value: '#eab308' }, // yellow-500
-    { name: 'Teal', value: '#14b8a6' },   // teal-500
-    { name: 'Indigo', value: '#6366f1' }, // indigo-500
-];
 
 interface TermEditorProps {
     termName: string;
@@ -109,7 +95,7 @@ const TermEditor: React.FC<TermEditorProps> = ({
                         width: '180px'
                     }}
                 >
-                    {COLOR_PRESETS.map((preset) => (
+                    {COLOR_PRESETS_NAMED.map((preset) => (
                         <button
                             key={preset.value}
                             className={cn(
@@ -195,7 +181,7 @@ export const EquationEditorModal: React.FC = () => {
 
             // If color doesn't exist for this term, assign a default one
             if (!updatedColors[cleanName]) {
-                const defaultColor = COLOR_PRESETS[foundTerms.length % COLOR_PRESETS.length].value;
+                const defaultColor = COLOR_PRESETS_NAMED[foundTerms.length % COLOR_PRESETS_NAMED.length].value;
                 updatedColors[cleanName] = defaultColor;
                 hasNewColors = true;
             }
@@ -323,7 +309,7 @@ export const EquationEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'latex'
-                                ? "border-b-2 border-[#3cc499] text-[#3cc499]"
+                                ? `border-b-2 border-[${BRAND_GREEN}] text-[${BRAND_GREEN}]`
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('latex')}
@@ -334,7 +320,7 @@ export const EquationEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'terms'
-                                ? "border-b-2 border-[#3cc499] text-[#3cc499]"
+                                ? `border-b-2 border-[${BRAND_GREEN}] text-[${BRAND_GREEN}]`
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('terms')}
@@ -356,7 +342,7 @@ export const EquationEditorModal: React.FC = () => {
                                         setLatex(e.target.value);
                                         parseTermsFromLatex(e.target.value, colorMap);
                                     }}
-                                    className="w-full h-32 px-3 py-2 font-mono text-sm bg-muted/30 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#3cc499]"
+                                    className={`w-full h-32 px-3 py-2 font-mono text-sm bg-muted/30 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[${BRAND_GREEN}]`}
                                     placeholder="Enter LaTeX equation..."
                                     spellCheck={false}
                                 />
@@ -416,7 +402,7 @@ export const EquationEditorModal: React.FC = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium bg-[#3cc499] text-white rounded-lg hover:bg-[#3cc499]/90 transition-colors"
+                        className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         Apply Changes
                     </button>
@@ -461,7 +447,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
             const cleanName = termName.trim();
 
             if (!updatedColors[cleanName]) {
-                const defaultColor = COLOR_PRESETS[foundTerms.length % COLOR_PRESETS.length].value;
+                const defaultColor = COLOR_PRESETS_NAMED[foundTerms.length % COLOR_PRESETS_NAMED.length].value;
                 updatedColors[cleanName] = defaultColor;
                 hasNewColors = true;
             }
@@ -577,7 +563,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'latex'
-                                ? "border-b-2 border-[#8B5CF6] text-[#8B5CF6]"
+                                ? `border-b-2 border-[${ACCENT_VIOLET}] text-[${ACCENT_VIOLET}]`
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('latex')}
@@ -588,7 +574,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
                         className={cn(
                             "px-4 py-2 text-sm font-medium transition-colors",
                             activeTab === 'terms'
-                                ? "border-b-2 border-[#8B5CF6] text-[#8B5CF6]"
+                                ? `border-b-2 border-[${ACCENT_VIOLET}] text-[${ACCENT_VIOLET}]`
                                 : "text-muted-foreground hover:text-foreground"
                         )}
                         onClick={() => setActiveTab('terms')}
@@ -610,7 +596,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
                                         setLatex(e.target.value);
                                         parseTermsFromLatex(e.target.value, colorMap);
                                     }}
-                                    className="w-full h-32 px-3 py-2 font-mono text-sm bg-muted/30 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]"
+                                    className={`w-full h-32 px-3 py-2 font-mono text-sm bg-muted/30 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[${ACCENT_VIOLET}]`}
                                     placeholder="Enter LaTeX formula..."
                                     spellCheck={false}
                                 />
@@ -670,7 +656,7 @@ export const InlineFormulaEditorModal: React.FC = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium bg-[#8B5CF6] text-white rounded-lg hover:bg-[#8B5CF6]/90 transition-colors"
+                        className={`px-4 py-2 text-sm font-medium bg-[${ACCENT_VIOLET}] text-white rounded-lg hover:bg-[${ACCENT_VIOLET}]/90 transition-colors`}
                     >
                         Apply Changes
                     </button>

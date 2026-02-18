@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
+import { COLOR_PRESETS_STANDARD, BRAND_GREEN } from './editorColors';
 
 interface SpotColorEditorModalProps {
     // Props are managed via EditingContext
@@ -11,26 +12,9 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
 
     const [varName, setVarName] = useState('');
     const [text, setText] = useState('');
-    const [color, setColor] = useState('#3cc499');
+    const [color, setColor] = useState(BRAND_GREEN);
 
-    const COLOR_PRESETS = [
-        '#D81B60', // Pink/Red
-        '#E53935', // Red
-        '#ef4444', // Light Red
-        '#F57C00', // Orange
-        '#f97316', // Orange
-        '#FDD835', // Yellow
-        '#43A047', // Green
-        '#3cc499', // Teal Green
-        '#00897B', // Teal
-        '#06b6d4', // Cyan
-        '#1E88E5', // Blue
-        '#3b82f6', // Light Blue
-        '#5E35B1', // Purple
-        '#a855f7', // Violet
-        '#6D4C41', // Brown
-        '#546E7A', // Blue Grey
-    ];
+    const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
     // Compute contrast text color for preview
     const getTextColor = useCallback((bgColor: string) => {
@@ -47,7 +31,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
         if (editingSpotColor) {
             setVarName(editingSpotColor.varName || '');
             setText(editingSpotColor.text || '');
-            setColor(editingSpotColor.color || '#3cc499');
+            setColor(BRAND_GREEN);
         }
     }, [editingSpotColor]);
 
@@ -120,7 +104,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                             value={varName}
                             onChange={(e) => setVarName(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="e.g., radius"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -138,7 +122,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                             value={text}
                             onChange={(e) => setText(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="e.g., radius"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -180,8 +164,8 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                                     if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setColor(v);
                                 }}
                                 className="flex-1 px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
-                                placeholder="#3cc499"
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
+                                placeholder={BRAND_GREEN}
                                 maxLength={7}
                             />
                         </div>
@@ -222,7 +206,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium bg-[#3cc499] text-white rounded-lg hover:bg-[#3cc499]/90 transition-colors"
+                        className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         Apply Changes
                     </button>

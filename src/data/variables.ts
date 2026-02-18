@@ -26,7 +26,7 @@ export interface VariableDefinition {
     /** Description for AI agents */
     description?: string;
     /** Variable type hint */
-    type?: 'number' | 'text' | 'boolean' | 'select' | 'array' | 'object' | 'spotColor';
+    type?: 'number' | 'text' | 'boolean' | 'select' | 'array' | 'object' | 'spotColor' | 'linkedHighlight';
     /** Unit (e.g., 'Hz', '°', 'm/s') - for numbers */
     unit?: string;
     /** Minimum value (for number sliders) */
@@ -281,3 +281,25 @@ export function spotColorPropsFromDefinition(def: VariableDefinition | undefined
     };
 }
 
+/**
+ * Get linked-highlight props for InlineLinkedHighlight from a variable definition.
+ * Extracts the `color` and `bgColor` fields.
+ *
+ * @example
+ * <InlineLinkedHighlight
+ *     varName="activeHighlight"
+ *     highlightId="radius"
+ *     {...linkedHighlightPropsFromDefinition(getVariableInfo('activeHighlight'))}
+ * >
+ *     radius
+ * </InlineLinkedHighlight>
+ */
+export function linkedHighlightPropsFromDefinition(def: VariableDefinition | undefined): {
+    color?: string;
+    bgColor?: string;
+} {
+    return {
+        ...(def?.color ? { color: def.color } : {}),
+        ...(def?.bgColor ? { bgColor: def.bgColor } : {}),
+    };
+}

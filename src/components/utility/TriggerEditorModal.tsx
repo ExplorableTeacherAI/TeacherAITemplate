@@ -3,6 +3,8 @@ import { Zap, ChevronDown } from 'lucide-react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
 import { useShallow } from 'zustand/react/shallow';
+import { COLOR_PRESETS_STANDARD, DEFAULT_BG_OPACITY, BRAND_GREEN } from './editorColors';
+import { BgColorPicker } from './BgColorPicker';
 
 const parseValue = (raw: string): string | number | boolean => {
     if (raw === 'true') return true;
@@ -26,31 +28,7 @@ export const TriggerEditorModal: React.FC = () => {
     const [color, setColor] = useState('#10B981');
     const [bgColor, setBgColor] = useState('rgba(16, 185, 129, 0.15)');
 
-    const COLOR_PRESETS = [
-        '#10B981', // Emerald (default)
-        '#3B82F6', // Blue
-        '#D946EF', // Fuchsia
-        '#F59E0B', // Amber
-        '#EF4444', // Red
-        '#8B5CF6', // Violet
-        '#06B6D4', // Cyan
-        '#F97316', // Orange
-        '#EC4899', // Pink
-        '#6366F1', // Indigo
-    ];
-
-    const BG_COLOR_PRESETS = [
-        'rgba(16, 185, 129, 0.15)',   // Emerald (default)
-        'rgba(59, 130, 246, 0.15)',   // Blue
-        'rgba(217, 70, 239, 0.15)',   // Fuchsia
-        'rgba(245, 158, 11, 0.15)',   // Amber
-        'rgba(239, 68, 68, 0.15)',    // Red
-        'rgba(139, 92, 246, 0.15)',   // Violet
-        'rgba(6, 182, 212, 0.15)',    // Cyan
-        'rgba(249, 115, 22, 0.15)',   // Orange
-        'rgba(236, 72, 153, 0.15)',   // Pink
-        'rgba(99, 102, 241, 0.15)',   // Indigo
-    ];
+    const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
     // Initialize state when modal opens
     useEffect(() => {
@@ -133,7 +111,7 @@ export const TriggerEditorModal: React.FC = () => {
                             value={text}
                             onChange={(e) => setText(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="e.g., reset speed, max it out"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -151,7 +129,7 @@ export const TriggerEditorModal: React.FC = () => {
                                 value={isCustomVar ? '__custom__' : varName}
                                 onChange={handleVarSelect}
                                 className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono appearance-none cursor-pointer pr-8"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             >
                                 <option value="">— Select a variable —</option>
                                 {sortedVarNames.map((name) => (
@@ -169,7 +147,7 @@ export const TriggerEditorModal: React.FC = () => {
                                 value={varName}
                                 onChange={(e) => setVarName(e.target.value)}
                                 className="w-full mt-2 px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                                 placeholder="Enter custom variable name"
                                 autoFocus
                             />
@@ -189,7 +167,7 @@ export const TriggerEditorModal: React.FC = () => {
                             value={valueStr}
                             onChange={(e) => setValueStr(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="e.g., 0, true, fast"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -231,7 +209,7 @@ export const TriggerEditorModal: React.FC = () => {
                                     if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setColor(v);
                                 }}
                                 className="flex-1 px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                                 placeholder="#10B981"
                                 maxLength={7}
                             />
@@ -239,33 +217,12 @@ export const TriggerEditorModal: React.FC = () => {
                     </div>
 
                     {/* Background Color */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Background Color</label>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                            {BG_COLOR_PRESETS.map((preset, i) => (
-                                <button
-                                    key={preset}
-                                    type="button"
-                                    onClick={() => setBgColor(preset)}
-                                    className="w-7 h-7 rounded-full border-2 transition-all duration-150 hover:scale-110"
-                                    style={{
-                                        backgroundColor: preset,
-                                        borderColor: bgColor === preset ? COLOR_PRESETS[i] : 'transparent',
-                                        boxShadow: bgColor === preset ? `0 0 0 2px ${COLOR_PRESETS[i]}40` : 'none',
-                                    }}
-                                    title={preset}
-                                />
-                            ))}
-                        </div>
-                        <input
-                            type="text"
-                            value={bgColor}
-                            onChange={(e) => setBgColor(e.target.value)}
-                            className="w-full px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            placeholder="rgba(16, 185, 129, 0.15)"
-                        />
-                    </div>
+                    <BgColorPicker
+                        bgColor={bgColor}
+                        onChange={setBgColor}
+                        presets={COLOR_PRESETS}
+                        defaultOpacity={DEFAULT_BG_OPACITY}
+                    />
 
                     {/* Preview */}
                     <div>
@@ -297,7 +254,7 @@ export const TriggerEditorModal: React.FC = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium bg-[#3cc499] text-white rounded-lg hover:bg-[#3cc499]/90 transition-colors"
+                        className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         Apply Changes
                     </button>

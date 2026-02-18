@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
+import { COLOR_PRESETS_STANDARD, CLOZE_BG_OPACITY, BRAND_GREEN } from './editorColors';
+import { BgColorPicker } from './BgColorPicker';
 
 export const ClozeChoiceEditorModal: React.FC = () => {
     const { editingClozeChoice, closeClozeChoiceEditor, saveClozeChoiceEdit } = useEditing();
@@ -12,31 +14,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
     const [bgColor, setBgColor] = useState('rgba(59, 130, 246, 0.35)');
     const [error, setError] = useState<string | null>(null);
 
-    const COLOR_PRESETS = [
-        '#3B82F6', // Blue (default)
-        '#D81B60', // Pink/Red
-        '#E53935', // Red
-        '#F57C00', // Orange
-        '#FDD835', // Yellow
-        '#43A047', // Green
-        '#00897B', // Teal
-        '#5E35B1', // Purple
-        '#6D4C41', // Brown
-        '#546E7A', // Blue Grey
-    ];
-
-    const BG_COLOR_PRESETS = [
-        'rgba(59, 130, 246, 0.35)',   // Blue (default)
-        'rgba(216, 27, 96, 0.35)',    // Pink/Red
-        'rgba(229, 57, 53, 0.35)',    // Red
-        'rgba(245, 124, 0, 0.35)',    // Orange
-        'rgba(253, 216, 53, 0.35)',   // Yellow
-        'rgba(67, 160, 71, 0.35)',    // Green
-        'rgba(0, 137, 123, 0.35)',    // Teal
-        'rgba(94, 53, 177, 0.35)',    // Purple
-        'rgba(109, 76, 65, 0.35)',    // Brown
-        'rgba(84, 110, 122, 0.35)',   // Blue Grey
-    ];
+    const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
     // Initialize state when modal opens
     useEffect(() => {
@@ -145,7 +123,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                             value={varName}
                             onChange={(e) => setVarName(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="e.g., shapeAnswer"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -166,7 +144,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                                         value={option}
                                         onChange={(e) => handleOptionChange(index, e.target.value)}
                                         className="flex-1 px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                                        style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                        style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                                         placeholder={`Option ${index + 1}`}
                                     />
                                     {/* Mark as correct button */}
@@ -202,7 +180,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                             type="button"
                             onClick={handleAddOption}
                             className="mt-2 text-sm font-medium transition-colors hover:opacity-80"
-                            style={{ color }}
+                            style={{ color: BRAND_GREEN }}
                         >
                             + Add Option
                         </button>
@@ -221,7 +199,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                             value={correctAnswer}
                             onChange={(e) => setCorrectAnswer(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="Select from options above or type here"
                         />
                     </div>
@@ -234,7 +212,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                             value={placeholder}
                             onChange={(e) => setPlaceholder(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="???"
                         />
                     </div>
@@ -273,7 +251,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                                     if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setColor(v);
                                 }}
                                 className="flex-1 px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                                 placeholder="#3B82F6"
                                 maxLength={7}
                             />
@@ -281,33 +259,12 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                     </div>
 
                     {/* Background Color */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Background Color</label>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                            {BG_COLOR_PRESETS.map((preset, i) => (
-                                <button
-                                    key={preset}
-                                    type="button"
-                                    onClick={() => setBgColor(preset)}
-                                    className="w-7 h-7 rounded-full border-2 transition-all duration-150 hover:scale-110"
-                                    style={{
-                                        backgroundColor: preset,
-                                        borderColor: bgColor === preset ? COLOR_PRESETS[i] : 'transparent',
-                                        boxShadow: bgColor === preset ? `0 0 0 2px ${COLOR_PRESETS[i]}40` : 'none',
-                                    }}
-                                    title={preset}
-                                />
-                            ))}
-                        </div>
-                        <input
-                            type="text"
-                            value={bgColor}
-                            onChange={(e) => setBgColor(e.target.value)}
-                            className="w-full px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
-                            placeholder="rgba(59, 130, 246, 0.35)"
-                        />
-                    </div>
+                    <BgColorPicker
+                        bgColor={bgColor}
+                        onChange={setBgColor}
+                        presets={COLOR_PRESETS}
+                        defaultOpacity={CLOZE_BG_OPACITY}
+                    />
 
                     {/* Preview */}
                     <div>
@@ -344,7 +301,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium bg-[#3cc499] text-white rounded-lg hover:bg-[#3cc499]/90 transition-colors"
+                        className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         Apply Changes
                     </button>

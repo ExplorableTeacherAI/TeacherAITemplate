@@ -425,6 +425,17 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         description: 'The currently selected/editing annotation',
         schema: '{ id: string, text: string, position: { x: number, y: number }, color: string }',
     },
+
+    // ─────────────────────────────────────────
+    // LINKED HIGHLIGHT — hover-to-highlight coordination variable
+    // ─────────────────────────────────────────
+    activeHighlight: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Active Highlight',
+        description: 'Currently hovered highlight ID — read by visuals to highlight matching parts',
+        color: '#3b82f6',
+    },
 };
 
 /**
@@ -549,5 +560,19 @@ export function spotColorPropsFromDefinition(def: VariableDefinition | undefined
 } {
     return {
         color: def?.color ?? '#8B5CF6',
+    };
+}
+
+/**
+ * Get linked-highlight props for InlineLinkedHighlight from a variable definition.
+ * Extracts the `color` and `bgColor` fields.
+ */
+export function linkedHighlightPropsFromDefinition(def: VariableDefinition | undefined): {
+    color?: string;
+    bgColor?: string;
+} {
+    return {
+        ...(def?.color ? { color: def.color } : {}),
+        ...(def?.bgColor ? { bgColor: def.bgColor } : {}),
     };
 }

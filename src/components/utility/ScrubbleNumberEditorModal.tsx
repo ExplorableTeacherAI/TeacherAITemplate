@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
+import { COLOR_PRESETS_STANDARD, BRAND_GREEN } from './editorColors';
 
 interface ScrubbleNumberEditorModalProps {
     // Props are managed via EditingContext
@@ -17,18 +18,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
     const [color, setColor] = useState('#D81B60');
     const [error, setError] = useState<string | null>(null);
 
-    const COLOR_PRESETS = [
-        '#D81B60', // Pink/Red (default)
-        '#E53935', // Red
-        '#F57C00', // Orange
-        '#FDD835', // Yellow
-        '#43A047', // Green
-        '#00897B', // Teal
-        '#1E88E5', // Blue
-        '#5E35B1', // Purple
-        '#6D4C41', // Brown
-        '#546E7A', // Blue Grey
-    ];
+    const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
     // Initialize state when modal opens
     useEffect(() => {
@@ -38,7 +28,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
             setMin(editingScrubbleNumber.min ?? 0);
             setMax(editingScrubbleNumber.max ?? 100);
             setStep(editingScrubbleNumber.step ?? 1);
-            setColor(editingScrubbleNumber.color ?? '#D81B60');
+            setColor(BRAND_GREEN);
             setError(null);
         }
     }, [editingScrubbleNumber]);
@@ -135,7 +125,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                             value={varName}
                             onChange={(e) => setVarName(e.target.value)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="e.g., wedgeCount"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -151,7 +141,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                             value={defaultValue}
                             onChange={(e) => setDefaultValue(parseFloat(e.target.value) || 0)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                         />
                     </div>
 
@@ -164,7 +154,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                                 value={min}
                                 onChange={(e) => setMin(parseFloat(e.target.value) || 0)}
                                 className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             />
                         </div>
                         <div>
@@ -174,7 +164,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                                 value={max}
                                 onChange={(e) => setMax(parseFloat(e.target.value) || 0)}
                                 className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             />
                         </div>
                     </div>
@@ -187,7 +177,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                             value={step}
                             onChange={(e) => setStep(parseFloat(e.target.value) || 1)}
                             className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': color } as React.CSSProperties}
+                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             min={0.001}
                             step={0.1}
                         />
@@ -227,7 +217,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                                     if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setColor(v);
                                 }}
                                 className="flex-1 px-3 py-1.5 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2 font-mono"
-                                style={{ '--tw-ring-color': color } as React.CSSProperties}
+                                style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                                 placeholder="#D81B60"
                                 maxLength={7}
                             />
@@ -270,7 +260,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 text-sm font-medium bg-[#3cc499] text-white rounded-lg hover:bg-[#3cc499]/90 transition-colors"
+                        className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         Apply Changes
                     </button>

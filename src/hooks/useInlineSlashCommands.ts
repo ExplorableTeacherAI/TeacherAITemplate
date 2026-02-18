@@ -137,6 +137,13 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 data-component-id="${uniqueId}"
                 style="display: inline-flex; align-items: center; background: #3B82F6; color: #ffffff; border-radius: 6px; padding: 1px 6px; font-weight: 600; margin: 0 2px; user-select: none; cursor: default; font-size: 0.92em; letter-spacing: 0.01em;"
             >variable</span>`;
+        case 'inlineLinkedHighlight':
+            return `<span
+                contenteditable="false"
+                data-inline-component="${commandType}"
+                data-component-id="${uniqueId}"
+                style="display: inline-flex; align-items: center; color: #3b82f6; text-decoration: underline; text-decoration-style: dotted; text-decoration-color: #3b82f6; padding: 1px 4px; border-radius: 4px; font-weight: 500; margin: 0 2px; user-select: none; cursor: default;"
+            >highlight</span>`;
         default:
             return '';
     }

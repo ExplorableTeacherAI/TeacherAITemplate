@@ -187,6 +187,24 @@ export interface SpotColorEdit {
     timestamp: number;
 }
 
+export interface LinkedHighlightComponentProps {
+    varName?: string;
+    highlightId?: string;
+    text?: string;
+    color?: string;
+    bgColor?: string;
+}
+
+export interface LinkedHighlightEdit {
+    id: string;
+    type: 'linkedHighlight';
+    blockId: string;
+    elementPath: string;
+    originalProps: LinkedHighlightComponentProps;
+    newProps: LinkedHighlightComponentProps;
+    timestamp: number;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -199,7 +217,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | LinkedHighlightEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -215,6 +233,7 @@ interface EditingContextType {
     editingHyperlink: (HyperlinkComponentProps & { blockId: string; elementPath: string }) | null;
     editingInlineFormula: (InlineFormulaProps & { blockId: string; elementPath: string }) | null;
     editingSpotColor: (SpotColorComponentProps & { blockId: string; elementPath: string; sourceColor?: string }) | null;
+    editingLinkedHighlight: (LinkedHighlightComponentProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -263,6 +282,10 @@ interface EditingContextType {
     openSpotColorEditor: (props: SpotColorComponentProps, blockId: string, elementPath: string, sourceColor?: string) => void;
     closeSpotColorEditor: () => void;
     saveSpotColorEdit: (newProps: SpotColorComponentProps) => void;
+    addLinkedHighlightEdit: (edit: Omit<LinkedHighlightEdit, 'id' | 'type' | 'timestamp'>) => void;
+    openLinkedHighlightEditor: (props: LinkedHighlightComponentProps, blockId: string, elementPath: string) => void;
+    closeLinkedHighlightEditor: () => void;
+    saveLinkedHighlightEdit: (newProps: LinkedHighlightComponentProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -318,6 +341,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         blockId: string;
         elementPath: string;
         sourceColor?: string;
+    }) | null>(null);
+    const [editingLinkedHighlight, setEditingLinkedHighlight] = useState<(LinkedHighlightComponentProps & {
+        blockId: string;
+        elementPath: string;
     }) | null>(null);
 
     // Keep a ref of pending edits for event listeners to avoid stale closures
@@ -1240,6 +1267,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingSpotColor(null);
     }, [editingSpotColor, addSpotColorEdit]);
 
+    // LinkedHighlight editing methods
+    const addLinkedHighlightEdit = useCallback((edit: Omit<LinkedHighlightEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: LinkedHighlightEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'linkedHighlight',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'linkedHighlight' &&
+                    (e as LinkedHighlightEdit).blockId === edit.blockId &&
+                    (e as LinkedHighlightEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as LinkedHighlightEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openLinkedHighlightEditor = useCallback((
+        props: LinkedHighlightComponentProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingLinkedHighlight({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeLinkedHighlightEditor = useCallback(() => {
+        setEditingLinkedHighlight(null);
+    }, []);
+
+    const saveLinkedHighlightEdit = useCallback((newProps: LinkedHighlightComponentProps) => {
+        if (!editingLinkedHighlight) return;
+
+        const { blockId, elementPath, ...originalProps } = editingLinkedHighlight;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addLinkedHighlightEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingLinkedHighlight(null);
+    }, [editingLinkedHighlight, addLinkedHighlightEdit]);
+
     // Filter out inlineFormulaEdits whose block already has a structure 'add' edit
     // with an updated marker.  The structure edit carries the new props in its marker,
     // so processing both would duplicate the formula on the backend.  The inlineFormulaEdit
@@ -1315,6 +1411,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingHyperlink,
         editingInlineFormula,
         editingSpotColor,
+        editingLinkedHighlight,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1361,6 +1458,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openSpotColorEditor,
         closeSpotColorEditor,
         saveSpotColorEdit,
+        addLinkedHighlightEdit,
+        openLinkedHighlightEditor,
+        closeLinkedHighlightEditor,
+        saveLinkedHighlightEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -1374,6 +1475,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingHyperlink,
         editingInlineFormula,
         editingSpotColor,
+        editingLinkedHighlight,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1420,6 +1522,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openSpotColorEditor,
         closeSpotColorEditor,
         saveSpotColorEdit,
+        addLinkedHighlightEdit,
+        openLinkedHighlightEditor,
+        closeLinkedHighlightEditor,
+        saveLinkedHighlightEdit,
     ]);
 
     // Check if running standalone (not in iframe)
@@ -1554,7 +1660,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                                                 edit.type === 'trigger' ? '#10B981' :
                                                                                     edit.type === 'hyperlink' ? '#10B981' :
                                                                                         edit.type === 'inlineFormula' ? '#8B5CF6' :
-                                                                                            edit.type === 'spotColor' ? '#3cc499' : '#fbbf24'
+                                                                                            edit.type === 'spotColor' ? '#3cc499' :
+                                                                                                edit.type === 'linkedHighlight' ? '#3b82f6' : '#fbbf24'
                                                 }}>
                                                     {edit.type.toUpperCase()}
                                                     {edit.type === 'structure' && ` (${(edit as any).action})`}
@@ -1709,6 +1816,19 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                             varName: {(edit as SpotColorEdit).newProps.varName || '(none)'} |
                                                             text: {(edit as SpotColorEdit).newProps.text || '(none)'} |
                                                             color: <span style={{ color: (edit as SpotColorEdit).newProps.color }}>{(edit as SpotColorEdit).newProps.color || '(none)'}</span>
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {edit.type === 'linkedHighlight' && (
+                                                    <>
+                                                        <div>📍 {(edit as LinkedHighlightEdit).blockId}</div>
+                                                        <div style={{ color: '#9ca3af' }}>
+                                                            🔗 Path: {(edit as LinkedHighlightEdit).elementPath}
+                                                        </div>
+                                                        <div style={{ color: '#9ca3af', fontSize: '11px' }}>
+                                                            varName: {(edit as LinkedHighlightEdit).newProps.varName || '(none)'} |
+                                                            highlightId: {(edit as LinkedHighlightEdit).newProps.highlightId || '(none)'} |
+                                                            text: {(edit as LinkedHighlightEdit).newProps.text || '(none)'}
                                                         </div>
                                                     </>
                                                 )}

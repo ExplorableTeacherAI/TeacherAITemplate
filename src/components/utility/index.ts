@@ -12,3 +12,4 @@ export { TooltipEditorModal } from "./TooltipEditorModal";
 export { TriggerEditorModal } from "./TriggerEditorModal";
 export { HyperlinkEditorModal } from "./HyperlinkEditorModal";
 export { SpotColorEditorModal } from "./SpotColorEditorModal";
+export { LinkedHighlightEditorModal } from "./LinkedHighlightEditorModal";

@@ -15,6 +15,7 @@ import {
     Link,
     Sigma,
     Palette,
+    Highlighter,
 } from "lucide-react";
 
 // Block-level command types (replace the entire block)
@@ -36,14 +37,15 @@ export type InlineCommandType =
     | "inlineTrigger"
     | "inlineHyperlink"
     | "inlineFormula"
-    | "inlineSpotColor";
+    | "inlineSpotColor"
+    | "inlineLinkedHighlight";
 
 // Combined type for all slash commands
 export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip", "inlineTrigger", "inlineHyperlink", "inlineFormula", "inlineSpotColor"].includes(type);
+    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip", "inlineTrigger", "inlineHyperlink", "inlineFormula", "inlineSpotColor", "inlineLinkedHighlight"].includes(type);
 };
 
 interface SlashCommand {
@@ -176,6 +178,14 @@ const slashCommands: SlashCommand[] = [
         description: "Colored pill highlighting a variable name",
         icon: <Palette className="h-4 w-4" />,
         keywords: ["spot", "color", "highlight", "variable", "pill", "tag", "label"],
+        category: "inline",
+    },
+    {
+        id: "inlineLinkedHighlight",
+        label: "Linked Highlight",
+        description: "Hover to highlight linked parts of a visual",
+        icon: <Highlighter className="h-4 w-4" />,
+        keywords: ["linked", "highlight", "hover", "connect", "visual", "link", "interactive", "coordinate"],
         category: "inline",
     },
 ];
