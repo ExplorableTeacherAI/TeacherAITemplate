@@ -37,6 +37,9 @@ import {
     InlineLinkedHighlight,
 } from "@/components/atoms";
 
+// Import molecule components
+import { FormulaBlock } from "@/components/molecules";
+
 // Import store hooks
 import { useVar } from "@/stores";
 
@@ -718,6 +721,74 @@ const exampleBlocks: ReactElement[] = [
                 />
                 .
             </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // INTERACTIVE FORMULA DEMO (Formula with Scrubble Numbers)
+    // ========================================
+    <FullWidthLayout key="layout-heading-interactive-formula" maxWidth="xl">
+        <Block id="block-heading-interactive-formula" padding="md">
+            <EditableH2 id="h2-interactive-formula-title" blockId="block-heading-interactive-formula">
+                Interactive Formula (Scrubble Numbers in Equations)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-interactive-formula-intro" maxWidth="xl">
+        <Block id="block-interactive-formula-intro" padding="sm">
+            <EditableParagraph id="para-interactive-formula-intro" blockId="block-interactive-formula-intro">
+                InteractiveFormula embeds draggable scrubble numbers directly inside a
+                KaTeX equation. Use{" "}
+                <InlineTooltip tooltip="\scrub{varName} renders the variable's current value as a draggable number inside the equation.">
+                    \scrub&#123;varName&#125;
+                </InlineTooltip>
+                {" "}syntax for interactive variables, and the familiar{" "}
+                <InlineTooltip tooltip="\clr{name}{content} colors a static part of the formula.">
+                    \clr&#123;name&#125;&#123;content&#125;
+                </InlineTooltip>
+                {" "}syntax for colored static terms. Drag the numbers below to see
+                the force update in real time!
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-interactive-formula-demo" maxWidth="xl">
+        <Block id="block-interactive-formula-demo" padding="lg">
+            <div className="flex flex-col items-center gap-6">
+                <div className="text-2xl">
+                    <FormulaBlock
+                        latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}"
+                        colorMap={{ force: '#ef4444' }}
+                        variables={{
+                            mass: {
+                                min: 0.1,
+                                max: 100,
+                                step: 0.1,
+                                color: getExampleVariableInfo('mass')?.color ?? '#a855f7',
+                            },
+                            acceleration: {
+                                min: -20,
+                                max: 20,
+                                step: 0.1,
+                                color: getExampleVariableInfo('acceleration')?.color ?? '#06b6d4',
+                            },
+                        }}
+                    />
+                </div>
+                <EditableParagraph id="para-interactive-formula-explanation" blockId="block-interactive-formula-demo">
+                    Drag the{" "}
+                    <InlineScrubbleNumber
+                        varName="mass"
+                        {...numberPropsFromDefinition(getExampleVariableInfo('mass'))}
+                    />{" "}kg mass or the{" "}
+                    <InlineScrubbleNumber
+                        varName="acceleration"
+                        {...numberPropsFromDefinition(getExampleVariableInfo('acceleration'))}
+                    />{" "}m/s² acceleration — both the equation above and these
+                    inline numbers stay in sync through the global variable store.
+                </EditableParagraph>
+            </div>
         </Block>
     </FullWidthLayout>,
 

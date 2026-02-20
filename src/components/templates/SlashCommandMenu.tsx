@@ -25,7 +25,8 @@ export type BlockCommandType =
     | "h3"
     | "paragraph"
     | "quote"
-    | "divider";
+    | "divider"
+    | "formulaBlock";
 
 // Inline component command types (insert within text)
 export type InlineCommandType =
@@ -105,6 +106,14 @@ const slashCommands: SlashCommand[] = [
         description: "Visual separator",
         icon: <Minus className="h-4 w-4" />,
         keywords: ["divider", "separator", "hr", "line"],
+        category: "block",
+    },
+    {
+        id: "formulaBlock",
+        label: "Formula Block",
+        description: "Interactive math formula with draggable numbers",
+        icon: <Sigma className="h-4 w-4" />,
+        keywords: ["formula", "math", "equation", "interactive", "scrub", "katex", "latex", "block"],
         category: "block",
     },
     // Inline component commands

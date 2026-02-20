@@ -303,3 +303,34 @@ export function linkedHighlightPropsFromDefinition(def: VariableDefinition | und
         ...(def?.bgColor ? { bgColor: def.bgColor } : {}),
     };
 }
+
+/**
+ * Build the `variables` prop for FormulaBlock from variable definitions.
+ *
+ * Takes an array of variable names and returns the config map expected by
+ * `<FormulaBlock variables={...} />`.
+ *
+ * @example
+ * import { scrubVarsFromDefinitions } from './variables';
+ *
+ * <FormulaBlock
+ *     latex="\scrub{mass} \times \scrub{accel}"
+ *     variables={scrubVarsFromDefinitions(['mass', 'accel'])}
+ * />
+ */
+export function scrubVarsFromDefinitions(
+    varNames: string[],
+): Record<string, { min?: number; max?: number; step?: number; color?: string }> {
+    const result: Record<string, { min?: number; max?: number; step?: number; color?: string }> = {};
+    for (const name of varNames) {
+        const def = variableDefinitions[name];
+        if (!def) continue;
+        result[name] = {
+            ...(def.min !== undefined ? { min: def.min } : {}),
+            ...(def.max !== undefined ? { max: def.max } : {}),
+            ...(def.step !== undefined ? { step: def.step } : {}),
+            ...(def.color ? { color: def.color } : {}),
+        };
+    }
+    return result;
+}

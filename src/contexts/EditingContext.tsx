@@ -205,6 +205,24 @@ export interface LinkedHighlightEdit {
     timestamp: number;
 }
 
+export interface FormulaBlockComponentProps {
+    latex?: string;
+    colorMap?: Record<string, string>;
+    variables?: Record<string, { min: number; max: number; step: number; color: string }>;
+    color?: string;
+    isNew?: boolean;
+}
+
+export interface FormulaBlockEdit {
+    id: string;
+    type: 'formulaBlock';
+    blockId: string;
+    elementPath: string;
+    originalProps: FormulaBlockComponentProps;
+    newProps: FormulaBlockComponentProps;
+    timestamp: number;
+}
+
 export interface StructureEdit {
     id: string;
     type: 'structure';
@@ -217,7 +235,7 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | LinkedHighlightEdit | StructureEdit;
+export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | LinkedHighlightEdit | FormulaBlockEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -234,6 +252,7 @@ interface EditingContextType {
     editingInlineFormula: (InlineFormulaProps & { blockId: string; elementPath: string }) | null;
     editingSpotColor: (SpotColorComponentProps & { blockId: string; elementPath: string }) | null;
     editingLinkedHighlight: (LinkedHighlightComponentProps & { blockId: string; elementPath: string }) | null;
+    editingFormulaBlock: (FormulaBlockComponentProps & { blockId: string; elementPath: string }) | null;
 
     // Actions
     enableEditing: () => void;
@@ -286,6 +305,10 @@ interface EditingContextType {
     openLinkedHighlightEditor: (props: LinkedHighlightComponentProps, blockId: string, elementPath: string) => void;
     closeLinkedHighlightEditor: () => void;
     saveLinkedHighlightEdit: (newProps: LinkedHighlightComponentProps) => void;
+    addFormulaBlockEdit: (edit: Omit<FormulaBlockEdit, 'id' | 'type' | 'timestamp'>) => void;
+    openFormulaBlockEditor: (props: FormulaBlockComponentProps, blockId: string, elementPath: string) => void;
+    closeFormulaBlockEditor: () => void;
+    saveFormulaBlockEdit: (newProps: FormulaBlockComponentProps) => void;
 }
 
 const EditingContext = createContext<EditingContextType | undefined>(undefined);
@@ -342,6 +365,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         elementPath: string;
     }) | null>(null);
     const [editingLinkedHighlight, setEditingLinkedHighlight] = useState<(LinkedHighlightComponentProps & {
+        blockId: string;
+        elementPath: string;
+    }) | null>(null);
+    const [editingFormulaBlock, setEditingFormulaBlock] = useState<(FormulaBlockComponentProps & {
         blockId: string;
         elementPath: string;
     }) | null>(null);
@@ -1326,6 +1353,75 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingLinkedHighlight(null);
     }, [editingLinkedHighlight, addLinkedHighlightEdit]);
 
+    // FormulaBlock editing methods
+    const addFormulaBlockEdit = useCallback((edit: Omit<FormulaBlockEdit, 'id' | 'type' | 'timestamp'>) => {
+        const newEdit: FormulaBlockEdit = {
+            ...edit,
+            id: generateId(),
+            type: 'formulaBlock',
+            timestamp: Date.now(),
+        };
+
+        setPendingEdits(prev => {
+            const existingIndex = prev.findIndex(
+                e => e.type === 'formulaBlock' &&
+                    (e as FormulaBlockEdit).blockId === edit.blockId &&
+                    (e as FormulaBlockEdit).elementPath === edit.elementPath
+            );
+
+            if (existingIndex !== -1) {
+                const updated = [...prev];
+                const existing = updated[existingIndex] as FormulaBlockEdit;
+
+                const propsMatch = JSON.stringify(edit.newProps) === JSON.stringify(existing.originalProps);
+                if (propsMatch) {
+                    updated.splice(existingIndex, 1);
+                    return updated;
+                }
+
+                updated[existingIndex] = {
+                    ...existing,
+                    newProps: edit.newProps,
+                    timestamp: Date.now(),
+                };
+                return updated;
+            }
+
+            return [...prev, newEdit];
+        });
+    }, [generateId]);
+
+    const openFormulaBlockEditor = useCallback((
+        props: FormulaBlockComponentProps,
+        blockId: string,
+        elementPath: string
+    ) => {
+        setEditingFormulaBlock({ ...props, blockId, elementPath });
+    }, []);
+
+    const closeFormulaBlockEditor = useCallback(() => {
+        setEditingFormulaBlock(null);
+    }, []);
+
+    const saveFormulaBlockEdit = useCallback((newProps: FormulaBlockComponentProps) => {
+        if (!editingFormulaBlock) return;
+
+        const { blockId, elementPath, ...originalProps } = editingFormulaBlock;
+
+        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+
+        if (propsChanged) {
+            addFormulaBlockEdit({
+                blockId,
+                elementPath,
+                originalProps,
+                newProps,
+            });
+        }
+
+        setEditingFormulaBlock(null);
+    }, [editingFormulaBlock, addFormulaBlockEdit]);
+
     // Filter out inlineFormulaEdits whose block already has a structure 'add' edit
     // with an updated marker.  The structure edit carries the new props in its marker,
     // so processing both would duplicate the formula on the backend.  The inlineFormulaEdit
@@ -1402,6 +1498,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingInlineFormula,
         editingSpotColor,
         editingLinkedHighlight,
+        editingFormulaBlock,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1452,6 +1549,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openLinkedHighlightEditor,
         closeLinkedHighlightEditor,
         saveLinkedHighlightEdit,
+        addFormulaBlockEdit,
+        openFormulaBlockEditor,
+        closeFormulaBlockEditor,
+        saveFormulaBlockEdit,
     }), [
         isEditing,
         pendingEdits,
@@ -1466,6 +1567,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         editingInlineFormula,
         editingSpotColor,
         editingLinkedHighlight,
+        editingFormulaBlock,
         enableEditing,
         disableEditing,
         addTextEdit,
@@ -1516,6 +1618,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         openLinkedHighlightEditor,
         closeLinkedHighlightEditor,
         saveLinkedHighlightEdit,
+        addFormulaBlockEdit,
+        openFormulaBlockEditor,
+        closeFormulaBlockEditor,
+        saveFormulaBlockEdit,
     ]);
 
     // Check if running standalone (not in iframe)

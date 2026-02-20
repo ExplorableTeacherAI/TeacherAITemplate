@@ -7,7 +7,7 @@ import { EditingProvider } from "@/contexts/EditingContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { HierarchyReporter } from "./components/HierarchyReporter";
-import { EquationEditorModal, InlineFormulaEditorModal, ScrubbleNumberEditorModal, ClozeInputEditorModal, ClozeChoiceEditorModal, ToggleEditorModal, TooltipEditorModal, TriggerEditorModal, HyperlinkEditorModal, SpotColorEditorModal, LinkedHighlightEditorModal } from "./components/utility";
+import { EquationEditorModal, InlineFormulaEditorModal, ScrubbleNumberEditorModal, ClozeInputEditorModal, ClozeChoiceEditorModal, ToggleEditorModal, TooltipEditorModal, TriggerEditorModal, HyperlinkEditorModal, SpotColorEditorModal, LinkedHighlightEditorModal, FormulaBlockEditorModal } from "./components/utility";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +32,7 @@ const App = () => {
           <InlineFormulaEditorModal />
           <SpotColorEditorModal />
           <LinkedHighlightEditorModal />
+          <FormulaBlockEditorModal />
           <TooltipProvider>
             <HashRouter>
               <Routes>

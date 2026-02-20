@@ -20,6 +20,7 @@ import {
 } from "@/components/atoms";
 import { EditableText } from "@/components/atoms/text/EditableText";
 import { FullWidthLayout } from "@/components/layouts";
+import { FormulaBlock } from "@/components/molecules";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { Card } from "@/components/atoms/ui/card";
 import BlockRenderer from "./BlockRenderer";
@@ -360,6 +361,25 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                         contentElement = (
                             <hr className="my-6 border-t border-gray-200" />
                         );
+                        break;
+                    case "formulaBlock":
+                        contentElement = (
+                            <FormulaBlock
+                                latex={content || "E = mc^2"}
+                                colorMap={{}}
+                                variables={{}}
+                            />
+                        );
+                        // Open the editor modal for the new formula block
+                        if (editing) {
+                            setTimeout(() => {
+                                editing.openFormulaBlockEditor(
+                                    { latex: content || "", colorMap: {}, variables: {}, isNew: true },
+                                    blockId,
+                                    `formulaBlock-${blockId}-new`
+                                );
+                            }, 100);
+                        }
                         break;
                     case "paragraph":
                     default:
