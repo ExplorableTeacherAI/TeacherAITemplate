@@ -96,6 +96,67 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
+    // NUMBER - Mafs Interactive Demo
+    // ─────────────────────────────────────────
+    mafsAmplitude: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Mafs Amplitude',
+        description: 'Wave amplitude in the Mafs interactive demo',
+        min: 0.1,
+        max: 4,
+        step: 0.1,
+        color: '#ef4444',
+    },
+
+    mafsFrequency: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Mafs Frequency',
+        description: 'Wave frequency in the Mafs interactive demo',
+        min: 0.1,
+        max: 2,
+        step: 0.1,
+        color: '#3b82f6',
+    },
+
+    // ─────────────────────────────────────────
+    // NUMBER - Cartesian 2D Sine Wave Explorer
+    // ─────────────────────────────────────────
+    sineAmplitude: {
+        defaultValue: 1.5,
+        type: 'number',
+        label: 'Sine Amplitude',
+        description: 'Vertical stretch of the sine wave (A) in the Cartesian 2D explorer',
+        min: 0.1,
+        max: 3,
+        step: 0.1,
+        color: '#ef4444',
+    },
+
+    sineOmega: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Angular Frequency',
+        description: 'Number of oscillations per unit (ω) in the Cartesian 2D explorer',
+        min: 0.2,
+        max: 4,
+        step: 0.1,
+        color: '#3b82f6',
+    },
+
+    sinePhase: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Phase Shift',
+        description: 'Horizontal shift of the sine wave (φ) in the Cartesian 2D explorer',
+        min: -3.14159,
+        max: 3.14159,
+        step: 0.05,
+        color: '#a855f7',
+    },
+
+    // ─────────────────────────────────────────
     // NUMBER - Trigger demo variable
     // ─────────────────────────────────────────
     animationSpeed: {
@@ -427,13 +488,29 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
-    // LINKED HIGHLIGHT — hover-to-highlight coordination variable
+    // LINKED HIGHLIGHT — hover-to-highlight coordination variables
     // ─────────────────────────────────────────
     activeHighlight: {
         defaultValue: '',
         type: 'linkedHighlight',
         label: 'Active Highlight',
         description: 'Currently hovered highlight ID — read by visuals to highlight matching parts',
+        color: '#3b82f6',
+    },
+
+    c2dHighlight: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Cartesian 2D Highlight',
+        description: 'Active highlight for the Cartesian 2D sine wave explorer (amplitude | frequency | phase)',
+        color: '#3b82f6',
+    },
+
+    mafsHighlight: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Mafs Highlight',
+        description: 'Active highlight for the Mafs interactive demo (amplitude | frequency)',
         color: '#3b82f6',
     },
 };

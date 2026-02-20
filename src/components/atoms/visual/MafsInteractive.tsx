@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Mafs, Coordinates, Plot, Point, Line, useMovablePoint, Circle } from "mafs";
-import { useInteractiveHighlight } from "../text/InteractiveHighlight";
+import { useVar, useSetVar } from "@/stores/variableStore";
 
 export interface MafsInteractiveProps {
     /** Controlled amplitude value (0-4) */
@@ -11,6 +11,11 @@ export interface MafsInteractiveProps {
     onAmplitudeChange?: (value: number) => void;
     /** Callback when frequency changes (from dragging the point) */
     onFrequencyChange?: (value: number) => void;
+    /**
+     * Variable name in the global store that holds the currently active
+     * highlight ID.  Used with `InlineLinkedHighlight` components.
+     */
+    highlightVarName?: string;
 }
 
 /**
@@ -18,15 +23,18 @@ export interface MafsInteractiveProps {
  * Supports both controlled and uncontrolled modes:
  * - Controlled: Pass amplitude/frequency props and onChange callbacks
  * - Uncontrolled: Component manages its own state
- * Also supports bidirectional highlighting with InteractiveHighlightProvider
+ * Also supports bidirectional highlighting with InlineLinkedHighlight via highlightVarName
  */
 export function MafsInteractive({
     amplitude: controlledAmplitude,
     frequency: controlledFrequency,
     onAmplitudeChange,
     onFrequencyChange,
+    highlightVarName,
 }: MafsInteractiveProps = {}) {
-    const highlightContext = useInteractiveHighlight();
+    // Read the active highlight ID from the global variable store
+    const highlightActiveId = useVar(highlightVarName ?? '', '') as string;
+    const setVar = useSetVar();
 
     // Internal state for uncontrolled mode
     const [internalAmplitude, setInternalAmplitude] = useState(2);
@@ -105,23 +113,23 @@ export function MafsInteractive({
         }
     }, [pointFreq]);
 
-    // Check if elements are highlighted via context
-    const isAmplitudeHighlighted = highlightContext?.activeId === "amplitude";
-    const isFrequencyHighlighted = highlightContext?.activeId === "frequency";
-    const hasActiveHighlight = highlightContext?.activeId !== null;
+    // Check if elements are highlighted via the variable store
+    const isAmplitudeHighlighted = highlightActiveId === "amplitude";
+    const isFrequencyHighlighted = highlightActiveId === "frequency";
+    const hasActiveHighlight = Boolean(highlightActiveId);
 
     // Handle hover events for the amplitude control area
     const handleAmplitudeAreaEnter = () => {
-        highlightContext?.setActiveId("amplitude");
+        if (highlightVarName) setVar(highlightVarName, "amplitude");
     };
 
     // Handle hover events for the frequency control area
     const handleFrequencyAreaEnter = () => {
-        highlightContext?.setActiveId("frequency");
+        if (highlightVarName) setVar(highlightVarName, "frequency");
     };
 
     const handleAreaLeave = () => {
-        highlightContext?.setActiveId(null);
+        if (highlightVarName) setVar(highlightVarName, '');
     };
 
     return (

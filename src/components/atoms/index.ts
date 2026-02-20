@@ -68,22 +68,6 @@ export {
 export { EditableParagraph, EditableSpan } from "./text/EditableParagraph";
 export { EditableText, withEditableText, useEditableTextContext } from "./text/EditableText";
 
-// Interactive Highlight Components (unified bidirectional highlighting system)
-export {
-    InteractiveHighlightProvider,
-    InteractiveText,
-    useInteractiveHighlight,
-    useActiveHighlight,
-    useSetActiveHighlight,
-    useHighlightState
-} from "./text/InteractiveHighlight";
-export type {
-    HighlightStyle,
-    InteractiveHighlightContextValue,
-    InteractiveHighlightProviderProps,
-    InteractiveTextProps
-} from "./text/InteractiveHighlight";
-
 // Formula Components
 export { InlineFormula } from "./formula/InlineFormula";
 export { Equation } from "./formula/Equation";
@@ -100,6 +84,20 @@ export { MorphingShapes } from "./visual/MorphingShapes";
 export { ParticleSystem } from "./visual/ParticleSystem";
 export { AnimatedGraph } from "./visual/AnimatedGraph";
 export { CoordinateSystem } from "./visual/CoordinateSystem";
+
+// Visual — 2D Cartesian (Mafs-powered, primary 2D math component)
+export { Cartesian2D } from "./visual/Cartesian2D";
+export type {
+    Cartesian2DProps,
+    PlotItem,
+    FunctionPlot,
+    ParametricPlot,
+    StaticPoint,
+    VectorPlot,
+    SegmentPlot,
+    CirclePlot,
+    MovablePointConfig,
+} from "./visual/Cartesian2D";
 
 // Visual — Three.js Components
 export { ThreeCanvas } from "./visual/ThreeCanvas";
