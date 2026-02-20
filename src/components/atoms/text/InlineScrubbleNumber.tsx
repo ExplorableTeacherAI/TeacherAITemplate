@@ -213,7 +213,10 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     }, [pendingEdit, isControlled, usesVarStore, effectiveVarName, min, max, storeValue, setVar]);
 
     const updateValue = useCallback((newValue: number) => {
-        const clampedValue = Math.max(displayMin, Math.min(displayMax, newValue));
+        // Round to step precision to avoid floating-point drift (e.g. 10.700000000000001)
+        const decimals = displayStep < 1 ? Math.max(0, -Math.floor(Math.log10(displayStep))) : 0;
+        const rounded = Number(newValue.toFixed(decimals));
+        const clampedValue = Math.max(displayMin, Math.min(displayMax, rounded));
 
         // Update based on mode
         if (isControlled) {
@@ -228,18 +231,20 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             setLocalValue(clampedValue);
             onChange?.(clampedValue);
         }
-    }, [displayMin, displayMax, isControlled, usesVarStore, effectiveVarName, setVar, onChange]);
+    }, [displayMin, displayMax, displayStep, isControlled, usesVarStore, effectiveVarName, setVar, onChange]);
 
     // Keep a ref so the drag handler always calls the latest updateValue
     const updateValueRef = useRef(updateValue);
     updateValueRef.current = updateValue;
 
     const increment = () => {
-        updateValue(value + displayStep);
+        const decimals = displayStep < 1 ? Math.max(0, -Math.floor(Math.log10(displayStep))) : 0;
+        updateValue(Number((value + displayStep).toFixed(decimals)));
     };
 
     const decrement = () => {
-        updateValue(value - displayStep);
+        const decimals = displayStep < 1 ? Math.max(0, -Math.floor(Math.log10(displayStep))) : 0;
+        updateValue(Number((value - displayStep).toFixed(decimals)));
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
