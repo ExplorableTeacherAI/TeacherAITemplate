@@ -82,6 +82,7 @@ export const EditableParagraph: React.FC<EditableParagraphProps> = ({
         id={id}
         blockId={blockId}
         className={cn(
+            'text-muted-foreground',
             sizeStyles[size],
             leadingStyles[leading],
             className
