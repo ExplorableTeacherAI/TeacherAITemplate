@@ -190,6 +190,45 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 | `GridLayout` | Multiple items | `columns`: 2–6; `gap` |
 | `SidebarLayout` | Main + sidebar | `sidebarPosition`, `sidebarWidth` |
 
+### SplitLayout with Multiple Components Per Side
+
+`SplitLayout` expects exactly **2 children**. To place multiple blocks on one side, wrap them in a `<div className="space-y-4">` container. Each block inside the wrapper remains independently manageable.
+
+```tsx
+<SplitLayout key="layout-example-split" ratio="1:1" gap="lg">
+    {/* Left side: multiple blocks wrapped in a div */}
+    <div className="space-y-4">
+        <Block id="block-left-desc" padding="sm">
+            <EditableParagraph id="para-left-desc" blockId="block-left-desc">
+                Description text with an interactive value of{" "}
+                <InlineScrubbleNumber
+                    varName="myVar"
+                    {...numberPropsFromDefinition(getVariableInfo('myVar'))}
+                />{" "}units.
+            </EditableParagraph>
+        </Block>
+        <Block id="block-left-equation" padding="sm">
+            <Equation latex="y = mx + b" />
+        </Block>
+        <Block id="block-left-hint" padding="sm">
+            <EditableParagraph id="para-left-hint" blockId="block-left-hint">
+                Drag the number above to see the visualization update.
+            </EditableParagraph>
+        </Block>
+    </div>
+    {/* Right side: single block (no wrapper needed) */}
+    <Block id="block-right-viz" padding="sm">
+        <ReactiveVisualization />
+    </Block>
+</SplitLayout>
+```
+
+**Key rules:**
+- The `<div>` wrapper counts as one child — `SplitLayout` still sees exactly 2 children.
+- Use `className="space-y-4"` (or `space-y-2`, `space-y-6`) on the wrapper to control vertical spacing between blocks.
+- Each `<Block>` inside the wrapper still follows the **one primary component per Block** rule.
+- If both sides need multiple blocks, wrap both sides in `<div>` containers.
+
 ---
 
 ## Linking Variables to Visuals

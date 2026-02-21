@@ -96,6 +96,66 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
+    // SPOT COLOR - Cartesian 2D Unit Circle Explorer
+    // ─────────────────────────────────────────
+    ucRadius: {
+        defaultValue: 'radius',
+        type: 'spotColor',
+        label: 'Radius Vector',
+        description: 'Color for the radius vector in the unit circle explorer',
+        color: '#ef4444',
+    },
+    ucCosine: {
+        defaultValue: 'cosine',
+        type: 'spotColor',
+        label: 'Cosine Projection',
+        description: 'Color for the cosine (horizontal) projection in the unit circle explorer',
+        color: '#3b82f6',
+    },
+    ucSine: {
+        defaultValue: 'sine',
+        type: 'spotColor',
+        label: 'Sine Projection',
+        description: 'Color for the sine (vertical) projection in the unit circle explorer',
+        color: '#22c55e',
+    },
+    fpSin: {
+        defaultValue: 'sin',
+        type: 'spotColor',
+        label: 'sin(x)',
+        description: 'Color for sin(x) in the function plots demo',
+        color: '#3b82f6',
+    },
+    fpCos: {
+        defaultValue: 'cos',
+        type: 'spotColor',
+        label: 'cos(x)',
+        description: 'Color for cos(x) in the function plots demo',
+        color: '#f59e0b',
+    },
+    fpNegSin: {
+        defaultValue: 'negSin',
+        type: 'spotColor',
+        label: '−sin(x)',
+        description: 'Color for −sin(x) in the function plots demo',
+        color: '#ef4444',
+    },
+    pcLissajous: {
+        defaultValue: 'lissajous',
+        type: 'spotColor',
+        label: 'Lissajous',
+        description: 'Color for the Lissajous curve in the parametric curves demo',
+        color: '#8b5cf6',
+    },
+    pcEpitrochoid: {
+        defaultValue: 'epitrochoid',
+        type: 'spotColor',
+        label: 'Epitrochoid',
+        description: 'Color for the epitrochoid curve in the parametric curves demo',
+        color: '#f97316',
+    },
+
+    // ─────────────────────────────────────────
     // NUMBER - Mafs Interactive Demo
     // ─────────────────────────────────────────
     mafsAmplitude: {

@@ -8,9 +8,11 @@ import {
     EditableParagraph,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
+    InlineSpotColor,
 } from "@/components/atoms";
+import { FormulaBlock } from "@/components/molecules";
 import { useVar } from "@/stores";
-import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightPropsFromDefinition } from "../exampleVariables";
+import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightPropsFromDefinition, spotColorPropsFromDefinition } from "../exampleVariables";
 
 // ── Demo 1: Static Function Plots ────────────────────────────────────────────
 
@@ -202,43 +204,44 @@ function ReactiveSineWaveViz() {
                     },
                 ]}
             />
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-                <span style={{ color: "#94a3b8" }}>━</span> Reference sin(x) ·{" "}
-                <span style={{ color: "#ef4444" }}>━</span> A·sin(x) ·{" "}
-                <span style={{ color: "#3b82f6" }}>━</span> sin(ωx) ·{" "}
-                <span style={{ color: "#22c55e" }}>━</span> Full wave
-            </p>
         </>
     );
 }
 
-/**
- * Reactive live equation display that reads from the global variable store.
- */
-function ReactiveEquationDisplay() {
-    const amplitude = useVar('sineAmplitude', 1.5) as number;
-    const omega = useVar('sineOmega', 1) as number;
-    const phase = useVar('sinePhase', 0) as number;
+// ── Sine Wave Legend ──────────────────────────────────────────────────────────
 
+function SineWaveLegend() {
     return (
-        <div className="p-4 rounded-xl bg-card border text-center font-mono text-lg">
-            y ={" "}
-            <span style={{ color: "#ef4444", fontWeight: 600 }}>
-                {amplitude.toFixed(1)}
-            </span>
-            {" "}· sin(
-            <span style={{ color: "#3b82f6", fontWeight: 600 }}>
-                {omega.toFixed(1)}
-            </span>
-            x{" "}
-            {phase >= 0 ? "+" : "−"}{" "}
-            <span style={{ color: "#a855f7", fontWeight: 600 }}>
-                {Math.abs(phase / Math.PI).toFixed(2)}π
-            </span>
-            )
+        <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#94a3b8" }} />
+                <span className="font-mono">sin(x)</span>
+                <span className="text-muted-foreground">(reference)</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#ef4444" }} />
+                <span className="font-mono">A·sin(x)</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#3b82f6" }} />
+                <span className="font-mono">sin(ωx)</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#22c55e" }} />
+                <span className="font-mono">A·sin(ωx + φ)</span>
+                <span className="text-muted-foreground">(full wave)</span>
+            </div>
         </div>
     );
 }
+
+// ── Legend Components ──────────────────────────────────────────────────────────
+
+// BasicFunctionsLegend removed — colors are now shown inline via InlineSpotColor
+
+// UnitCircleLegend removed — colors are now shown inline via InlineSpotColor
+
+// ParametricCurvesLegend removed — colors are now shown inline via InlineSpotColor
 
 // ── Exported demo blocks ──────────────────────────────────────────────────────
 
@@ -263,33 +266,38 @@ export const cartesian2dDemo: ReactElement[] = [
     </FullWidthLayout>,
 
     // ── Demo 1: Basic Function Plots ─────────────────────────────────────────
-    <SplitLayout key="layout-c2d-basic" ratio="1:1" gap="lg">
-        <Block id="block-c2d-basic-text" padding="sm">
-            <EditableH2 id="h2-c2d-basic" blockId="block-c2d-basic-text">
+    <FullWidthLayout key="layout-c2d-basic-title" maxWidth="xl">
+        <Block id="block-c2d-basic-title" padding="sm">
+            <EditableH2 id="h2-c2d-basic" blockId="block-c2d-basic-title">
                 Function Plots
             </EditableH2>
-            <EditableParagraph id="para-c2d-basic-desc" blockId="block-c2d-basic-text">
-                The simplest usage — pass a plots array of function objects. Each
-                entry is rendered as a continuous curve over the visible viewport.
-            </EditableParagraph>
-            <div className="space-y-2 text-sm mt-4">
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-blue-500" />
-                    <span className="font-mono">y = sin(x)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-yellow-500" />
-                    <span className="font-mono">y = cos(x)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-red-500" />
-                    <span className="font-mono">y = −sin(x)</span>
-                    <span className="text-muted-foreground">(restricted domain)</span>
-                </div>
-            </div>
-            <EditableParagraph id="para-c2d-basic-hint" blockId="block-c2d-basic-text">
-                The blue dot marks the maximum of sin(x) at x = π/2, and
-                the dashed vertical line shows the drop to the x-axis.
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c2d-basic-split" ratio="1:1" gap="lg">
+        <Block id="block-c2d-basic-desc" padding="sm">
+            <EditableParagraph id="para-c2d-basic-desc" blockId="block-c2d-basic-desc">
+                The simplest usage — pass a plots array of function objects. Three
+                curves are shown:{" "}
+                <InlineSpotColor varName="fpSin"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('fpSin'))}
+                >
+                    sin(x)
+                </InlineSpotColor>
+                ,{" "}
+                <InlineSpotColor varName="fpCos"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('fpCos'))}
+                >
+                    cos(x)
+                </InlineSpotColor>
+                , and{" "}
+                <InlineSpotColor varName="fpNegSin"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('fpNegSin'))}
+                >
+                    −sin(x)
+                </InlineSpotColor>
+                {" "}(restricted domain). The dot marks the maximum of sin(x) at
+                x = π/2, and the dashed vertical line shows the drop to the x-axis.
             </EditableParagraph>
         </Block>
         <Block id="block-c2d-basic-viz" padding="sm">
@@ -298,33 +306,36 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 2: Unit Circle Explorer ─────────────────────────────────────────
-    <SplitLayout key="layout-c2d-unit-circle" ratio="1:1" gap="lg">
-        <Block id="block-c2d-unit-text" padding="sm">
-            <EditableH2 id="h2-c2d-unit" blockId="block-c2d-unit-text">
+    <FullWidthLayout key="layout-c2d-unit-title" maxWidth="xl">
+        <Block id="block-c2d-unit-title" padding="sm">
+            <EditableH2 id="h2-c2d-unit" blockId="block-c2d-unit-title">
                 Unit Circle Explorer
             </EditableH2>
-            <EditableParagraph id="para-c2d-unit-desc" blockId="block-c2d-unit-text">
-                A movable point is constrained to the unit circle via a custom
-                constrain function. dynamicPlots receives the live point position
-                each frame and returns the projection lines.
-            </EditableParagraph>
-            <div className="space-y-2 text-sm mt-4">
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-red-500" />
-                    <span>Radius vector (drag to rotate)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-blue-500" />
-                    <span>cos(θ) — horizontal projection</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-green-500" />
-                    <span>sin(θ) — vertical projection</span>
-                </div>
-            </div>
-            <EditableParagraph id="para-c2d-unit-hint" blockId="block-c2d-unit-text">
-                💡 Drag the red point around the circle and watch how the
-                cosine and sine projections change.
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c2d-unit-split" ratio="1:1" gap="lg">
+        <Block id="block-c2d-unit-desc" padding="sm">
+            <EditableParagraph id="para-c2d-unit-desc" blockId="block-c2d-unit-desc">
+                A movable point is constrained to the unit circle. Drag the{" "}
+                <InlineSpotColor varName="ucRadius"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('ucRadius'))}
+                >
+                    radius vector
+                </InlineSpotColor>
+                {" "}around the circle and watch how the{" "}
+                <InlineSpotColor varName="ucCosine"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('ucCosine'))}
+                >
+                    cos(θ) projection
+                </InlineSpotColor>
+                {" "}(horizontal) and{" "}
+                <InlineSpotColor varName="ucSine"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('ucSine'))}
+                >
+                    sin(θ) projection
+                </InlineSpotColor>
+                {" "}(vertical) change in real time.
             </EditableParagraph>
         </Block>
         <Block id="block-c2d-unit-viz" padding="sm">
@@ -333,27 +344,32 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 3: Parametric Curves ─────────────────────────────────────────────
-    <SplitLayout key="layout-c2d-parametric" ratio="1:1" gap="lg">
-        <Block id="block-c2d-parametric-text" padding="sm">
-            <EditableH2 id="h2-c2d-parametric" blockId="block-c2d-parametric-text">
+    <FullWidthLayout key="layout-c2d-parametric-title" maxWidth="xl">
+        <Block id="block-c2d-parametric-title" padding="sm">
+            <EditableH2 id="h2-c2d-parametric" blockId="block-c2d-parametric-title">
                 Parametric Curves
             </EditableH2>
-            <EditableParagraph id="para-c2d-parametric-desc" blockId="block-c2d-parametric-text">
-                Use parametric plot types to draw curves that can't be expressed
-                as simple functions of x. Both curves loop over a full period.
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c2d-parametric-split" ratio="1:1" gap="lg">
+        <Block id="block-c2d-parametric-desc" padding="sm">
+            <EditableParagraph id="para-c2d-parametric-desc" blockId="block-c2d-parametric-desc">
+                Parametric plot types draw curves that can’t be expressed as
+                simple functions of x. Two curves are shown:{" "}
+                <InlineSpotColor varName="pcLissajous"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('pcLissajous'))}
+                >
+                    Lissajous (a=2, b=3)
+                </InlineSpotColor>
+                {" "}and{" "}
+                <InlineSpotColor varName="pcEpitrochoid"
+                    {...spotColorPropsFromDefinition(getExampleVariableInfo('pcEpitrochoid'))}
+                >
+                    Epitrochoid
+                </InlineSpotColor>
+                , both looping over a full period.
             </EditableParagraph>
-            <div className="space-y-2 text-sm mt-4">
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-violet-500" />
-                    <span>Lissajous (a=2, b=3): </span>
-                    <span className="font-mono text-xs">[2sin(2t), 2sin(3t)]</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="inline-block w-4 h-1 rounded bg-orange-500" />
-                    <span>Epitrochoid: </span>
-                    <span className="font-mono text-xs">[r·cos t − d·cos(5t/2), ...]</span>
-                </div>
-            </div>
         </Block>
         <Block id="block-c2d-parametric-viz" padding="sm">
             <ParametricCurvesViz />
@@ -361,80 +377,92 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 4: Sine Wave Explorer (InlineLinkedHighlight + Store) ─────────────
-    <SplitLayout key="layout-c2d-explorer" ratio="1:1" gap="lg">
-        <Block id="block-c2d-explorer-text" padding="sm">
-            <EditableH2 id="h2-c2d-explorer" blockId="block-c2d-explorer-text">
+    <FullWidthLayout key="layout-c2d-explorer-title" maxWidth="xl">
+        <Block id="block-c2d-explorer-title" padding="sm">
+            <EditableH2 id="h2-c2d-explorer" blockId="block-c2d-explorer-title">
                 Sine Wave Explorer
             </EditableH2>
-
-            <EditableParagraph id="para-c2d-explorer-intro" blockId="block-c2d-explorer-text">
-                The general sine wave y = A · sin(ωx + φ) has three parameters.
-                Hover over a term or drag its slider to highlight the effect in the plot.
-            </EditableParagraph>
-
-            <EditableParagraph id="para-c2d-explorer-amplitude" blockId="block-c2d-explorer-text">
-                The{" "}
-                <InlineLinkedHighlight
-                    varName="c2dHighlight"
-                    highlightId="amplitude"
-                    {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('c2dHighlight'))}
-                    color="#ef4444"
-                >
-                    amplitude
-                </InlineLinkedHighlight>{" "}
-                (A) stretches the wave vertically — currently{" "}
-                <InlineScrubbleNumber
-                    varName="sineAmplitude"
-                    {...numberPropsFromDefinition(getExampleVariableInfo('sineAmplitude'))}
-                    formatValue={(v) => v.toFixed(1)}
-                />.
-            </EditableParagraph>
-
-            <EditableParagraph id="para-c2d-explorer-frequency" blockId="block-c2d-explorer-text">
-                The angular{" "}
-                <InlineLinkedHighlight
-                    varName="c2dHighlight"
-                    highlightId="frequency"
-                    {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('c2dHighlight'))}
-                    color="#3b82f6"
-                >
-                    frequency
-                </InlineLinkedHighlight>{" "}
-                (ω) controls how many oscillations fit per unit — currently{" "}
-                <InlineScrubbleNumber
-                    varName="sineOmega"
-                    {...numberPropsFromDefinition(getExampleVariableInfo('sineOmega'))}
-                    formatValue={(v) => v.toFixed(1)}
-                />.
-            </EditableParagraph>
-
-            <EditableParagraph id="para-c2d-explorer-phase" blockId="block-c2d-explorer-text">
-                The{" "}
-                <InlineLinkedHighlight
-                    varName="c2dHighlight"
-                    highlightId="phase"
-                    {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('c2dHighlight'))}
-                    color="#a855f7"
-                >
-                    phase shift
-                </InlineLinkedHighlight>{" "}
-                (φ) shifts the wave horizontally — currently{" "}
-                <InlineScrubbleNumber
-                    varName="sinePhase"
-                    {...numberPropsFromDefinition(getExampleVariableInfo('sinePhase'))}
-                    formatValue={(v) => `${(v / Math.PI).toFixed(2)}π`}
-                />.
-            </EditableParagraph>
-
-            {/* Live equation display */}
-            <ReactiveEquationDisplay />
-
-            <EditableParagraph id="para-c2d-explorer-hint" blockId="block-c2d-explorer-text">
-                💡 Drag the numbers above or hover the parameter names
-                to highlight each curve in the plot.
-            </EditableParagraph>
         </Block>
+    </FullWidthLayout>,
 
+    <SplitLayout key="layout-c2d-explorer-split" ratio="1:1" gap="lg">
+        <div className="space-y-4">
+            <Block id="block-c2d-explorer-intro" padding="sm">
+                <EditableParagraph id="para-c2d-explorer-intro" blockId="block-c2d-explorer-intro">
+                    The general sine wave y = A · sin(ωx + φ) has three parameters.
+                    Hover over a term or drag its slider to highlight the effect in the plot.
+                </EditableParagraph>
+            </Block>
+            <Block id="block-c2d-explorer-params" padding="sm">
+                <EditableParagraph id="para-c2d-explorer-params" blockId="block-c2d-explorer-params">
+                    The{" "}
+                    <InlineLinkedHighlight
+                        varName="c2dHighlight"
+                        highlightId="amplitude"
+                        {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('c2dHighlight'))}
+                        color="#ef4444"
+                    >
+                        amplitude
+                    </InlineLinkedHighlight>{" "}
+                    (A) stretches the wave vertically — currently{" "}
+                    <InlineScrubbleNumber
+                        varName="sineAmplitude"
+                        {...numberPropsFromDefinition(getExampleVariableInfo('sineAmplitude'))}
+                        formatValue={(v) => v.toFixed(1)}
+                    />.
+                    The angular{" "}
+                    <InlineLinkedHighlight
+                        varName="c2dHighlight"
+                        highlightId="frequency"
+                        {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('c2dHighlight'))}
+                        color="#3b82f6"
+                    >
+                        frequency
+                    </InlineLinkedHighlight>{" "}
+                    (ω) controls how many oscillations fit per unit — currently{" "}
+                    <InlineScrubbleNumber
+                        varName="sineOmega"
+                        {...numberPropsFromDefinition(getExampleVariableInfo('sineOmega'))}
+                        formatValue={(v) => v.toFixed(1)}
+                    />.
+                    The{" "}
+                    <InlineLinkedHighlight
+                        varName="c2dHighlight"
+                        highlightId="phase"
+                        {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('c2dHighlight'))}
+                        color="#a855f7"
+                    >
+                        phase shift
+                    </InlineLinkedHighlight>{" "}
+                    (φ) shifts the wave horizontally — currently{" "}
+                    <InlineScrubbleNumber
+                        varName="sinePhase"
+                        {...numberPropsFromDefinition(getExampleVariableInfo('sinePhase'))}
+                        formatValue={(v) => `${(v / Math.PI).toFixed(2)}π`}
+                    />.
+                </EditableParagraph>
+            </Block>
+            <Block id="block-c2d-explorer-legend" padding="sm">
+                <SineWaveLegend />
+            </Block>
+            <Block id="block-c2d-explorer-equation" padding="sm">
+                <FormulaBlock
+                    latex="\clr{result}{y} = \scrub{sineAmplitude} \cdot \sin\!\left( \scrub{sineOmega}\, x + \scrub{sinePhase} \right)"
+                    colorMap={{ result: '#22c55e' }}
+                    variables={{
+                        sineAmplitude: { min: 0.1, max: 3, step: 0.1, color: '#ef4444', formatValue: (v) => v.toFixed(1) },
+                        sineOmega: { min: 0.2, max: 4, step: 0.1, color: '#3b82f6', formatValue: (v) => v.toFixed(1) },
+                        sinePhase: { min: -Math.PI, max: Math.PI, step: 0.05, color: '#a855f7', formatValue: (v) => `${(v / Math.PI).toFixed(2)}π` },
+                    }}
+                />
+            </Block>
+            <Block id="block-c2d-explorer-hint" padding="sm">
+                <EditableParagraph id="para-c2d-explorer-hint" blockId="block-c2d-explorer-hint">
+                    💡 Drag the numbers above or hover the parameter names
+                    to highlight each curve in the plot.
+                </EditableParagraph>
+            </Block>
+        </div>
         <Block id="block-c2d-explorer-viz" padding="sm">
             <ReactiveSineWaveViz />
         </Block>
