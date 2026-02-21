@@ -1,6 +1,3 @@
-export { Spacer } from "./Spacer";
-export { ModeIndicator } from "./ModeIndicator";
-export { InfoTooltip } from "./InfoTooltip";
 export { AnnotationOverlay } from "./AnnotationOverlay";
 export { LoadingScreen } from "./LoadingScreen";
 export { InlineFormulaEditorModal } from "./EquationEditorModal";
