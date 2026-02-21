@@ -92,6 +92,23 @@ export type {
     MovablePointConfig,
 } from "./visual/Cartesian2D";
 
+// Visual — 3D Cartesian (Three.js-powered, primary 3D math component)
+export { Cartesian3D } from "./visual/Cartesian3D";
+export type {
+    Cartesian3DProps,
+    PlotItem3D,
+    SurfacePlot3D,
+    ParametricCurve3D,
+    ParametricSurface3D,
+    StaticPoint3D,
+    VectorPlot3D,
+    SegmentPlot3D,
+    SpherePlot3D,
+    PlanePlot3D,
+    PolylinePlot3D,
+    DraggablePoint3DConfig,
+} from "./visual/Cartesian3D";
+
 // Visual — Three.js Components
 export { ThreeCanvas } from "./visual/ThreeCanvas";
 export { ThreeCoordinateSystem } from "./visual/ThreeCoordinateSystem";

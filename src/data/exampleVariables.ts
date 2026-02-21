@@ -566,6 +566,110 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         color: '#3b82f6',
     },
 
+    // ─────────────────────────────────────────
+    // LINKED HIGHLIGHT — Cartesian 3D demo
+    // ─────────────────────────────────────────
+    c3dHighlight: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Cartesian 3D Highlight',
+        description: 'Active highlight for the Cartesian 3D vector demo',
+        color: '#3b82f6',
+    },
+
+    // ─────────────────────────────────────────
+    // NUMBER — Cartesian 3D Surface demo
+    // ─────────────────────────────────────────
+    surfaceFreqX: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'X Frequency',
+        description: 'Spatial frequency in the X direction for the 3D surface',
+        min: 0.2,
+        max: 3,
+        step: 0.1,
+        color: '#EF4444',
+    },
+    surfaceFreqY: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Y Frequency',
+        description: 'Spatial frequency in the Y direction for the 3D surface',
+        min: 0.2,
+        max: 3,
+        step: 0.1,
+        color: '#3B82F6',
+    },
+    surfaceScale: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Surface Scale',
+        description: 'Vertical scale of the 3D surface',
+        min: 0.2,
+        max: 3,
+        step: 0.1,
+        color: '#22C55E',
+    },
+    helixTurns: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Helix Turns',
+        description: 'Number of turns in the 3D helix',
+        min: 1,
+        max: 8,
+        step: 0.5,
+        color: '#8B5CF6',
+    },
+    helixRadius: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Helix Radius',
+        description: 'Radius of the 3D helix',
+        min: 0.5,
+        max: 4,
+        step: 0.1,
+        color: '#F59E0B',
+    },
+
+    // ─────────────────────────────────────────
+    // SPOT COLOR — Cartesian 3D demos
+    // ─────────────────────────────────────────
+    c3dVecA: {
+        defaultValue: 'vecA',
+        type: 'spotColor',
+        label: 'Vector A',
+        description: 'Color for vector A in 3D vector demo',
+        color: '#EF4444',
+    },
+    c3dVecB: {
+        defaultValue: 'vecB',
+        type: 'spotColor',
+        label: 'Vector B',
+        description: 'Color for vector B in 3D vector demo',
+        color: '#3B82F6',
+    },
+    c3dVecCross: {
+        defaultValue: 'vecCross',
+        type: 'spotColor',
+        label: 'Cross Product',
+        description: 'Color for cross product vector in 3D vector demo',
+        color: '#22C55E',
+    },
+    c3dHelix: {
+        defaultValue: 'helix',
+        type: 'spotColor',
+        label: 'Helix',
+        description: 'Color for the helix parametric curve',
+        color: '#8B5CF6',
+    },
+    c3dSurface: {
+        defaultValue: 'surface',
+        type: 'spotColor',
+        label: 'Surface',
+        description: 'Color for the 3D surface plot',
+        color: '#F59E0B',
+    },
+
     mafsHighlight: {
         defaultValue: '',
         type: 'linkedHighlight',

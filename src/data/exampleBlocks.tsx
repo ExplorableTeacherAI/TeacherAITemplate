@@ -45,6 +45,7 @@ import { useVar } from "@/stores";
 
 // Import section demos
 import { cartesian2dDemo } from "./sections/cartesian2dDemo";
+import { cartesian3dDemo } from "./sections/cartesian3dDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function ReactiveHighlightDiagram() {
@@ -1046,6 +1047,11 @@ const exampleBlocks: ReactElement[] = [
     // CARTESIAN 2D DEMO
     // ========================================
     ...cartesian2dDemo,
+
+    // ========================================
+    // CARTESIAN 3D DEMO
+    // ========================================
+    ...cartesian3dDemo,
 
 ];
 
