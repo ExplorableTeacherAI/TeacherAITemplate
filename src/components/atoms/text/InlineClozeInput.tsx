@@ -23,6 +23,8 @@ interface InlineClozeInputProps {
     caseSensitive?: boolean;
     /** Optional callback when answer is validated */
     onChange?: (value: string, isCorrect: boolean) => void;
+    /** When true, skip editor-mode rendering (used inside FormulaBlock portals) */
+    disableEditing?: boolean;
 }
 
 /**
@@ -60,6 +62,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     bgColor = "rgba(59, 130, 246, 0.35)",
     caseSensitive = false,
     onChange,
+    disableEditing = false,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
 
@@ -184,14 +187,14 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveCorrectAnswer, effectivePlaceholder, effectiveColor, effectiveBgColor, effectiveCaseSensitive, openClozeInputEditor, varName, correctAnswer]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (canEdit && isEditing) {
+        if (canEdit && isEditing && !disableEditing) {
             handleEditClick(e);
             return;
         }
     };
 
     const handleClick = () => {
-        if (canEdit && isEditing) return;
+        if (canEdit && isEditing && !disableEditing) return;
         if (!isCorrect && !isChecked) {
             setIsInputting(true);
         }
@@ -257,7 +260,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     };
 
     // Editor mode rendering
-    if (canEdit && isEditing) {
+    if (canEdit && isEditing && !disableEditing) {
         return (
             <span
                 ref={containerRef}
@@ -269,10 +272,14 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
                 <span
                     onMouseDown={handleMouseDown}
                     onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-                    className="px-1 rounded font-medium cursor-pointer hover:opacity-80"
+                    className={cn(
+                        "select-none font-medium transition-all duration-150",
+                        "cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 rounded px-0.5 -mx-0.5"
+                    )}
                     style={{
-                        backgroundColor: effectiveBgColor,
                         color: effectiveColor,
+                        borderBottom: `2px dotted ${effectiveColor}`,
+                        paddingBottom: '1px',
                     }}
                 >
                     {effectivePlaceholder}
@@ -303,8 +310,12 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         return (
             <span ref={containerRef} {...wrapperProps}>
                 <span
-                    className="font-medium px-0.5 rounded"
-                    style={{ color: effectiveColor }}
+                    className="font-medium"
+                    style={{
+                        color: effectiveColor,
+                        borderBottom: `2px solid ${effectiveColor}`,
+                        paddingBottom: '1px',
+                    }}
                 >
                     {inputValue}
                 </span>
@@ -317,15 +328,19 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         return (
             <span ref={containerRef} {...wrapperProps}>
                 <span
-                    className="inline-flex items-center rounded font-medium"
-                    style={{ backgroundColor: effectiveBgColor }}
+                    className="inline-flex items-center font-medium"
+                    style={{
+                        color: effectiveColor,
+                        borderBottom: `2px solid #EF4444`,
+                        paddingBottom: '1px',
+                    }}
                 >
-                    <span className="px-1" style={{ color: effectiveColor }}>
+                    <span style={{ color: effectiveColor }}>
                         {inputValue}
                     </span>
                     <button
                         onClick={handleClear}
-                        className="inline-flex items-center justify-center px-0.5 transition-all hover:scale-110"
+                        className="inline-flex items-center justify-center ml-0.5 transition-colors duration-150 hover:opacity-80"
                         style={{ color: '#EF4444' }}
                         aria-label="Clear input"
                     >
@@ -347,12 +362,21 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
                     onBlur={handleBlur}
-                    className="px-1 rounded font-medium transition-all backdrop-blur-sm outline-none"
+                    className="font-medium outline-none"
                     style={{
-                        backgroundColor: effectiveBgColor,
                         color: effectiveColor,
-                        minWidth: '60px',
-                        width: `${Math.max(60, inputValue.length * 10)}px`,
+                        background: 'transparent',
+                        border: 'none',
+                        borderBottomStyle: 'solid',
+                        borderBottomWidth: '2px',
+                        borderBottomColor: effectiveColor,
+                        font: 'inherit',
+                        fontSize: 'inherit',
+                        lineHeight: 'inherit',
+                        padding: 0,
+                        paddingBottom: '1px',
+                        minWidth: '2.5em',
+                        width: `${Math.max(2.5, (inputValue.length + 1) * 0.6)}em`,
                     }}
                     placeholder={effectivePlaceholder}
                 />
@@ -362,18 +386,28 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
 
     // Preview mode: initial button state
     return (
-        <span ref={containerRef} {...wrapperProps}>
-            <button
+        <span
+            ref={containerRef}
+            {...wrapperProps}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <span
                 onClick={handleClick}
                 onMouseDown={handleMouseDown}
-                className="px-1 rounded font-medium transition-all hover:opacity-80 backdrop-blur-sm"
+                className="select-none font-medium cursor-pointer transition-all duration-150"
                 style={{
-                    backgroundColor: effectiveBgColor,
                     color: effectiveColor,
+                    borderBottom: `2px dotted ${effectiveColor}`,
+                    paddingBottom: '1px',
+                    background: isHovered ? effectiveBgColor : 'transparent',
+                    borderRadius: isHovered ? '3px 3px 0 0' : '0',
                 }}
+                tabIndex={0}
+                role="button"
             >
                 {effectivePlaceholder}
-            </button>
+            </span>
         </span>
     );
 };

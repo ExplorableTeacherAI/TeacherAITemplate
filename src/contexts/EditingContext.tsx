@@ -14,17 +14,6 @@ export interface TextEdit {
     timestamp: number;
 }
 
-export interface EquationEdit {
-    id: string;
-    type: 'equation';
-    blockId: string;
-    componentType: 'Equation' | 'ColoredEquation';
-    originalLatex: string;
-    newLatex: string;
-    colorMap?: Record<string, string>;
-    timestamp: number;
-}
-
 export interface ScrubbleNumberEdit {
     id: string;
     type: 'scrubbleNumber';
@@ -209,6 +198,9 @@ export interface FormulaBlockComponentProps {
     latex?: string;
     colorMap?: Record<string, string>;
     variables?: Record<string, { min: number; max: number; step: number; color: string }>;
+    clozeInputs?: Record<string, { correctAnswer: string; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean }>;
+    clozeChoices?: Record<string, { correctAnswer: string; options: string[]; placeholder?: string; color?: string; bgColor?: string }>;
+    linkedHighlights?: Record<string, { varName: string; color?: string; bgColor?: string }>;
     color?: string;
     isNew?: boolean;
 }
@@ -235,13 +227,12 @@ export interface StructureEdit {
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | EquationEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | LinkedHighlightEdit | FormulaBlockEdit | StructureEdit;
+export type PendingEdit = TextEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | LinkedHighlightEdit | FormulaBlockEdit | StructureEdit;
 
 interface EditingContextType {
     // State
     isEditing: boolean;
     pendingEdits: PendingEdit[];
-    editingEquation: { latex: string; colorMap?: Record<string, string>; blockId: string; elementPath: string } | null;
     editingScrubbleNumber: (ScrubbleNumberProps & { blockId: string; elementPath: string }) | null;
     editingClozeInput: (ClozeInputProps & { blockId: string; elementPath: string }) | null;
     editingClozeChoice: (ClozeChoiceProps & { blockId: string; elementPath: string }) | null;
@@ -258,7 +249,6 @@ interface EditingContextType {
     enableEditing: () => void;
     disableEditing: () => void;
     addTextEdit: (edit: Omit<TextEdit, 'id' | 'type' | 'timestamp'>) => void;
-    addEquationEdit: (edit: Omit<EquationEdit, 'id' | 'type' | 'timestamp'>) => void;
     addScrubbleNumberEdit: (edit: Omit<ScrubbleNumberEdit, 'id' | 'type' | 'timestamp'>) => void;
     addClozeInputEdit: (edit: Omit<ClozeInputEdit, 'id' | 'type' | 'timestamp'>) => void;
     addClozeChoiceEdit: (edit: Omit<ClozeChoiceEdit, 'id' | 'type' | 'timestamp'>) => void;
@@ -268,9 +258,6 @@ interface EditingContextType {
     addStructureEdit: (edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => void;
     removeEdit: (id: string) => void;
     clearAllEdits: () => void;
-    openEquationEditor: (latex: string, colorMap: Record<string, string> | undefined, blockId: string, elementPath: string) => void;
-    closeEquationEditor: () => void;
-    saveEquationEdit: (newLatex: string, newColorMap?: Record<string, string>) => void;
     openScrubbleNumberEditor: (props: ScrubbleNumberProps, blockId: string, elementPath: string) => void;
     closeScrubbleNumberEditor: () => void;
     saveScrubbleNumberEdit: (newProps: ScrubbleNumberProps) => void;
@@ -322,12 +309,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [pendingEdits, setPendingEdits] = useState<PendingEdit[]>([]);
-    const [editingEquation, setEditingEquation] = useState<{
-        latex: string;
-        colorMap?: Record<string, string>;
-        blockId: string;
-        elementPath: string;
-    } | null>(null);
     const [editingScrubbleNumber, setEditingScrubbleNumber] = useState<(ScrubbleNumberProps & {
         blockId: string;
         elementPath: string;
@@ -468,47 +449,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         });
     }, [generateId]);
 
-    const addEquationEdit = useCallback((edit: Omit<EquationEdit, 'id' | 'type' | 'timestamp'>) => {
-        const newEdit: EquationEdit = {
-            ...edit,
-            id: generateId(),
-            type: 'equation',
-            timestamp: Date.now(),
-        };
-
-        setPendingEdits(prev => {
-            // Check if there's already an edit for the same equation
-            const existingIndex = prev.findIndex(
-                e => e.type === 'equation' &&
-                    (e as EquationEdit).blockId === edit.blockId &&
-                    (e as EquationEdit).originalLatex === edit.originalLatex
-            );
-
-            if (existingIndex !== -1) {
-                // Update existing edit
-                const updated = [...prev];
-                const existing = updated[existingIndex] as EquationEdit;
-
-                // If new latex matches original, remove the edit
-                if (edit.newLatex === existing.originalLatex) {
-                    updated.splice(existingIndex, 1);
-                    return updated;
-                }
-
-                // Otherwise update
-                updated[existingIndex] = {
-                    ...existing,
-                    newLatex: edit.newLatex,
-                    colorMap: edit.colorMap,
-                    timestamp: Date.now(),
-                };
-                return updated;
-            }
-
-            return [...prev, newEdit];
-        });
-    }, [generateId]);
-
     const addStructureEdit = useCallback((edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => {
         setPendingEdits(prev => {
             // Check if there's already an 'add' structure edit for this blockId
@@ -551,39 +491,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const clearAllEdits = useCallback(() => {
         setPendingEdits([]);
     }, []);
-
-    const openEquationEditor = useCallback((
-        latex: string,
-        colorMap: Record<string, string> | undefined,
-        blockId: string,
-        elementPath: string
-    ) => {
-        setEditingEquation({ latex, colorMap, blockId, elementPath });
-    }, []);
-
-    const closeEquationEditor = useCallback(() => {
-        setEditingEquation(null);
-    }, []);
-
-    const saveEquationEdit = useCallback((newLatex: string, newColorMap?: Record<string, string>) => {
-        if (!editingEquation) return;
-
-        // Check if latex or color map changed
-        const latexChanged = newLatex !== editingEquation.latex;
-        const colorMapChanged = newColorMap && JSON.stringify(newColorMap) !== JSON.stringify(editingEquation.colorMap);
-
-        if (latexChanged || colorMapChanged) {
-            addEquationEdit({
-                blockId: editingEquation.blockId,
-                componentType: 'Equation', // Will need to detect actual type
-                originalLatex: editingEquation.latex,
-                newLatex,
-                colorMap: newColorMap || editingEquation.colorMap,
-            });
-        }
-
-        setEditingEquation(null);
-    }, [editingEquation, addEquationEdit]);
 
     // Scrubble Number editing methods
     const addScrubbleNumberEdit = useCallback((edit: Omit<ScrubbleNumberEdit, 'id' | 'type' | 'timestamp'>) => {
@@ -1406,7 +1313,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveFormulaBlockEdit = useCallback((newProps: FormulaBlockComponentProps) => {
         if (!editingFormulaBlock) return;
 
-        const { blockId, elementPath, ...originalProps } = editingFormulaBlock;
+        const { blockId, elementPath, isNew, ...originalProps } = editingFormulaBlock;
 
         const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -1487,7 +1394,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const value = useMemo(() => ({
         isEditing,
         pendingEdits,
-        editingEquation,
         editingScrubbleNumber,
         editingClozeInput,
         editingClozeChoice,
@@ -1502,7 +1408,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         enableEditing,
         disableEditing,
         addTextEdit,
-        addEquationEdit,
         addScrubbleNumberEdit,
         addClozeInputEdit,
         addClozeChoiceEdit,
@@ -1513,9 +1418,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addStructureEdit,
         removeEdit,
         clearAllEdits,
-        openEquationEditor,
-        closeEquationEditor,
-        saveEquationEdit,
         openScrubbleNumberEditor,
         closeScrubbleNumberEditor,
         saveScrubbleNumberEdit,
@@ -1556,7 +1458,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }), [
         isEditing,
         pendingEdits,
-        editingEquation,
         editingScrubbleNumber,
         editingClozeInput,
         editingClozeChoice,
@@ -1571,7 +1472,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         enableEditing,
         disableEditing,
         addTextEdit,
-        addEquationEdit,
         addScrubbleNumberEdit,
         addClozeInputEdit,
         addClozeChoiceEdit,
@@ -1582,9 +1482,6 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         addStructureEdit,
         removeEdit,
         clearAllEdits,
-        openEquationEditor,
-        closeEquationEditor,
-        saveEquationEdit,
         openScrubbleNumberEditor,
         closeScrubbleNumberEditor,
         saveScrubbleNumberEdit,

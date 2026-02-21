@@ -755,42 +755,231 @@ const exampleBlocks: ReactElement[] = [
 
     <FullWidthLayout key="layout-interactive-formula-demo" maxWidth="xl">
         <Block id="block-interactive-formula-demo" padding="lg">
-            <div className="flex flex-col items-center gap-6">
-                <div className="text-2xl">
-                    <FormulaBlock
-                        latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}"
-                        colorMap={{ force: '#ef4444' }}
-                        variables={{
-                            mass: {
-                                min: 0.1,
-                                max: 100,
-                                step: 0.1,
-                                color: getExampleVariableInfo('mass')?.color ?? '#a855f7',
-                            },
-                            acceleration: {
-                                min: -20,
-                                max: 20,
-                                step: 0.1,
-                                color: getExampleVariableInfo('acceleration')?.color ?? '#06b6d4',
-                            },
-                        }}
-                    />
-                </div>
-                <EditableParagraph id="para-interactive-formula-explanation" blockId="block-interactive-formula-demo">
-                    Drag the{" "}
-                    <InlineScrubbleNumber
-                        varName="mass"
-                        {...numberPropsFromDefinition(getExampleVariableInfo('mass'))}
-                    />{" "}kg mass or the{" "}
-                    <InlineScrubbleNumber
-                        varName="acceleration"
-                        {...numberPropsFromDefinition(getExampleVariableInfo('acceleration'))}
-                    />{" "}m/s² acceleration — both the equation above and these
-                    inline numbers stay in sync through the global variable store.
-                </EditableParagraph>
-            </div>
+            <FormulaBlock
+                latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}"
+                colorMap={{ force: '#ef4444' }}
+                variables={{
+                    mass: {
+                        min: 0.1,
+                        max: 100,
+                        step: 0.1,
+                        color: getExampleVariableInfo('mass')?.color ?? '#a855f7',
+                    },
+                    acceleration: {
+                        min: -20,
+                        max: 20,
+                        step: 0.1,
+                        color: getExampleVariableInfo('acceleration')?.color ?? '#06b6d4',
+                    },
+                }}
+            />
         </Block>
     </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-interactive-formula-explanation" maxWidth="xl">
+        <Block id="block-interactive-formula-explanation" padding="sm">
+            <EditableParagraph id="para-interactive-formula-explanation" blockId="block-interactive-formula-explanation">
+                Drag the{" "}
+                <InlineScrubbleNumber
+                    varName="mass"
+                    {...numberPropsFromDefinition(getExampleVariableInfo('mass'))}
+                />{" "}kg mass or the{" "}
+                <InlineScrubbleNumber
+                    varName="acceleration"
+                    {...numberPropsFromDefinition(getExampleVariableInfo('acceleration'))}
+                />{" "}m/s² acceleration — both the equation above and these
+                inline numbers stay in sync through the global variable store.
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // FORMULA BLOCK: CLOZE INPUT DEMO
+    // ========================================
+    <FullWidthLayout key="layout-heading-formula-cloze" maxWidth="xl">
+        <Block id="block-heading-formula-cloze" padding="md">
+            <EditableH2 id="h2-formula-cloze-title" blockId="block-heading-formula-cloze">
+                Formula Cloze Input (Fill-in-the-Blank in Equations)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-cloze-intro" maxWidth="xl">
+        <Block id="block-formula-cloze-intro" padding="sm">
+            <EditableParagraph id="para-formula-cloze-intro" blockId="block-formula-cloze-intro">
+                Use{" "}
+                <InlineTooltip tooltip="\cloze{varName} renders a clickable fill-in-the-blank input inside the formula. Configure the correct answer, placeholder, and color in the Cloze tab of the editor.">
+                    \cloze&#123;varName&#125;
+                </InlineTooltip>
+                {" "}syntax to embed interactive fill-in-the-blank inputs directly
+                inside KaTeX equations. Click on the blue boxes below to type your
+                answer. Can you complete the formula for the area of a circle?
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-cloze-demo" maxWidth="xl">
+        <Block id="block-formula-cloze-demo" padding="lg">
+            <FormulaBlock
+                latex="\clr{area}{A} = \clr{pi}{\pi} \cdot \cloze{formulaShapeChoice}"
+                colorMap={{ area: '#ef4444', pi: '#3b82f6' }}
+                clozeInputs={{
+                    formulaShapeChoice: {
+                        correctAnswer: 'r^2',
+                        placeholder: '???',
+                        color: '#D81B60',
+                    },
+                }}
+            />
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-cloze-hint" maxWidth="xl">
+        <Block id="block-formula-cloze-hint" padding="sm">
+            <EditableParagraph id="para-formula-cloze-hint" blockId="block-formula-cloze-hint">
+                Hint: The area of a circle is π times the square of the radius.
+                Click the pink box in the formula and type your answer!
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // FORMULA BLOCK: CLOZE CHOICE DEMO
+    // ========================================
+    <FullWidthLayout key="layout-heading-formula-choice" maxWidth="xl">
+        <Block id="block-heading-formula-choice" padding="md">
+            <EditableH2 id="h2-formula-choice-title" blockId="block-heading-formula-choice">
+                Formula Cloze Choice (Dropdown in Equations)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-choice-intro" maxWidth="xl">
+        <Block id="block-formula-choice-intro" padding="sm">
+            <EditableParagraph id="para-formula-choice-intro" blockId="block-formula-choice-intro">
+                Use{" "}
+                <InlineTooltip tooltip="\choice{varName} renders a clickable dropdown choice inside the formula. Configure the correct answer, options, and color in the Choices tab of the editor.">
+                    \choice&#123;varName&#125;
+                </InlineTooltip>
+                {" "}syntax to embed dropdown multiple-choice selectors inside
+                formulas. Click the purple box below and choose the correct operator
+                for the quadratic formula!
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-choice-demo" maxWidth="xl">
+        <Block id="block-formula-choice-demo" padding="lg">
+            <FormulaBlock
+                latex="\clr{x}{x} = \frac{-\clr{b}{b} \pm \sqrt{\clr{b}{b}^2 - 4\clr{a}{a}\clr{c}{c}}}{2 \choice{formulaOperator} \clr{a}{a}}"
+                colorMap={{ x: '#ef4444', a: '#3b82f6', b: '#22c55e', c: '#f59e0b' }}
+                clozeChoices={{
+                    formulaOperator: {
+                        correctAnswer: '×',
+                        options: ['+', '-', '×', '÷'],
+                        placeholder: '?',
+                        color: '#8B5CF6',
+                    },
+                }}
+            />
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-choice-hint" maxWidth="xl">
+        <Block id="block-formula-choice-hint" padding="sm">
+            <EditableParagraph id="para-formula-choice-hint" blockId="block-formula-choice-hint">
+                Hint: In the quadratic formula, the denominator is 2 times{" "}
+                <InlineFormula
+                    latex="\clr{a}{a}"
+                    colorMap={{ a: '#3b82f6' }}
+                />. What operation goes between 2 and{" "}
+                <InlineFormula
+                    latex="\clr{a}{a}"
+                    colorMap={{ a: '#3b82f6' }}
+                />?
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    // ========================================
+    // FORMULA BLOCK: LINKED HIGHLIGHT DEMO
+    // ========================================
+    <FullWidthLayout key="layout-heading-formula-highlight" maxWidth="xl">
+        <Block id="block-heading-formula-highlight" padding="md">
+            <EditableH2 id="h2-formula-highlight-title" blockId="block-heading-formula-highlight">
+                Formula Linked Highlight (Hover-to-Highlight in Equations)
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-formula-highlight-intro" maxWidth="xl">
+        <Block id="block-formula-highlight-intro" padding="sm">
+            <EditableParagraph id="para-formula-highlight-intro" blockId="block-formula-highlight-intro">
+                Use{" "}
+                <InlineTooltip tooltip="\highlight{id}{content} renders a hover-interactive term inside the formula. When hovered, it sets a shared variable so other components can react.">
+                    \highlight&#123;id&#125;&#123;content&#125;
+                </InlineTooltip>
+                {" "}syntax to create linked hover-highlight terms inside formulas.
+                Hover over the colored terms in the equation below — the matching
+                description lights up, and vice versa!
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-formula-highlight-demo" ratio="1:1" gap="lg">
+        <Block id="block-formula-highlight-eq" padding="lg">
+            <FormulaBlock
+                    latex="\highlight{fArea}{A} = \highlight{fPi}{\pi} \highlight{fRadius}{r}^{\highlight{fSquared}{2}}"
+                    linkedHighlights={{
+                        fArea: { varName: 'formulaHighlightGroup', color: '#ef4444' },
+                        fPi: { varName: 'formulaHighlightGroup', color: '#3b82f6' },
+                        fRadius: { varName: 'formulaHighlightGroup', color: '#22c55e' },
+                        fSquared: { varName: 'formulaHighlightGroup', color: '#f59e0b' },
+                    }}
+                />
+        </Block>
+        <Block id="block-formula-highlight-desc" padding="sm">
+            <EditableParagraph id="para-formula-highlight-desc" blockId="block-formula-highlight-desc">
+                Hover over each part of the formula to see its role:{" "}
+                <InlineLinkedHighlight
+                    id="lh-fArea"
+                    varName="formulaHighlightGroup"
+                    highlightId="fArea"
+                    color="#ef4444"
+                >
+                    A
+                </InlineLinkedHighlight>
+                {" "}is the area of the circle,{" "}
+                <InlineLinkedHighlight
+                    id="lh-fPi"
+                    varName="formulaHighlightGroup"
+                    highlightId="fPi"
+                    color="#3b82f6"
+                >
+                    π
+                </InlineLinkedHighlight>
+                {" "}is the ratio of circumference to diameter (≈ 3.14159),{" "}
+                <InlineLinkedHighlight
+                    id="lh-fRadius"
+                    varName="formulaHighlightGroup"
+                    highlightId="fRadius"
+                    color="#22c55e"
+                >
+                    r
+                </InlineLinkedHighlight>
+                {" "}is the radius, and the exponent{" "}
+                <InlineLinkedHighlight
+                    id="lh-fSquared"
+                    varName="formulaHighlightGroup"
+                    highlightId="fSquared"
+                    color="#f59e0b"
+                >
+                    2
+                </InlineLinkedHighlight>
+                {" "}means we square the radius. Hover on either side!
+            </EditableParagraph>
+        </Block>
+    </SplitLayout>,
 
     // ========================================
     // LINKED HIGHLIGHT DEMO (Hover-to-Highlight)

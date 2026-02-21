@@ -70,13 +70,6 @@ export { EditableText, withEditableText, useEditableTextContext } from "./text/E
 
 // Formula Components
 export { InlineFormula } from "./formula/InlineFormula";
-export { Equation } from "./formula/Equation";
-export {
-    ColoredEquationProvider,
-    ColoredEquation,
-    HighlightedTerm,
-    TermReveal
-} from "./formula/ColoredEquation";
 
 // Visual — Two.js Animation Components
 export { AnimatedBackground } from "./visual/AnimatedBackground";

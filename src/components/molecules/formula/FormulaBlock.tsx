@@ -1,10 +1,13 @@
 import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
 import { useVariableStore, useSetVar } from '@/stores';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
+import { useBlockContext } from '@/contexts/BlockContext';
+import { InlineClozeInput, InlineClozeChoice } from '@/components/atoms';
 
 /**
  * Per-variable configuration for scrubble numbers inside the formula.
@@ -22,16 +25,66 @@ interface ScrubVariableConfig {
     formatValue?: (v: number) => string;
 }
 
+/**
+ * Configuration for a cloze (fill-in-the-blank) input inside the formula.
+ */
+export interface ClozeInputConfig {
+    /** The correct answer string */
+    correctAnswer: string;
+    /** Placeholder text shown before student types (default: "???") */
+    placeholder?: string;
+    /** Text/border color (default: #3B82F6 blue) */
+    color?: string;
+    /** Background color (default: rgba(59,130,246,0.35)) */
+    bgColor?: string;
+    /** Whether matching is case sensitive (default: false) */
+    caseSensitive?: boolean;
+}
+
+/**
+ * Configuration for a cloze choice (dropdown) inside the formula.
+ */
+export interface ClozeChoiceConfig {
+    /** The correct answer (must be one of the options) */
+    correctAnswer: string;
+    /** Array of options to display in the dropdown */
+    options: string[];
+    /** Placeholder text before selection (default: "???") */
+    placeholder?: string;
+    /** Text/border color (default: #3B82F6 blue) */
+    color?: string;
+    /** Background color (default: rgba(59,130,246,0.35)) */
+    bgColor?: string;
+}
+
+/**
+ * Configuration for a linked-highlight term inside the formula.
+ */
+export interface LinkedHighlightConfig {
+    /** The shared variable name for the highlight group */
+    varName: string;
+    /** Accent color (default: #3b82f6) */
+    color?: string;
+    /** Background color when active */
+    bgColor?: string;
+}
+
 export interface FormulaBlockProps {
     /**
      * LaTeX formula string.
      *
-     * Supports two custom macros:
+     * Supports custom macros:
      * - `\clr{name}{content}` — colors a static term using `colorMap`
      * - `\scrub{varName}` — renders a scrubble (draggable) number bound to a global variable
+     * - `\cloze{varName}` — renders a fill-in-the-blank input (configured via `clozeInputs`)
+     * - `\choice{varName}` — renders a dropdown choice (configured via `clozeChoices`)
+     * - `\highlight{highlightId}{content}` — renders a linked-highlight term (configured via `linkedHighlights`)
      *
      * @example
      * "\\clr{force}{F} = \\scrub{mass} \\times \\scrub{acceleration}"
+     * "\\pi = \\frac{4}{1} - \\frac{4}{\\cloze{denom1}}"
+     * "\\text{angle} = \\frac{\\choice{numerator}}{\\choice{denominator}}"
+     * "d = \\sin(\\highlight{angle}{151°})"
      */
     latex: string;
 
@@ -46,6 +99,24 @@ export interface FormulaBlockProps {
      * Keys should match varNames used in `\scrub{varName}`.
      */
     variables?: Record<string, ScrubVariableConfig>;
+
+    /**
+     * Per-variable configuration for cloze inputs.
+     * Keys should match varNames used in `\cloze{varName}`.
+     */
+    clozeInputs?: Record<string, ClozeInputConfig>;
+
+    /**
+     * Per-variable configuration for cloze choices.
+     * Keys should match varNames used in `\choice{varName}`.
+     */
+    clozeChoices?: Record<string, ClozeChoiceConfig>;
+
+    /**
+     * Per-highlightId configuration for linked highlights.
+     * Keys should match highlightIds used in `\highlight{highlightId}{content}`.
+     */
+    linkedHighlights?: Record<string, LinkedHighlightConfig>;
 
     /** Default accent color for the formula wrapper (default: #000000) */
     color?: string;
@@ -85,6 +156,9 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     latex,
     colorMap = {},
     variables = {},
+    clozeInputs = {},
+    clozeChoices = {},
+    linkedHighlights = {},
     color = '#000000',
     className,
 }) => {
@@ -95,43 +169,60 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     const { isEditor } = useAppMode();
     const { isEditing, openFormulaBlockEditor, pendingEdits } = useEditing();
     const [isHovered, setIsHovered] = useState(false);
+    const { id: blockIdFromContext } = useBlockContext();
 
-    const getElementPath = useCallback(() => {
-        if (!containerRef.current) return '';
-        const block = containerRef.current.closest('[data-block-id]');
-        const blockId = block?.getAttribute('data-block-id') || 'unknown';
-        return `formulaBlock-${blockId}-${latex.substring(0, 20)}`;
-    }, [latex]);
+    // Allow editing in editor mode OR standalone mode for testing
+    const isStandalone = typeof window !== 'undefined' && window.self === window.top;
+    const canEdit = isEditor || isStandalone;
 
-    // Check for pending edits
-    const pendingEdit = useMemo(() => {
-        if (!isEditing || !isEditor || !containerRef.current) return null;
+    // Stable identity for matching pending edits (same pattern as InlineScrubbleNumber)
+    const [editIdentity, setEditIdentity] = useState<{ blockId: string; elementPath: string } | null>(null);
+
+    useEffect(() => {
+        if (blockIdFromContext) {
+            const elementPath = `formulaBlock-${blockIdFromContext}`;
+            setEditIdentity({ blockId: blockIdFromContext, elementPath });
+            return;
+        }
+        if (!containerRef.current) return;
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
+        const elementPath = `formulaBlock-${blockId}`;
+        setEditIdentity({ blockId, elementPath });
+    }, [blockIdFromContext]);
+
+    // Check for pending edits using the stored identity
+    const pendingEdit = useMemo(() => {
+        if (!editIdentity || (!isEditing && !canEdit)) return null;
+
+        const { blockId, elementPath } = editIdentity;
+
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'formulaBlock' &&
             (e as any).blockId === blockId &&
-            (e as any).originalProps?.latex === latex
+            (e as any).elementPath === elementPath
         );
-        return edit as { newProps: { latex?: string; colorMap?: Record<string, string>; variables?: Record<string, any>; color?: string } } | null;
-    }, [isEditing, isEditor, pendingEdits, latex]);
+        return edit as { newProps: { latex?: string; colorMap?: Record<string, string>; variables?: Record<string, any>; clozeInputs?: Record<string, any>; clozeChoices?: Record<string, any>; linkedHighlights?: Record<string, any>; color?: string } } | null;
+    }, [isEditing, canEdit, pendingEdits, editIdentity]);
 
     // Use edited values if available
     const displayLatex = pendingEdit?.newProps?.latex ?? latex;
     const displayColorMap = pendingEdit?.newProps?.colorMap ?? colorMap;
     const displayVariables = pendingEdit?.newProps?.variables ?? variables;
+    const displayClozeInputs: Record<string, ClozeInputConfig> = pendingEdit?.newProps?.clozeInputs ?? clozeInputs;
+    const displayClozeChoices: Record<string, ClozeChoiceConfig> = pendingEdit?.newProps?.clozeChoices ?? clozeChoices;
+    const displayLinkedHighlights: Record<string, LinkedHighlightConfig> = pendingEdit?.newProps?.linkedHighlights ?? linkedHighlights;
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        const block = containerRef.current?.closest('[data-block-id]');
-        const blockId = block?.getAttribute('data-block-id') || '';
+        if (!editIdentity) return;
         openFormulaBlockEditor(
-            { latex: displayLatex, colorMap: displayColorMap, variables: displayVariables as any },
-            blockId,
-            getElementPath()
+            { latex: displayLatex, colorMap: displayColorMap, variables: displayVariables as any, clozeInputs: displayClozeInputs as any, clozeChoices: displayClozeChoices as any, linkedHighlights: displayLinkedHighlights as any },
+            editIdentity.blockId,
+            editIdentity.elementPath
         );
-    }, [displayLatex, displayColorMap, displayVariables, openFormulaBlockEditor, getElementPath]);
+    }, [displayLatex, displayColorMap, displayVariables, displayClozeInputs, displayClozeChoices, displayLinkedHighlights, openFormulaBlockEditor, editIdentity]);
 
     // ── Variable store ──────────────────────────────────────────────────────
     const allVars = useVariableStore((s) => s.variables);
@@ -151,6 +242,28 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         const matches = displayLatex.matchAll(/\\scrub\{([^}]+)\}/g);
         return [...new Set([...matches].map((m) => m[1]))];
     }, [displayLatex]);
+
+    // ── Parse \cloze{varName} markers ───────────────────────────────────────
+    const clozeInputNames = useMemo(() => {
+        const matches = displayLatex.matchAll(/\\cloze\{([^}]+)\}/g);
+        return [...new Set([...matches].map((m) => m[1]))];
+    }, [displayLatex]);
+
+    // ── Parse \choice{varName} markers ──────────────────────────────────────
+    const clozeChoiceNames = useMemo(() => {
+        const matches = displayLatex.matchAll(/\\choice\{([^}]+)\}/g);
+        return [...new Set([...matches].map((m) => m[1]))];
+    }, [displayLatex]);
+
+    // ── Parse \highlight{highlightId}{content} markers ──────────────────────
+    const highlightIds = useMemo(() => {
+        const matches = displayLatex.matchAll(/\\highlight\{([^}]+)\}\{([^}]+)\}/g);
+        return [...new Set([...matches].map((m) => m[1]))];
+    }, [displayLatex]);
+
+    // ── Portal targets for cloze/choice React components ──────────────────
+    const [clozePortalTargets, setClozePortalTargets] = useState<Map<string, HTMLElement>>(new Map());
+    const [choicePortalTargets, setChoicePortalTargets] = useState<Map<string, HTMLElement>>(new Map());
 
     // ── Resolve effective color for each scrub variable ─────────────────────
     const resolvedColors = useMemo(() => {
@@ -205,12 +318,41 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
                 const val = (allVars[varName] as number) ?? 0;
                 const col = resolvedColors[varName] ?? DEFAULT_SCRUB_COLOR;
                 const display = formatValue(varName, val);
-                // \htmlClass lets KaTeX add a CSS class we can query after render
                 return `\\htmlClass{scrub-${varName}}{\\textcolor{${col}}{${display}}}`;
             },
         );
 
-        // 2. Replace \clr{name}{content} with \textcolor{color}{content}
+        // 2. Replace \cloze{varName} — portal target shell for InlineClozeInput
+        result = result.replace(
+            /\\cloze\{([^}]+)\}/g,
+            (_, varName: string) => {
+                const config = displayClozeInputs[varName];
+                const placeholder = config?.placeholder || '???';
+                return `\\htmlClass{cloze-portal-${varName}}{\\text{${placeholder}}}`;
+            },
+        );
+
+        // 3. Replace \choice{varName} — portal target shell for InlineClozeChoice
+        result = result.replace(
+            /\\choice\{([^}]+)\}/g,
+            (_, varName: string) => {
+                const config = displayClozeChoices[varName];
+                const placeholder = config?.placeholder || '???';
+                return `\\htmlClass{choice-portal-${varName}}{\\text{${placeholder}}}`;
+            },
+        );
+
+        // 4. Replace \highlight{highlightId}{content} with colored, class-tagged text
+        result = result.replace(
+            /\\highlight\{([^}]+)\}\{([^}]+)\}/g,
+            (_, highlightId: string, content: string) => {
+                const config = displayLinkedHighlights[highlightId];
+                const col = config?.color || '#3b82f6';
+                return `\\htmlClass{highlight-${highlightId}}{\\textcolor{${col}}{${content}}}`;
+            },
+        );
+
+        // 5. Replace \clr{name}{content} with \textcolor{color}{content}
         result = result.replace(
             /\\clr\{([^}]+)\}\{([^}]+)\}/g,
             (_, termName: string, content: string) => {
@@ -220,7 +362,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         );
 
         return result;
-    }, [displayLatex, allVars, resolvedColors, formatValue, effectiveColorMap]);
+    }, [displayLatex, allVars, resolvedColors, formatValue, effectiveColorMap, displayClozeInputs, displayClozeChoices, displayLinkedHighlights]);
 
     // ── Render KaTeX ────────────────────────────────────────────────────────
     useEffect(() => {
@@ -417,12 +559,104 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         };
     }, [processedLatex, scrubVarNames, allVars, displayVariables, setVar]);
 
+    // ── Post-render: collect portal targets for cloze/choice React components ─
+    useEffect(() => {
+        if (!katexRef.current) return;
+
+        const newClozeTargets = new Map<string, HTMLElement>();
+        const newChoiceTargets = new Map<string, HTMLElement>();
+
+        for (const varName of clozeInputNames) {
+            const el = katexRef.current.querySelector<HTMLElement>(`.cloze-portal-${varName}`);
+            if (el) {
+                el.innerHTML = '';
+                el.style.display = 'inline-flex';
+                el.style.alignItems = 'baseline';
+                el.style.verticalAlign = 'baseline';
+                newClozeTargets.set(varName, el);
+            }
+        }
+
+        for (const varName of clozeChoiceNames) {
+            const el = katexRef.current.querySelector<HTMLElement>(`.choice-portal-${varName}`);
+            if (el) {
+                el.innerHTML = '';
+                el.style.display = 'inline-flex';
+                el.style.alignItems = 'baseline';
+                el.style.verticalAlign = 'baseline';
+                newChoiceTargets.set(varName, el);
+            }
+        }
+
+        setClozePortalTargets(newClozeTargets);
+        setChoicePortalTargets(newChoiceTargets);
+    }, [processedLatex, clozeInputNames, clozeChoiceNames]);
+
+    // ── Post-render: style & attach linked highlight elements ───────────────
+    useEffect(() => {
+        if (!katexRef.current) return;
+        const abortController = new AbortController();
+
+        for (const highlightId of highlightIds) {
+            const els = katexRef.current.querySelectorAll<HTMLElement>(`.highlight-${highlightId}`);
+
+            els.forEach((el) => {
+                const config = displayLinkedHighlights[highlightId];
+                const groupVarName = config?.varName;
+                const col = config?.color || '#3b82f6';
+                const activeBg = config?.bgColor || `${col}22`;
+
+                el.style.cursor = 'pointer';
+                el.style.textDecoration = 'underline';
+                el.style.textDecorationStyle = 'dotted';
+                el.style.textDecorationColor = col;
+                el.style.padding = '1px 4px';
+                el.style.borderRadius = '4px';
+                el.style.transition = 'background-color 0.2s ease, opacity 0.2s ease';
+
+                // Check if this highlight is currently active or if any sibling is active
+                if (groupVarName) {
+                    const currentHighlight = allVars[groupVarName] as string;
+                    const hasAnyActive = currentHighlight !== '' && currentHighlight !== undefined;
+                    const isActive = currentHighlight === highlightId;
+
+                    if (isActive) {
+                        el.style.backgroundColor = activeBg;
+                        el.style.opacity = '1';
+                    } else if (hasAnyActive) {
+                        el.style.backgroundColor = '';
+                        el.style.opacity = '0.4';
+                    } else {
+                        el.style.backgroundColor = '';
+                        el.style.opacity = '1';
+                    }
+                }
+
+                el.addEventListener('mouseenter', () => {
+                    el.style.backgroundColor = activeBg;
+                    el.style.opacity = '1';
+                    if (groupVarName) setVar(groupVarName, highlightId);
+                }, { signal: abortController.signal });
+
+                el.addEventListener('mouseleave', () => {
+                    el.style.backgroundColor = '';
+                    el.style.opacity = '1';
+                    if (groupVarName) setVar(groupVarName, '');
+                }, { signal: abortController.signal });
+            });
+        }
+
+        return () => {
+            abortController.abort();
+        };
+    }, [processedLatex, highlightIds, displayLinkedHighlights, allVars, setVar]);
+
     // ── Render ──────────────────────────────────────────────────────────────
     return (
-        <span
+        <div
             ref={containerRef}
             className={cn(
-                'inline formula-block relative',
+                'formula-block w-full flex justify-center items-center py-4',
                 isEditor && isEditing && 'group',
                 className,
             )}
@@ -431,28 +665,65 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <span
-                ref={katexRef}
-                className={cn(
-                    'inline-block',
-                    isEditor && isEditing && 'cursor-pointer hover:outline hover:outline-2 hover:outline-dashed hover:outline-offset-2 hover:outline-[#3cc499] rounded transition-all duration-150',
+            <span className="relative inline-block">
+                <span
+                    ref={katexRef}
+                    className={cn(
+                        'inline-block text-2xl',
+                        isEditor && isEditing && 'cursor-pointer hover:outline hover:outline-2 hover:outline-dashed hover:outline-offset-2 hover:outline-[#3cc499] rounded transition-all duration-150',
+                    )}
+                    onClick={isEditor && isEditing ? handleEditClick : undefined}
+                />
+                {/* Edit button — appears on hover in edit mode */}
+                {isEditor && isEditing && isHovered && (
+                    <button
+                        onClick={handleEditClick}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-[#3cc499] text-white rounded-full shadow-lg flex items-center justify-center text-xs hover:bg-[#3cc499]/90 transition-all duration-150 z-10"
+                        title="Edit formula block"
+                    >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
                 )}
-                style={{ display: 'inline' }}
-                onClick={isEditor && isEditing ? handleEditClick : undefined}
-            />
-            {/* Edit button — appears on hover in edit mode */}
-            {isEditor && isEditing && isHovered && (
-                <button
-                    onClick={handleEditClick}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-[#3cc499] text-white rounded-full shadow-lg flex items-center justify-center text-xs hover:bg-[#3cc499]/90 transition-all duration-150 z-10"
-                    title="Edit formula block"
-                >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                </button>
-            )}
-        </span>
+            </span>
+
+            {/* ── Portaled InlineClozeInput components ────────────────── */}
+            {[...clozePortalTargets.entries()].map(([varName, el]) => {
+                const config = displayClozeInputs[varName];
+                return createPortal(
+                    <InlineClozeInput
+                        key={`cloze-${varName}`}
+                        varName={varName}
+                        correctAnswer={config?.correctAnswer || ''}
+                        placeholder={config?.placeholder}
+                        color={config?.color}
+                        bgColor={config?.bgColor}
+                        caseSensitive={config?.caseSensitive}
+                        disableEditing
+                    />,
+                    el,
+                );
+            })}
+
+            {/* ── Portaled InlineClozeChoice components ───────────────── */}
+            {[...choicePortalTargets.entries()].map(([varName, el]) => {
+                const config = displayClozeChoices[varName];
+                return createPortal(
+                    <InlineClozeChoice
+                        key={`choice-${varName}`}
+                        varName={varName}
+                        correctAnswer={config?.correctAnswer || ''}
+                        options={config?.options || []}
+                        placeholder={config?.placeholder}
+                        color={config?.color}
+                        bgColor={config?.bgColor}
+                        disableEditing
+                    />,
+                    el,
+                );
+            })}
+        </div>
     );
 };
 

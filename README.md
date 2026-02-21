@@ -12,7 +12,7 @@ The **Block** is the fundamental unit of content. Every piece of a lesson — a 
 - **Editable** — each block has its own toolbar for inline editing, deleting, and inserting
 - **Trackable** — the block manager sees and controls every piece individually
 
-**Rule: never use a component outside a Block.** Unwrapped components are invisible to the editing and reordering system.
+**Rule 1: Never use a component outside a Block.** Unwrapped components are invisible to the editing and reordering system.
 
 ```tsx
 // CORRECT — component lives inside a Block, can be rearranged and edited
@@ -26,12 +26,43 @@ The **Block** is the fundamental unit of content. Every piece of a lesson — a 
 <D3BarChart data={myData} />
 ```
 
-Every block follows the pattern: **Layout > Block > Component(s)**.
+**Rule 2: Each Block must contain exactly ONE primary component.** Never place multiple components (e.g., a FormulaBlock and an EditableParagraph) inside the same Block. Teachers add, delete, and reorder blocks individually — combining components makes them inseparable.
+
+```tsx
+// WRONG — two components crammed into one Block
+<FullWidthLayout key="layout-demo" maxWidth="xl">
+    <Block id="block-demo" padding="lg">
+        <FormulaBlock latex="E = mc^2" />
+        <EditableParagraph id="para-explain" blockId="block-demo">
+            Explanation text.
+        </EditableParagraph>
+    </Block>
+</FullWidthLayout>
+
+// CORRECT — each component in its own Block
+<FullWidthLayout key="layout-formula" maxWidth="xl">
+    <Block id="block-formula" padding="lg">
+        <FormulaBlock latex="E = mc^2" />
+    </Block>
+</FullWidthLayout>,
+
+<FullWidthLayout key="layout-explanation" maxWidth="xl">
+    <Block id="block-explanation" padding="sm">
+        <EditableParagraph id="para-explain" blockId="block-explanation">
+            Explanation text.
+        </EditableParagraph>
+    </Block>
+</FullWidthLayout>
+```
+
+> **Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph` — they are part of the text, not separate blocks.
+
+Every block follows the pattern: **Layout > Block > Component**.
 
 ```
 Layout (controls width, columns, spacing)
   └── Block (unit of editing — has toolbar, id tracking)
-        └── Component(s) (atoms, molecules, organisms)
+        └── Component (one atom, molecule, or organism per block)
 ```
 
 ---

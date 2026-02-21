@@ -513,6 +513,51 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         description: 'Active highlight for the Mafs interactive demo (amplitude | frequency)',
         color: '#3b82f6',
     },
+
+    // ─────────────────────────────────────────
+    // FORMULA BLOCK CLOZE / CHOICE / HIGHLIGHT DEMO VARIABLES
+    // ─────────────────────────────────────────
+    formulaDenom: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Formula Denominator',
+        description: 'Cloze input answer for the Leibniz formula denominator',
+        placeholder: '???',
+        color: '#3B82F6',
+    },
+    formulaNumerator: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Formula Numerator',
+        description: 'Cloze input answer for a fraction numerator',
+        placeholder: '???',
+        color: '#EF4444',
+    },
+    formulaOperator: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Formula Operator',
+        description: 'Choice input for selecting the correct operator',
+        options: ['+', '-', '×', '÷'],
+        placeholder: '?',
+        color: '#8B5CF6',
+    },
+    formulaShapeChoice: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Formula Shape',
+        description: 'Choice input for selecting the correct geometric shape',
+        options: ['r', 'r^2', 'r^3', 'd^2'],
+        placeholder: '???',
+        color: '#D81B60',
+    },
+    formulaHighlightGroup: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Formula Highlight Group',
+        description: 'Active highlight for the formula highlight demo',
+        color: '#3b82f6',
+    },
 };
 
 /**

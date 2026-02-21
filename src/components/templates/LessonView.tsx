@@ -374,9 +374,9 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                         if (editing) {
                             setTimeout(() => {
                                 editing.openFormulaBlockEditor(
-                                    { latex: content || "", colorMap: {}, variables: {}, isNew: true },
+                                    { latex: content || "E = mc^2", colorMap: {}, variables: {}, isNew: true },
                                     blockId,
-                                    `formulaBlock-${blockId}-new`
+                                    `formulaBlock-${blockId}`
                                 );
                             }, 100);
                         }

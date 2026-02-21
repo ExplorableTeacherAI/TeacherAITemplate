@@ -24,6 +24,8 @@ interface InlineClozeChoiceProps {
     bgColor?: string;
     /** Optional callback when selection changes */
     onChange?: (value: string, isCorrect: boolean) => void;
+    /** When true, skip editor-mode rendering (used inside FormulaBlock portals) */
+    disableEditing?: boolean;
 }
 
 /**
@@ -63,6 +65,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     color = "#3B82F6",
     bgColor = "rgba(59, 130, 246, 0.35)",
     onChange,
+    disableEditing = false,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -196,7 +199,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveCorrectAnswer, effectiveOptions, effectivePlaceholder, effectiveColor, effectiveBgColor, openClozeChoiceEditor, varName, correctAnswer]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (canEdit && isEditing) {
+        if (canEdit && isEditing && !disableEditing) {
             handleEditClick(e);
             return;
         }
@@ -224,7 +227,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     };
 
     // Editor mode rendering
-    if (canEdit && isEditing) {
+    if (canEdit && isEditing && !disableEditing) {
         return (
             <span
                 ref={containerRef}
@@ -236,10 +239,14 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                 <span
                     onMouseDown={handleMouseDown}
                     onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-                    className="px-1 rounded font-medium cursor-pointer hover:opacity-80"
+                    className={cn(
+                        "select-none font-medium transition-all duration-150",
+                        "cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 rounded px-0.5 -mx-0.5"
+                    )}
                     style={{
-                        backgroundColor: effectiveBgColor,
                         color: effectiveColor,
+                        borderBottom: `2px dotted ${effectiveColor}`,
+                        paddingBottom: '1px',
                     }}
                 >
                     {effectivePlaceholder} &#x25BE;
@@ -270,8 +277,12 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
         return (
             <span ref={containerRef} {...wrapperProps}>
                 <span
-                    className="font-medium px-0.5 rounded"
-                    style={{ color: effectiveColor }}
+                    className="font-medium"
+                    style={{
+                        color: effectiveColor,
+                        borderBottom: `2px solid ${effectiveColor}`,
+                        paddingBottom: '1px',
+                    }}
                 >
                     {selectedValue}
                 </span>
@@ -284,15 +295,19 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
         return (
             <span ref={containerRef} {...wrapperProps}>
                 <span
-                    className="inline-flex items-center rounded font-medium"
-                    style={{ backgroundColor: effectiveBgColor }}
+                    className="inline-flex items-center font-medium"
+                    style={{
+                        color: effectiveColor,
+                        borderBottom: `2px solid #EF4444`,
+                        paddingBottom: '1px',
+                    }}
                 >
-                    <span className="px-1" style={{ color: effectiveColor }}>
+                    <span style={{ color: effectiveColor }}>
                         {selectedValue}
                     </span>
                     <button
                         onClick={handleClear}
-                        className="inline-flex items-center justify-center px-0.5 transition-all hover:scale-110"
+                        className="inline-flex items-center justify-center ml-0.5 transition-all hover:scale-110"
                         style={{ color: '#EF4444' }}
                         aria-label="Clear selection"
                     >
@@ -307,49 +322,70 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     return (
         <span ref={containerRef} {...wrapperProps}>
             <span className="inline-block relative" ref={dropdownRef}>
-                <button
+                <span
                     onClick={() => !isEditing && setIsOpen(!isOpen)}
                     onMouseDown={handleMouseDown}
-                    className="px-1 rounded font-medium transition-all hover:opacity-80 backdrop-blur-sm"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    className="select-none font-medium cursor-pointer transition-all duration-150"
                     style={{
-                        backgroundColor: effectiveBgColor,
                         color: effectiveColor,
+                        borderBottom: `2px dotted ${effectiveColor}`,
+                        paddingBottom: '1px',
+                        background: isHovered ? effectiveBgColor : 'transparent',
+                        borderRadius: isHovered ? '3px 3px 0 0' : '0',
                     }}
+                    tabIndex={0}
+                    role="button"
                 >
                     {effectivePlaceholder} &#x25BE;
-                </button>
+                </span>
 
                 <AnimatePresence>
                     {isOpen && (
                         <motion.div
-                            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                            initial={{ opacity: 0, y: -4, scale: 0.97 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-                            className="absolute top-full left-0 mt-1 rounded-lg shadow-lg overflow-hidden z-50 min-w-[140px] backdrop-blur-sm"
+                            exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                            transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
+                            className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 min-w-[100px]"
                             style={{
-                                backgroundColor: effectiveBgColor.replace(/[\d.]+\)/, '0.75)'),
+                                background: 'white',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
                             }}
                         >
-                            {effectiveOptions.map((option, index) => (
-                                <button
-                                    key={option}
-                                    onClick={() => handleSelect(option)}
-                                    className="w-full text-left px-2 py-1 transition-all text-sm font-medium"
-                                    style={{
-                                        color: 'white',
-                                        borderBottom: index !== effectiveOptions.length - 1 ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                    }}
-                                >
-                                    {option}
-                                </button>
-                            ))}
+                            {effectiveOptions.map((option) => {
+                                const isSelected = option === selectedValue;
+                                return (
+                                    <button
+                                        key={option}
+                                        onClick={() => handleSelect(option)}
+                                        style={{
+                                            display: 'block',
+                                            width: '100%',
+                                            padding: '6px 12px',
+                                            border: 'none',
+                                            background: isSelected ? `${effectiveColor}15` : 'transparent',
+                                            color: isSelected ? effectiveColor : '#374151',
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            textAlign: 'left' as const,
+                                            borderRadius: '4px',
+                                            fontWeight: isSelected ? 600 : 400,
+                                            fontFamily: 'inherit',
+                                            transition: 'background 0.1s',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = `${effectiveColor}15`;
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = isSelected ? `${effectiveColor}15` : 'transparent';
+                                        }}
+                                    >
+                                        {option}
+                                    </button>
+                                );
+                            })}
                         </motion.div>
                     )}
                 </AnimatePresence>

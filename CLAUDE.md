@@ -397,6 +397,44 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 </FullWidthLayout>
 ```
 
+### Critical Rule: One Component Per Block
+
+**Each `<Block>` must contain exactly ONE primary component** — a single heading, a single paragraph, a single formula, or a single visual. Never place multiple components (e.g. a FormulaBlock and an EditableParagraph) inside the same Block.
+
+This is essential because:
+- Teachers add, delete, and reorder blocks individually
+- Each block gets its own toolbar (edit, delete, drag-handle)
+- Combining components in one block makes them inseparable to the editor
+
+```tsx
+// WRONG — two components crammed into one Block
+<FullWidthLayout key="layout-demo" maxWidth="xl">
+    <Block id="block-demo" padding="lg">
+        <FormulaBlock latex="E = mc^2" />
+        <EditableParagraph id="para-explain" blockId="block-demo">
+            This is the explanation.
+        </EditableParagraph>
+    </Block>
+</FullWidthLayout>
+
+// CORRECT — each component in its own Block
+<FullWidthLayout key="layout-formula" maxWidth="xl">
+    <Block id="block-formula" padding="lg">
+        <FormulaBlock latex="E = mc^2" />
+    </Block>
+</FullWidthLayout>,
+
+<FullWidthLayout key="layout-explanation" maxWidth="xl">
+    <Block id="block-explanation" padding="sm">
+        <EditableParagraph id="para-explain" blockId="block-explanation">
+            This is the explanation.
+        </EditableParagraph>
+    </Block>
+</FullWidthLayout>
+```
+
+**Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph` — they are part of the text, not separate blocks.
+
 ### ID Conventions
 - Layout keys: `layout-<descriptive-name>` (e.g., `layout-paragraph-04`)
 - Block IDs: `block-<descriptive-name>` (e.g., `block-paragraph-04`)
