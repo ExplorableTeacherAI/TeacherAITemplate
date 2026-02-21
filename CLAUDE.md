@@ -144,11 +144,9 @@ import { getVariableInfo, clozePropsFromDefinition } from "./variables";
 | `color` | Text/border color |
 | `bgColor` | Background color (supports RGBA) |
 
-The variable store holds the **student's typed answer** (text string). The `correctAnswer` stays as a prop configured via the editor modal.
-
 ## Critical Rule: InlineClozeChoice (Dropdown Fill-in-the-Blank)
 
-**NEVER pass inline props directly to `InlineClozeChoice`.** Always define the variable in the central variables file first, then reference it — same pattern as `InlineClozeInput`.
+**NEVER pass inline props directly to `InlineClozeChoice`.** Always define the variable in the central variables file first, then reference it.
 
 ### Two-Step Workflow for Cloze Choices
 
@@ -180,21 +178,9 @@ import { getVariableInfo, choicePropsFromDefinition } from "./variables";
 />
 ```
 
-### Key Cloze Choice Variable Fields
-
-| Field | Purpose |
-|-------|---------|
-| `correctAnswer` | The expected answer string (must be one of the options) |
-| `options` | Array of choices to display in the dropdown |
-| `placeholder` | Button text shown before student selects (default: `"???"`) |
-| `color` | Text/border color |
-| `bgColor` | Background color (supports RGBA) |
-
-The variable store holds the **student's selected option** (text string). The `correctAnswer` and `options` stay as props configured via the editor modal.
-
 ## Critical Rule: InlineToggle (Click to Cycle)
 
-**NEVER pass inline props directly to `InlineToggle`.** Always define the variable in the central variables file first, then reference it — same pattern as `InlineClozeChoice`.
+**NEVER pass inline props directly to `InlineToggle`.** Always define the variable in the central variables file first.
 
 ### Two-Step Workflow for Toggles
 
@@ -223,25 +209,11 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 />
 ```
 
-### Key Toggle Variable Fields
-
-| Field | Purpose |
-|-------|---------|
-| `options` | Array of strings to cycle through (at least 2) |
-| `color` | Text/border color (default: `#D946EF` fuchsia) |
-| `bgColor` | Background color (supports RGBA) |
-
-The variable store holds the **currently selected option** (text string). Unlike cloze components, toggles have no `correctAnswer` — they are for exploration, not validation.
-
 ## InlineTooltip (Hover Tooltip)
 
-`InlineTooltip` shows a tooltip/definition on hover. Unlike other inline components, it does **NOT** use the variable store — tooltips are purely informational with no mutable state. No `varName` prop needed.
-
-### Usage
+`InlineTooltip` shows a tooltip/definition on hover. Does **NOT** use the variable store — purely informational. No `varName` prop needed.
 
 ```tsx
-import { InlineTooltip } from "@/components/atoms";
-
 <EditableParagraph id="para-example" blockId="block-example">
     Every point on a{" "}
     <InlineTooltip tooltip="A shape where all points are equidistant from the center.">
@@ -250,8 +222,6 @@ import { InlineTooltip } from "@/components/atoms";
     has the same distance from its center.
 </EditableParagraph>
 ```
-
-### InlineTooltip Props
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
@@ -264,13 +234,9 @@ import { InlineTooltip } from "@/components/atoms";
 
 ## InlineFormula (Inline Math)
 
-`InlineFormula` renders a KaTeX math formula inline within paragraph text, with optional colored variables using `\clr{name}{content}` syntax. It does **NOT** use the variable store.
-
-### Usage
+`InlineFormula` renders a KaTeX math formula inline within paragraph text, with optional colored variables using `\clr{name}{content}` syntax. Does **NOT** use the variable store.
 
 ```tsx
-import { InlineFormula } from "@/components/atoms";
-
 <EditableParagraph id="para-example" blockId="block-example">
     The area of a circle is{" "}
     <InlineFormula
@@ -281,8 +247,6 @@ import { InlineFormula } from "@/components/atoms";
 </EditableParagraph>
 ```
 
-### InlineFormula Props
-
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
 | `latex` | `string` | *(required)* | LaTeX formula string |
@@ -291,13 +255,9 @@ import { InlineFormula } from "@/components/atoms";
 
 ## InlineTrigger (Click to Set Variable)
 
-`InlineTrigger` is a clickable inline element that **sets a global variable to a specific value** on click. It belongs to the connective category (emerald `#10B981`) and integrates with the variable store.
-
-### Usage
+`InlineTrigger` is a clickable inline element that **sets a global variable to a specific value** on click. Belongs to the connective category (emerald `#10B981`).
 
 ```tsx
-import { InlineTrigger } from "@/components/atoms";
-
 <EditableParagraph id="para-example" blockId="block-example">
     The speed is <InlineScrubbleNumber varName="speed" ... />.
     You can{" "}
@@ -311,8 +271,6 @@ import { InlineTrigger } from "@/components/atoms";
 </EditableParagraph>
 ```
 
-### InlineTrigger Props
-
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
 | `children` | `ReactNode` | *(required)* | The clickable text displayed inline |
@@ -323,17 +281,13 @@ import { InlineTrigger } from "@/components/atoms";
 | `icon` | `string` | `undefined` | Icon after text: `'play'`, `'refresh'`, `'zap'`, `'none'` |
 | `onTrigger` | `() => void` | `undefined` | Optional callback after click (not serializable) |
 
-**Note:** Unlike `InlineScrubbleNumber`, `InlineTrigger` does not need a variable definition in `variables.ts` — it only *writes* to the store, it does not read from it. The `varName` should reference a variable already defined for another component (like a scrubble number) that you want to reset or set.
+**Note:** `InlineTrigger` does not need a variable definition in `variables.ts` — it only *writes* to the store. The `varName` should reference a variable already defined for another component.
 
 ## InlineHyperlink (Click to Navigate)
 
-`InlineHyperlink` is a clickable inline element that either **opens an external URL** in a new tab or **smooth-scrolls to a block** on the page. It belongs to the connective category (emerald `#10B981`) and does **NOT** use the variable store.
-
-### Usage
+`InlineHyperlink` is a clickable inline element that either **opens an external URL** in a new tab or **smooth-scrolls to a block** on the page. Does **NOT** use the variable store.
 
 ```tsx
-import { InlineHyperlink } from "@/components/atoms";
-
 <EditableParagraph id="para-example" blockId="block-example">
     Read the{" "}
     <InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
@@ -347,8 +301,6 @@ import { InlineHyperlink } from "@/components/atoms";
 </EditableParagraph>
 ```
 
-### InlineHyperlink Props
-
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
 | `children` | `ReactNode` | *(required)* | The clickable text displayed inline |
@@ -357,12 +309,7 @@ import { InlineHyperlink } from "@/components/atoms";
 | `color` | `string` | `#10B981` | Text color (emerald) |
 | `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
 
-**Click behavior:**
-- `href` set → opens URL in new tab
-- `targetBlockId` set → smooth scrolls to the target block
-- Both set → `href` takes priority
-
-**Note:** `InlineHyperlink` does not use the variable store — it is purely navigational. No `varName` prop needed.
+**Click behavior:** `href` → opens URL in new tab; `targetBlockId` → smooth scrolls; both set → `href` takes priority.
 
 ## Variable Types
 
@@ -399,23 +346,16 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 ### Critical Rule: One Component Per Block
 
-**Each `<Block>` must contain exactly ONE primary component** — a single heading, a single paragraph, a single formula, or a single visual. Never place multiple components (e.g. a FormulaBlock and an EditableParagraph) inside the same Block.
-
-This is essential because:
-- Teachers add, delete, and reorder blocks individually
-- Each block gets its own toolbar (edit, delete, drag-handle)
-- Combining components in one block makes them inseparable to the editor
+**Each `<Block>` must contain exactly ONE primary component** — a single heading, a single paragraph, a single formula, or a single visual. Never place multiple components inside the same Block.
 
 ```tsx
 // WRONG — two components crammed into one Block
-<FullWidthLayout key="layout-demo" maxWidth="xl">
-    <Block id="block-demo" padding="lg">
-        <FormulaBlock latex="E = mc^2" />
-        <EditableParagraph id="para-explain" blockId="block-demo">
-            This is the explanation.
-        </EditableParagraph>
-    </Block>
-</FullWidthLayout>
+<Block id="block-demo" padding="lg">
+    <FormulaBlock latex="E = mc^2" />
+    <EditableParagraph id="para-explain" blockId="block-demo">
+        This is the explanation.
+    </EditableParagraph>
+</Block>
 
 // CORRECT — each component in its own Block
 <FullWidthLayout key="layout-formula" maxWidth="xl">
@@ -433,7 +373,7 @@ This is essential because:
 </FullWidthLayout>
 ```
 
-**Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph` — they are part of the text, not separate blocks.
+**Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph`.
 
 ### ID Conventions
 - Layout keys: `layout-<descriptive-name>` (e.g., `layout-paragraph-04`)
@@ -468,11 +408,14 @@ Import from `@/components/layouts`.
 - `InlineTooltip` — hover to show tooltip/definition (no variable store)
 - `InlineTrigger` — click to set a variable to a specific value (connective, emerald)
 - `InlineHyperlink` — click to open external URL or scroll to a block on page (connective, emerald)
+- `InlineSpotColor` — colored text highlight
+- `InlineLinkedHighlight` — bidirectional highlighting
 
 ### Math Components
 
-- `Equation`, `ColoredEquation` — math equations (block-level)
+- `Equation` — block-level KaTeX equation (import from `@/components/atoms`)
 - `InlineFormula` — inline math formula with colored variables (no variable store)
+- `FormulaBlock` — block-level math display with interactive elements (import from `@/components/molecules`)
 
 ### Visual Components (import from `@/components/atoms`)
 
@@ -483,6 +426,7 @@ Import from `@/components/layouts`.
   - `color`, `secondaryColor`, `width`, `height`, `speed`, `showAxes`, `showGrid`
 - `CoordinateSystem` — 2D coordinate plane with axes and grid
   - `width`, `height`, `gridSpacing`, `showGrid`, `showLabels`, `axisColor`, `gridColor`
+- `Cartesian2D` — custom 2D coordinate system
 
 #### Interactive Math (Mafs)
 
@@ -493,7 +437,7 @@ Import from `@/components/layouts`.
   - `onAmplitudeChange`, `onFrequencyChange` — callbacks when points are dragged
   - Supports bidirectional control: text controls update graph, graph dragging updates text
 
-#### 3D Visualizations (Three.js) — import from `@/components/atoms`
+#### 3D Visualizations (Three.js)
 
 - `ThreeCanvas` — React Three Fiber canvas wrapper (required parent for 3D components)
   - `height`, `cameraPosition`, `showControls`, `shadows`, `autoRotate`
@@ -538,22 +482,16 @@ Every `EditableParagraph` and `EditableH1/H2/H3` MUST have:
 ```tsx
 // WRONG — plain HTML tags, missing id and blockId
 <p>Content here</p>
-<h2 className="text-2xl font-bold">Section Title</h2>
 
 // CORRECT — Editable components with required id and blockId
 <EditableParagraph id="para-intro" blockId="block-intro">
     Content here
 </EditableParagraph>
-<EditableH2 id="h2-section-title" blockId="block-section">
-    Section Title
-</EditableH2>
 ```
 
 ## Critical Rule: Section Structure (Flat Block Arrays)
 
 Sections MUST export a **flat array of `Layout > Block` elements** — NEVER a wrapper component.
-
-The block management system (add, delete, reorder) only works when each block is a separate top-level element in the array. Wrapping blocks inside a component makes them invisible to the block manager.
 
 ```tsx
 // WRONG — wrapper component hides blocks from the block manager
@@ -561,9 +499,6 @@ export const MySection = () => (
     <>
         <FullWidthLayout key="section-title" maxWidth="xl">
             <Block id="section-title" padding="md">...</Block>
-        </FullWidthLayout>
-        <FullWidthLayout key="section-content" maxWidth="xl">
-            <Block id="section-content" padding="sm">...</Block>
         </FullWidthLayout>
     </>
 );
@@ -588,12 +523,6 @@ export const mySectionBlocks: ReactElement[] = [
     </FullWidthLayout>,
 ];
 ```
-
-### Why Flat Arrays?
-- Each element in the array = one manageable block
-- Teachers can add blocks between any two elements
-- Teachers can delete or reorder individual blocks
-- The block toolbar (add/delete/drag) appears on each block
 
 ### Section File Template
 
@@ -661,7 +590,6 @@ Create a small React component that reads from the store with `useVar` and passe
 import { useVar, useSetVar } from '@/stores';
 import { ThreeCanvas, RotatingCube } from "@/components/atoms";
 
-/** Cube whose size and speed are driven by global variables */
 function ReactiveCube() {
     const size = useVar('cubeSize', 1.5) as number;
     const speed = useVar('cubeSpeed', 1) as number;
@@ -720,36 +648,7 @@ function ReactiveSineWave() {
 
 ### Important: Wrapper Components vs Block Arrays
 
-Reactive wrappers are **inner** components used inside a `<Block>`, not top-level block wrappers. The flat array rule still applies — each `<Layout>` in the exported array is one manageable block.
-
-```tsx
-// CORRECT — ReactiveCube is used inside a Block, not wrapping it
-<SplitLayout key="layout-cube" ratio="1:1" gap="lg">
-    <Block id="block-text" padding="sm">
-        <EditableParagraph ...>text with scrubble numbers</EditableParagraph>
-    </Block>
-    <Block id="block-viz" padding="sm">
-        <ReactiveCube />  {/* ← reactive wrapper inside a Block */}
-    </Block>
-</SplitLayout>
-```
-
-### Using Visual Components Without Variables
-
-Visual components can also be used standalone (not linked to the store). Just pass static props directly:
-
-```tsx
-<SplitLayout key="layout-pendulum" ratio="1:1" gap="lg">
-    <Block id="block-text" padding="sm">
-        <EditableParagraph id="para-pendulum" blockId="block-text">
-            This pendulum demonstrates simple harmonic motion.
-        </EditableParagraph>
-    </Block>
-    <Block id="block-viz" padding="sm">
-        <AnimatedGraph variant="pendulum" color="#8B5CF6" width={500} height={350} />
-    </Block>
-</SplitLayout>
-```
+Reactive wrappers are **inner** components used inside a `<Block>`, not top-level block wrappers. The flat array rule still applies.
 
 ### Visual Component Quick Reference
 
