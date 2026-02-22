@@ -1,4 +1,4 @@
-import { type ReactElement, useState, useCallback, useEffect } from "react";
+import { type ReactElement, useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
@@ -6,15 +6,16 @@ import {
     EditableH1,
     EditableH2,
     EditableParagraph,
+    InlineToggle,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
     InlineSpotColor,
 } from "@/components/atoms";
-import type { StaticPoint } from "@/components/atoms";
+import type { PlotItem } from "@/components/atoms";
 import { Mafs, Coordinates, Plot, useMovablePoint } from "mafs";
 import { FormulaBlock } from "@/components/molecules";
 import { useVar, useSetVar } from "@/stores";
-import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightPropsFromDefinition, spotColorPropsFromDefinition } from "../exampleVariables";
+import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightPropsFromDefinition, spotColorPropsFromDefinition, togglePropsFromDefinition } from "../exampleVariables";
 
 
 // ── Demo 1: Static Function Plots ────────────────────────────────────────────
@@ -363,6 +364,126 @@ function LiveRegressionEquation() {
     );
 }
 
+// ── Demo 6: Line Drawing Playground ─────────────────────────────────────────
+
+function LineDrawingViz() {
+    const snapToGrid = useVar('ldSnapToGrid', 'on') as string;
+    const drawMode = useVar('ldDrawMode', 'lines') as string;
+    const [points, setPoints] = useState<[number, number][]>([]);
+    const overlayRef = useRef<HTMLDivElement>(null);
+
+    const viewBox = { x: [-6, 6] as [number, number], y: [-6, 6] as [number, number] };
+
+    const clientToMath = useCallback((clientX: number, clientY: number): [number, number] | null => {
+        const overlay = overlayRef.current;
+        if (!overlay) return null;
+
+        const rect = overlay.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return null;
+
+        const relX = clientX - rect.left;
+        const relY = clientY - rect.top;
+
+        const [xMin, xMax] = viewBox.x;
+        const [yMin, yMax] = viewBox.y;
+
+        const x = xMin + (relX / rect.width) * (xMax - xMin);
+        const y = yMax - (relY / rect.height) * (yMax - yMin);
+
+        return [x, y];
+    }, []);
+
+    const handleAddPoint = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.button !== 0) return;
+        const raw = clientToMath(e.clientX, e.clientY);
+        if (!raw) return;
+
+        const nextPoint: [number, number] = snapToGrid === 'on'
+            ? [Math.round(raw[0]), Math.round(raw[1])]
+            : [Math.round(raw[0] * 10) / 10, Math.round(raw[1] * 10) / 10];
+
+        setPoints((prev) => [...prev, nextPoint]);
+    }, [clientToMath, snapToGrid]);
+
+    const clearDrawing = useCallback(() => {
+        setPoints([]);
+    }, []);
+
+    const plots = useMemo<PlotItem[]>(() => {
+        const dynamic: PlotItem[] = points.map(([x, y]) => ({
+            type: 'point',
+            x,
+            y,
+            color: '#ef4444',
+        }));
+
+        for (let i = 0; i < points.length - 1; i++) {
+            dynamic.push({
+                type: 'segment',
+                point1: points[i],
+                point2: points[i + 1],
+                color: '#3b82f6',
+                weight: 2.5,
+            });
+
+            const mx = (points[i][0] + points[i + 1][0]) / 2;
+            const my = (points[i][1] + points[i + 1][1]) / 2;
+            dynamic.push({
+                type: 'point',
+                x: mx,
+                y: my,
+                color: '#f59e0b',
+            });
+        }
+
+        if (drawMode === 'polygon' && points.length > 2) {
+            dynamic.push({
+                type: 'segment',
+                point1: points[points.length - 1],
+                point2: points[0],
+                color: '#a855f7',
+                weight: 2,
+                style: 'dashed',
+            });
+
+            const closingMidX = (points[points.length - 1][0] + points[0][0]) / 2;
+            const closingMidY = (points[points.length - 1][1] + points[0][1]) / 2;
+            dynamic.push({
+                type: 'point',
+                x: closingMidX,
+                y: closingMidY,
+                color: '#f59e0b',
+            });
+        }
+
+        return dynamic;
+    }, [points, drawMode]);
+
+    return (
+        <div className="relative">
+            <Cartesian2D
+                height={420}
+                viewBox={viewBox}
+                plots={plots}
+            />
+
+            <div
+                ref={overlayRef}
+                className="absolute inset-0 cursor-crosshair"
+                onClick={handleAddPoint}
+            />
+
+            <button
+                type="button"
+                className="absolute right-3 top-3 rounded-md border border-border bg-background/95 px-3 py-1 text-xs font-medium shadow-sm"
+                onClick={clearDrawing}
+            >
+                Clear
+            </button>
+        </div>
+    );
+}
+
 // ── Legend Components ──────────────────────────────────────────────────────────
 
 // BasicFunctionsLegend removed — colors are now shown inline via InlineSpotColor
@@ -661,6 +782,81 @@ export const cartesian2dDemo: ReactElement[] = [
         </div>
         <Block id="block-c2d-scatter-viz" padding="sm">
             <ScatterPlotViz />
+        </Block>
+    </SplitLayout>,
+
+    // ── Demo 6: Line Drawing Playground ─────────────────────────────────────
+    <FullWidthLayout key="layout-c2d-drawing-title" maxWidth="xl">
+        <Block id="block-c2d-drawing-title" padding="sm">
+            <EditableH2 id="h2-c2d-drawing" blockId="block-c2d-drawing-title">
+                Line Drawing Playground
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c2d-drawing-split" ratio="1:1" gap="lg">
+        <div className="space-y-4">
+            <Block id="block-c2d-drawing-desc" padding="sm">
+                <EditableParagraph id="para-c2d-drawing-desc" blockId="block-c2d-drawing-desc">
+                    Click inside the graph to place points and draw connected{" "}
+                    <InlineSpotColor
+                        varName="ldLineColor"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldLineColor'))}
+                    >
+                        segments
+                    </InlineSpotColor>
+                    . Every point becomes a{" "}
+                    <InlineSpotColor
+                        varName="ldPointColor"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldPointColor'))}
+                    >
+                        vertex
+                    </InlineSpotColor>
+                    , and each segment shows its{" "}
+                    <InlineSpotColor
+                        varName="ldMidpointColor"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldMidpointColor'))}
+                    >
+                        midpoint
+                    </InlineSpotColor>
+                    .
+                </EditableParagraph>
+            </Block>
+
+            <Block id="block-c2d-drawing-controls" padding="sm">
+                <EditableParagraph id="para-c2d-drawing-controls" blockId="block-c2d-drawing-controls">
+                    Snap to grid: {" "}
+                    <InlineToggle
+                        varName="ldSnapToGrid"
+                        options={["on", "off"]}
+                        {...togglePropsFromDefinition(getExampleVariableInfo('ldSnapToGrid'))}
+                    />
+                    . Draw mode: {" "}
+                    <InlineToggle
+                        varName="ldDrawMode"
+                        options={["lines", "polygon"]}
+                        {...togglePropsFromDefinition(getExampleVariableInfo('ldDrawMode'))}
+                    />
+                    . In polygon mode, a{" "}
+                    <InlineSpotColor
+                        varName="ldClosingColor"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldClosingColor'))}
+                    >
+                        dashed closing edge
+                    </InlineSpotColor>
+                    {" "}connects the last point back to the first.
+                </EditableParagraph>
+            </Block>
+
+            <Block id="block-c2d-drawing-hint" padding="sm">
+                <EditableParagraph id="para-c2d-drawing-hint" blockId="block-c2d-drawing-hint">
+                    💡 Use the Clear button in the top-right of the graph to start a new sketch.
+                </EditableParagraph>
+            </Block>
+        </div>
+
+        <Block id="block-c2d-drawing-viz" padding="sm">
+            <LineDrawingViz />
         </Block>
     </SplitLayout>,
 ];

@@ -48,6 +48,7 @@ import { cartesian2dDemo } from "./sections/cartesian2dDemo";
 import { cartesian3dDemo } from "./sections/cartesian3dDemo";
 import { nodeLinkDemo } from "./sections/nodeLinkDemo";
 import { circleAnatomyDemo } from "./sections/circleAnatomyDemo";
+import { symmetryDrawingDemo } from "./sections/symmetryDrawingDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function ReactiveHighlightDiagram() {
@@ -1054,6 +1055,11 @@ const exampleBlocks: ReactElement[] = [
     // CIRCLE ANATOMY — LINKED HIGHLIGHT + CARTESIAN 2D
     // ========================================
     ...circleAnatomyDemo,
+
+    // ========================================
+    // SYMMETRY DRAWING DEMO
+    // ========================================
+    ...symmetryDrawingDemo,
 
     // ========================================
     // CARTESIAN 3D DEMO

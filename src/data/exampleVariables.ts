@@ -918,6 +918,167 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         step: 0.1,
         color: '#ef4444',
     },
+
+    // ─────────────────────────────────────────
+    // SYMMETRY DRAWING DEMO — Line of Symmetry
+    // ─────────────────────────────────────────
+    symLineType: {
+        defaultValue: 'y-axis',
+        type: 'select',
+        label: 'Symmetry Line Type',
+        description: 'Which line of symmetry to reflect across',
+        options: ['y-axis', 'x-axis', 'y = x', 'y = -x', 'custom'],
+        color: '#D946EF',
+    },
+    symSlope: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Line Slope',
+        description: 'Slope (m) for the custom line of symmetry y = mx + b',
+        unit: '',
+        min: -5,
+        max: 5,
+        step: 0.1,
+        color: '#64748b',
+    },
+    symIntercept: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Line Intercept',
+        description: 'Y-intercept (b) for the custom line of symmetry y = mx + b',
+        unit: '',
+        min: -4,
+        max: 4,
+        step: 0.1,
+        color: '#64748b',
+    },
+    symOrigColor: {
+        defaultValue: 'original',
+        type: 'spotColor',
+        label: 'Original Triangle',
+        description: 'Color label for the original triangle',
+        color: '#3b82f6',
+    },
+    symReflColor: {
+        defaultValue: 'reflected',
+        type: 'spotColor',
+        label: 'Reflected Triangle',
+        description: 'Color label for the reflected triangle',
+        color: '#ef4444',
+    },
+    symConnColor: {
+        defaultValue: 'connection',
+        type: 'spotColor',
+        label: 'Connection Lines',
+        description: 'Color label for the perpendicular connection lines',
+        color: '#a855f7',
+    },
+    symLineColor: {
+        defaultValue: 'line',
+        type: 'spotColor',
+        label: 'Line of Symmetry',
+        description: 'Color label for the line of symmetry itself',
+        color: '#64748b',
+    },
+
+    // ─────────────────────────────────────────
+    // SYMMETRY DRAWING DEMO — Function Symmetry
+    // ─────────────────────────────────────────
+    symFnType: {
+        defaultValue: 'x²',
+        type: 'select',
+        label: 'Function Type',
+        description: 'Which function to analyze for even/odd symmetry',
+        options: ['x²', 'x³', '|x|', 'sin(x)', 'cos(x)'],
+        color: '#D946EF',
+    },
+    symProbeX: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Probe X',
+        description: 'X position of the symmetry probe point',
+        unit: '',
+        min: 0.5,
+        max: 4,
+        step: 0.1,
+        color: '#8b5cf6',
+    },
+    symEvenColor: {
+        defaultValue: 'even',
+        type: 'spotColor',
+        label: 'Even Symmetry',
+        description: 'Color label for even function symmetry',
+        color: '#22c55e',
+    },
+    symOddColor: {
+        defaultValue: 'odd',
+        type: 'spotColor',
+        label: 'Odd Symmetry',
+        description: 'Color label for odd function symmetry',
+        color: '#f59e0b',
+    },
+    symFnOrigColor: {
+        defaultValue: 'f(x)',
+        type: 'spotColor',
+        label: 'f(x) Curve',
+        description: 'Color label for the original function curve',
+        color: '#3b82f6',
+    },
+    symFnMirrorColor: {
+        defaultValue: 'f(-x)',
+        type: 'spotColor',
+        label: 'f(-x) Curve',
+        description: 'Color label for the mirrored function curve',
+        color: '#ef4444',
+    },
+
+    // ─────────────────────────────────────────
+    // LINE DRAWING DEMO — Cartesian 2D
+    // ─────────────────────────────────────────
+    ldSnapToGrid: {
+        defaultValue: 'on',
+        type: 'select',
+        label: 'Snap to Grid',
+        description: 'Whether placed points snap to integer grid positions',
+        options: ['on', 'off'],
+        color: '#10B981',
+    },
+    ldDrawMode: {
+        defaultValue: 'lines',
+        type: 'select',
+        label: 'Draw Mode',
+        description: 'Drawing mode: open polyline or closed polygon',
+        options: ['lines', 'polygon'],
+        color: '#8B5CF6',
+    },
+    ldLineColor: {
+        defaultValue: 'segments',
+        type: 'spotColor',
+        label: 'Line Segments',
+        description: 'Color label for drawn line segments',
+        color: '#3b82f6',
+    },
+    ldPointColor: {
+        defaultValue: 'vertices',
+        type: 'spotColor',
+        label: 'Vertices',
+        description: 'Color label for placed vertex points',
+        color: '#ef4444',
+    },
+    ldMidpointColor: {
+        defaultValue: 'midpoints',
+        type: 'spotColor',
+        label: 'Midpoints',
+        description: 'Color label for segment midpoints',
+        color: '#f59e0b',
+    },
+    ldClosingColor: {
+        defaultValue: 'closing edge',
+        type: 'spotColor',
+        label: 'Closing Edge',
+        description: 'Color label for the polygon closing edge',
+        color: '#a855f7',
+    },
 };
 
 /**
