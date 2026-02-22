@@ -118,6 +118,14 @@ export * from "./visual/ThreeVisuals";
 export { D3BarChart } from "./visual/D3BarChart";
 export type { D3BarChartProps, DataPoint } from "./visual/D3BarChart";
 
+// Visual — SVG Geometry Components
+export { GeometricDiagram } from "./visual/GeometricDiagram";
+export type { GeometricDiagramProps, GeometricVariant } from "./visual/GeometricDiagram";
+export { VennDiagram } from "./visual/VennDiagram";
+export type { VennDiagramProps } from "./visual/VennDiagram";
+export { NumberLine } from "./visual/NumberLine";
+export type { NumberLineProps } from "./visual/NumberLine";
+
 // Visual — Mafs Components
 export { MafsBasic } from "./visual/MafsBasic";
 export { MafsAnimated } from "./visual/MafsAnimated";

@@ -49,6 +49,8 @@ import { cartesian3dDemo } from "./sections/cartesian3dDemo";
 import { nodeLinkDemo } from "./sections/nodeLinkDemo";
 import { circleAnatomyDemo } from "./sections/circleAnatomyDemo";
 import { symmetryDrawingDemo } from "./sections/symmetryDrawingDemo";
+import { geometricDiagramDemo } from "./sections/geometricDiagramDemo";
+import { vennAndNumberLineDemo } from "./sections/vennAndNumberLineDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function ReactiveHighlightDiagram() {
@@ -1070,6 +1072,16 @@ const exampleBlocks: ReactElement[] = [
     // NODE-LINK DIAGRAM DEMO
     // ========================================
     ...nodeLinkDemo,
+
+    // ========================================
+    // GEOMETRIC DIAGRAM DEMO
+    // ========================================
+    ...geometricDiagramDemo,
+
+    // ========================================
+    // VENN + NUMBER LINE DEMOS
+    // ========================================
+    ...vennAndNumberLineDemo,
 
 ];
 
