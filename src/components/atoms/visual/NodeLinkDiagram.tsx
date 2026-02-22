@@ -86,6 +86,8 @@ export interface NodeLinkDiagramProps {
     weightedLinks?: boolean;
     /** Show a subtle background grid (default: false) */
     showGrid?: boolean;
+    /** Show container border (default: true) */
+    showContainerBorder?: boolean;
 }
 
 // ============================================================================
@@ -171,6 +173,7 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
     zoomable = false,
     weightedLinks = true,
     showGrid = false,
+    showContainerBorder = true,
 }) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -446,8 +449,12 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
                 const connectedIds = new Set<string>();
                 connectedIds.add(d.id);
                 simLinks.forEach((l) => {
-                    const sid = typeof l.source === "object" ? (l.source as SimNode).id : l.source;
-                    const tid = typeof l.target === "object" ? (l.target as SimNode).id : l.target;
+                    const sid = String(
+                        typeof l.source === "object" ? (l.source as SimNode).id : l.source
+                    );
+                    const tid = String(
+                        typeof l.target === "object" ? (l.target as SimNode).id : l.target
+                    );
                     if (sid === d.id) connectedIds.add(tid);
                     if (tid === d.id) connectedIds.add(sid);
                 });
@@ -706,7 +713,7 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
                 borderRadius: 12,
                 overflow: "hidden",
                 background: theme.background,
-                border: "1px solid #e2e8f0",
+                border: showContainerBorder ? "1px solid #e2e8f0" : "none",
             }}
         >
             <svg

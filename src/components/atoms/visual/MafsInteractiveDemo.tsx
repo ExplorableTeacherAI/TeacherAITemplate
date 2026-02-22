@@ -23,7 +23,7 @@ function MafsEquationDisplay() {
     const frequency = useVar('mafsFrequency', 1) as number;
 
     return (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-teal-500/10 border border-green-500/20">
+        <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-teal-500/10">
             <p className="text-sm text-muted-foreground mb-2">The wave equation:</p>
             <p className="font-mono text-xl">
                 y ={" "}

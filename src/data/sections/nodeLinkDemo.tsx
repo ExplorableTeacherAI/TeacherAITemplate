@@ -75,6 +75,7 @@ function ReactiveNodeLink() {
             chargeStrength={charge}
             linkDistance={dist}
             showLinkLabels
+            showContainerBorder={false}
         />
     );
 }
@@ -117,7 +118,7 @@ export const nodeLinkDemo: ReactElement[] = [
         </Block>
     </FullWidthLayout>,
 
-    <FullWidthLayout key="layout-nl-social-desc" maxWidth="xl">
+    <SplitLayout key="layout-nl-social" ratio="1:1" gap="lg">
         <Block id="block-nl-social-desc" padding="sm">
             <EditableParagraph id="para-nl-social-desc" blockId="block-nl-social-desc">
                 An undirected force-directed graph showing social connections.
@@ -125,18 +126,16 @@ export const nodeLinkDemo: ReactElement[] = [
                 the rest of the network. Drag nodes to rearrange the layout.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
-
-    <FullWidthLayout key="layout-nl-social-viz" maxWidth="xl">
         <Block id="block-nl-social-viz" padding="sm">
             <NodeLinkDiagram
                 nodes={socialNodes}
                 links={socialLinks}
                 height={380}
                 showLinkLabels
+                showContainerBorder={false}
             />
         </Block>
-    </FullWidthLayout>,
+    </SplitLayout>,
 
     // ── Demo 2: Directed dependency graph ─────────────────────────────────
 
@@ -148,16 +147,13 @@ export const nodeLinkDemo: ReactElement[] = [
         </Block>
     </FullWidthLayout>,
 
-    <FullWidthLayout key="layout-nl-dep-desc" maxWidth="xl">
+    <SplitLayout key="layout-nl-dep" ratio="1:1" gap="lg">
         <Block id="block-nl-dep-desc" padding="sm">
             <EditableParagraph id="para-nl-dep-desc" blockId="block-nl-dep-desc">
                 Arrows show the direction of dependencies. The force simulation
                 naturally clusters related modules together.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
-
-    <FullWidthLayout key="layout-nl-dep-viz" maxWidth="xl">
         <Block id="block-nl-dep-viz" padding="sm">
             <NodeLinkDiagram
                 nodes={depNodes}
@@ -165,9 +161,10 @@ export const nodeLinkDemo: ReactElement[] = [
                 height={380}
                 chargeStrength={-400}
                 linkDistance={120}
+                showContainerBorder={false}
             />
         </Block>
-    </FullWidthLayout>,
+    </SplitLayout>,
 
     // ── Demo 3: Reactive parameters ───────────────────────────────────────
 
@@ -263,6 +260,7 @@ export const nodeLinkDemo: ReactElement[] = [
                 highlightVarName="nlHighlight"
                 chargeStrength={-250}
                 linkDistance={90}
+                showContainerBorder={false}
             />
         </Block>
     </SplitLayout>,
