@@ -893,6 +893,55 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         color: '#6366F1',
     },
 
+    // ── Math Tree Scaffold Demo ──────────────────────────────────────────
+    mtFactorStep: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Factor Tree Step',
+        description: 'Current scaffolding step for the prime factorization tree',
+        min: 1,
+        max: 4,
+        step: 1,
+        color: '#3B82F6',
+    },
+    mtProbStep: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Probability Tree Step',
+        description: 'Current scaffolding step for the probability tree',
+        min: 1,
+        max: 3,
+        step: 1,
+        color: '#8B5CF6',
+    },
+    mtTreeGap: {
+        defaultValue: 64,
+        type: 'number',
+        label: 'Tree Horizontal Gap',
+        description: 'Horizontal spacing between sibling branches in the tree visualization',
+        unit: 'px',
+        min: 36,
+        max: 120,
+        step: 2,
+        color: '#EC4899',
+    },
+    mtScaffoldPanel: {
+        defaultValue: 'show',
+        type: 'select',
+        label: 'Scaffold Panel Visibility',
+        description: 'Show or hide the text scaffold panel under the tree',
+        options: ['show', 'hide'],
+        color: '#14B8A6',
+    },
+    mtFactorTarget: {
+        defaultValue: '84',
+        type: 'select',
+        label: 'Factor Tree Target',
+        description: 'Choose which target number to factorize in the tree',
+        options: ['84', '60'],
+        color: '#6366F1',
+    },
+
     // ── Geometric Diagram Demo ───────────────────────────────────────────
     gdRadius: {
         defaultValue: 90,

@@ -125,6 +125,12 @@ export { VennDiagram } from "./visual/VennDiagram";
 export type { VennDiagramProps } from "./visual/VennDiagram";
 export { NumberLine } from "./visual/NumberLine";
 export type { NumberLineProps } from "./visual/NumberLine";
+export { MathTreeVisualization } from "./visual/MathTreeVisualization";
+export type {
+    MathTreeNode,
+    MathTreeScaffoldStep,
+    MathTreeVisualizationProps,
+} from "./visual/MathTreeVisualization";
 
 // Visual — Mafs Components
 export { MafsBasic } from "./visual/MafsBasic";

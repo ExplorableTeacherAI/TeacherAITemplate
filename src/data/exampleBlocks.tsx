@@ -47,6 +47,7 @@ import { useVar } from "@/stores";
 import { cartesian2dDemo } from "./sections/cartesian2dDemo";
 import { cartesian3dDemo } from "./sections/cartesian3dDemo";
 import { nodeLinkDemo } from "./sections/nodeLinkDemo";
+import { mathTreeDemo } from "./sections/mathTreeDemo";
 import { circleAnatomyDemo } from "./sections/circleAnatomyDemo";
 import { symmetryDrawingDemo } from "./sections/symmetryDrawingDemo";
 import { geometricDiagramDemo } from "./sections/geometricDiagramDemo";
@@ -1072,6 +1073,11 @@ const exampleBlocks: ReactElement[] = [
     // NODE-LINK DIAGRAM DEMO
     // ========================================
     ...nodeLinkDemo,
+
+    // ========================================
+    // MATH TREE SCAFFOLD DEMO
+    // ========================================
+    ...mathTreeDemo,
 
     // ========================================
     // GEOMETRIC DIAGRAM DEMO
