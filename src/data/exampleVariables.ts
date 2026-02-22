@@ -892,6 +892,32 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         description: 'Active highlight ID for the node-link diagram',
         color: '#6366F1',
     },
+
+    // ─────────────────────────────────────────
+    // LINKED HIGHLIGHT — Circle Anatomy demo (Cartesian2D hover)
+    // ─────────────────────────────────────────
+    circleHighlight: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Circle Anatomy Highlight',
+        description: 'Active highlight ID for the circle anatomy demo (radius | diameter | center | circumference | area)',
+        color: '#3b82f6',
+    },
+
+    // ─────────────────────────────────────────
+    // NUMBER — Circle radius (scrubble)
+    // ─────────────────────────────────────────
+    circleRadius: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Circle Radius',
+        description: 'Radius of the circle in the anatomy demo',
+        unit: '',
+        min: 0.5,
+        max: 4,
+        step: 0.1,
+        color: '#ef4444',
+    },
 };
 
 /**

@@ -1,4 +1,4 @@
-import { useEffect, useRef, Fragment } from "react";
+import { useEffect, useRef, useCallback, Fragment } from "react";
 import {
     Mafs,
     Coordinates,
@@ -8,7 +8,7 @@ import {
     Circle,
     useMovablePoint,
 } from "mafs";
-import { useVar } from "@/stores/variableStore";
+import { useVar, useSetVar } from "@/stores/variableStore";
 
 // ── Plot item type definitions ────────────────────────────────────────────────
 
@@ -321,6 +321,60 @@ function renderPlotItem(
     }
 }
 
+// ── Hit-testing helpers (graph → store hover) ────────────────────────────────
+
+/** Distance from point (px, py) to a line segment from a to b */
+function distToSegment(
+    px: number, py: number,
+    a: [number, number], b: [number, number]
+): number {
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const len2 = dx * dx + dy * dy;
+    if (len2 === 0) return Math.hypot(px - a[0], py - a[1]);
+    let t = ((px - a[0]) * dx + (py - a[1]) * dy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (a[0] + t * dx), py - (a[1] + t * dy));
+}
+
+/** Distance from a point (mx, my) to a PlotItem in math coordinates */
+function distToPlotItem(mx: number, my: number, item: PlotItem): number {
+    switch (item.type) {
+        case "point":
+            return Math.hypot(mx - item.x, my - item.y);
+        case "segment":
+            return distToSegment(mx, my, item.point1, item.point2);
+        case "vector": {
+            const tail = (item.tail ?? [0, 0]) as [number, number];
+            return distToSegment(mx, my, tail, item.tip);
+        }
+        case "circle": {
+            const d = Math.hypot(mx - item.center[0], my - item.center[1]);
+            return Math.abs(d - item.radius);
+        }
+        case "function": {
+            try {
+                if (item.domain && (mx < item.domain[0] || mx > item.domain[1])) {
+                    return Infinity;
+                }
+                return Math.abs(my - item.fn(mx));
+            } catch { return Infinity; }
+        }
+        case "parametric": {
+            const [t0, t1] = item.tRange ?? [0, 2 * Math.PI];
+            let minDist = Infinity;
+            for (let i = 0; i <= 80; i++) {
+                const t = t0 + (t1 - t0) * (i / 80);
+                try {
+                    const [px, py] = item.xy(t);
+                    const d = Math.hypot(mx - px, my - py);
+                    if (d < minDist) minDist = d;
+                } catch { /* skip */ }
+            }
+            return minDist;
+        }
+    }
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 /**
@@ -393,6 +447,10 @@ export function Cartesian2D({
     // Treat empty string as "nothing highlighted"
     const effectiveActiveId = activeId || null;
 
+    // Write support: set highlight on hover over graph elements
+    const setVar = useSetVar();
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
     // Number of active movable points (capped at 4)
     const activeCount = Math.min(movablePoints.length, 4);
 
@@ -449,9 +507,68 @@ export function Cartesian2D({
     const dynItems = dynamicPlots ? dynamicPlots(activePoints) : [];
     const allPlots = [...plots, ...dynItems];
 
+    // ── Hover → store (bidirectional highlight) ───────────────────────────
+    // Keep a ref to the latest plots so callbacks don't go stale
+    const plotsRef = useRef(allPlots);
+    plotsRef.current = allPlots;
+    const viewBoxRef = useRef(viewBox);
+    viewBoxRef.current = viewBox;
+
+    const handleMouseMove = useCallback(
+        (e: React.MouseEvent<HTMLDivElement>) => {
+            if (!highlightVarName) return;
+            const wrapper = wrapperRef.current;
+            if (!wrapper) return;
+
+            const svg = wrapper.querySelector("svg");
+            if (!svg) return;
+
+            const svgRect = svg.getBoundingClientRect();
+            const relX = e.clientX - svgRect.left;
+            const relY = e.clientY - svgRect.top;
+
+            const vb = viewBoxRef.current;
+            const [xMin, xMax] = vb.x;
+            const [yMin, yMax] = vb.y;
+
+            // Approximate math-coordinate conversion
+            const mathX = xMin + (relX / svgRect.width) * (xMax - xMin);
+            const mathY = yMax - (relY / svgRect.height) * (yMax - yMin);
+
+            // Adaptive hit threshold (8 % of the smaller axis range)
+            const threshold = Math.min(xMax - xMin, yMax - yMin) * 0.08;
+
+            let closestId: string | null = null;
+            let closestDist = Infinity;
+
+            for (const item of plotsRef.current) {
+                if (!item.highlightId) continue;
+                const d = distToPlotItem(mathX, mathY, item);
+                if (d < threshold && d < closestDist) {
+                    closestDist = d;
+                    closestId = item.highlightId;
+                }
+            }
+
+            setVar(highlightVarName, closestId ?? "");
+        },
+        [highlightVarName, setVar]
+    );
+
+    const handleMouseLeave = useCallback(() => {
+        if (highlightVarName) {
+            setVar(highlightVarName, "");
+        }
+    }, [highlightVarName, setVar]);
+
     // ── Render ─────────────────────────────────────────────────────────────
     return (
-        <div className={`w-full overflow-hidden rounded-xl ${className}`}>
+        <div
+            ref={wrapperRef}
+            className={`w-full overflow-hidden rounded-xl ${className}`}
+            onMouseMove={highlightVarName ? handleMouseMove : undefined}
+            onMouseLeave={highlightVarName ? handleMouseLeave : undefined}
+        >
             <Mafs
                 height={height}
                 viewBox={{ x: viewBox.x, y: viewBox.y }}

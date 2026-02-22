@@ -47,6 +47,7 @@ import { useVar } from "@/stores";
 import { cartesian2dDemo } from "./sections/cartesian2dDemo";
 import { cartesian3dDemo } from "./sections/cartesian3dDemo";
 import { nodeLinkDemo } from "./sections/nodeLinkDemo";
+import { circleAnatomyDemo } from "./sections/circleAnatomyDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function ReactiveHighlightDiagram() {
@@ -1048,6 +1049,11 @@ const exampleBlocks: ReactElement[] = [
     // CARTESIAN 2D DEMO
     // ========================================
     ...cartesian2dDemo,
+
+    // ========================================
+    // CIRCLE ANATOMY — LINKED HIGHLIGHT + CARTESIAN 2D
+    // ========================================
+    ...circleAnatomyDemo,
 
     // ========================================
     // CARTESIAN 3D DEMO
