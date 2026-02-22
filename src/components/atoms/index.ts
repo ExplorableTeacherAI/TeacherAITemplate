@@ -144,6 +144,18 @@ export type { FlowNode, FlowEdge, FlowDiagramProps } from "./visual/FlowDiagram"
 export { ExpandableFlowDiagram } from "./visual/ExpandableFlowDiagram";
 export type { TreeNode, TreeEdge, ExpandableFlowDiagramProps } from "./visual/ExpandableFlowDiagram";
 
+// Visual — Simulation Panel
+export { SimulationPanel } from "./visual/SimulationPanel";
+export type {
+    SimulationPanelProps,
+    SimulationControl,
+    SliderControl,
+    ToggleControl,
+    ButtonControl,
+    SelectControl,
+    ButtonGroupControl,
+} from "./visual/SimulationPanel";
+
 // Visual — D3 Node-Link Diagram (force-directed graph)
 export { NodeLinkDiagram } from "./visual/NodeLinkDiagram";
 export type { DiagramNode, DiagramLink, NodeLinkDiagramProps } from "./visual/NodeLinkDiagram";

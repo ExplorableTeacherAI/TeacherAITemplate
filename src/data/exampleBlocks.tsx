@@ -52,6 +52,7 @@ import { circleAnatomyDemo } from "./sections/circleAnatomyDemo";
 import { symmetryDrawingDemo } from "./sections/symmetryDrawingDemo";
 import { geometricDiagramDemo } from "./sections/geometricDiagramDemo";
 import { vennAndNumberLineDemo } from "./sections/vennAndNumberLineDemo";
+import { simulationDemoBlocks } from "./sections/simulationDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function ReactiveHighlightDiagram() {
@@ -452,12 +453,12 @@ const exampleBlocks: ReactElement[] = [
     </FullWidthLayout>,
 
     // ========================================
-    // MIXED CONTENT DEMO (Physics Example)
+    // MIXED CONTENT DEMO (Math Example)
     // ========================================
     <FullWidthLayout key="layout-heading-h2-04" maxWidth="xl">
         <Block id="block-heading-h2-04" padding="sm">
             <EditableH2 id="h2-physics-title" blockId="block-heading-h2-04">
-                Physics Example: Projectile Motion
+                Math Example: Sine Wave Parameters
             </EditableH2>
         </Block>
     </FullWidthLayout>,
@@ -465,18 +466,17 @@ const exampleBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-paragraph-07" maxWidth="xl">
         <Block id="block-paragraph-07" padding="sm">
             <EditableParagraph id="para-projectile-intro" blockId="block-paragraph-07">
-                Consider a projectile launched at an angle. The initial velocity is{" "}
+                Consider the wave equation y = A sin(ωx + φ). The amplitude is{" "}
                 <InlineScrubbleNumber
                     id="scrubble-velocity"
-                    varName="velocity"
-                    {...numberPropsFromDefinition(getExampleVariableInfo('velocity'))}
-                    formatValue={(v) => `${v} m/s`}
+                    varName="amplitude"
+                    {...numberPropsFromDefinition(getExampleVariableInfo('amplitude'))}
                 />
-                {" "}and the launch angle is{" "}
+                {" "}and the phase shift is{" "}
                 <InlineScrubbleNumber
                     id="scrubble-angle"
-                    varName="angle"
-                    {...numberPropsFromDefinition(getExampleVariableInfo('angle'))}
+                    varName="phase"
+                    {...numberPropsFromDefinition(getExampleVariableInfo('phase'))}
                     formatValue={(v) => `${v}°`}
                 />
                 .
@@ -495,14 +495,14 @@ const exampleBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-paragraph-08" maxWidth="xl">
         <Block id="block-paragraph-08" padding="sm">
             <EditableParagraph id="para-gravity-example" blockId="block-paragraph-08">
-                The gravitational acceleration is{" "}
+                The wave frequency is{" "}
                 <InlineScrubbleNumber
                     id="scrubble-acceleration"
-                    varName="acceleration"
-                    {...numberPropsFromDefinition(getExampleVariableInfo('acceleration'))}
-                    formatValue={(v) => `${v.toFixed(1)} m/s²`}
+                    varName="frequency"
+                    {...numberPropsFromDefinition(getExampleVariableInfo('frequency'))}
+                    formatValue={(v) => `${v.toFixed(1)} Hz`}
                 />
-                . You can adjust these values to see how they affect the trajectory.
+                . You can adjust these values to see how they reshape the waveform.
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,
@@ -1088,6 +1088,11 @@ const exampleBlocks: ReactElement[] = [
     // VENN + NUMBER LINE DEMOS
     // ========================================
     ...vennAndNumberLineDemo,
+
+    // ========================================
+    // SIMULATION PANEL DEMOS
+    // ========================================
+    ...simulationDemoBlocks,
 
 ];
 
