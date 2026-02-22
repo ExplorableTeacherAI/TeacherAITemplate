@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+import { type ReactElement, useState, useCallback, useEffect } from "react";
 import { FullWidthLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
@@ -10,9 +10,12 @@ import {
     InlineScrubbleNumber,
     InlineSpotColor,
 } from "@/components/atoms";
+import type { StaticPoint } from "@/components/atoms";
+import { Mafs, Coordinates, Plot, useMovablePoint } from "mafs";
 import { FormulaBlock } from "@/components/molecules";
-import { useVar } from "@/stores";
+import { useVar, useSetVar } from "@/stores";
 import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightPropsFromDefinition, spotColorPropsFromDefinition } from "../exampleVariables";
+
 
 // ── Demo 1: Static Function Plots ────────────────────────────────────────────
 
@@ -208,29 +211,154 @@ function ReactiveSineWaveViz() {
     );
 }
 
-// ── Sine Wave Legend ──────────────────────────────────────────────────────────
+// SineWaveLegend removed — colors are now shown inline via InlineSpotColor
 
-function SineWaveLegend() {
+// ── Demo 5: Scatter Plot with Trend Line ──────────────────────────────────────
+
+// Group A data — positive correlation (e.g. study hours vs score)
+const groupAPoints: [number, number][] = [
+    [1.0, 2.1], [1.5, 2.8], [2.0, 3.5], [2.3, 3.0], [2.8, 4.2],
+    [3.2, 4.0], [3.5, 4.8], [4.0, 5.1], [4.3, 5.6], [4.8, 5.9],
+    [5.2, 6.3], [5.5, 6.0], [6.0, 7.1], [6.5, 7.5], [7.0, 7.8],
+];
+
+// Group B data — same x range, systematically lower
+const groupBPoints: [number, number][] = [
+    [1.2, 1.0], [1.8, 1.5], [2.2, 1.8], [2.5, 2.3], [3.0, 2.5],
+    [3.3, 2.9], [3.8, 3.2], [4.2, 3.0], [4.5, 3.8], [5.0, 4.0],
+    [5.3, 4.3], [5.8, 4.6], [6.2, 4.9], [6.8, 5.2], [7.2, 5.5],
+];
+
+// Simple linear regression over combined data for the trend line
+function linReg(pts: [number, number][]): { m: number; b: number } {
+    const n = pts.length;
+    const sx = pts.reduce((s, p) => s + p[0], 0);
+    const sy = pts.reduce((s, p) => s + p[1], 0);
+    const sxy = pts.reduce((s, p) => s + p[0] * p[1], 0);
+    const sx2 = pts.reduce((s, p) => s + p[0] * p[0], 0);
+    const m = (n * sxy - sx * sy) / (n * sx2 - sx * sx);
+    const b = (sy - m * sx) / n;
+    return { m, b };
+}
+
+const { m: trendM, b: trendB } = linReg([...groupAPoints, ...groupBPoints]);
+
+/** A single draggable data point inside a Mafs canvas */
+function DraggableDataPoint({
+    initial,
+    color,
+    onMove,
+}: {
+    initial: [number, number];
+    color: string;
+    onMove: (pos: [number, number]) => void;
+}) {
+    const mp = useMovablePoint(initial, { color });
+
+    // Fire callback when point moves
+    const prev = useState(initial)[0];
+    if (mp.point[0] !== prev[0] || mp.point[1] !== prev[1]) {
+        prev[0] = mp.point[0];
+        prev[1] = mp.point[1];
+        onMove(mp.point as [number, number]);
+    }
+
+    return <>{mp.element}</>;
+}
+
+function ScatterPlotViz() {
+    // Mutable arrays that track current point positions
+    const [aPositions, setAPositions] = useState<[number, number][]>(() =>
+        groupAPoints.map((p) => [...p] as [number, number])
+    );
+    const [bPositions, setBPositions] = useState<[number, number][]>(() =>
+        groupBPoints.map((p) => [...p] as [number, number])
+    );
+
+    const handleMoveA = useCallback(
+        (idx: number, pos: [number, number]) => {
+            setAPositions((prev) => {
+                const next = [...prev];
+                next[idx] = pos;
+                return next;
+            });
+        },
+        []
+    );
+
+    const handleMoveB = useCallback(
+        (idx: number, pos: [number, number]) => {
+            setBPositions((prev) => {
+                const next = [...prev];
+                next[idx] = pos;
+                return next;
+            });
+        },
+        []
+    );
+
+    // Live linear regression from current positions
+    const all = [...aPositions, ...bPositions];
+    const { m, b } = linReg(all);
+
+    // Write slope & intercept to store so the equation text can read them
+    const setVar = useSetVar();
+    useEffect(() => {
+        setVar('scSlope', Math.round(m * 100) / 100);
+        setVar('scIntercept', Math.round(b * 100) / 100);
+    }, [m, b, setVar]);
+
     return (
-        <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#94a3b8" }} />
-                <span className="font-mono">sin(x)</span>
-                <span className="text-muted-foreground">(reference)</span>
-            </div>
-            <div className="flex items-center gap-2">
-                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#ef4444" }} />
-                <span className="font-mono">A·sin(x)</span>
-            </div>
-            <div className="flex items-center gap-2">
-                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#3b82f6" }} />
-                <span className="font-mono">sin(ωx)</span>
-            </div>
-            <div className="flex items-center gap-2">
-                <span className="inline-block w-4 h-1 rounded" style={{ backgroundColor: "#22c55e" }} />
-                <span className="font-mono">A·sin(ωx + φ)</span>
-                <span className="text-muted-foreground">(full wave)</span>
-            </div>
+        <div className="w-full overflow-hidden rounded-xl">
+            <Mafs
+                height={400}
+                viewBox={{ x: [0, 8], y: [0, 9] }}
+            >
+                <Coordinates.Cartesian subdivisions={1} />
+
+                {/* Trend line from live regression */}
+                <Plot.OfX
+                    y={(x) => m * x + b}
+                    color="#94a3b8"
+                    weight={2}
+                    domain={[0.5, 7.5]}
+                />
+
+                {/* Group A draggable points */}
+                {groupAPoints.map((p, i) => (
+                    <DraggableDataPoint
+                        key={`a-${i}`}
+                        initial={p}
+                        color="#6366f1"
+                        onMove={(pos) => handleMoveA(i, pos)}
+                    />
+                ))}
+
+                {/* Group B draggable points */}
+                {groupBPoints.map((p, i) => (
+                    <DraggableDataPoint
+                        key={`b-${i}`}
+                        initial={p}
+                        color="#f97316"
+                        onMove={(pos) => handleMoveB(i, pos)}
+                    />
+                ))}
+            </Mafs>
+        </div>
+    );
+}
+
+/** Reads slope & intercept from the store and renders the live equation */
+function LiveRegressionEquation() {
+    const slope = useVar('scSlope', Math.round(trendM * 100) / 100) as number;
+    const intercept = useVar('scIntercept', Math.round(trendB * 100) / 100) as number;
+    const sign = intercept >= 0 ? '+' : '−';
+    const absB = Math.abs(intercept).toFixed(2);
+    return (
+        <div className="text-center font-mono text-lg py-2">
+            <span style={{ color: '#94a3b8' }}>
+                y = {slope.toFixed(2)}x {sign} {absB}
+            </span>
         </div>
     );
 }
@@ -390,7 +518,31 @@ export const cartesian2dDemo: ReactElement[] = [
             <Block id="block-c2d-explorer-intro" padding="sm">
                 <EditableParagraph id="para-c2d-explorer-intro" blockId="block-c2d-explorer-intro">
                     The general sine wave y = A · sin(ωx + φ) has three parameters.
-                    Hover over a term or drag its slider to highlight the effect in the plot.
+                    The plot shows{" "}
+                    <InlineSpotColor varName="swReference"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('swReference'))}
+                    >
+                        sin(x)
+                    </InlineSpotColor>
+                    {" "}as a reference,{" "}
+                    <InlineSpotColor varName="swAmplitude"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('swAmplitude'))}
+                    >
+                        A·sin(x)
+                    </InlineSpotColor>
+                    {" "}for amplitude,{" "}
+                    <InlineSpotColor varName="swFrequency"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('swFrequency'))}
+                    >
+                        sin(ωx)
+                    </InlineSpotColor>
+                    {" "}for frequency, and{" "}
+                    <InlineSpotColor varName="swFullWave"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('swFullWave'))}
+                    >
+                        A·sin(ωx + φ)
+                    </InlineSpotColor>
+                    {" "}as the full wave. Hover over a term or drag its slider to highlight the effect.
                 </EditableParagraph>
             </Block>
             <Block id="block-c2d-explorer-params" padding="sm">
@@ -442,9 +594,7 @@ export const cartesian2dDemo: ReactElement[] = [
                     />.
                 </EditableParagraph>
             </Block>
-            <Block id="block-c2d-explorer-legend" padding="sm">
-                <SineWaveLegend />
-            </Block>
+
             <Block id="block-c2d-explorer-equation" padding="sm">
                 <FormulaBlock
                     latex="\clr{result}{y} = \scrub{sineAmplitude} \cdot \sin\!\left( \scrub{sineOmega}\, x + \scrub{sinePhase} \right)"
@@ -465,6 +615,52 @@ export const cartesian2dDemo: ReactElement[] = [
         </div>
         <Block id="block-c2d-explorer-viz" padding="sm">
             <ReactiveSineWaveViz />
+        </Block>
+    </SplitLayout>,
+
+    // ── Demo 5: Scatter Plot ──────────────────────────────────────────────────
+    <FullWidthLayout key="layout-c2d-scatter-title" maxWidth="xl">
+        <Block id="block-c2d-scatter-title" padding="sm">
+            <EditableH2 id="h2-c2d-scatter" blockId="block-c2d-scatter-title">
+                Scatter Plot
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c2d-scatter-split" ratio="1:1" gap="lg">
+        <div className="space-y-4">
+            <Block id="block-c2d-scatter-desc" padding="sm">
+                <EditableParagraph id="para-c2d-scatter-desc" blockId="block-c2d-scatter-desc">
+                    A scatter plot built from individual point items. Two
+                    groups are shown:{" "}
+                    <InlineSpotColor varName="scGroupA"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('scGroupA'))}
+                    >
+                        Group A
+                    </InlineSpotColor>
+                    {" "}(higher scores) and{" "}
+                    <InlineSpotColor varName="scGroupB"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('scGroupB'))}
+                    >
+                        Group B
+                    </InlineSpotColor>
+                    {" "}(lower scores), with a{" "}
+                    <InlineSpotColor varName="scTrend"
+                        {...spotColorPropsFromDefinition(getExampleVariableInfo('scTrend'))}
+                    >
+                        trend line
+                    </InlineSpotColor>
+                    {" "}fitted by linear regression across both groups.
+                    Drag any data point to reposition it — the trend line
+                    recalculates in real time.
+                </EditableParagraph>
+            </Block>
+            <Block id="block-c2d-scatter-equation" padding="sm">
+                <LiveRegressionEquation />
+            </Block>
+        </div>
+        <Block id="block-c2d-scatter-viz" padding="sm">
+            <ScatterPlotViz />
         </Block>
     </SplitLayout>,
 ];

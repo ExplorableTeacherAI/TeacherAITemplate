@@ -154,6 +154,55 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         description: 'Color for the epitrochoid curve in the parametric curves demo',
         color: '#f97316',
     },
+    swReference: {
+        defaultValue: 'reference',
+        type: 'spotColor',
+        label: 'sin(x) reference',
+        description: 'Color for the reference sin(x) curve in the sine wave explorer',
+        color: '#94a3b8',
+    },
+    swAmplitude: {
+        defaultValue: 'amplitude',
+        type: 'spotColor',
+        label: 'A·sin(x)',
+        description: 'Color for the amplitude-only curve in the sine wave explorer',
+        color: '#ef4444',
+    },
+    swFrequency: {
+        defaultValue: 'frequency',
+        type: 'spotColor',
+        label: 'sin(ωx)',
+        description: 'Color for the frequency-only curve in the sine wave explorer',
+        color: '#3b82f6',
+    },
+    swFullWave: {
+        defaultValue: 'fullWave',
+        type: 'spotColor',
+        label: 'A·sin(ωx + φ)',
+        description: 'Color for the full wave curve in the sine wave explorer',
+        color: '#22c55e',
+    },
+    scGroupA: {
+        defaultValue: 'groupA',
+        type: 'spotColor',
+        label: 'Group A',
+        description: 'Color for group A data points in the scatter plot demo',
+        color: '#6366f1',
+    },
+    scGroupB: {
+        defaultValue: 'groupB',
+        type: 'spotColor',
+        label: 'Group B',
+        description: 'Color for group B data points in the scatter plot demo',
+        color: '#f97316',
+    },
+    scTrend: {
+        defaultValue: 'trend',
+        type: 'spotColor',
+        label: 'Trend Line',
+        description: 'Color for the trend line in the scatter plot demo',
+        color: '#94a3b8',
+    },
 
     // ─────────────────────────────────────────
     // NUMBER - Mafs Interactive Demo
