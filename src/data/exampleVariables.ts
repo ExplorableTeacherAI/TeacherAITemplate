@@ -670,6 +670,96 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         color: '#F59E0B',
     },
 
+    // ─────────────────────────────────────────
+    // NUMBER — Cartesian 3D Torus demo
+    // ─────────────────────────────────────────
+    torusMajorR: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Major Radius',
+        description: 'Distance from the centre of the tube to the centre of the torus',
+        min: 0.5,
+        max: 4,
+        step: 0.1,
+        color: '#EC4899',
+    },
+    torusMinorR: {
+        defaultValue: 0.7,
+        type: 'number',
+        label: 'Minor Radius',
+        description: 'Radius of the tube itself',
+        min: 0.1,
+        max: 2,
+        step: 0.05,
+        color: '#14B8A6',
+    },
+
+    // ─────────────────────────────────────────
+    // NUMBER — Cartesian 3D Lissajous demo
+    // ─────────────────────────────────────────
+    lissFreqA: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Freq A (x)',
+        description: 'Frequency ratio in the X direction for the 3D Lissajous curve',
+        min: 1,
+        max: 7,
+        step: 1,
+        color: '#EF4444',
+    },
+    lissFreqB: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Freq B (y)',
+        description: 'Frequency ratio in the Y direction for the 3D Lissajous curve',
+        min: 1,
+        max: 7,
+        step: 1,
+        color: '#3B82F6',
+    },
+    lissFreqC: {
+        defaultValue: 5,
+        type: 'number',
+        label: 'Freq C (z)',
+        description: 'Frequency ratio in the Z direction for the 3D Lissajous curve',
+        min: 1,
+        max: 7,
+        step: 1,
+        color: '#22C55E',
+    },
+
+    // ─────────────────────────────────────────
+    // SPOT COLOR — Cartesian 3D extra demos
+    // ─────────────────────────────────────────
+    c3dTorus: {
+        defaultValue: 'torus',
+        type: 'spotColor',
+        label: 'Torus',
+        description: 'Color for the 3D torus surface',
+        color: '#8B5CF6',
+    },
+    c3dLissajous: {
+        defaultValue: 'lissajous',
+        type: 'spotColor',
+        label: 'Lissajous',
+        description: 'Color for the 3D Lissajous curve',
+        color: '#F59E0B',
+    },
+    c3dDragPoint: {
+        defaultValue: 'dragPoint',
+        type: 'spotColor',
+        label: 'Drag Point',
+        description: 'Color for the draggable point handle',
+        color: '#F59E0B',
+    },
+    c3dProjection: {
+        defaultValue: 'projection',
+        type: 'spotColor',
+        label: 'Projection',
+        description: 'Color for axis projections',
+        color: '#94A3B8',
+    },
+
     mafsHighlight: {
         defaultValue: '',
         type: 'linkedHighlight',
@@ -721,6 +811,37 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         label: 'Formula Highlight Group',
         description: 'Active highlight for the formula highlight demo',
         color: '#3b82f6',
+    },
+
+    // ── Node-Link Diagram Demo ────────────────────────────────────────────
+    nlCharge: {
+        defaultValue: -300,
+        type: 'number',
+        label: 'Charge Strength',
+        description: 'Force charge strength — negative values repel nodes',
+        unit: '',
+        min: -800,
+        max: -50,
+        step: 10,
+        color: '#6366F1',
+    },
+    nlDistance: {
+        defaultValue: 100,
+        type: 'number',
+        label: 'Link Distance',
+        description: 'Preferred link distance in pixels',
+        unit: 'px',
+        min: 30,
+        max: 250,
+        step: 5,
+        color: '#EC4899',
+    },
+    nlHighlight: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Node-Link Highlight',
+        description: 'Active highlight ID for the node-link diagram',
+        color: '#6366F1',
     },
 };
 

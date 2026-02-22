@@ -129,3 +129,7 @@ export { FlowDiagram } from "./visual/FlowDiagram";
 export type { FlowNode, FlowEdge, FlowDiagramProps } from "./visual/FlowDiagram";
 export { ExpandableFlowDiagram } from "./visual/ExpandableFlowDiagram";
 export type { TreeNode, TreeEdge, ExpandableFlowDiagramProps } from "./visual/ExpandableFlowDiagram";
+
+// Visual — D3 Node-Link Diagram (force-directed graph)
+export { NodeLinkDiagram } from "./visual/NodeLinkDiagram";
+export type { DiagramNode, DiagramLink, NodeLinkDiagramProps } from "./visual/NodeLinkDiagram";

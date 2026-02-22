@@ -230,6 +230,240 @@ function SphereAndPlaneViz() {
     );
 }
 
+// ── Demo 5: Parametric Surface — Torus ───────────────────────────────────────
+
+function ReactiveTorusViz() {
+    const majorR = useVar("torusMajorR", 2) as number;
+    const minorR = useVar("torusMinorR", 0.7) as number;
+
+    return (
+        <Cartesian3D
+            height={420}
+            axisLength={4}
+            cameraPosition={[6, 5, 6]}
+            autoRotate
+            autoRotateSpeed={0.6}
+            plots={[
+                {
+                    type: "parametric-surface" as const,
+                    fn: (u: number, v: number): [number, number, number] => [
+                        (majorR + minorR * Math.cos(v)) * Math.cos(u),
+                        minorR * Math.sin(v),
+                        (majorR + minorR * Math.cos(v)) * Math.sin(u),
+                    ],
+                    uRange: [0, 2 * Math.PI] as [number, number],
+                    vRange: [0, 2 * Math.PI] as [number, number],
+                    resolution: 40,
+                    color: "#8B5CF6",
+                    opacity: 0.75,
+                },
+                // Wireframe overlay
+                {
+                    type: "parametric-surface" as const,
+                    fn: (u: number, v: number): [number, number, number] => [
+                        (majorR + minorR * Math.cos(v)) * Math.cos(u),
+                        minorR * Math.sin(v),
+                        (majorR + minorR * Math.cos(v)) * Math.sin(u),
+                    ],
+                    uRange: [0, 2 * Math.PI] as [number, number],
+                    vRange: [0, 2 * Math.PI] as [number, number],
+                    resolution: 20,
+                    color: "#C4B5FD",
+                    opacity: 0.3,
+                    wireframe: true,
+                },
+                // Circle showing the major radius on the XZ plane
+                {
+                    type: "parametric",
+                    xyz: (t: number): [number, number, number] => [
+                        majorR * Math.cos(t),
+                        0,
+                        majorR * Math.sin(t),
+                    ],
+                    tRange: [0, 2 * Math.PI] as [number, number],
+                    samples: 80,
+                    color: "#EC4899",
+                    lineWidth: 2,
+                },
+                // Point marking the major-radius circle
+                {
+                    type: "point",
+                    position: [majorR, 0, 0] as [number, number, number],
+                    color: "#EC4899",
+                    size: 0.1,
+                },
+                // Vector showing major radius
+                {
+                    type: "vector",
+                    tip: [majorR, 0, 0] as [number, number, number],
+                    color: "#EC4899",
+                },
+            ]}
+        />
+    );
+}
+
+// ── Demo 6: 3D Draggable Point Explorer ──────────────────────────────────────
+
+function DraggablePointExplorer() {
+    return (
+        <Cartesian3D
+            height={420}
+            axisLength={4}
+            cameraPosition={[7, 5, 7]}
+            draggablePoints={[
+                {
+                    initial: [2, 1, 2],
+                    color: "#F59E0B",
+                    size: 0.18,
+                    constrain: "xy" as const,
+                },
+            ]}
+            dynamicPlots={(points) => {
+                const [px, py, pz] = points[0];
+                const dist = Math.sqrt(px * px + py * py + pz * pz);
+                return [
+                    // Vector from origin to point
+                    {
+                        type: "vector" as const,
+                        tip: [px, py, pz] as [number, number, number],
+                        color: "#F59E0B",
+                    },
+                    // X projection
+                    {
+                        type: "segment" as const,
+                        point1: [px, 0, 0] as [number, number, number],
+                        point2: [px, py, pz] as [number, number, number],
+                        color: "#EF4444",
+                        dashed: true,
+                        lineWidth: 1,
+                    },
+                    {
+                        type: "point" as const,
+                        position: [px, 0, 0] as [number, number, number],
+                        color: "#EF4444",
+                        size: 0.08,
+                    },
+                    // Y projection
+                    {
+                        type: "segment" as const,
+                        point1: [0, py, 0] as [number, number, number],
+                        point2: [px, py, pz] as [number, number, number],
+                        color: "#22C55E",
+                        dashed: true,
+                        lineWidth: 1,
+                    },
+                    {
+                        type: "point" as const,
+                        position: [0, py, 0] as [number, number, number],
+                        color: "#22C55E",
+                        size: 0.08,
+                    },
+                    // Z projection
+                    {
+                        type: "segment" as const,
+                        point1: [0, 0, pz] as [number, number, number],
+                        point2: [px, py, pz] as [number, number, number],
+                        color: "#3B82F6",
+                        dashed: true,
+                        lineWidth: 1,
+                    },
+                    {
+                        type: "point" as const,
+                        position: [0, 0, pz] as [number, number, number],
+                        color: "#3B82F6",
+                        size: 0.08,
+                    },
+                    // Shadow on XZ plane (y = 0)
+                    {
+                        type: "segment" as const,
+                        point1: [px, 0, pz] as [number, number, number],
+                        point2: [px, py, pz] as [number, number, number],
+                        color: "#94A3B8",
+                        dashed: true,
+                        lineWidth: 1,
+                    },
+                    {
+                        type: "point" as const,
+                        position: [px, 0, pz] as [number, number, number],
+                        color: "#94A3B8",
+                        size: 0.08,
+                    },
+                    // Distance sphere (wireframe, semi-transparent)
+                    {
+                        type: "sphere" as const,
+                        center: [0, 0, 0] as [number, number, number],
+                        radius: dist,
+                        color: "#F59E0B",
+                        opacity: 0.06,
+                        wireframe: true,
+                    },
+                ];
+            }}
+            plots={[]}
+        />
+    );
+}
+
+// ── Demo 7: 3D Lissajous Curve ───────────────────────────────────────────────
+
+function ReactiveLissajousViz() {
+    const freqA = useVar("lissFreqA", 2) as number;
+    const freqB = useVar("lissFreqB", 3) as number;
+    const freqC = useVar("lissFreqC", 5) as number;
+
+    return (
+        <Cartesian3D
+            height={420}
+            axisLength={3}
+            cameraPosition={[5, 4, 5]}
+            autoRotate
+            autoRotateSpeed={0.4}
+            plots={[
+                // Main Lissajous curve
+                {
+                    type: "parametric",
+                    xyz: (t: number): [number, number, number] => [
+                        2 * Math.sin(freqA * t),
+                        2 * Math.sin(freqB * t + Math.PI / 4),
+                        2 * Math.sin(freqC * t),
+                    ],
+                    tRange: [0, 2 * Math.PI] as [number, number],
+                    samples: 500,
+                    color: "#F59E0B",
+                    lineWidth: 3,
+                },
+                // XY shadow (z = 0 floor)
+                {
+                    type: "parametric",
+                    xyz: (t: number): [number, number, number] => [
+                        2 * Math.sin(freqA * t),
+                        2 * Math.sin(freqB * t + Math.PI / 4),
+                        0,
+                    ],
+                    tRange: [0, 2 * Math.PI] as [number, number],
+                    samples: 300,
+                    color: "#FDE68A",
+                    lineWidth: 1,
+                },
+                // XZ shadow (y = 0 floor)
+                {
+                    type: "parametric",
+                    xyz: (t: number): [number, number, number] => [
+                        2 * Math.sin(freqA * t),
+                        0,
+                        2 * Math.sin(freqC * t),
+                    ],
+                    tRange: [0, 2 * Math.PI] as [number, number],
+                    samples: 300,
+                    color: "#FBBF24",
+                    lineWidth: 1,
+                },
+            ]}
+        />
+    );
+}
+
 // ── Exported demo blocks ──────────────────────────────────────────────────────
 
 export const cartesian3dDemo: ReactElement[] = [
@@ -525,6 +759,259 @@ export const cartesian3dDemo: ReactElement[] = [
         </Block>
         <Block id="block-c3d-sphere-viz" padding="sm">
             <SphereAndPlaneViz />
+        </Block>
+    </SplitLayout>,
+
+    // ── Demo 5: Parametric Surface — Torus ───────────────────────────────────
+    <FullWidthLayout key="layout-c3d-torus-title" maxWidth="xl">
+        <Block id="block-c3d-torus-title" padding="sm">
+            <EditableH2 id="h2-c3d-torus" blockId="block-c3d-torus-title">
+                Parametric Surface — Torus
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c3d-torus-split" ratio="1:1" gap="lg">
+        <div className="space-y-4">
+            <Block id="block-c3d-torus-desc" padding="sm">
+                <EditableParagraph
+                    id="para-c3d-torus-desc"
+                    blockId="block-c3d-torus-desc"
+                >
+                    A torus is generated by revolving a circle (the tube) around
+                    an axis. The{" "}
+                    <InlineSpotColor
+                        varName="c3dTorus"
+                        {...spotColorPropsFromDefinition(
+                            getExampleVariableInfo("c3dTorus")
+                        )}
+                    >
+                        violet surface
+                    </InlineSpotColor>{" "}
+                    is defined by two parameters: the major radius R ={" "}
+                    <InlineScrubbleNumber
+                        varName="torusMajorR"
+                        {...numberPropsFromDefinition(
+                            getExampleVariableInfo("torusMajorR")
+                        )}
+                        formatValue={(v) => v.toFixed(1)}
+                    />{" "}
+                    (distance from the axis to the tube centre, shown in{" "}
+                    <InlineSpotColor
+                        varName="c3dVecA"
+                        {...spotColorPropsFromDefinition(
+                            getExampleVariableInfo("c3dVecA")
+                        )}
+                    >
+                        pink
+                    </InlineSpotColor>
+                    ) and the minor radius r ={" "}
+                    <InlineScrubbleNumber
+                        varName="torusMinorR"
+                        {...numberPropsFromDefinition(
+                            getExampleVariableInfo("torusMinorR")
+                        )}
+                        formatValue={(v) => v.toFixed(2)}
+                    />{" "}
+                    (the tube thickness).
+                </EditableParagraph>
+            </Block>
+            <Block id="block-c3d-torus-eq" padding="sm">
+                <FormulaBlock
+                    latex="\vec{r}(u,v) = \begin{pmatrix} (\clr{R}{R} + \clr{r}{r}\cos v)\cos u \\[4pt] \clr{r}{r}\sin v \\[4pt] (\clr{R}{R} + \clr{r}{r}\cos v)\sin u \end{pmatrix}"
+                    colorMap={{
+                        R: "#EC4899",
+                        r: "#14B8A6",
+                    }}
+                />
+            </Block>
+            <Block id="block-c3d-torus-triggers" padding="sm">
+                <EditableParagraph
+                    id="para-c3d-torus-triggers"
+                    blockId="block-c3d-torus-triggers"
+                >
+                    Try a{" "}
+                    <InlineTrigger varName="torusMinorR" value={1.8} icon="zap">
+                        fat torus
+                    </InlineTrigger>{" "}
+                    or a{" "}
+                    <InlineTrigger varName="torusMinorR" value={0.15}>
+                        thin ring
+                    </InlineTrigger>
+                    . You can also{" "}
+                    <InlineTrigger varName="torusMajorR" value={1} icon="refresh">
+                        shrink R to 1
+                    </InlineTrigger>{" "}
+                    to make the hole disappear.
+                </EditableParagraph>
+            </Block>
+        </div>
+        <Block id="block-c3d-torus-viz" padding="sm">
+            <ReactiveTorusViz />
+        </Block>
+    </SplitLayout>,
+
+    // ── Demo 6: 3D Draggable Point Explorer ──────────────────────────────────
+    <FullWidthLayout key="layout-c3d-drag-title" maxWidth="xl">
+        <Block id="block-c3d-drag-title" padding="sm">
+            <EditableH2 id="h2-c3d-drag" blockId="block-c3d-drag-title">
+                Draggable Point Explorer
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c3d-drag-split" ratio="1:1" gap="lg">
+        <Block id="block-c3d-drag-desc" padding="sm">
+            <EditableParagraph
+                id="para-c3d-drag-desc"
+                blockId="block-c3d-drag-desc"
+            >
+                Drag the{" "}
+                <InlineSpotColor
+                    varName="c3dDragPoint"
+                    {...spotColorPropsFromDefinition(
+                        getExampleVariableInfo("c3dDragPoint")
+                    )}
+                >
+                    amber point
+                </InlineSpotColor>{" "}
+                in 3D space to see its coordinate projections update in real
+                time. Dashed lines drop to the{" "}
+                <InlineSpotColor
+                    varName="c3dVecA"
+                    {...spotColorPropsFromDefinition(
+                        getExampleVariableInfo("c3dVecA")
+                    )}
+                >
+                    x-axis
+                </InlineSpotColor>
+                ,{" "}
+                <InlineSpotColor
+                    varName="c3dVecCross"
+                    {...spotColorPropsFromDefinition(
+                        getExampleVariableInfo("c3dVecCross")
+                    )}
+                >
+                    y-axis
+                </InlineSpotColor>
+                , and{" "}
+                <InlineSpotColor
+                    varName="c3dVecB"
+                    {...spotColorPropsFromDefinition(
+                        getExampleVariableInfo("c3dVecB")
+                    )}
+                >
+                    z-axis
+                </InlineSpotColor>
+                , while a wireframe sphere shows the distance from the origin.
+                The{" "}
+                <InlineSpotColor
+                    varName="c3dProjection"
+                    {...spotColorPropsFromDefinition(
+                        getExampleVariableInfo("c3dProjection")
+                    )}
+                >
+                    grey projection
+                </InlineSpotColor>{" "}
+                dots on the floor plane. This is the 3D analogue of the 2D
+                unit-circle explorer.
+            </EditableParagraph>
+        </Block>
+        <Block id="block-c3d-drag-viz" padding="sm">
+            <DraggablePointExplorer />
+        </Block>
+    </SplitLayout>,
+
+    // ── Demo 7: 3D Lissajous Curve ───────────────────────────────────────────
+    <FullWidthLayout key="layout-c3d-lissajous-title" maxWidth="xl">
+        <Block id="block-c3d-lissajous-title" padding="sm">
+            <EditableH2 id="h2-c3d-lissajous" blockId="block-c3d-lissajous-title">
+                3D Lissajous Curve
+            </EditableH2>
+        </Block>
+    </FullWidthLayout>,
+
+    <SplitLayout key="layout-c3d-lissajous-split" ratio="1:1" gap="lg">
+        <div className="space-y-4">
+            <Block id="block-c3d-lissajous-desc" padding="sm">
+                <EditableParagraph
+                    id="para-c3d-lissajous-desc"
+                    blockId="block-c3d-lissajous-desc"
+                >
+                    A 3D Lissajous curve extends the classic 2D figure into
+                    three dimensions. Three integer frequencies control the
+                    knot pattern — a ={" "}
+                    <InlineScrubbleNumber
+                        varName="lissFreqA"
+                        {...numberPropsFromDefinition(
+                            getExampleVariableInfo("lissFreqA")
+                        )}
+                    />{" "}
+                    for x, b ={" "}
+                    <InlineScrubbleNumber
+                        varName="lissFreqB"
+                        {...numberPropsFromDefinition(
+                            getExampleVariableInfo("lissFreqB")
+                        )}
+                    />{" "}
+                    for y, and c ={" "}
+                    <InlineScrubbleNumber
+                        varName="lissFreqC"
+                        {...numberPropsFromDefinition(
+                            getExampleVariableInfo("lissFreqC")
+                        )}
+                    />{" "}
+                    for z. The{" "}
+                    <InlineSpotColor
+                        varName="c3dLissajous"
+                        {...spotColorPropsFromDefinition(
+                            getExampleVariableInfo("c3dLissajous")
+                        )}
+                    >
+                        gold curve
+                    </InlineSpotColor>{" "}
+                    traces the figure, with faint shadow projections on the
+                    floor and back planes.
+                </EditableParagraph>
+            </Block>
+            <Block id="block-c3d-lissajous-eq" padding="sm">
+                <FormulaBlock
+                    latex="\vec{r}(t) = \begin{pmatrix} \sin(\clr{a}{a}\,t) \\[3pt] \sin(\clr{b}{b}\,t + \tfrac{\pi}{4}) \\[3pt] \sin(\clr{c}{c}\,t) \end{pmatrix}"
+                    colorMap={{
+                        a: "#EF4444",
+                        b: "#3B82F6",
+                        c: "#22C55E",
+                    }}
+                />
+            </Block>
+            <Block id="block-c3d-lissajous-triggers" padding="sm">
+                <EditableParagraph
+                    id="para-c3d-lissajous-triggers"
+                    blockId="block-c3d-lissajous-triggers"
+                >
+                    Try{" "}
+                    <InlineTrigger varName="lissFreqA" value={3}>
+                        a = 3
+                    </InlineTrigger>{" "}
+                    for a trefoil-like path, or set all equal with{" "}
+                    <InlineTrigger varName="lissFreqA" value={1}>
+                        a = 1
+                    </InlineTrigger>
+                    ,{" "}
+                    <InlineTrigger varName="lissFreqB" value={1}>
+                        b = 1
+                    </InlineTrigger>
+                    ,{" "}
+                    <InlineTrigger varName="lissFreqC" value={1}>
+                        c = 1
+                    </InlineTrigger>{" "}
+                    to collapse into a tilted ellipse. Higher ratios produce
+                    more intricate knots.
+                </EditableParagraph>
+            </Block>
+        </div>
+        <Block id="block-c3d-lissajous-viz" padding="sm">
+            <ReactiveLissajousViz />
         </Block>
     </SplitLayout>,
 ];
