@@ -13,17 +13,17 @@ A flexible, composable layout system for organizing educational content sections
 
 ## Available Layouts
 
-### 1. FullWidthLayout
+### 1. StackLayout
 
 Default layout that takes full container width with optional max-width constraints.
 
 ```tsx
-<FullWidthLayout maxWidth="xl">
+<StackLayout maxWidth="xl">
     <Section id="intro">
         <h1>Introduction</h1>
         <p>Content goes here...</p>
     </Section>
-</FullWidthLayout>
+</StackLayout>
 ```
 
 **Props:**
@@ -169,17 +169,17 @@ An `IntersectionObserver` watches each `<ScrollStep>`. When a step crosses the m
 ### Basic Page Structure
 
 ```tsx
-import { FullWidthLayout, SplitLayout } from '@/components/layouts';
+import { StackLayout, SplitLayout } from '@/components/layouts';
 import { Section } from '@/components/templates';
 
 export const sections = [
     // Intro
-    <FullWidthLayout maxWidth="xl">
+    <StackLayout maxWidth="xl">
         <Section id="intro">
             <h1>Chapter 1: Introduction</h1>
             <p>Welcome to the lesson...</p>
         </Section>
-    </FullWidthLayout>,
+    </StackLayout>,
     
     // Concept with visualization
     <SplitLayout ratio="1:1" gap="lg">
@@ -201,9 +201,9 @@ You can combine different layout types on the same page:
 ```tsx
 export const sections = [
     // Full-width intro
-    <FullWidthLayout maxWidth="xl">
+    <StackLayout maxWidth="xl">
         <Section id="intro">...</Section>
-    </FullWidthLayout>,
+    </StackLayout>,
     
     // Split layout for concept + visualization
     <SplitLayout ratio="60:40">
@@ -229,7 +229,7 @@ All layouts are responsive by default:
 
 | Layout | Desktop | Tablet | Mobile |
 |--------|---------|--------|--------|
-| **FullWidthLayout** | Max-width constrained | Max-width constrained | Full width |
+| **StackLayout** | Max-width constrained | Max-width constrained | Full width |
 | **SplitLayout** | Two columns | Two columns | Single column (stacked) |
 | **GridLayout** | N columns | Auto-reduced | 1-2 columns |
 | **ScrollytellingLayout** | Text + sticky visual | Text + sticky visual | Single column (stacked) |
@@ -240,7 +240,7 @@ All layouts are responsive by default:
 
 ### 1. Choose the Right Layout
 
-- **FullWidthLayout**: Default choice for most content
+- **StackLayout**: Default choice for most content
 - **SplitLayout**: When pairing related content (theory + practice)
 - **GridLayout**: When showcasing multiple similar items
 - **ScrollytellingLayout**: When walking through narrative steps with a reactive visualization

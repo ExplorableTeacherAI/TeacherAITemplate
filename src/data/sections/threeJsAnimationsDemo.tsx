@@ -1,10 +1,10 @@
 import { ThreeCanvas, RotatingCube, PulsingSphere, GeometricCollection, AtomicStructure, ThreeCoordinateSystem } from "@/components/atoms";
-import { FullWidthLayout, GridLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, GridLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 
 export const threeJsAnimationsDemo = [
     // Header
-    <FullWidthLayout key="threejs-header" maxWidth="xl">
+    <StackLayout key="threejs-header" maxWidth="xl">
         <Block id="threejs-header">
             <div className="prose dark:prose-invert max-w-none">
                 <h1 className="text-4xl font-bold text-foreground">
@@ -15,14 +15,14 @@ export const threeJsAnimationsDemo = [
                 </p>
             </div>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // Basic Geometries Section
-    <FullWidthLayout key="basic-geo-header" maxWidth="xl">
+    <StackLayout key="basic-geo-header" maxWidth="xl">
         <Block id="basic-geo-header">
             <h2 className="text-2xl font-semibold">Basic Geometries</h2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <GridLayout key="basic-geo-grid" columns={2} gap="lg">
         <Block id="geo-cube">
@@ -50,11 +50,11 @@ export const threeJsAnimationsDemo = [
     </GridLayout>,
 
     // 3D Coordinate System Section
-    <FullWidthLayout key="3d-coord-header" maxWidth="xl">
+    <StackLayout key="3d-coord-header" maxWidth="xl">
         <Block id="3d-coord-header">
             <h2 className="text-2xl font-semibold">3D Coordinate System</h2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <GridLayout key="3d-coord-grid" columns={2} gap="lg">
         <Block id="coord-basic">
@@ -82,11 +82,11 @@ export const threeJsAnimationsDemo = [
     </GridLayout>,
 
     // Complex Scenes Section
-    <FullWidthLayout key="complex-scenes-header" maxWidth="xl">
+    <StackLayout key="complex-scenes-header" maxWidth="xl">
         <Block id="complex-scenes-header">
             <h2 className="text-2xl font-semibold">Complex Scenes</h2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="complex-scenes-split" ratio="1:1" gap="lg">
         <Block id="scene-atomic">

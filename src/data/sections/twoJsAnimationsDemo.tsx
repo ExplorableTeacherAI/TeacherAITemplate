@@ -1,10 +1,10 @@
-import { FullWidthLayout, GridLayout } from "@/components/layouts";
+import { StackLayout, GridLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import { AnimatedGraph, CoordinateSystem } from "@/components/atoms";
 
 export const twoJsAnimationsDemo = [
     // Header
-    <FullWidthLayout key="twojs-header" maxWidth="xl">
+    <StackLayout key="twojs-header" maxWidth="xl">
         <Block id="twojs-header">
             <div className="prose dark:prose-invert max-w-none">
                 <h1 className="text-4xl font-bold text-foreground">
@@ -15,17 +15,17 @@ export const twoJsAnimationsDemo = [
                 </p>
             </div>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // Coordinate System Section
-    <FullWidthLayout key="coord-system-header" maxWidth="xl">
+    <StackLayout key="coord-system-header" maxWidth="xl">
         <Block id="coord-system-header">
             <h2 className="text-2xl font-semibold">Coordinate System</h2>
             <p className="text-muted-foreground">
                 A fundamental mathematical visualization showing a 2D coordinate plane with axes, arrows, and an optional grid.
             </p>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <GridLayout key="coord-system-grid" columns={2} gap="lg">
         <Block id="coord-standard">
@@ -96,14 +96,14 @@ export const twoJsAnimationsDemo = [
     </GridLayout>,
 
     // Animated Graphs Section
-    <FullWidthLayout key="math-viz-header" maxWidth="xl">
+    <StackLayout key="math-viz-header" maxWidth="xl">
         <Block id="math-viz-header">
             <h2 className="text-2xl font-semibold">Mathematical Visualizations</h2>
             <p className="text-muted-foreground">
                 Explore fundamental mathematical concepts through dynamic animations. Each visualization helps students understand abstract concepts visually.
             </p>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <GridLayout key="math-viz-grid" columns={2} gap="lg">
         <Block id="viz-sine">

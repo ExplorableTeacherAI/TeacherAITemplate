@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 
-export interface FullWidthLayoutProps {
+export interface StackLayoutProps {
     /** Children content to render */
     children: ReactNode;
     /** Optional className for custom styling */
@@ -10,14 +10,14 @@ export interface FullWidthLayoutProps {
 }
 
 /**
- * FullWidthLayout - Default layout that takes full container width.
+ * StackLayout - Default layout that takes full container width.
  * Content is centered with optional max-width constraints.
  */
-export const FullWidthLayout = ({
+export const StackLayout = ({
     children,
     className = "",
     maxWidth = "full"
-}: FullWidthLayoutProps) => {
+}: StackLayoutProps) => {
     const maxWidthClasses = {
         none: "",
         md: "max-w-2xl",

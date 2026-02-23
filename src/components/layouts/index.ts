@@ -5,8 +5,8 @@
  * Layouts wrap sections and control their arrangement on the page.
  */
 
-export { FullWidthLayout } from "./FullWidthLayout";
-export type { FullWidthLayoutProps } from "./FullWidthLayout";
+export { StackLayout } from "./StackLayout";
+export type { StackLayoutProps } from "./StackLayout";
 
 export { SplitLayout } from "./SplitLayout";
 export type { SplitLayoutProps } from "./SplitLayout";

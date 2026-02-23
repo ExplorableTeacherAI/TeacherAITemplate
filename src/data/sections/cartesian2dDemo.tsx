@@ -1,5 +1,5 @@
 import { type ReactElement, useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian2D,
@@ -496,15 +496,15 @@ function LineDrawingViz() {
 
 export const cartesian2dDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
-    <FullWidthLayout key="layout-c2d-header-title" maxWidth="xl">
+    <StackLayout key="layout-c2d-header-title" maxWidth="xl">
         <Block id="block-c2d-header-title" padding="sm">
             <EditableH1 id="h1-c2d-title" blockId="block-c2d-header-title">
                 2D Cartesian Visualizations
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-c2d-header-desc" maxWidth="xl">
+    <StackLayout key="layout-c2d-header-desc" maxWidth="xl">
         <Block id="block-c2d-header-desc" padding="sm">
             <EditableParagraph id="para-c2d-desc" blockId="block-c2d-header-desc">
                 Interactive 2D math plots powered by Cartesian2D — supporting
@@ -512,16 +512,16 @@ export const cartesian2dDemo: ReactElement[] = [
                 geometry, and linked highlights.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ── Demo 1: Basic Function Plots ─────────────────────────────────────────
-    <FullWidthLayout key="layout-c2d-basic-title" maxWidth="xl">
+    <StackLayout key="layout-c2d-basic-title" maxWidth="xl">
         <Block id="block-c2d-basic-title" padding="sm">
             <EditableH2 id="h2-c2d-basic" blockId="block-c2d-basic-title">
                 Function Plots
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c2d-basic-split" ratio="1:1" gap="lg">
         <Block id="block-c2d-basic-desc" padding="sm">
@@ -555,13 +555,13 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 2: Unit Circle Explorer ─────────────────────────────────────────
-    <FullWidthLayout key="layout-c2d-unit-title" maxWidth="xl">
+    <StackLayout key="layout-c2d-unit-title" maxWidth="xl">
         <Block id="block-c2d-unit-title" padding="sm">
             <EditableH2 id="h2-c2d-unit" blockId="block-c2d-unit-title">
                 Unit Circle Explorer
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c2d-unit-split" ratio="1:1" gap="lg">
         <Block id="block-c2d-unit-desc" padding="sm">
@@ -593,13 +593,13 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 3: Parametric Curves ─────────────────────────────────────────────
-    <FullWidthLayout key="layout-c2d-parametric-title" maxWidth="xl">
+    <StackLayout key="layout-c2d-parametric-title" maxWidth="xl">
         <Block id="block-c2d-parametric-title" padding="sm">
             <EditableH2 id="h2-c2d-parametric" blockId="block-c2d-parametric-title">
                 Parametric Curves
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c2d-parametric-split" ratio="1:1" gap="lg">
         <Block id="block-c2d-parametric-desc" padding="sm">
@@ -626,13 +626,13 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 4: Sine Wave Explorer (InlineLinkedHighlight + Store) ─────────────
-    <FullWidthLayout key="layout-c2d-explorer-title" maxWidth="xl">
+    <StackLayout key="layout-c2d-explorer-title" maxWidth="xl">
         <Block id="block-c2d-explorer-title" padding="sm">
             <EditableH2 id="h2-c2d-explorer" blockId="block-c2d-explorer-title">
                 Sine Wave Explorer
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c2d-explorer-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -740,13 +740,13 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 5: Scatter Plot ──────────────────────────────────────────────────
-    <FullWidthLayout key="layout-c2d-scatter-title" maxWidth="xl">
+    <StackLayout key="layout-c2d-scatter-title" maxWidth="xl">
         <Block id="block-c2d-scatter-title" padding="sm">
             <EditableH2 id="h2-c2d-scatter" blockId="block-c2d-scatter-title">
                 Scatter Plot
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c2d-scatter-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -786,13 +786,13 @@ export const cartesian2dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 6: Line Drawing Playground ─────────────────────────────────────
-    <FullWidthLayout key="layout-c2d-drawing-title" maxWidth="xl">
+    <StackLayout key="layout-c2d-drawing-title" maxWidth="xl">
         <Block id="block-c2d-drawing-title" padding="sm">
             <EditableH2 id="h2-c2d-drawing" blockId="block-c2d-drawing-title">
                 Line Drawing Playground
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c2d-drawing-split" ratio="1:1" gap="lg">
         <div className="space-y-4">

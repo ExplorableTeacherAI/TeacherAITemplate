@@ -17,7 +17,7 @@ useVariableStore.getState().initialize(getExampleDefaultValues());
 initializeVariableColors(exampleVariableDefinitions);
 
 // Import layout components
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 
 // Import editable components
 import {
@@ -139,42 +139,42 @@ const exampleBlocks: ReactElement[] = [
     // ========================================
     // EDITABLE HEADINGS DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-h1-01" maxWidth="xl">
+    <StackLayout key="layout-heading-h1-01" maxWidth="xl">
         <Block id="block-heading-h1-01" padding="sm">
             <EditableH1 id="h1-main-title" blockId="block-heading-h1-01">
                 Main Title (H1) - Click to Edit
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-heading-h2-01" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-01" maxWidth="xl">
         <Block id="block-heading-h2-01" padding="sm">
             <EditableH2 id="h2-section-heading" blockId="block-heading-h2-01">
                 Section Heading (H2) - Click to Edit
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-heading-h3-01" maxWidth="xl">
+    <StackLayout key="layout-heading-h3-01" maxWidth="xl">
         <Block id="block-heading-h3-01" padding="sm">
             <EditableH3 id="h3-subsection-heading" blockId="block-heading-h3-01">
                 Subsection Heading (H3) - Click to Edit
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // EDITABLE PARAGRAPHS DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-h2-02" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-02" maxWidth="xl">
         <Block id="block-heading-h2-02" padding="sm">
             <EditableH2 id="h2-paragraphs-title" blockId="block-heading-h2-02">
                 Editable Paragraphs
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-01" maxWidth="xl">
+    <StackLayout key="layout-paragraph-01" maxWidth="xl">
         <Block id="block-paragraph-01" padding="sm">
             <EditableParagraph id="para-intro-1" blockId="block-paragraph-01">
                 This is an editable paragraph. Click on it to start editing the text.
@@ -182,9 +182,9 @@ const exampleBlocks: ReactElement[] = [
                 and can be saved to the backend.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-02" maxWidth="xl">
+    <StackLayout key="layout-paragraph-02" maxWidth="xl">
         <Block id="block-paragraph-02" padding="sm">
             <EditableParagraph id="para-intro-2" blockId="block-paragraph-02">
                 Here's another paragraph to demonstrate that multiple paragraphs
@@ -192,30 +192,30 @@ const exampleBlocks: ReactElement[] = [
                 and editing session.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // INLINE COMPONENTS DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-h2-03" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-03" maxWidth="xl">
         <Block id="block-heading-h2-03" padding="sm">
             <EditableH2 id="h2-inline-title" blockId="block-heading-h2-03">
                 Inline Components
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-03" maxWidth="xl">
+    <StackLayout key="layout-paragraph-03" maxWidth="xl">
         <Block id="block-paragraph-03" padding="sm">
             <EditableParagraph id="para-inline-intro" blockId="block-paragraph-03">
                 Inline components allow interactive elements within text. Below are
                 examples of scrubbable numbers that can be adjusted by dragging.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // Inline scrubble number examples (use global vars from exampleVariables.ts)
-    <FullWidthLayout key="layout-paragraph-04" maxWidth="xl">
+    <StackLayout key="layout-paragraph-04" maxWidth="xl">
         <Block id="block-paragraph-04" padding="sm">
             <EditableParagraph id="para-radius-example" blockId="block-paragraph-04">
                 The circle has a radius of{" "}
@@ -227,9 +227,9 @@ const exampleBlocks: ReactElement[] = [
                 {" "}units, giving it an area proportional to r².
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-05" maxWidth="xl">
+    <StackLayout key="layout-paragraph-05" maxWidth="xl">
         <Block id="block-paragraph-05" padding="sm">
             <EditableParagraph id="para-temperature-example" blockId="block-paragraph-05">
                 If we increase the temperature to{" "}
@@ -242,9 +242,9 @@ const exampleBlocks: ReactElement[] = [
                 {" "}the reaction rate will change accordingly.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-06" maxWidth="xl">
+    <StackLayout key="layout-paragraph-06" maxWidth="xl">
         <Block id="block-paragraph-06" padding="sm">
             <EditableParagraph id="para-count-example" blockId="block-paragraph-06">
                 There are{" "}
@@ -256,29 +256,29 @@ const exampleBlocks: ReactElement[] = [
                 {" "}items in the collection. Try dragging the number to adjust.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // CLOZE INPUT (Fill-in-the-blank) DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-h2-cloze" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-cloze" maxWidth="xl">
         <Block id="block-heading-h2-cloze" padding="sm">
             <EditableH2 id="h2-cloze-title" blockId="block-heading-h2-cloze">
                 Cloze Inputs (Fill-in-the-Blank)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-cloze-intro" maxWidth="xl">
+    <StackLayout key="layout-paragraph-cloze-intro" maxWidth="xl">
         <Block id="block-paragraph-cloze-intro" padding="sm">
             <EditableParagraph id="para-cloze-intro" blockId="block-paragraph-cloze-intro">
                 Cloze inputs let students type answers inline. They auto-validate as
                 you type and turn green when correct. Try the examples below.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-cloze-01" maxWidth="xl">
+    <StackLayout key="layout-paragraph-cloze-01" maxWidth="xl">
         <Block id="block-paragraph-cloze-01" padding="sm">
             <EditableParagraph id="para-cloze-angle" blockId="block-paragraph-cloze-01">
                 A quarter circle is{" "}
@@ -291,9 +291,9 @@ const exampleBlocks: ReactElement[] = [
                 {" "}degrees, representing one-fourth of a complete rotation.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-cloze-02" maxWidth="xl">
+    <StackLayout key="layout-paragraph-cloze-02" maxWidth="xl">
         <Block id="block-paragraph-cloze-02" padding="sm">
             <EditableParagraph id="para-cloze-unit" blockId="block-paragraph-cloze-02">
                 The SI unit of frequency is{" "}
@@ -306,20 +306,20 @@ const exampleBlocks: ReactElement[] = [
                 {" "}(abbreviated Hz).
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // CLOZE CHOICES (Dropdown Fill-in-the-Blank)
     // ========================================
-    <FullWidthLayout key="layout-heading-h2-cloze-choice" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-cloze-choice" maxWidth="xl">
         <Block id="block-heading-h2-cloze-choice" padding="sm">
             <EditableH2 id="h2-cloze-choice-title" blockId="block-heading-h2-cloze-choice">
                 Cloze Choices (Dropdown Fill-in-the-Blank)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-choice-01" maxWidth="xl">
+    <StackLayout key="layout-paragraph-choice-01" maxWidth="xl">
         <Block id="block-paragraph-choice-01" padding="sm">
             <EditableParagraph id="para-choice-shape" blockId="block-paragraph-choice-01">
                 The definition of a sphere is similar to a{" "}
@@ -333,9 +333,9 @@ const exampleBlocks: ReactElement[] = [
                 {" "}&mdash; except in three dimensions!
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-choice-02" maxWidth="xl">
+    <StackLayout key="layout-paragraph-choice-02" maxWidth="xl">
         <Block id="block-paragraph-choice-02" padding="sm">
             <EditableParagraph id="para-choice-wave" blockId="block-paragraph-choice-02">
                 Light waves are an example of{" "}
@@ -349,20 +349,20 @@ const exampleBlocks: ReactElement[] = [
                 {" "}waves.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // TOGGLE DEMO (Click to Cycle)
     // ========================================
-    <FullWidthLayout key="layout-heading-h2-toggle" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-toggle" maxWidth="xl">
         <Block id="block-heading-h2-toggle" padding="sm">
             <EditableH2 id="h2-toggle-title" blockId="block-heading-h2-toggle">
                 Toggle (Click to Cycle)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-toggle-01" maxWidth="xl">
+    <StackLayout key="layout-paragraph-toggle-01" maxWidth="xl">
         <Block id="block-paragraph-toggle-01" padding="sm">
             <EditableParagraph id="para-toggle-shapes" blockId="block-paragraph-toggle-01">
                 The current shape is a{" "}
@@ -375,9 +375,9 @@ const exampleBlocks: ReactElement[] = [
                 {" "}with equal sides. Click to cycle through the shapes!
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-toggle-02" maxWidth="xl">
+    <StackLayout key="layout-paragraph-toggle-02" maxWidth="xl">
         <Block id="block-paragraph-toggle-02" padding="sm">
             <EditableParagraph id="para-toggle-measurement" blockId="block-paragraph-toggle-02">
                 A circle has three key measurements. The{" "}
@@ -390,20 +390,20 @@ const exampleBlocks: ReactElement[] = [
                 {" "}is an important property of a circle.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // TOOLTIP DEMO (Hover to Reveal)
     // ========================================
-    <FullWidthLayout key="layout-heading-h2-tooltip" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-tooltip" maxWidth="xl">
         <Block id="block-heading-h2-tooltip" padding="sm">
             <EditableH2 id="h2-tooltip-title" blockId="block-heading-h2-tooltip">
                 Tooltip (Hover to Reveal)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-tooltip-intro" maxWidth="xl">
+    <StackLayout key="layout-paragraph-tooltip-intro" maxWidth="xl">
         <Block id="block-paragraph-tooltip-intro" padding="sm">
             <EditableParagraph id="para-tooltip-intro" blockId="block-paragraph-tooltip-intro">
                 Tooltips show definitions or extra information on hover. Unlike other
@@ -411,9 +411,9 @@ const exampleBlocks: ReactElement[] = [
                 informational. Hover over the highlighted words below to see them in action.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-tooltip-01" maxWidth="xl">
+    <StackLayout key="layout-paragraph-tooltip-01" maxWidth="xl">
         <Block id="block-paragraph-tooltip-01" padding="sm">
             <EditableParagraph id="para-tooltip-circle" blockId="block-paragraph-tooltip-01">
                 Every point on a{" "}
@@ -427,9 +427,9 @@ const exampleBlocks: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-tooltip-02" maxWidth="xl">
+    <StackLayout key="layout-paragraph-tooltip-02" maxWidth="xl">
         <Block id="block-paragraph-tooltip-02" padding="sm">
             <EditableParagraph id="para-tooltip-physics" blockId="block-paragraph-tooltip-02">
                 In physics,{" "}
@@ -451,20 +451,20 @@ const exampleBlocks: ReactElement[] = [
                 {" "}of an object depends on the net force applied.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // MIXED CONTENT DEMO (Math Example)
     // ========================================
-    <FullWidthLayout key="layout-heading-h2-04" maxWidth="xl">
+    <StackLayout key="layout-heading-h2-04" maxWidth="xl">
         <Block id="block-heading-h2-04" padding="sm">
             <EditableH2 id="h2-physics-title" blockId="block-heading-h2-04">
                 Math Example: Sine Wave Parameters
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-07" maxWidth="xl">
+    <StackLayout key="layout-paragraph-07" maxWidth="xl">
         <Block id="block-paragraph-07" padding="sm">
             <EditableParagraph id="para-projectile-intro" blockId="block-paragraph-07">
                 Consider the wave equation y = A sin(ωx + φ). The amplitude is{" "}
@@ -483,17 +483,17 @@ const exampleBlocks: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-heading-h3-02" maxWidth="xl">
+    <StackLayout key="layout-heading-h3-02" maxWidth="xl">
         <Block id="block-heading-h3-02" padding="sm">
             <EditableH3 id="h3-parameters-title" blockId="block-heading-h3-02">
                 Key Parameters
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-paragraph-08" maxWidth="xl">
+    <StackLayout key="layout-paragraph-08" maxWidth="xl">
         <Block id="block-paragraph-08" padding="sm">
             <EditableParagraph id="para-gravity-example" blockId="block-paragraph-08">
                 The wave frequency is{" "}
@@ -506,29 +506,29 @@ const exampleBlocks: ReactElement[] = [
                 . You can adjust these values to see how they reshape the waveform.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // TRIGGER (CLICK TO SET VARIABLE) DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-trigger" maxWidth="xl">
+    <StackLayout key="layout-heading-trigger" maxWidth="xl">
         <Block id="block-heading-trigger" padding="md">
             <EditableH2 id="h2-trigger-title" blockId="block-heading-trigger">
                 Trigger (Click to Set Variable)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-trigger-intro" maxWidth="xl">
+    <StackLayout key="layout-trigger-intro" maxWidth="xl">
         <Block id="block-trigger-intro" padding="sm">
             <EditableParagraph id="para-trigger-intro" blockId="block-trigger-intro">
                 InlineTrigger lets you set a variable to a specific value on click. Combine it with
                 InlineScrubbleNumber so students can explore a value and quickly snap it to key points.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-trigger-example" maxWidth="xl">
+    <StackLayout key="layout-trigger-example" maxWidth="xl">
         <Block id="block-trigger-example" padding="sm">
             <EditableParagraph id="para-trigger-example" blockId="block-trigger-example">
                 The animation speed is{" "}
@@ -547,29 +547,29 @@ const exampleBlocks: ReactElement[] = [
                 </InlineTrigger>.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // HYPERLINK (CLICK TO NAVIGATE) DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-hyperlink" maxWidth="xl">
+    <StackLayout key="layout-heading-hyperlink" maxWidth="xl">
         <Block id="block-heading-hyperlink" padding="md">
             <EditableH2 id="h2-hyperlink-title" blockId="block-heading-hyperlink">
                 Hyperlink (Click to Navigate)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-hyperlink-intro" maxWidth="xl">
+    <StackLayout key="layout-hyperlink-intro" maxWidth="xl">
         <Block id="block-hyperlink-intro" padding="sm">
             <EditableParagraph id="para-hyperlink-intro" blockId="block-hyperlink-intro">
                 InlineHyperlink turns text into a clickable link that either opens an external URL in a
                 new tab or smooth-scrolls to another block on the page.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-hyperlink-examples" maxWidth="xl">
+    <StackLayout key="layout-hyperlink-examples" maxWidth="xl">
         <Block id="block-hyperlink-examples" padding="sm">
             <EditableParagraph id="para-hyperlink-examples" blockId="block-hyperlink-examples">
                 Read the{" "}
@@ -583,20 +583,20 @@ const exampleBlocks: ReactElement[] = [
                 above to see how triggers work.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // INLINE FORMULA DEMO (Inline Math)
     // ========================================
-    <FullWidthLayout key="layout-heading-formula" maxWidth="xl">
+    <StackLayout key="layout-heading-formula" maxWidth="xl">
         <Block id="block-heading-formula" padding="md">
             <EditableH2 id="h2-formula-title" blockId="block-heading-formula">
                 Inline Formula (Inline Math)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-intro" maxWidth="xl">
+    <StackLayout key="layout-formula-intro" maxWidth="xl">
         <Block id="block-formula-intro" padding="sm">
             <EditableParagraph id="para-formula-intro" blockId="block-formula-intro">
                 InlineFormula renders KaTeX math formulas directly within paragraph text.
@@ -608,9 +608,9 @@ const exampleBlocks: ReactElement[] = [
                 to color individual terms in the formula.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-01" maxWidth="xl">
+    <StackLayout key="layout-formula-01" maxWidth="xl">
         <Block id="block-formula-01" padding="sm">
             <EditableParagraph id="para-formula-area" blockId="block-formula-01">
                 The area of a circle is{" "}
@@ -622,9 +622,9 @@ const exampleBlocks: ReactElement[] = [
                 {" "}where r is the radius.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-02" maxWidth="xl">
+    <StackLayout key="layout-formula-02" maxWidth="xl">
         <Block id="block-formula-02" padding="sm">
             <EditableParagraph id="para-formula-einstein" blockId="block-formula-02">
                 Einstein's famous equation{" "}
@@ -636,9 +636,9 @@ const exampleBlocks: ReactElement[] = [
                 {" "}shows the equivalence of mass and energy.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-03" maxWidth="xl">
+    <StackLayout key="layout-formula-03" maxWidth="xl">
         <Block id="block-formula-03" padding="sm">
             <EditableParagraph id="para-formula-quadratic" blockId="block-formula-03">
                 The quadratic formula{" "}
@@ -650,20 +650,20 @@ const exampleBlocks: ReactElement[] = [
                 {" "}gives the roots of any quadratic equation.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // SPOT COLOR DEMO (Color-Coded Variables)
     // ========================================
-    <FullWidthLayout key="layout-heading-spotcolor" maxWidth="xl">
+    <StackLayout key="layout-heading-spotcolor" maxWidth="xl">
         <Block id="block-heading-spotcolor" padding="md">
             <EditableH2 id="h2-spotcolor-title" blockId="block-heading-spotcolor">
                 Spot Color (Color-Coded Variables)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-spotcolor-intro" maxWidth="xl">
+    <StackLayout key="layout-spotcolor-intro" maxWidth="xl">
         <Block id="block-spotcolor-intro" padding="sm">
             <EditableParagraph id="para-spotcolor-intro" blockId="block-spotcolor-intro">
                 InlineSpotColor defines a color for a variable. When the same variable
@@ -672,9 +672,9 @@ const exampleBlocks: ReactElement[] = [
                 prose and math.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-spotcolor-01" maxWidth="xl">
+    <StackLayout key="layout-spotcolor-01" maxWidth="xl">
         <Block id="block-spotcolor-01" padding="sm">
             <EditableParagraph id="para-spotcolor-circle" blockId="block-spotcolor-01">
                 With the{" "}
@@ -701,9 +701,9 @@ const exampleBlocks: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-spotcolor-02" maxWidth="xl">
+    <StackLayout key="layout-spotcolor-02" maxWidth="xl">
         <Block id="block-spotcolor-02" padding="sm">
             <EditableParagraph id="para-spotcolor-physics" blockId="block-spotcolor-02">
                 The{" "}
@@ -730,20 +730,20 @@ const exampleBlocks: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // INTERACTIVE FORMULA DEMO (Formula with Scrubble Numbers)
     // ========================================
-    <FullWidthLayout key="layout-heading-interactive-formula" maxWidth="xl">
+    <StackLayout key="layout-heading-interactive-formula" maxWidth="xl">
         <Block id="block-heading-interactive-formula" padding="md">
             <EditableH2 id="h2-interactive-formula-title" blockId="block-heading-interactive-formula">
                 Interactive Formula (Scrubble Numbers in Equations)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-interactive-formula-intro" maxWidth="xl">
+    <StackLayout key="layout-interactive-formula-intro" maxWidth="xl">
         <Block id="block-interactive-formula-intro" padding="sm">
             <EditableParagraph id="para-interactive-formula-intro" blockId="block-interactive-formula-intro">
                 InteractiveFormula embeds draggable scrubble numbers directly inside a
@@ -759,9 +759,9 @@ const exampleBlocks: ReactElement[] = [
                 the force update in real time!
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-interactive-formula-demo" maxWidth="xl">
+    <StackLayout key="layout-interactive-formula-demo" maxWidth="xl">
         <Block id="block-interactive-formula-demo" padding="lg">
             <FormulaBlock
                 latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}"
@@ -782,9 +782,9 @@ const exampleBlocks: ReactElement[] = [
                 }}
             />
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-interactive-formula-explanation" maxWidth="xl">
+    <StackLayout key="layout-interactive-formula-explanation" maxWidth="xl">
         <Block id="block-interactive-formula-explanation" padding="sm">
             <EditableParagraph id="para-interactive-formula-explanation" blockId="block-interactive-formula-explanation">
                 Drag the{" "}
@@ -799,20 +799,20 @@ const exampleBlocks: ReactElement[] = [
                 inline numbers stay in sync through the global variable store.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // FORMULA BLOCK: CLOZE INPUT DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-formula-cloze" maxWidth="xl">
+    <StackLayout key="layout-heading-formula-cloze" maxWidth="xl">
         <Block id="block-heading-formula-cloze" padding="md">
             <EditableH2 id="h2-formula-cloze-title" blockId="block-heading-formula-cloze">
                 Formula Cloze Input (Fill-in-the-Blank in Equations)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-cloze-intro" maxWidth="xl">
+    <StackLayout key="layout-formula-cloze-intro" maxWidth="xl">
         <Block id="block-formula-cloze-intro" padding="sm">
             <EditableParagraph id="para-formula-cloze-intro" blockId="block-formula-cloze-intro">
                 Use{" "}
@@ -824,9 +824,9 @@ const exampleBlocks: ReactElement[] = [
                 answer. Can you complete the formula for the area of a circle?
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-cloze-demo" maxWidth="xl">
+    <StackLayout key="layout-formula-cloze-demo" maxWidth="xl">
         <Block id="block-formula-cloze-demo" padding="lg">
             <FormulaBlock
                 latex="\clr{area}{A} = \clr{pi}{\pi} \cdot \cloze{formulaShapeChoice}"
@@ -840,29 +840,29 @@ const exampleBlocks: ReactElement[] = [
                 }}
             />
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-cloze-hint" maxWidth="xl">
+    <StackLayout key="layout-formula-cloze-hint" maxWidth="xl">
         <Block id="block-formula-cloze-hint" padding="sm">
             <EditableParagraph id="para-formula-cloze-hint" blockId="block-formula-cloze-hint">
                 Hint: The area of a circle is π times the square of the radius.
                 Click the pink box in the formula and type your answer!
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // FORMULA BLOCK: CLOZE CHOICE DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-formula-choice" maxWidth="xl">
+    <StackLayout key="layout-heading-formula-choice" maxWidth="xl">
         <Block id="block-heading-formula-choice" padding="md">
             <EditableH2 id="h2-formula-choice-title" blockId="block-heading-formula-choice">
                 Formula Cloze Choice (Dropdown in Equations)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-choice-intro" maxWidth="xl">
+    <StackLayout key="layout-formula-choice-intro" maxWidth="xl">
         <Block id="block-formula-choice-intro" padding="sm">
             <EditableParagraph id="para-formula-choice-intro" blockId="block-formula-choice-intro">
                 Use{" "}
@@ -874,9 +874,9 @@ const exampleBlocks: ReactElement[] = [
                 expression for the denominator of the quadratic formula!
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-choice-demo" maxWidth="xl">
+    <StackLayout key="layout-formula-choice-demo" maxWidth="xl">
         <Block id="block-formula-choice-demo" padding="lg">
             <FormulaBlock
                 latex="\clr{x}{x} = \frac{-\clr{b}{b} \pm \sqrt{\clr{b}{b}^2 - 4\clr{a}{a}\clr{c}{c}}}{\choice{denominator}}"
@@ -891,9 +891,9 @@ const exampleBlocks: ReactElement[] = [
                 }}
             />
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-choice-hint" maxWidth="xl">
+    <StackLayout key="layout-formula-choice-hint" maxWidth="xl">
         <Block id="block-formula-choice-hint" padding="sm">
             <EditableParagraph id="para-formula-choice-hint" blockId="block-formula-choice-hint">
                 Hint: The denominator of the quadratic formula is two times{" "}
@@ -903,20 +903,20 @@ const exampleBlocks: ReactElement[] = [
                 />. Which expression in the dropdown represents that?
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ========================================
     // FORMULA BLOCK: LINKED HIGHLIGHT DEMO
     // ========================================
-    <FullWidthLayout key="layout-heading-formula-highlight" maxWidth="xl">
+    <StackLayout key="layout-heading-formula-highlight" maxWidth="xl">
         <Block id="block-heading-formula-highlight" padding="md">
             <EditableH2 id="h2-formula-highlight-title" blockId="block-heading-formula-highlight">
                 Formula Linked Highlight (Hover-to-Highlight in Equations)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-formula-highlight-intro" maxWidth="xl">
+    <StackLayout key="layout-formula-highlight-intro" maxWidth="xl">
         <Block id="block-formula-highlight-intro" padding="sm">
             <EditableParagraph id="para-formula-highlight-intro" blockId="block-formula-highlight-intro">
                 Use{" "}
@@ -928,7 +928,7 @@ const exampleBlocks: ReactElement[] = [
                 description lights up, and vice versa!
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-formula-highlight-demo" ratio="1:1" gap="lg">
         <Block id="block-formula-highlight-eq" padding="lg">
@@ -988,15 +988,15 @@ const exampleBlocks: ReactElement[] = [
     // ========================================
     // LINKED HIGHLIGHT DEMO (Hover-to-Highlight)
     // ========================================
-    <FullWidthLayout key="layout-heading-linkedhighlight" maxWidth="xl">
+    <StackLayout key="layout-heading-linkedhighlight" maxWidth="xl">
         <Block id="block-heading-linkedhighlight" padding="md">
             <EditableH2 id="h2-linkedhighlight-title" blockId="block-heading-linkedhighlight">
                 Linked Highlight (Hover-to-Highlight)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-linkedhighlight-intro" maxWidth="xl">
+    <StackLayout key="layout-linkedhighlight-intro" maxWidth="xl">
         <Block id="block-linkedhighlight-intro" padding="sm">
             <EditableParagraph id="para-linkedhighlight-intro" blockId="block-linkedhighlight-intro">
                 InlineLinkedHighlight creates a coordination link between text and visuals.
@@ -1005,7 +1005,7 @@ const exampleBlocks: ReactElement[] = [
                 through the global variable store.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-linkedhighlight-demo" ratio="1:1" gap="lg">
         <Block id="block-linkedhighlight-text" padding="sm">

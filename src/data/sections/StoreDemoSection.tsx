@@ -7,7 +7,7 @@
 
 import { type ReactElement } from 'react';
 import { Block } from '@/components/templates';
-import { SplitLayout, FullWidthLayout } from '@/components/layouts';
+import { SplitLayout, StackLayout } from '@/components/layouts';
 import { useVar, useSetVar } from '@/stores';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/atoms/ui/card';
 import { Slider } from '@/components/atoms/ui/slider';
@@ -272,7 +272,7 @@ const VariableDisplay = () => {
 // ============================================
 
 const DemoHeader = () => (
-    <FullWidthLayout maxWidth="xl">
+    <StackLayout maxWidth="xl">
         <Block id="store-demo-header" padding="lg">
             <div className="text-center space-y-4">
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -289,7 +289,7 @@ const DemoHeader = () => (
                 </div>
             </div>
         </Block>
-    </FullWidthLayout>
+    </StackLayout>
 );
 
 const DemoMain = () => (

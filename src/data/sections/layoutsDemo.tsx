@@ -1,7 +1,7 @@
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import {
-    FullWidthLayout,
+    StackLayout,
     SplitLayout,
     GridLayout,
     ScrollytellingLayout,
@@ -81,43 +81,43 @@ function ScrollViz() {
 export const layoutsDemoBlocks: ReactElement[] = [
 
     // ── Section title ──────────────────────────────────────────────────────────
-    <FullWidthLayout key="layout-demo-title" maxWidth="xl">
+    <StackLayout key="layout-demo-title" maxWidth="xl">
         <Block id="block-demo-title" padding="md">
             <EditableH1 id="h1-demo-title" blockId="block-demo-title">
                 Layout Showcase
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-demo-intro" maxWidth="xl">
+    <StackLayout key="layout-demo-intro" maxWidth="xl">
         <Block id="block-demo-intro" padding="sm">
             <EditableParagraph id="para-demo-intro" blockId="block-demo-intro">
-                This page demonstrates the four available layouts: FullWidthLayout, SplitLayout,
+                This page demonstrates the four available layouts: StackLayout, SplitLayout,
                 GridLayout, and ScrollytellingLayout. Each is shown with live interactive content.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    // ── 1. FullWidthLayout ──────────────────────────────────────────────────
-    <FullWidthLayout key="layout-demo-fw-heading" maxWidth="xl">
+    // ── 1. StackLayout ──────────────────────────────────────────────────
+    <StackLayout key="layout-demo-fw-heading" maxWidth="xl">
         <Block id="block-demo-fw-heading" padding="md">
             <EditableH2 id="h2-demo-fw" blockId="block-demo-fw-heading">
-                1 · FullWidthLayout
+                1 · StackLayout
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-demo-fw-desc" maxWidth="xl">
+    <StackLayout key="layout-demo-fw-desc" maxWidth="xl">
         <Block id="block-demo-fw-desc" padding="sm">
             <EditableParagraph id="para-demo-fw-desc" blockId="block-demo-fw-desc">
-                FullWidthLayout centres its single child with an optional max-width constraint.
+                StackLayout centres its single child with an optional max-width constraint.
                 Use it for headings, prose paragraphs, and wide visualizations. Available
                 max-widths are <strong>sm, md, lg, xl, 2xl, full</strong>.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-demo-fw-viz" maxWidth="2xl">
+    <StackLayout key="layout-demo-fw-viz" maxWidth="2xl">
         <Block id="block-demo-fw-viz" padding="sm">
             <div className="rounded-2xl overflow-hidden border border-border">
                 <AnimatedGraph
@@ -131,16 +131,16 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 />
             </div>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ── 2. SplitLayout ──────────────────────────────────────────────────────
-    <FullWidthLayout key="layout-demo-split-heading" maxWidth="xl">
+    <StackLayout key="layout-demo-split-heading" maxWidth="xl">
         <Block id="block-demo-split-heading" padding="md">
             <EditableH2 id="h2-demo-split" blockId="block-demo-split-heading">
                 2 · SplitLayout
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-demo-split" ratio="1:1" gap="lg" align="center">
         <div className="space-y-4">
@@ -173,22 +173,22 @@ export const layoutsDemoBlocks: ReactElement[] = [
     </SplitLayout>,
 
     // ── 3. GridLayout ──────────────────────────────────────────────────────
-    <FullWidthLayout key="layout-demo-grid-heading" maxWidth="xl">
+    <StackLayout key="layout-demo-grid-heading" maxWidth="xl">
         <Block id="block-demo-grid-heading" padding="md">
             <EditableH2 id="h2-demo-grid" blockId="block-demo-grid-heading">
                 3 · GridLayout
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-demo-grid-desc" maxWidth="xl">
+    <StackLayout key="layout-demo-grid-desc" maxWidth="xl">
         <Block id="block-demo-grid-desc" padding="sm">
             <EditableParagraph id="para-demo-grid-desc" blockId="block-demo-grid-desc">
                 GridLayout arranges children in an equal-column grid (2–6 columns). It
                 automatically collapses to fewer columns on smaller screens.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <GridLayout key="layout-demo-grid" columns={3} gap="md">
         <Block id="block-demo-grid-1" padding="sm">
@@ -227,15 +227,15 @@ export const layoutsDemoBlocks: ReactElement[] = [
     </GridLayout>,
 
     // ── 4. ScrollytellingLayout ────────────────────────────────────────────
-    <FullWidthLayout key="layout-demo-scroll-heading" maxWidth="xl">
+    <StackLayout key="layout-demo-scroll-heading" maxWidth="xl">
         <Block id="block-demo-scroll-heading" padding="md">
             <EditableH2 id="h2-demo-scroll" blockId="block-demo-scroll-heading">
                 4 · ScrollytellingLayout
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-demo-scroll-desc" maxWidth="xl">
+    <StackLayout key="layout-demo-scroll-desc" maxWidth="xl">
         <Block id="block-demo-scroll-desc" padding="sm">
             <EditableParagraph id="para-demo-scroll-desc" blockId="block-demo-scroll-desc">
                 ScrollytellingLayout keeps a visualization sticky on one side while text steps
@@ -243,7 +243,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 so the visual can react. Scroll through the steps below to see it in action.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <ScrollytellingLayout key="layout-demo-scrolly" varName="layoutDemoStep" visualPosition="right" gap="lg">
         <ScrollStep>

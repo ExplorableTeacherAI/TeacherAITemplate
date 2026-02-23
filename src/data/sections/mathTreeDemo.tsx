@@ -1,5 +1,5 @@
 import { type ReactElement } from "react";
-import { FullWidthLayout } from "@/components/layouts";
+import { StackLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     EditableH2,
@@ -192,23 +192,23 @@ function ReactiveProbabilityTree() {
 }
 
 export const mathTreeDemo: ReactElement[] = [
-    <FullWidthLayout key="layout-mt-title" maxWidth="xl">
+    <StackLayout key="layout-mt-title" maxWidth="xl">
         <Block id="block-mt-title" padding="md">
             <EditableH2 id="h2-mt-title" blockId="block-mt-title">
                 Math Tree Visualization with Step-by-Step Scaffolding
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-mt-factor-title" maxWidth="xl">
+    <StackLayout key="layout-mt-factor-title" maxWidth="xl">
         <Block id="block-mt-factor-title" padding="sm">
             <EditableH3 id="h3-mt-factor-title" blockId="block-mt-factor-title">
                 1. Prime Factorization Tree
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-mt-factor-desc" maxWidth="xl">
+    <StackLayout key="layout-mt-factor-desc" maxWidth="xl">
         <Block id="block-mt-factor-desc" padding="sm">
             <EditableParagraph id="para-mt-factor-desc" blockId="block-mt-factor-desc">
                 Reveal the factorization progressively using step{" "}
@@ -230,9 +230,9 @@ export const mathTreeDemo: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-mt-factor-controls" maxWidth="xl">
+    <StackLayout key="layout-mt-factor-controls" maxWidth="xl">
         <Block id="block-mt-factor-controls" padding="sm">
             <EditableParagraph id="para-mt-factor-controls" blockId="block-mt-factor-controls">
                 Switch scaffold panel with{" "}
@@ -252,23 +252,23 @@ export const mathTreeDemo: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-mt-factor-viz" maxWidth="2xl">
+    <StackLayout key="layout-mt-factor-viz" maxWidth="2xl">
         <Block id="block-mt-factor-viz" padding="sm">
             <ReactiveFactorTree />
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-mt-prob-title" maxWidth="xl">
+    <StackLayout key="layout-mt-prob-title" maxWidth="xl">
         <Block id="block-mt-prob-title" padding="sm">
             <EditableH3 id="h3-mt-prob-title" blockId="block-mt-prob-title">
                 2. Probability Tree (Scaffolded)
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-mt-prob-text" maxWidth="xl">
+    <StackLayout key="layout-mt-prob-text" maxWidth="xl">
         <Block id="block-mt-prob-text" padding="sm">
             <EditableParagraph id="para-mt-prob-text" blockId="block-mt-prob-text">
                 Move through probability scaffolding using step{" "}
@@ -285,11 +285,11 @@ export const mathTreeDemo: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-mt-prob-viz" maxWidth="2xl">
+    <StackLayout key="layout-mt-prob-viz" maxWidth="2xl">
         <Block id="block-mt-prob-viz" padding="sm">
             <ReactiveProbabilityTree />
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 ];

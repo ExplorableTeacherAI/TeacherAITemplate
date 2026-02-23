@@ -1,4 +1,4 @@
-import { FullWidthLayout, GridLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, GridLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import { D3BarChart } from "@/components/atoms";
 
@@ -22,7 +22,7 @@ const sampleData2 = [
 
 export const d3Demo = [
     // Header
-    <FullWidthLayout key="d3-header" maxWidth="xl">
+    <StackLayout key="d3-header" maxWidth="xl">
         <Block id="d3-header">
             <div className="prose dark:prose-invert max-w-none">
                 <h1 className="text-4xl font-bold text-foreground">
@@ -33,7 +33,7 @@ export const d3Demo = [
                 </p>
             </div>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // Basic Bar Chart
     <SplitLayout key="d3-basic-chart" ratio="1:1" gap="lg">

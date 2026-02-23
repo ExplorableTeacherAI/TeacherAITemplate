@@ -19,7 +19,7 @@ import {
     InlineLinkedHighlight
 } from "@/components/atoms";
 import { EditableText } from "@/components/atoms/text/EditableText";
-import { FullWidthLayout } from "@/components/layouts";
+import { StackLayout } from "@/components/layouts";
 import { FormulaBlock } from "@/components/molecules";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { Card } from "@/components/atoms/ui/card";
@@ -459,7 +459,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             // Create new Block directly (no Section wrapper needed)
             const newId = `block-${Date.now()}`;
             const newBlock = (
-                <FullWidthLayout key={`layout-${newId}`} maxWidth="xl">
+                <StackLayout key={`layout-${newId}`} maxWidth="xl">
                     <Block id={newId} padding="sm">
                         <BlockInput
                             id={newId}
@@ -467,7 +467,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                             placeholder="Type '/' for commands"
                         />
                     </Block>
-                </FullWidthLayout>
+                </StackLayout>
             );
 
             // Track the addition of the new block placeholder immediately

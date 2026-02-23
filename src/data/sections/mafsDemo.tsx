@@ -1,10 +1,10 @@
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import { MafsBasic, MafsAnimated, MafsInteractiveDemo } from "@/components/atoms";
 
 export const mafsDemo = [
     // Header
-    <FullWidthLayout key="mafs-header" maxWidth="xl">
+    <StackLayout key="mafs-header" maxWidth="xl">
         <Block id="mafs-header">
             <div className="prose dark:prose-invert max-w-none">
                 <h1 className="text-4xl font-bold text-foreground">
@@ -15,7 +15,7 @@ export const mafsDemo = [
                 </p>
             </div>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // Basic Mafs Example
     <SplitLayout key="mafs-basic" ratio="1:1" gap="lg">

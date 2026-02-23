@@ -1,5 +1,5 @@
 import { type ReactElement, useMemo } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian2D,
@@ -378,15 +378,15 @@ function SymmetryStatus() {
 
 export const symmetryDrawingDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
-    <FullWidthLayout key="layout-sym-header-title" maxWidth="xl">
+    <StackLayout key="layout-sym-header-title" maxWidth="xl">
         <Block id="block-sym-header-title" padding="sm">
             <EditableH1 id="h1-sym-title" blockId="block-sym-header-title">
                 Drawing Symmetry
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sym-header-desc" maxWidth="xl">
+    <StackLayout key="layout-sym-header-desc" maxWidth="xl">
         <Block id="block-sym-header-desc" padding="sm">
             <EditableParagraph id="para-sym-desc" blockId="block-sym-header-desc">
                 Symmetry is one of the most beautiful ideas in mathematics.
@@ -395,16 +395,16 @@ export const symmetryDrawingDemo: ReactElement[] = [
                 triangle and watch its mirror image appear in real time.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ── Demo 1: Line of Symmetry ─────────────────────────────────────────────
-    <FullWidthLayout key="layout-sym-line-title" maxWidth="xl">
+    <StackLayout key="layout-sym-line-title" maxWidth="xl">
         <Block id="block-sym-line-title" padding="sm">
             <EditableH2 id="h2-sym-line" blockId="block-sym-line-title">
                 Reflecting a Triangle
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-sym-line-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -524,13 +524,13 @@ export const symmetryDrawingDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 2: Function Symmetry (Even / Odd) ──────────────────────────────
-    <FullWidthLayout key="layout-sym-fn-title" maxWidth="xl">
+    <StackLayout key="layout-sym-fn-title" maxWidth="xl">
         <Block id="block-sym-fn-title" padding="sm">
             <EditableH2 id="h2-sym-fn" blockId="block-sym-fn-title">
                 Even &amp; Odd Function Symmetry
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-sym-fn-split" ratio="1:1" gap="lg">
         <div className="space-y-4">

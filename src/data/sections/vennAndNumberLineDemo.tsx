@@ -1,5 +1,5 @@
 import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     EditableH2,
@@ -59,21 +59,21 @@ function ReactiveNumberLine() {
 }
 
 export const vennAndNumberLineDemo: ReactElement[] = [
-    <FullWidthLayout key="layout-venn-numberline-title" maxWidth="xl">
+    <StackLayout key="layout-venn-numberline-title" maxWidth="xl">
         <Block id="block-venn-numberline-title" padding="md">
             <EditableH2 id="h2-venn-numberline-title" blockId="block-venn-numberline-title">
                 Venn Diagram and Number Line Examples
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-venn-title" maxWidth="xl">
+    <StackLayout key="layout-venn-title" maxWidth="xl">
         <Block id="block-venn-title" padding="sm">
             <EditableH3 id="h3-venn-title" blockId="block-venn-title">
                 1. Venn Diagram Example
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-venn-demo" ratio="1:1" gap="lg">
         <Block id="block-venn-text" padding="sm">
@@ -134,13 +134,13 @@ export const vennAndNumberLineDemo: ReactElement[] = [
         </Block>
     </SplitLayout>,
 
-    <FullWidthLayout key="layout-numberline-title" maxWidth="xl">
+    <StackLayout key="layout-numberline-title" maxWidth="xl">
         <Block id="block-numberline-title" padding="sm">
             <EditableH3 id="h3-numberline-title" blockId="block-numberline-title">
                 2. Number Line Example
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-numberline-demo" ratio="1:1" gap="lg">
         <Block id="block-numberline-text" padding="sm">

@@ -1,5 +1,5 @@
 import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian2D,
@@ -98,15 +98,15 @@ function ReactiveCircleAnatomy() {
 
 export const circleAnatomyDemo: ReactElement[] = [
     // ── Title ─────────────────────────────────────────────────────────────
-    <FullWidthLayout key="layout-ca-title" maxWidth="xl">
+    <StackLayout key="layout-ca-title" maxWidth="xl">
         <Block id="block-ca-title" padding="sm">
             <EditableH2 id="h2-ca-title" blockId="block-ca-title">
                 Circle Anatomy — Linked Highlights on a 2D Graph
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-ca-intro" maxWidth="xl">
+    <StackLayout key="layout-ca-intro" maxWidth="xl">
         <Block id="block-ca-intro" padding="sm">
             <EditableParagraph id="para-ca-intro" blockId="block-ca-intro">
                 Hover over any term below to highlight the corresponding part of the circle
@@ -114,7 +114,7 @@ export const circleAnatomyDemo: ReactElement[] = [
                 all measurements update in real time.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ── Split: text (left) + Cartesian graph (right) ─────────────────────
     <SplitLayout key="layout-ca-split" ratio="1:1" gap="lg">

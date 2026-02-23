@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useState } from "react";
 import { Block } from "@/components/templates";
-import { FullWidthLayout } from "@/components/layouts";
+import { StackLayout } from "@/components/layouts";
 import {
     EditableH1,
     EditableH2,
@@ -197,31 +197,31 @@ const lissB = numDef("lissB");
 const lissDelta = numDef("lissDelta");
 
 export const simulationDemoBlocks: ReactElement[] = [
-    <FullWidthLayout key="layout-sim-title" maxWidth="xl">
+    <StackLayout key="layout-sim-title" maxWidth="xl">
         <Block id="block-sim-title" padding="md">
             <EditableH1 id="h1-sim-title" blockId="block-sim-title">
                 Interactive Mathematics Simulations
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sim-intro" maxWidth="xl">
+    <StackLayout key="layout-sim-intro" maxWidth="xl">
         <Block id="block-sim-intro" padding="sm">
             <EditableParagraph id="para-sim-intro" blockId="block-sim-intro">
                 Compact control panels let you explore pure mathematical models. Adjust parameters and observe immediate changes in superposition, transformations, and parametric curves such as <InlineFormula latex="y = A\\sin(\\omega x + \\phi)" colorMap={{}} />.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sim-wave-h2" maxWidth="xl">
+    <StackLayout key="layout-sim-wave-h2" maxWidth="xl">
         <Block id="block-sim-wave-h2" padding="sm">
             <EditableH2 id="h2-sim-wave" blockId="block-sim-wave-h2">
                 1) Wave Superposition
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sim-wave" maxWidth="xl">
+    <StackLayout key="layout-sim-wave" maxWidth="xl">
         <Block id="block-sim-wave" padding="sm">
             <SimulationPanel
                 title="Controls"
@@ -287,17 +287,17 @@ export const simulationDemoBlocks: ReactElement[] = [
                 <WaveInterferenceViz />
             </SimulationPanel>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sim-trig-h2" maxWidth="xl">
+    <StackLayout key="layout-sim-trig-h2" maxWidth="xl">
         <Block id="block-sim-trig-h2" padding="sm">
             <EditableH2 id="h2-sim-trig" blockId="block-sim-trig-h2">
                 2) Trigonometric Transformations
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sim-trig" maxWidth="xl">
+    <StackLayout key="layout-sim-trig" maxWidth="xl">
         <Block id="block-sim-trig" padding="sm">
             <SimulationPanel
                 title="Controls"
@@ -353,17 +353,17 @@ export const simulationDemoBlocks: ReactElement[] = [
                 <TrigTransformViz />
             </SimulationPanel>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sim-liss-h2" maxWidth="xl">
+    <StackLayout key="layout-sim-liss-h2" maxWidth="xl">
         <Block id="block-sim-liss-h2" padding="sm">
             <EditableH2 id="h2-sim-liss" blockId="block-sim-liss-h2">
                 3) Lissajous Curves
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-sim-liss" maxWidth="xl">
+    <StackLayout key="layout-sim-liss" maxWidth="xl">
         <Block id="block-sim-liss" padding="sm">
             <SimulationPanel
                 title="Controls"
@@ -414,5 +414,5 @@ export const simulationDemoBlocks: ReactElement[] = [
                 <LissajousViz />
             </SimulationPanel>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 ];

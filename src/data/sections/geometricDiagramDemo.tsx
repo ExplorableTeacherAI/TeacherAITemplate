@@ -1,5 +1,5 @@
 import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     EditableH2,
@@ -37,15 +37,15 @@ function ReactiveGeometricDiagram() {
 }
 
 export const geometricDiagramDemo: ReactElement[] = [
-    <FullWidthLayout key="layout-gd-title" maxWidth="xl">
+    <StackLayout key="layout-gd-title" maxWidth="xl">
         <Block id="block-gd-title" padding="md">
             <EditableH2 id="h2-gd-title" blockId="block-gd-title">
                 Geometric Diagram (SVG)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-gd-intro" maxWidth="xl">
+    <StackLayout key="layout-gd-intro" maxWidth="xl">
         <Block id="block-gd-intro" padding="sm">
             <EditableParagraph id="para-gd-intro" blockId="block-gd-intro">
                 This component renders circle, triangle, and regular polygon diagrams with store-driven controls.
@@ -53,15 +53,15 @@ export const geometricDiagramDemo: ReactElement[] = [
                 with the diagram parts.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-gd-demo1-title" maxWidth="xl">
+    <StackLayout key="layout-gd-demo1-title" maxWidth="xl">
         <Block id="block-gd-demo1-title" padding="sm">
             <EditableH3 id="h3-gd-demo1-title" blockId="block-gd-demo1-title">
                 1. Reactive Shape Controls
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-gd-demo1" ratio="1:1" gap="lg">
         <Block id="block-gd-demo1-text" padding="sm">
@@ -95,13 +95,13 @@ export const geometricDiagramDemo: ReactElement[] = [
         </Block>
     </SplitLayout>,
 
-    <FullWidthLayout key="layout-gd-demo2-title" maxWidth="xl">
+    <StackLayout key="layout-gd-demo2-title" maxWidth="xl">
         <Block id="block-gd-demo2-title" padding="sm">
             <EditableH3 id="h3-gd-demo2-title" blockId="block-gd-demo2-title">
                 2. Linked-Highlight Geometry Vocabulary
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-gd-demo2" ratio="1:1" gap="lg">
         <Block id="block-gd-demo2-text" padding="sm">

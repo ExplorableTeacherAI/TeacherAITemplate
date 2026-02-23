@@ -330,7 +330,7 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 ```tsx
-<FullWidthLayout key="layout-unique-key" maxWidth="xl">
+<StackLayout key="layout-unique-key" maxWidth="xl">
     <Block id="block-unique-id" padding="sm">
         <EditableParagraph id="para-unique-id" blockId="block-unique-id">
             Content here with{" "}
@@ -341,7 +341,7 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
             {" "}inline.
         </EditableParagraph>
     </Block>
-</FullWidthLayout>
+</StackLayout>
 ```
 
 ### Critical Rule: One Component Per Block
@@ -358,19 +358,19 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 </Block>
 
 // CORRECT — each component in its own Block
-<FullWidthLayout key="layout-formula" maxWidth="xl">
+<StackLayout key="layout-formula" maxWidth="xl">
     <Block id="block-formula" padding="lg">
         <FormulaBlock latex="E = mc^2" />
     </Block>
-</FullWidthLayout>,
+</StackLayout>,
 
-<FullWidthLayout key="layout-explanation" maxWidth="xl">
+<StackLayout key="layout-explanation" maxWidth="xl">
     <Block id="block-explanation" padding="sm">
         <EditableParagraph id="para-explain" blockId="block-explanation">
             This is the explanation.
         </EditableParagraph>
     </Block>
-</FullWidthLayout>
+</StackLayout>
 ```
 
 **Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph`.
@@ -385,7 +385,7 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 Import from `@/components/layouts`.
 
-- `FullWidthLayout` — single column, use `maxWidth` prop (`sm`, `md`, `lg`, `xl`, `2xl`, `full`)
+- `StackLayout` — single column, use `maxWidth` prop (`sm`, `md`, `lg`, `xl`, `2xl`, `full`)
 - `SplitLayout` — side-by-side (ideal for text + visual), use `ratio` (`1:1`, `1:2`, `2:1`, `1:3`, `3:1`, `2:3`, `3:2`), `gap` (`none`, `sm`, `md`, `lg`, `xl`), `align` (`start`, `center`, `end`, `stretch`)
 - `GridLayout` — grid of items (ideal for visual galleries), use `columns` (2–6), `gap`, `mobileColumns`
 - `ScrollytellingLayout` — sticky visual + scrolling text steps; use `<ScrollStep>` for each text step and `<ScrollVisual>` for the visualization; `varName` writes the active 0-based step index to a global variable; props: `visualPosition`, `visualWidth`, `gap`, `threshold`, `onStepChange`
@@ -536,30 +536,30 @@ Sections MUST export a **flat array of `Layout > Block` elements** — NEVER a w
 // WRONG — wrapper component hides blocks from the block manager
 export const MySection = () => (
     <>
-        <FullWidthLayout key="section-title" maxWidth="xl">
+        <StackLayout key="section-title" maxWidth="xl">
             <Block id="section-title" padding="md">...</Block>
-        </FullWidthLayout>
+        </StackLayout>
     </>
 );
 export const mySectionBlocks = [<MySection key="my-section" />];
 
 // CORRECT — flat array of individual block elements
 export const mySectionBlocks: ReactElement[] = [
-    <FullWidthLayout key="layout-section-title" maxWidth="xl">
+    <StackLayout key="layout-section-title" maxWidth="xl">
         <Block id="block-section-title" padding="md">
             <EditableH1 id="h1-section-title" blockId="block-section-title">
                 Section Title
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-section-content" maxWidth="xl">
+    <StackLayout key="layout-section-content" maxWidth="xl">
         <Block id="block-section-content" padding="sm">
             <EditableParagraph id="para-section-content" blockId="block-section-content">
                 Content here...
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 ];
 ```
 
@@ -569,7 +569,7 @@ export const mySectionBlocks: ReactElement[] = [
 // src/data/sections/MySection.tsx
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
-import { FullWidthLayout, SplitLayout, GridLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout, GridLayout } from "@/components/layouts";
 import {
     EditableH1, EditableH2, EditableParagraph,
     InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice,
@@ -585,15 +585,15 @@ import { DesmosGraph } from "@/components/organisms";
 import { useVar, useSetVar } from "@/stores";
 
 export const mySectionBlocks: ReactElement[] = [
-    <FullWidthLayout key="layout-my-title" maxWidth="xl">
+    <StackLayout key="layout-my-title" maxWidth="xl">
         <Block id="block-my-title" padding="md">
             <EditableH1 id="h1-my-title" blockId="block-my-title">
                 My Section Title
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-my-intro" maxWidth="xl">
+    <StackLayout key="layout-my-intro" maxWidth="xl">
         <Block id="block-my-intro" padding="sm">
             <EditableParagraph id="para-my-intro" blockId="block-my-intro">
                 Introduction text with an interactive value of{" "}
@@ -604,7 +604,7 @@ export const mySectionBlocks: ReactElement[] = [
                 {" "}units.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 ];
 ```
 

@@ -1,5 +1,5 @@
 import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian3D,
@@ -468,15 +468,15 @@ function ReactiveLissajousViz() {
 
 export const cartesian3dDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
-    <FullWidthLayout key="layout-c3d-header-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-header-title" maxWidth="xl">
         <Block id="block-c3d-header-title" padding="sm">
             <EditableH1 id="h1-c3d-title" blockId="block-c3d-header-title">
                 3D Cartesian Visualizations
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-c3d-header-desc" maxWidth="xl">
+    <StackLayout key="layout-c3d-header-desc" maxWidth="xl">
         <Block id="block-c3d-header-desc" padding="sm">
             <EditableParagraph id="para-c3d-desc" blockId="block-c3d-header-desc">
                 Interactive 3D math plots powered by Cartesian3D — supporting
@@ -485,16 +485,16 @@ export const cartesian3dDemo: ReactElement[] = [
                 dragging, and scroll to zoom.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ── Demo 1: Vectors & Points ─────────────────────────────────────────────
-    <FullWidthLayout key="layout-c3d-vectors-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-vectors-title" maxWidth="xl">
         <Block id="block-c3d-vectors-title" padding="sm">
             <EditableH2 id="h2-c3d-vectors" blockId="block-c3d-vectors-title">
                 3D Vectors
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c3d-vectors-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -557,13 +557,13 @@ export const cartesian3dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 2: Parametric Helix ─────────────────────────────────────────────
-    <FullWidthLayout key="layout-c3d-helix-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-helix-title" maxWidth="xl">
         <Block id="block-c3d-helix-title" padding="sm">
             <EditableH2 id="h2-c3d-helix" blockId="block-c3d-helix-title">
                 Parametric Helix
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c3d-helix-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -629,13 +629,13 @@ export const cartesian3dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 3: Reactive Surface Plot ────────────────────────────────────────
-    <FullWidthLayout key="layout-c3d-surface-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-surface-title" maxWidth="xl">
         <Block id="block-c3d-surface-title" padding="sm">
             <EditableH2 id="h2-c3d-surface" blockId="block-c3d-surface-title">
                 Surface Plot
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c3d-surface-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -727,13 +727,13 @@ export const cartesian3dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 4: Sphere & Plane ───────────────────────────────────────────────
-    <FullWidthLayout key="layout-c3d-sphere-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-sphere-title" maxWidth="xl">
         <Block id="block-c3d-sphere-title" padding="sm">
             <EditableH2 id="h2-c3d-sphere" blockId="block-c3d-sphere-title">
                 Sphere & Plane Intersection
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c3d-sphere-split" ratio="1:1" gap="lg">
         <Block id="block-c3d-sphere-desc" padding="sm">
@@ -763,13 +763,13 @@ export const cartesian3dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 5: Parametric Surface — Torus ───────────────────────────────────
-    <FullWidthLayout key="layout-c3d-torus-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-torus-title" maxWidth="xl">
         <Block id="block-c3d-torus-title" padding="sm">
             <EditableH2 id="h2-c3d-torus" blockId="block-c3d-torus-title">
                 Parametric Surface — Torus
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c3d-torus-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -852,13 +852,13 @@ export const cartesian3dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 6: 3D Draggable Point Explorer ──────────────────────────────────
-    <FullWidthLayout key="layout-c3d-drag-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-drag-title" maxWidth="xl">
         <Block id="block-c3d-drag-title" padding="sm">
             <EditableH2 id="h2-c3d-drag" blockId="block-c3d-drag-title">
                 Draggable Point Explorer
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c3d-drag-split" ratio="1:1" gap="lg">
         <Block id="block-c3d-drag-desc" padding="sm">
@@ -923,13 +923,13 @@ export const cartesian3dDemo: ReactElement[] = [
     </SplitLayout>,
 
     // ── Demo 7: 3D Lissajous Curve ───────────────────────────────────────────
-    <FullWidthLayout key="layout-c3d-lissajous-title" maxWidth="xl">
+    <StackLayout key="layout-c3d-lissajous-title" maxWidth="xl">
         <Block id="block-c3d-lissajous-title" padding="sm">
             <EditableH2 id="h2-c3d-lissajous" blockId="block-c3d-lissajous-title">
                 3D Lissajous Curve
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-c3d-lissajous-split" ratio="1:1" gap="lg">
         <div className="space-y-4">

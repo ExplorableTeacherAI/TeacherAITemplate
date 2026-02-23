@@ -1,5 +1,5 @@
 import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     EditableH2,
@@ -100,23 +100,23 @@ const highlightLinks = [
 
 export const nodeLinkDemo: ReactElement[] = [
     // Title
-    <FullWidthLayout key="layout-nl-title" maxWidth="xl">
+    <StackLayout key="layout-nl-title" maxWidth="xl">
         <Block id="block-nl-title" padding="md">
             <EditableH2 id="h2-nl-title" blockId="block-nl-title">
                 Node-Link Diagram (Force-Directed Graph)
             </EditableH2>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     // ── Demo 1: Simple social network ─────────────────────────────────────
 
-    <FullWidthLayout key="layout-nl-social-title" maxWidth="xl">
+    <StackLayout key="layout-nl-social-title" maxWidth="xl">
         <Block id="block-nl-social-title" padding="sm">
             <EditableH3 id="h3-nl-social-title" blockId="block-nl-social-title">
                 1. Social Network
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-nl-social" ratio="1:1" gap="lg">
         <Block id="block-nl-social-desc" padding="sm">
@@ -139,13 +139,13 @@ export const nodeLinkDemo: ReactElement[] = [
 
     // ── Demo 2: Directed dependency graph ─────────────────────────────────
 
-    <FullWidthLayout key="layout-nl-dep-title" maxWidth="xl">
+    <StackLayout key="layout-nl-dep-title" maxWidth="xl">
         <Block id="block-nl-dep-title" padding="sm">
             <EditableH3 id="h3-nl-dep-title" blockId="block-nl-dep-title">
                 2. Directed Dependency Graph
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-nl-dep" ratio="1:1" gap="lg">
         <Block id="block-nl-dep-desc" padding="sm">
@@ -168,13 +168,13 @@ export const nodeLinkDemo: ReactElement[] = [
 
     // ── Demo 3: Reactive parameters ───────────────────────────────────────
 
-    <FullWidthLayout key="layout-nl-reactive-title" maxWidth="xl">
+    <StackLayout key="layout-nl-reactive-title" maxWidth="xl">
         <Block id="block-nl-reactive-title" padding="sm">
             <EditableH3 id="h3-nl-reactive-title" blockId="block-nl-reactive-title">
                 3. Reactive Force Parameters
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-nl-reactive" ratio="1:1" gap="lg">
         <div className="space-y-4">
@@ -202,13 +202,13 @@ export const nodeLinkDemo: ReactElement[] = [
 
     // ── Demo 4: Linked-highlight integration ──────────────────────────────
 
-    <FullWidthLayout key="layout-nl-highlight-title" maxWidth="xl">
+    <StackLayout key="layout-nl-highlight-title" maxWidth="xl">
         <Block id="block-nl-highlight-title" padding="sm">
             <EditableH3 id="h3-nl-highlight-title" blockId="block-nl-highlight-title">
                 4. Linked-Highlight Integration
             </EditableH3>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
     <SplitLayout key="layout-nl-highlight" ratio="1:1" gap="lg">
         <div className="space-y-4">

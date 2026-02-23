@@ -52,7 +52,7 @@ src/
 │   ├── organisms/                  # Complex self-contained visualizations
 │   │   └── visual/                 #   DesmosGraph, GeoGebraGraph, InteractiveAnimation
 │   │
-│   ├── layouts/                    # FullWidthLayout, SplitLayout, GridLayout, ScrollytellingLayout
+│   ├── layouts/                    # StackLayout, SplitLayout, GridLayout, ScrollytellingLayout
 │   │
 │   ├── templates/                  # Page infrastructure (Block, LessonView) — do not modify
 │   │
@@ -90,15 +90,15 @@ Each section exports a **flat array** of `Layout > Block` elements.
 ```tsx
 // src/data/sections/Introduction.tsx
 export const introBlocks: ReactElement[] = [
-    <FullWidthLayout key="layout-intro-title" maxWidth="xl">
+    <StackLayout key="layout-intro-title" maxWidth="xl">
         <Block id="block-intro-title" padding="md">
             <EditableH1 id="h1-intro-title" blockId="block-intro-title">
                 Understanding Waves
             </EditableH1>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 
-    <FullWidthLayout key="layout-intro-text" maxWidth="xl">
+    <StackLayout key="layout-intro-text" maxWidth="xl">
         <Block id="block-intro-text" padding="sm">
             <EditableParagraph id="para-intro-text" blockId="block-intro-text">
                 A wave with amplitude{" "}
@@ -108,7 +108,7 @@ export const introBlocks: ReactElement[] = [
                 />{" "}meters.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>,
+    </StackLayout>,
 ];
 ```
 
@@ -185,7 +185,7 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 
 | Layout | Best For | Key Props |
 |--------|----------|-----------|
-| `FullWidthLayout` | Single column | `maxWidth`: `sm` / `md` / `lg` / `xl` / `2xl` / `full` |
+| `StackLayout` | Single column | `maxWidth`: `sm` / `md` / `lg` / `xl` / `2xl` / `full` |
 | `SplitLayout` | Side-by-side | `ratio`: `1:1` / `1:2` / `2:1`; `gap`; `align` |
 | `GridLayout` | Multiple items | `columns`: 2–6; `gap` |
 | `ScrollytellingLayout` | Sticky visual + scroll steps | `varName`, `visualPosition`, `visualWidth`, `gap` |

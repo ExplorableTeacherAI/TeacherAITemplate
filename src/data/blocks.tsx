@@ -1,6 +1,6 @@
 import { type ReactElement } from "react";
 // import { Block } from "@/components/templates";
-// import { FullWidthLayout, SplitLayout, GridLayout, ScrollytellingLayout, ScrollStep, ScrollVisual } from "@/components/layouts";
+// import { StackLayout, SplitLayout, GridLayout, ScrollytellingLayout, ScrollStep, ScrollVisual } from "@/components/layouts";
 
 // Initialize variables and their colors from this file's variable definitions
 import { useVariableStore, initializeVariableColors } from "@/stores";
@@ -44,12 +44,12 @@ initializeVariableColors(variableDefinitions);
  * AVAILABLE LAYOUTS
  * ------------------------------------------------------------------
  * 
- * 1. FullWidthLayout
+ * 1. StackLayout
  *    - Best for: Title headers, introductory text, broad visualizations.
  *    - Usage:
- *      <FullWidthLayout maxWidth="xl">
+ *      <StackLayout maxWidth="xl">
  *          <Block id="intro">...</Block>
- *      </FullWidthLayout>
+ *      </StackLayout>
  * 
  * 2. SplitLayout
  *    - Best for: Side-by-side content (e.g., Text + Visualization).
@@ -89,7 +89,7 @@ export const blocks: ReactElement[] = [
 
     // Example (ALWAYS use EditableParagraph and EditableH1/H2/H3 — never plain <p> or <h1>):
     /*
-    <FullWidthLayout key="layout-welcome" maxWidth="xl">
+    <StackLayout key="layout-welcome" maxWidth="xl">
         <Block id="block-welcome" padding="md">
             <EditableH1 id="h1-welcome" blockId="block-welcome">
                 Welcome to MathVibe
@@ -98,6 +98,6 @@ export const blocks: ReactElement[] = [
                 Start building your interactive lesson.
             </EditableParagraph>
         </Block>
-    </FullWidthLayout>
+    </StackLayout>
     */
 ];
