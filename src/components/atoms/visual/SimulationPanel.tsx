@@ -329,7 +329,7 @@ export function SimulationPanel({
     const controlsPanel = (
         <div
             className={cn(
-                "flex flex-col gap-4 p-4 bg-card/80 backdrop-blur-sm rounded-xl border border-border/50",
+                "flex flex-col gap-4 p-4 bg-card/80 backdrop-blur-sm rounded-xl",
                 isHorizontal ? `${controlsWidthClass} shrink-0` : "w-full",
             )}
         >
@@ -377,7 +377,7 @@ export function SimulationPanel({
 
     const canvasArea = (
         <div
-            className="flex-1 min-w-0 rounded-xl overflow-hidden bg-card border border-border/50"
+            className="flex-1 min-w-0 rounded-xl overflow-hidden bg-card"
             style={{ height: typeof height === "number" ? `${height}px` : height }}
         >
             {children}

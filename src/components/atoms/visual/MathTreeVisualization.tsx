@@ -109,7 +109,7 @@ export const MathTreeVisualization: React.FC<MathTreeVisualizationProps> = ({
     horizontalGap = 64,
     verticalGap = 92,
     className = "",
-    showContainerBorder = true,
+    showContainerBorder = false,
     showScaffoldPanel = true,
     onNodeClick,
     onStepChange,

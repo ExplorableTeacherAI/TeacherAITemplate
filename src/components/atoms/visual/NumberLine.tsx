@@ -32,7 +32,7 @@ export const NumberLine: React.FC<NumberLineProps> = ({
     showTicks = true,
     showLabels = true,
     className = "",
-    showContainerBorder = true,
+    showContainerBorder = false,
     onValueChange,
 }) => {
     const safeMax = max <= min ? min + 1 : max;

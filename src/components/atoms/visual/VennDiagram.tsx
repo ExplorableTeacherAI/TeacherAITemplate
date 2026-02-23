@@ -39,7 +39,7 @@ export const VennDiagram: React.FC<VennDiagramProps> = ({
     outsideLabel,
     className = "",
     showCounts = true,
-    showContainerBorder = true,
+    showContainerBorder = false,
     highlightVarName,
 }) => {
     const overlapClipId = useId();
