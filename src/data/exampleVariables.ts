@@ -1688,6 +1688,36 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         options: ['linear', 'smooth', 'step'],
         color: '#8B5CF6',
     },
+
+    // ─────────────────────────────────────────
+    // DESMOS DEMO VARIABLES
+    // ─────────────────────────────────────────
+    desmosEquation: {
+        defaultValue: 'y = a_1 \\sin(a_2 x)',
+        type: 'text',
+        label: 'Desmos Equation',
+        description: 'Equation for the reactive Desmos graph',
+    },
+    desmosAmp: {
+        defaultValue: 1.5,
+        type: 'number',
+        label: 'Desmos Amplitude',
+        description: 'Amplitude parameter for the Desmos graph',
+        min: 0.1,
+        max: 5,
+        step: 0.1,
+        color: '#ef4444',
+    },
+    desmosFreq: {
+        defaultValue: 2,
+        type: 'number',
+        label: 'Desmos Frequency',
+        description: 'Frequency parameter for the Desmos graph',
+        min: 0.1,
+        max: 5,
+        step: 0.1,
+        color: '#3b82f6',
+    },
 };
 
 /**
