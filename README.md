@@ -167,7 +167,7 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 |-----------|---------|-----------|
 | `AnimatedGraph` | Two.js | `variant`, `color`, `speed`, `width`, `height` |
 | `CoordinateSystem` | Two.js | `width`, `height`, `gridSpacing` |
-| `Cartesian2D` | Two.js | Custom 2D coordinate system |
+| `Cartesian2D` | Mafs | Functions, parametric curves, points, vectors, segments |
 | `MafsBasic` / `MafsAnimated` | Mafs | *(static / auto-animated)* |
 | `MafsInteractive` | Mafs | `amplitude`, `frequency` + callbacks |
 | `ThreeCanvas` | Three.js | `height`, `cameraPosition`, `showControls` |
@@ -176,6 +176,7 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 | `D3BarChart` | D3 | `data`, `width`, `height`, `color` |
 | `FlowDiagram` | React Flow | `nodes`, `edges`, `height`, `fitView` |
 | `ExpandableFlowDiagram` | React Flow | `rootNode` |
+| `MatrixVisualization` | SVG | `data`, `colorScheme`, `highlightRows/Cols/Cells` |
 | `DesmosGraph` | Desmos | `expressions`, `height`, `options` |
 | `GeoGebraGraph` | GeoGebra | `app`, `materialId`, `commands` |
 
@@ -248,7 +249,7 @@ import { StepLayout, Step } from "@/components/layouts";
             </EditableParagraph>
         </Block>
         <Block id="block-left-equation" padding="sm">
-            <Equation latex="y = mx + b" />
+            <FormulaBlock latex="y = mx + b" />
         </Block>
         <Block id="block-left-hint" padding="sm">
             <EditableParagraph id="para-left-hint" blockId="block-left-hint">

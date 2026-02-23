@@ -466,7 +466,7 @@ Import from `@/components/layouts`.
             </EditableParagraph>
         </Block>
         <Block id="block-left-equation" padding="sm">
-            <Equation latex="y = mx + b" />
+            <FormulaBlock latex="y = mx + b" />
         </Block>
         <Block id="block-left-hint" padding="sm">
             <EditableParagraph id="para-left-hint" blockId="block-left-hint">
@@ -510,8 +510,7 @@ Import from `@/components/layouts`.
 
 ### Math Components
 
-- `Equation` — block-level KaTeX equation (import from `@/components/atoms`)
-- `InlineFormula` — inline math formula with colored variables (no variable store)
+- `InlineFormula` — inline math formula with colored variables (no variable store, import from `@/components/atoms`)
 - `FormulaBlock` — block-level math display with interactive elements (import from `@/components/molecules`)
 
 ### Visual Components (import from `@/components/atoms`)
@@ -523,10 +522,10 @@ Import from `@/components/layouts`.
   - `color`, `secondaryColor`, `width`, `height`, `speed`, `showAxes`, `showGrid`
 - `CoordinateSystem` — 2D coordinate plane with axes and grid
   - `width`, `height`, `gridSpacing`, `showGrid`, `showLabels`, `axisColor`, `gridColor`
-- `Cartesian2D` — custom 2D coordinate system
 
 #### Interactive Math (Mafs)
 
+- `Cartesian2D` — full-featured 2D coordinate system with functions, parametric curves, points, vectors, segments, and circles
 - `MafsBasic` — static sine wave on a coordinate system (no props)
 - `MafsAnimated` — auto-animated points tracing curves (no props)
 - `MafsInteractive` — **controllable** sine wave with draggable points
@@ -557,10 +556,15 @@ Import from `@/components/layouts`.
 - `ExpandableFlowDiagram` — collapsible tree diagrams
   - `rootNode: TreeNode`, `horizontalSpacing`, `verticalSpacing`
 
-#### Block-Level Equation
+#### Matrix Visualization
 
-- `Equation` — large KaTeX equation with colored terms and hover highlighting
-  - `latex`, `colorMap`, `activeTerm`, `onTermHover`, `onTermClick`
+- `MatrixVisualization` — SVG matrix display with color-coded cells, brackets, indices, and highlighting
+  - `data: number[][]`, `label`, `width`, `height`
+  - `colorScheme`: `"none"` | `"heatmap"` | `"diverging"` | `"categorical"`
+  - `color`, `positiveColor`, `negativeColor`
+  - `showGrid`, `showValues`, `showIndices`, `showBrackets`
+  - `highlightRows`, `highlightCols`, `highlightCells`, `highlightColor`
+  - `onCellClick`, `onCellHover`, `onHoverLeave`
 
 ### External Graph Tools (import from `@/components/organisms`)
 
@@ -636,7 +640,8 @@ import {
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 // Visual components (import only what you need)
-import { AnimatedGraph, D3BarChart, ThreeCanvas, RotatingCube, MafsInteractive, Equation, FlowDiagram } from "@/components/atoms";
+import { AnimatedGraph, D3BarChart, ThreeCanvas, RotatingCube, MafsInteractive, FlowDiagram, MatrixVisualization } from "@/components/atoms";
+import { FormulaBlock } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 
 // Store hooks for reactive visual wrappers
@@ -757,7 +762,8 @@ Reactive wrappers are **inner** components used inside a `<Block>`, not top-leve
 | `D3BarChart` | `@/components/atoms` | `data` | Data visualization |
 | `DesmosGraph` | `@/components/organisms` | `expressions` | Full graphing calculator |
 | `FlowDiagram` | `@/components/atoms` | `nodes`, `edges` | Process/relationship diagrams |
-| `Equation` | `@/components/atoms` | `latex`, `colorMap` | Block-level math |
+| `FormulaBlock` | `@/components/molecules` | `latex`, `variables` | Block-level math with interactive elements |
+| `MatrixVisualization` | `@/components/atoms` | `data`, `colorScheme`, `highlightRows` | Matrix display |
 
 ## Environment Variables
 

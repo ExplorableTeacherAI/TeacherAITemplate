@@ -52,6 +52,7 @@ import { circleAnatomyDemo } from "./sections/circleAnatomyDemo";
 import { symmetryDrawingDemo } from "./sections/symmetryDrawingDemo";
 import { geometricDiagramDemo } from "./sections/geometricDiagramDemo";
 import { vennAndNumberLineDemo } from "./sections/vennAndNumberLineDemo";
+import { matrixDemoBlocks } from "./sections/matrixDemo";
 import { simulationDemoBlocks } from "./sections/simulationDemo";
 import { layoutsDemoBlocks } from "./sections/layoutsDemo";
 
@@ -933,14 +934,14 @@ const exampleBlocks: ReactElement[] = [
     <SplitLayout key="layout-formula-highlight-demo" ratio="1:1" gap="lg">
         <Block id="block-formula-highlight-eq" padding="lg">
             <FormulaBlock
-                    latex="\highlight{fArea}{A} = \highlight{fPi}{\pi} \highlight{fRadius}{r}^{\highlight{fSquared}{2}}"
-                    linkedHighlights={{
-                        fArea: { varName: 'formulaHighlightGroup', color: '#ef4444' },
-                        fPi: { varName: 'formulaHighlightGroup', color: '#3b82f6' },
-                        fRadius: { varName: 'formulaHighlightGroup', color: '#22c55e' },
-                        fSquared: { varName: 'formulaHighlightGroup', color: '#f59e0b' },
-                    }}
-                />
+                latex="\highlight{fArea}{A} = \highlight{fPi}{\pi} \highlight{fRadius}{r}^{\highlight{fSquared}{2}}"
+                linkedHighlights={{
+                    fArea: { varName: 'formulaHighlightGroup', color: '#ef4444' },
+                    fPi: { varName: 'formulaHighlightGroup', color: '#3b82f6' },
+                    fRadius: { varName: 'formulaHighlightGroup', color: '#22c55e' },
+                    fSquared: { varName: 'formulaHighlightGroup', color: '#f59e0b' },
+                }}
+            />
         </Block>
         <Block id="block-formula-highlight-desc" padding="sm">
             <EditableParagraph id="para-formula-highlight-desc" blockId="block-formula-highlight-desc">
@@ -1085,6 +1086,11 @@ const exampleBlocks: ReactElement[] = [
     // VENN + NUMBER LINE DEMOS
     // ========================================
     ...vennAndNumberLineDemo,
+
+    // ========================================
+    // MATRIX VISUALIZATION DEMO
+    // ========================================
+    ...matrixDemoBlocks,
 
     // ========================================
     // SIMULATION PANEL DEMOS

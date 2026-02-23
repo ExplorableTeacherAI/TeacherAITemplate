@@ -1451,6 +1451,83 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: '0.5',
         color: '#3B82F6',
     },
+
+    // ─────────────────────────────────────────
+    // MATRIX VISUALIZATION DEMO
+    // ─────────────────────────────────────────
+    matrixScale: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Matrix Scale',
+        description: 'Scalar multiplier applied to the matrix entries',
+        min: -3,
+        max: 3,
+        step: 0.5,
+        color: '#4F46E5',
+    },
+    matrixRows: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Matrix Rows',
+        description: 'Number of rows in the generated matrix',
+        min: 1,
+        max: 6,
+        step: 1,
+        color: '#06B6D4',
+    },
+    matrixCols: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Matrix Columns',
+        description: 'Number of columns in the generated matrix',
+        min: 1,
+        max: 6,
+        step: 1,
+        color: '#10B981',
+    },
+    matrixColorScheme: {
+        defaultValue: 'heatmap',
+        type: 'select',
+        label: 'Color Scheme',
+        description: 'How matrix cells are colored',
+        options: ['none', 'heatmap', 'diverging', 'categorical'],
+        color: '#D946EF',
+    },
+    matrixShowIndices: {
+        defaultValue: true,
+        type: 'boolean',
+        label: 'Show Indices',
+        description: 'Whether to display row and column indices',
+    },
+    matrixHighlightRow: {
+        defaultValue: -1,
+        type: 'number',
+        label: 'Highlight Row',
+        description: 'Row index to highlight (-1 for none)',
+        min: -1,
+        max: 5,
+        step: 1,
+        color: '#FBBF24',
+    },
+    matrixHighlightCol: {
+        defaultValue: -1,
+        type: 'number',
+        label: 'Highlight Column',
+        description: 'Column index to highlight (-1 for none)',
+        min: -1,
+        max: 5,
+        step: 1,
+        color: '#FBBF24',
+    },
+    matrixDeterminantAnswer: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Determinant Answer',
+        description: 'Student answer for the determinant question',
+        placeholder: '???',
+        correctAnswer: '-2',
+        color: '#3B82F6',
+    },
 };
 
 /**

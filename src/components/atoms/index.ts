@@ -159,3 +159,7 @@ export type {
 // Visual — D3 Node-Link Diagram (force-directed graph)
 export { NodeLinkDiagram } from "./visual/NodeLinkDiagram";
 export type { DiagramNode, DiagramLink, NodeLinkDiagramProps } from "./visual/NodeLinkDiagram";
+
+// Visual — Matrix Visualization
+export { MatrixVisualization } from "./visual/MatrixVisualization";
+export type { MatrixVisualizationProps } from "./visual/MatrixVisualization";
