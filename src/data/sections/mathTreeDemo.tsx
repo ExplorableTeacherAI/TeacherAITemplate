@@ -1,5 +1,5 @@
 import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
+import { FullWidthLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     EditableH2,
@@ -17,7 +17,7 @@ import {
     numberPropsFromDefinition,
     togglePropsFromDefinition,
 } from "../exampleVariables";
-import { useVar } from "@/stores";
+import { useVar, useSetVar } from "@/stores";
 
 const factorTree84: MathTreeNode = {
     id: "f-root",
@@ -157,6 +157,7 @@ function ReactiveFactorTree() {
     const gap = useVar("mtTreeGap", 64) as number;
     const scaffoldPanel = useVar("mtScaffoldPanel", "show") as string;
     const target = useVar("mtFactorTarget", "84") as string;
+    const setVar = useSetVar();
     const tree = target === "60" ? factorTree60 : factorTree84;
 
     return (
@@ -167,7 +168,8 @@ function ReactiveFactorTree() {
             horizontalGap={gap}
             showScaffoldPanel={scaffoldPanel === "show"}
             showContainerBorder={false}
-            height={430}
+            height={600}
+            onStepChange={(s) => setVar("mtFactorStep", s)}
         />
     );
 }
@@ -175,6 +177,7 @@ function ReactiveFactorTree() {
 function ReactiveProbabilityTree() {
     const step = useVar("mtProbStep", 1) as number;
     const panel = useVar("mtScaffoldPanel", "show") as string;
+    const setVar = useSetVar();
     return (
         <MathTreeVisualization
             rootNode={probabilityTree}
@@ -182,7 +185,8 @@ function ReactiveProbabilityTree() {
             currentStep={step}
             showScaffoldPanel={panel === "show"}
             showContainerBorder={false}
-            height={410}
+            height={560}
+            onStepChange={(s) => setVar("mtProbStep", s)}
         />
     );
 }
@@ -204,54 +208,57 @@ export const mathTreeDemo: ReactElement[] = [
         </Block>
     </FullWidthLayout>,
 
-    <SplitLayout key="layout-mt-factor" ratio="1:1" gap="lg">
-        <div className="space-y-4">
-            <Block id="block-mt-factor-desc" padding="sm">
-                <EditableParagraph id="para-mt-factor-desc" blockId="block-mt-factor-desc">
-                    Reveal the factorization progressively using step{" "}
-                    <InlineScrubbleNumber
-                        varName="mtFactorStep"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("mtFactorStep"))}
-                    />
-                    . Horizontal spacing is{" "}
-                    <InlineScrubbleNumber
-                        varName="mtTreeGap"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("mtTreeGap"))}
-                    />
-                    . Current target number is{" "}
-                    <InlineToggle
-                        varName="mtFactorTarget"
-                        options={["84", "60"]}
-                        {...togglePropsFromDefinition(getExampleVariableInfo("mtFactorTarget"))}
-                    />
-                    .
-                </EditableParagraph>
-            </Block>
+    <FullWidthLayout key="layout-mt-factor-desc" maxWidth="xl">
+        <Block id="block-mt-factor-desc" padding="sm">
+            <EditableParagraph id="para-mt-factor-desc" blockId="block-mt-factor-desc">
+                Reveal the factorization progressively using step{" "}
+                <InlineScrubbleNumber
+                    varName="mtFactorStep"
+                    {...numberPropsFromDefinition(getExampleVariableInfo("mtFactorStep"))}
+                />
+                . Horizontal spacing is{" "}
+                <InlineScrubbleNumber
+                    varName="mtTreeGap"
+                    {...numberPropsFromDefinition(getExampleVariableInfo("mtTreeGap"))}
+                />
+                . Current target number is{" "}
+                <InlineToggle
+                    varName="mtFactorTarget"
+                    options={["84", "60"]}
+                    {...togglePropsFromDefinition(getExampleVariableInfo("mtFactorTarget"))}
+                />
+                .
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
 
-            <Block id="block-mt-factor-controls" padding="sm">
-                <EditableParagraph id="para-mt-factor-controls" blockId="block-mt-factor-controls">
-                    Switch scaffold panel with{" "}
-                    <InlineToggle
-                        varName="mtScaffoldPanel"
-                        options={["show", "hide"]}
-                        {...togglePropsFromDefinition(getExampleVariableInfo("mtScaffoldPanel"))}
-                    />
-                    . Jump directly using{" "}
-                    <InlineTrigger varName="mtFactorStep" value={1} icon="refresh">step 1</InlineTrigger>
-                    ,{" "}
-                    <InlineTrigger varName="mtFactorStep" value={2}>step 2</InlineTrigger>
-                    ,{" "}
-                    <InlineTrigger varName="mtFactorStep" value={3}>step 3</InlineTrigger>
-                    , and{" "}
-                    <InlineTrigger varName="mtFactorStep" value={4} icon="zap">step 4</InlineTrigger>
-                    .
-                </EditableParagraph>
-            </Block>
-        </div>
+    <FullWidthLayout key="layout-mt-factor-controls" maxWidth="xl">
+        <Block id="block-mt-factor-controls" padding="sm">
+            <EditableParagraph id="para-mt-factor-controls" blockId="block-mt-factor-controls">
+                Switch scaffold panel with{" "}
+                <InlineToggle
+                    varName="mtScaffoldPanel"
+                    options={["show", "hide"]}
+                    {...togglePropsFromDefinition(getExampleVariableInfo("mtScaffoldPanel"))}
+                />
+                . Jump directly using{" "}
+                <InlineTrigger varName="mtFactorStep" value={1} icon="refresh">step 1</InlineTrigger>
+                ,{" "}
+                <InlineTrigger varName="mtFactorStep" value={2}>step 2</InlineTrigger>
+                ,{" "}
+                <InlineTrigger varName="mtFactorStep" value={3}>step 3</InlineTrigger>
+                , and{" "}
+                <InlineTrigger varName="mtFactorStep" value={4} icon="zap">step 4</InlineTrigger>
+                .
+            </EditableParagraph>
+        </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-mt-factor-viz" maxWidth="2xl">
         <Block id="block-mt-factor-viz" padding="sm">
             <ReactiveFactorTree />
         </Block>
-    </SplitLayout>,
+    </FullWidthLayout>,
 
     <FullWidthLayout key="layout-mt-prob-title" maxWidth="xl">
         <Block id="block-mt-prob-title" padding="sm">
@@ -261,7 +268,7 @@ export const mathTreeDemo: ReactElement[] = [
         </Block>
     </FullWidthLayout>,
 
-    <SplitLayout key="layout-mt-prob" ratio="1:1" gap="lg">
+    <FullWidthLayout key="layout-mt-prob-text" maxWidth="xl">
         <Block id="block-mt-prob-text" padding="sm">
             <EditableParagraph id="para-mt-prob-text" blockId="block-mt-prob-text">
                 Move through probability scaffolding using step{" "}
@@ -278,8 +285,11 @@ export const mathTreeDemo: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
+    </FullWidthLayout>,
+
+    <FullWidthLayout key="layout-mt-prob-viz" maxWidth="2xl">
         <Block id="block-mt-prob-viz" padding="sm">
             <ReactiveProbabilityTree />
         </Block>
-    </SplitLayout>,
+    </FullWidthLayout>,
 ];

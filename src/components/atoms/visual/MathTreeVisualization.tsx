@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface MathTreeNode {
     id: string;
@@ -30,6 +31,7 @@ export interface MathTreeVisualizationProps {
     showContainerBorder?: boolean;
     showScaffoldPanel?: boolean;
     onNodeClick?: (node: MathTreeNode) => void;
+    onStepChange?: (step: number) => void;
 }
 
 type PositionedNode = {
@@ -110,6 +112,7 @@ export const MathTreeVisualization: React.FC<MathTreeVisualizationProps> = ({
     showContainerBorder = true,
     showScaffoldPanel = true,
     onNodeClick,
+    onStepChange,
 }) => {
     const safeStepIndex = scaffoldSteps.length > 0
         ? clamp(Math.round(currentStep) - 1, 0, scaffoldSteps.length - 1)
@@ -154,6 +157,9 @@ export const MathTreeVisualization: React.FC<MathTreeVisualizationProps> = ({
     }, [rootNode, revealDepth, width, nodeWidth, horizontalGap, verticalGap, height]);
 
     if (!layout) return null;
+
+    const canGoPrev = safeStepIndex > 0;
+    const canGoNext = safeStepIndex < scaffoldSteps.length - 1;
 
     return (
         <div className={`w-full rounded-xl bg-card p-4 ${showContainerBorder ? "border" : ""} ${className}`}>
@@ -227,6 +233,30 @@ export const MathTreeVisualization: React.FC<MathTreeVisualizationProps> = ({
                     );
                 })}
             </svg>
+
+            {onStepChange && scaffoldSteps.length > 0 && (
+                <div className="mt-3 flex items-center justify-between gap-3">
+                    <button
+                        onClick={() => canGoPrev && onStepChange(safeStepIndex)}
+                        disabled={!canGoPrev}
+                        className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                    </button>
+                    <span className="text-sm text-muted-foreground">
+                        Step {safeStepIndex + 1} / {scaffoldSteps.length}
+                    </span>
+                    <button
+                        onClick={() => canGoNext && onStepChange(safeStepIndex + 2)}
+                        disabled={!canGoNext}
+                        className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </div>
+            )}
 
             {showScaffoldPanel && scaffoldSteps.length > 0 && (
                 <div className="mt-4 rounded-lg border bg-muted/30 p-3">
