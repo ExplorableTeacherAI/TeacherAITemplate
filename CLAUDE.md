@@ -571,6 +571,16 @@ Import from `@/components/layouts`.
 
 - `D3BarChart` — animated bar chart with hover tooltips
   - `data: { label: string, value: number }[]`, `width`, `height`, `color`
+- `DataVisualization` — multi-type chart component (bar, line, area, pie, donut, scatter)
+  - `type`: `"bar"` | `"line"` | `"area"` | `"pie"` | `"donut"` | `"scatter"`
+  - `data: { label: string, value: number, color?: string }[]` — for bar/line/area/pie/donut
+  - `scatterData: { x: number, y: number, label?: string, color?: string, size?: number }[]` — for scatter
+  - `width`, `height`, `title`, `xLabel`, `yLabel`
+  - `color` (default single color), `colors` (palette array)
+  - `showGrid`, `animate`, `showValues`, `showLegend`
+  - `curve`: `"linear"` | `"smooth"` | `"step"` — line/area interpolation
+  - `donutRatio` — inner radius ratio for donut charts (0–1, default 0.55)
+  - `caption` — text below the chart
 
 #### Flow Diagrams (React Flow)
 
@@ -878,6 +888,7 @@ Reactive wrappers are **inner** components used inside a `<Block>`, not top-leve
 | `MafsInteractive` | `@/components/atoms` | `amplitude`, `frequency` | Bidirectional sine wave |
 | `RotatingCube` | `@/components/atoms` | `size`, `speed`, `color` | 3D geometry |
 | `D3BarChart` | `@/components/atoms` | `data` | Data visualization |
+| `DataVisualization` | `@/components/atoms` | `type`, `data`, `scatterData`, `color`, `curve` | Multi-type charts (bar, line, area, pie, donut, scatter) |
 | `DesmosGraph` | `@/components/organisms` | `expressions` | Full graphing calculator |
 | `FlowDiagram` | `@/components/atoms` | `nodes`, `edges` | Process/relationship diagrams |
 | `FormulaBlock` | `@/components/molecules` | `latex`, `variables` | Block-level math with interactive elements |

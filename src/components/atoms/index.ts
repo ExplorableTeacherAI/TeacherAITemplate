@@ -118,6 +118,10 @@ export * from "./visual/ThreeVisuals";
 export { D3BarChart } from "./visual/D3BarChart";
 export type { D3BarChartProps, DataPoint } from "./visual/D3BarChart";
 
+// Visual — Data Visualization (D3-powered multi-chart component)
+export { DataVisualization } from "./visual/DataVisualization";
+export type { DataVisualizationProps, ChartType, ChartDataPoint, ScatterDataPoint } from "./visual/DataVisualization";
+
 // Visual — SVG Geometry Components
 export { GeometricDiagram } from "./visual/GeometricDiagram";
 export type { GeometricDiagramProps, GeometricVariant } from "./visual/GeometricDiagram";

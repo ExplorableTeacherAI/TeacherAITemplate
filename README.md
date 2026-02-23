@@ -41,9 +41,9 @@ src/
 │   │   │                           #   InlineTrigger, InlineHyperlink, InlineSpotColor,
 │   │   │                           #   InlineLinkedHighlight
 │   │   ├── formula/                #   InlineFormula
-│   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedGraph,
-│   │   │                           #   CoordinateSystem, Cartesian2D, FlowDiagram,
-│   │   │                           #   ExpandableFlowDiagram, Table
+│   │   ├── visual/                 #   D3BarChart, DataVisualization, Mafs*, Three*,
+│   │   │                           #   AnimatedGraph, CoordinateSystem, Cartesian2D,
+│   │   │                           #   FlowDiagram, ExpandableFlowDiagram, Table
 │   │   └── ui/                     #   shadcn/ui primitives
 │   │
 │   ├── molecules/                  # Composed from multiple atoms
@@ -174,6 +174,7 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 | `RotatingCube` | Three.js | `color`, `size`, `speed` |
 | `PulsingSphere` | Three.js | `color` |
 | `D3BarChart` | D3 | `data`, `width`, `height`, `color` |
+| `DataVisualization` | D3 | `type`, `data`, `scatterData`, `color`, `curve`, `showValues` |
 | `FlowDiagram` | React Flow | `nodes`, `edges`, `height`, `fitView` |
 | `ExpandableFlowDiagram` | React Flow | `rootNode` |
 | `MatrixVisualization` | SVG | `data`, `colorScheme`, `highlightRows/Cols/Cells` |
