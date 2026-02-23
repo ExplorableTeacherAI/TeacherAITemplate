@@ -249,9 +249,32 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
-| `latex` | `string` | *(required)* | LaTeX formula string |
+| `latex` | `string` | *(required)* | LaTeX formula string — use single `\` for commands (see escaping rule below) |
 | `colorMap` | `Record<string, string>` | `{}` | Term name → hex color mapping for `\clr{}{}` |
 | `color` | `string` | `#8B5CF6` | Wrapper accent color (violet) |
+
+### Critical Rule: LaTeX Escaping in JSX String Attributes
+
+**Use a single `\` for LaTeX commands in JSX string attributes — NEVER `\\`.**
+
+In JSX string attributes (`latex="..."`), a single backslash is passed through literally to KaTeX. Using `\\` produces two literal backslashes in the string, which KaTeX cannot parse — causing broken rendering (e.g., formula text split across lines as plain italic text).
+
+```tsx
+// WRONG — double backslash produces "\\sin" which KaTeX cannot parse
+<InlineFormula latex="y = A\\sin(\\omega x + \\phi)" colorMap={{}} />
+
+// CORRECT — single backslash produces "\sin" which KaTeX renders properly
+<InlineFormula latex="y = A\sin(\omega x + \phi)" colorMap={{}} />
+```
+
+This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`, `\alpha`, `\frac`, `\sqrt`, `\sum`, `\int`, `\clr`, etc.
+
+**Same rule for `FormulaBlock`:**
+
+```tsx
+// CORRECT
+<FormulaBlock latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}" ... />
+```
 
 ## InlineTrigger (Click to Set Variable)
 

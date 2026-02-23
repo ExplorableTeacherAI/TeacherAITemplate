@@ -151,7 +151,7 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 | `InlineTooltip` | Shows tooltip/definition on hover (no variable store) |
 | `InlineTrigger` | Click to set a variable to a value (emerald) |
 | `InlineHyperlink` | Click to open URL or scroll to block (emerald) |
-| `InlineFormula` | Inline KaTeX formula with colored terms |
+| `InlineFormula` | Inline KaTeX formula with colored terms (use single `\` for LaTeX commands) |
 | `InlineSpotColor` | Colored text highlight |
 | `InlineLinkedHighlight` | Bidirectional highlighting |
 
@@ -270,6 +270,33 @@ import { StepLayout, Step } from "@/components/layouts";
 - Use `className="space-y-4"` (or `space-y-2`, `space-y-6`) on the wrapper to control vertical spacing between blocks.
 - Each `<Block>` inside the wrapper still follows the **one primary component per Block** rule.
 - If both sides need multiple blocks, wrap both sides in `<div>` containers.
+
+---
+
+## LaTeX Escaping in JSX
+
+**Use a single `\` for LaTeX commands in JSX string attributes — NEVER `\\`.**
+
+In JSX string attributes (`latex="..."`), a single backslash is passed through literally to KaTeX. Using `\\` produces two literal backslashes in the string, which KaTeX cannot parse — causing broken rendering (formula text appears as split plain italic text).
+
+```tsx
+// WRONG — double backslash breaks KaTeX
+<InlineFormula latex="y = A\\sin(\\omega x + \\phi)" colorMap={{}} />
+
+// CORRECT — single backslash
+<InlineFormula latex="y = A\sin(\omega x + \phi)" colorMap={{}} />
+
+// CORRECT — with \clr color syntax
+<InlineFormula
+    latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
+    colorMap={{ area: '#ef4444', pi: '#3b82f6', radius: '#3cc499' }}
+/>
+
+// CORRECT — FormulaBlock follows the same rule
+<FormulaBlock latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}" ... />
+```
+
+This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`, `\alpha`, `\frac`, `\sqrt`, `\sum`, `\int`, `\clr`, `\scrub`, etc.
 
 ---
 
