@@ -41,16 +41,16 @@ src/
 │   │   │                           #   InlineTrigger, InlineHyperlink, InlineSpotColor,
 │   │   │                           #   InlineLinkedHighlight
 │   │   ├── formula/                #   InlineFormula
-│   │   ├── visual/                 #   D3BarChart, DataVisualization, Mafs*, Three*,
-│   │   │                           #   AnimatedGraph, CoordinateSystem, Cartesian2D,
-│   │   │                           #   FlowDiagram, ExpandableFlowDiagram, Table
+│   │   ├── visual/                 #   DataVisualization, ImageDisplay, VideoDisplay,
+│   │   │                           #   Cartesian2D, FlowDiagram, ExpandableFlowDiagram,
+│   │   │                           #   Table, GeometricDiagram, NodeLinkDiagram
 │   │   └── ui/                     #   shadcn/ui primitives
 │   │
 │   ├── molecules/                  # Composed from multiple atoms
 │   │   └── formula/                #   FormulaBlock
 │   │
 │   ├── organisms/                  # Complex self-contained visualizations
-│   │   └── visual/                 #   DesmosGraph, GeoGebraGraph, InteractiveAnimation
+│   │   └── visual/                 #   DesmosGraph, GeoGebraGraph
 │   │
 │   ├── layouts/                    # StackLayout, SplitLayout, GridLayout, ScrollytellingLayout, SlideLayout, StepLayout
 │   │
@@ -165,15 +165,9 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 
 | Component | Library | Key Props |
 |-----------|---------|-----------|
-| `AnimatedGraph` | Two.js | `variant`, `color`, `speed`, `width`, `height` |
-| `CoordinateSystem` | Two.js | `width`, `height`, `gridSpacing` |
+| `ImageDisplay` | — | `src`, `alt`, `caption`, `bordered`, `zoomable`, `objectFit` |
+| `VideoDisplay` | — | `src`, `alt`, `caption`, `controls`, `autoPlay`, `poster` |
 | `Cartesian2D` | Mafs | Functions, parametric curves, points, vectors, segments |
-| `MafsBasic` / `MafsAnimated` | Mafs | *(static / auto-animated)* |
-| `MafsInteractive` | Mafs | `amplitude`, `frequency` + callbacks |
-| `ThreeCanvas` | Three.js | `height`, `cameraPosition`, `showControls` |
-| `RotatingCube` | Three.js | `color`, `size`, `speed` |
-| `PulsingSphere` | Three.js | `color` |
-| `D3BarChart` | D3 | `data`, `width`, `height`, `color` |
 | `DataVisualization` | D3 | `type`, `data`, `scatterData`, `color`, `curve`, `showValues` |
 | `FlowDiagram` | React Flow | `nodes`, `edges`, `height`, `fitView` |
 | `ExpandableFlowDiagram` | React Flow | `rootNode` |
@@ -374,28 +368,13 @@ The table reads its accent colour from the global variable store (via `varName`)
 Create a reactive wrapper that reads from the store and passes values as props:
 
 ```tsx
-function ReactiveCube() {
-    const size = useVar('cubeSize', 1.5) as number;
+function ReactiveDataViz() {
+    const value = useVar('myValue', 10) as number;
     return (
-        <ThreeCanvas height={320}>
-            <RotatingCube size={size} color="#4F46E5" />
-        </ThreeCanvas>
-    );
-}
-```
-
-For bidirectional control (Mafs):
-
-```tsx
-function ReactiveSineWave() {
-    const amp = useVar('amplitude', 1) as number;
-    const freq = useVar('frequency', 1) as number;
-    const setVar = useSetVar();
-    return (
-        <MafsInteractive
-            amplitude={amp} frequency={freq}
-            onAmplitudeChange={(v) => setVar('amplitude', v)}
-            onFrequencyChange={(v) => setVar('frequency', v)}
+        <DataVisualization
+            type="bar"
+            data={[{ label: 'A', value }]}
+            height={320}
         />
     );
 }

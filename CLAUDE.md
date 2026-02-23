@@ -539,38 +539,19 @@ Import from `@/components/layouts`.
 
 ### Visual Components (import from `@/components/atoms`)
 
-#### 2D Graphs & Animations (Two.js)
+#### Media
 
-- `AnimatedGraph` — animated mathematical graphs
-  - `variant`: `"sine-wave"` | `"parametric"` | `"pendulum"` | `"fourier"` | `"lissajous"`
-  - `color`, `secondaryColor`, `width`, `height`, `speed`, `showAxes`, `showGrid`
-- `CoordinateSystem` — 2D coordinate plane with axes and grid
-  - `width`, `height`, `gridSpacing`, `showGrid`, `showLabels`, `axisColor`, `gridColor`
+- `ImageDisplay` — block-level image renderer
+  - `src`, `alt`, `caption`, `bordered`, `zoomable`, `objectFit`, `width`, `height`
+- `VideoDisplay` — block-level video renderer (files or YouTube)
+  - `src`, `alt`, `caption`, `controls`, `autoPlay`, `loop`, `poster`, `aspectRatio`
 
 #### Interactive Math (Mafs)
 
 - `Cartesian2D` — full-featured 2D coordinate system with functions, parametric curves, points, vectors, segments, and circles
-- `MafsBasic` — static sine wave on a coordinate system (no props)
-- `MafsAnimated` — auto-animated points tracing curves (no props)
-- `MafsInteractive` — **controllable** sine wave with draggable points
-  - `amplitude`, `frequency` — controlled values
-  - `onAmplitudeChange`, `onFrequencyChange` — callbacks when points are dragged
-  - Supports bidirectional control: text controls update graph, graph dragging updates text
-
-#### 3D Visualizations (Three.js)
-
-- `ThreeCanvas` — React Three Fiber canvas wrapper (required parent for 3D components)
-  - `height`, `cameraPosition`, `showControls`, `shadows`, `autoRotate`
-- `RotatingCube` — floating cube (`color`, `size`, `speed`)
-- `PulsingSphere` — distorted sphere (`color`)
-- `GeometricCollection` — group of floating shapes
-- `AtomicStructure` — electron orbit simulation
-- `ThreeCoordinateSystem` — 3D axes with grid (`size`, `showGrid`, `showLabels`, `gridSize`)
 
 #### Data Visualization (D3)
 
-- `D3BarChart` — animated bar chart with hover tooltips
-  - `data: { label: string, value: number }[]`, `width`, `height`, `color`
 - `DataVisualization` — multi-type chart component (bar, line, area, pie, donut, scatter)
   - `type`: `"bar"` | `"line"` | `"area"` | `"pie"` | `"donut"` | `"scatter"`
   - `data: { label: string, value: number, color?: string }[]` — for bar/line/area/pie/donut
@@ -674,8 +655,7 @@ import {
 } from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
-// Visual components (import only what you need)
-import { AnimatedGraph, D3BarChart, ThreeCanvas, RotatingCube, MafsInteractive, FlowDiagram, MatrixVisualization } from "@/components/atoms";
+import { DataVisualization, ImageDisplay, FlowDiagram, MatrixVisualization } from "@/components/atoms";
 import { FormulaBlock } from "@/components/molecules";
 import { DesmosGraph } from "@/components/organisms";
 
@@ -817,17 +797,18 @@ The most powerful pattern is connecting `InlineScrubbleNumber` / `InlineTrigger`
 Create a small React component that reads from the store with `useVar` and passes values as props to the visual:
 
 ```tsx
-import { useVar, useSetVar } from '@/stores';
-import { ThreeCanvas, RotatingCube } from "@/components/atoms";
+import { useVar } from '@/stores';
+import { DataVisualization } from "@/components/atoms";
 
-function ReactiveCube() {
-    const size = useVar('cubeSize', 1.5) as number;
-    const speed = useVar('cubeSpeed', 1) as number;
+function ReactiveDataViz() {
+    const value = useVar('myValue', 10) as number;
 
     return (
-        <ThreeCanvas height={320}>
-            <RotatingCube size={size} speed={speed} color="#4F46E5" />
-        </ThreeCanvas>
+        <DataVisualization
+            type="bar"
+            data={[{ label: 'A', value }]}
+            height={320}
+        />
     );
 }
 ```
@@ -835,45 +816,24 @@ function ReactiveCube() {
 Then use it inside a `SplitLayout` with scrubble numbers and triggers in the text:
 
 ```tsx
-<SplitLayout key="layout-cube" ratio="1:1" gap="lg">
-    <Block id="block-cube-text" padding="sm">
-        <EditableParagraph id="para-cube" blockId="block-cube-text">
-            The cube size is{" "}
+<SplitLayout key="layout-dataviz" ratio="1:1" gap="lg">
+    <Block id="block-dataviz-text" padding="sm">
+        <EditableParagraph id="para-dataviz" blockId="block-dataviz-text">
+            The value is{" "}
             <InlineScrubbleNumber
-                varName="cubeSize"
-                {...numberPropsFromDefinition(getVariableInfo('cubeSize'))}
+                varName="myValue"
+                {...numberPropsFromDefinition(getVariableInfo('myValue'))}
             />
             . You can{" "}
-            <InlineTrigger varName="cubeSize" value={0.5}>make it tiny</InlineTrigger>{" "}
+            <InlineTrigger varName="myValue" value={5}>make it small</InlineTrigger>{" "}
             or{" "}
-            <InlineTrigger varName="cubeSize" value={3} icon="zap">make it huge</InlineTrigger>.
+            <InlineTrigger varName="myValue" value={50} icon="zap">make it huge</InlineTrigger>.
         </EditableParagraph>
     </Block>
-    <Block id="block-cube-viz" padding="sm">
-        <ReactiveCube />
+    <Block id="block-dataviz-viz" padding="sm">
+        <ReactiveDataViz />
     </Block>
 </SplitLayout>
-```
-
-### Bidirectional Control (Mafs)
-
-`MafsInteractive` supports bidirectional linking — dragging scrubble numbers updates the graph, and dragging graph points updates the scrubble numbers:
-
-```tsx
-function ReactiveSineWave() {
-    const amp = useVar('amplitude', 1) as number;
-    const freq = useVar('frequency', 1) as number;
-    const setVar = useSetVar();
-
-    return (
-        <MafsInteractive
-            amplitude={amp}
-            frequency={freq}
-            onAmplitudeChange={(v) => setVar('amplitude', v)}
-            onFrequencyChange={(v) => setVar('frequency', v)}
-        />
-    );
-}
 ```
 
 ### Important: Wrapper Components vs Block Arrays
@@ -884,16 +844,15 @@ Reactive wrappers are **inner** components used inside a `<Block>`, not top-leve
 
 | Component | Import From | Controllable Props | Use Case |
 |-----------|------------|-------------------|----------|
-| `AnimatedGraph` | `@/components/atoms` | `speed` | Animated math curves |
-| `MafsInteractive` | `@/components/atoms` | `amplitude`, `frequency` | Bidirectional sine wave |
-| `RotatingCube` | `@/components/atoms` | `size`, `speed`, `color` | 3D geometry |
-| `D3BarChart` | `@/components/atoms` | `data` | Data visualization |
-| `DataVisualization` | `@/components/atoms` | `type`, `data`, `scatterData`, `color`, `curve` | Multi-type charts (bar, line, area, pie, donut, scatter) |
+| `ImageDisplay` | `@/components/atoms` | `src`, `zoomable` | Static image rendering |
+| `VideoDisplay` | `@/components/atoms` | `src`, `controls` | Embedded video and YouTube |
+| `Cartesian2D` | `@/components/atoms` | `varName` | 2D coordinate geometry |
+| `DataVisualization` | `@/components/atoms` | `type`, `data`, `scatterData` | Multi-type charts |
 | `DesmosGraph` | `@/components/organisms` | `expressions` | Full graphing calculator |
 | `FlowDiagram` | `@/components/atoms` | `nodes`, `edges` | Process/relationship diagrams |
 | `FormulaBlock` | `@/components/molecules` | `latex`, `variables` | Block-level math with interactive elements |
 | `MatrixVisualization` | `@/components/atoms` | `data`, `colorScheme`, `highlightRows` | Matrix display |
-| `Table` | `@/components/atoms` | `columns`, `rows`, `color`, `compact`, `bordered` | Table with inline components in cells |
+| `Table` | `@/components/atoms` | `columns`, `rows`, `color`, `compact` | Table with inline components |
 
 ## Environment Variables
 
