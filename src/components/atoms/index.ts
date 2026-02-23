@@ -171,3 +171,7 @@ export type { MatrixVisualizationProps } from "./visual/MatrixVisualization";
 // Visual — Table
 export { Table } from "./visual/Table";
 export type { TableProps, TableColumn, TableRow } from "./visual/Table";
+
+// Visual — Image Display
+export { ImageDisplay } from "./visual/ImageDisplay";
+export type { ImageDisplayProps, ImageFit } from "./visual/ImageDisplay";

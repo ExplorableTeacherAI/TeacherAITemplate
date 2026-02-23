@@ -57,6 +57,7 @@ import { simulationDemoBlocks } from "./sections/simulationDemo";
 import { layoutsDemoBlocks } from "./sections/layoutsDemo";
 import { tableDemoBlocks } from "./sections/tableDemo";
 import { dataVisualizationDemoBlocks } from "./sections/dataVisualizationDemo";
+import { imageDisplayDemoBlocks } from "./sections/imageDisplayDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function ReactiveHighlightDiagram() {
@@ -1108,6 +1109,11 @@ const exampleBlocks: ReactElement[] = [
     // DATA VISUALIZATION DEMO
     // ========================================
     ...dataVisualizationDemoBlocks,
+
+    // ========================================
+    // IMAGE DISPLAY DEMO
+    // ========================================
+    ...imageDisplayDemoBlocks,
 
     // ========================================
     // LAYOUTS DEMO
