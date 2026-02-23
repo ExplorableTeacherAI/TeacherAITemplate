@@ -869,8 +869,8 @@ const exampleBlocks: ReactElement[] = [
                     \choice&#123;varName&#125;
                 </InlineTooltip>
                 {" "}syntax to embed dropdown multiple-choice selectors inside
-                formulas. Click the purple box below and choose the correct operator
-                for the quadratic formula!
+                formulas. Click the purple box below and choose the correct
+                expression for the denominator of the quadratic formula!
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,
@@ -878,13 +878,13 @@ const exampleBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-formula-choice-demo" maxWidth="xl">
         <Block id="block-formula-choice-demo" padding="lg">
             <FormulaBlock
-                latex="\clr{x}{x} = \frac{-\clr{b}{b} \pm \sqrt{\clr{b}{b}^2 - 4\clr{a}{a}\clr{c}{c}}}{2 \choice{formulaOperator} \clr{a}{a}}"
+                latex="\clr{x}{x} = \frac{-\clr{b}{b} \pm \sqrt{\clr{b}{b}^2 - 4\clr{a}{a}\clr{c}{c}}}{\choice{denominator}}"
                 colorMap={{ x: '#ef4444', a: '#3b82f6', b: '#22c55e', c: '#f59e0b' }}
                 clozeChoices={{
-                    formulaOperator: {
-                        correctAnswer: '×',
-                        options: ['+', '-', '×', '÷'],
-                        placeholder: '?',
+                    denominator: {
+                        correctAnswer: '2a',
+                        options: ['2a', '2+a', 'a²', '2-a'],
+                        placeholder: '???',
                         color: '#8B5CF6',
                     },
                 }}
@@ -895,15 +895,11 @@ const exampleBlocks: ReactElement[] = [
     <FullWidthLayout key="layout-formula-choice-hint" maxWidth="xl">
         <Block id="block-formula-choice-hint" padding="sm">
             <EditableParagraph id="para-formula-choice-hint" blockId="block-formula-choice-hint">
-                Hint: In the quadratic formula, the denominator is 2 times{" "}
+                Hint: The denominator of the quadratic formula is two times{" "}
                 <InlineFormula
                     latex="\clr{a}{a}"
                     colorMap={{ a: '#3b82f6' }}
-                />. What operation goes between 2 and{" "}
-                <InlineFormula
-                    latex="\clr{a}{a}"
-                    colorMap={{ a: '#3b82f6' }}
-                />?
+                />. Which expression in the dropdown represents that?
             </EditableParagraph>
         </Block>
     </FullWidthLayout>,
