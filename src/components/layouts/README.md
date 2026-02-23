@@ -303,6 +303,7 @@ All layouts are responsive by default:
 | **GridLayout** | N columns | Auto-reduced | 1-2 columns |
 | **ScrollytellingLayout** | Text + sticky visual | Text + sticky visual | Single column (stacked) |
 | **SlideLayout** | Card stage + arrows + dots | Card stage + arrows + dots | Card stage + arrows + dots |
+| **StepLayout** | Steps stacked vertically | Steps stacked vertically | Steps stacked vertically |
 
 ---
 
@@ -315,6 +316,7 @@ All layouts are responsive by default:
 - **GridLayout**: When showcasing multiple similar items
 - **ScrollytellingLayout**: When walking through narrative steps with a reactive visualization
 - **SlideLayout**: When presenting sequential content one panel at a time (walkthroughs, quizzes, step-by-step demos)
+- **StepLayout**: When revealing content progressively — learners advance by clicking Continue or answering questions correctly
 
 ### 2. Consistent Spacing
 
@@ -370,6 +372,71 @@ Potential additions to the layout system:
 - **HeroLayout**: Full-screen hero sections
 - **CompareLayout**: Side-by-side comparison tables
 - **TimelineLayout**: Chronological content flow
+
+---
+
+## StepLayout
+
+Progressive-disclosure layout that reveals content one step at a time. Completed steps remain visible above the current one.
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `varName` | `string` | — | Global variable receiving the 0-based revealed step index |
+| `revealLabel` | `string` | `"Continue"` | Default button label (overridable per step) |
+| `showProgress` | `boolean` | `true` | Show "Step N / M" text counter |
+| `allowBack` | `boolean` | `false` | Show a Back button on the current step |
+| `onStepReveal` | `(index) => void` | — | Callback when a new step is revealed |
+
+### Step Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `revealLabel` | `string` | layout default | Override the Continue button label |
+| `completionVarName` | `string` | — | Gate: variable must be truthy before Continue is enabled |
+| `autoAdvance` | `boolean` | `false` | Auto-reveal next step on correct answer (hides Continue button). Requires `completionVarName`. |
+
+### Step Modes
+
+1. **Normal** — shows a Continue → button.
+2. **Gated** (`completionVarName`) — Continue button is disabled until the variable is truthy.
+3. **Auto-advance** (`completionVarName` + `autoAdvance`) — no button; next step appears ~700ms after correct answer.
+
+### Example
+
+```tsx
+<StepLayout varName="progress" showProgress={false}>
+    {/* Question gates the flow */}
+    <Step completionVarName="answer" autoAdvance>
+        <Block id="block-q" padding="sm">
+            <EditableParagraph id="para-q" blockId="block-q">
+                What is 3 × 4?{" "}
+                <InlineClozeInput varName="answer" correctAnswer="12" ... />
+            </EditableParagraph>
+        </Block>
+    </Step>
+
+    {/* Revealed after correct answer */}
+    <Step>
+        <Block id="block-1" padding="sm">
+            <EditableParagraph id="para-1" blockId="block-1">
+                That's right! Continue to the next topic.
+            </EditableParagraph>
+        </Block>
+    </Step>
+
+    {/* Gated step — button disabled until activity is done */}
+    <Step completionVarName="task2">
+        <Block id="block-2" padding="sm">
+            <EditableParagraph id="para-2" blockId="block-2">
+                Fill in:{" "}
+                <InlineClozeInput varName="task2" correctAnswer="yes" ... />
+            </EditableParagraph>
+        </Block>
+    </Step>
+</StepLayout>
+```
 
 ---
 

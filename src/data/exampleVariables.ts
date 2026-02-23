@@ -1429,6 +1429,28 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         max: 3,
         step: 1,
     },
+
+    // ─────────────────────────────────────────
+    // STEP LAYOUT DEMO
+    // ─────────────────────────────────────────
+    stepLayoutProgress: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Step Progress',
+        description: '0-based index of the currently revealed step in the StepLayout demo',
+        min: 0,
+        max: 4,
+        step: 1,
+    },
+    stepPeriodAnswer: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Period Answer',
+        description: 'Student answer for the period/frequency challenge in the StepLayout demo',
+        placeholder: '???',
+        correctAnswer: '0.5',
+        color: '#3B82F6',
+    },
 };
 
 /**

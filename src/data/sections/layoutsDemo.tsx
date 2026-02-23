@@ -9,6 +9,8 @@ import {
     ScrollVisual,
     SlideLayout,
     Slide,
+    StepLayout,
+    Step,
 } from "@/components/layouts";
 import {
     EditableH1,
@@ -18,12 +20,28 @@ import {
     AnimatedGraph,
     MafsInteractive,
     InlineScrubbleNumber,
+    InlineClozeInput,
     InlineTrigger,
     InlineTooltip,
     InlineFormula,
 } from "@/components/atoms";
 import { useVar, useSetVar } from "@/stores";
-import { getExampleVariableInfo, numberPropsFromDefinition } from "../exampleVariables";
+import { getExampleVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "../exampleVariables";
+
+// ─── Reactive visual for StepLayout demo ────────────────────────────────────
+function ReactiveStepViz() {
+    const amp = useVar("amplitude", 1) as number;
+    const freq = useVar("frequency", 1) as number;
+    const setVar = useSetVar();
+    return (
+        <MafsInteractive
+            amplitude={amp}
+            frequency={freq}
+            onAmplitudeChange={(v) => setVar("amplitude", v)}
+            onFrequencyChange={(v) => setVar("frequency", v)}
+        />
+    );
+}
 
 // ─── Reactive visual for SlideLayout demo ────────────────────────────────────
 const SLIDE_VARIANTS = ["sine-wave", "parametric", "pendulum", "lissajous"] as const;
@@ -143,9 +161,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-demo-intro" maxWidth="xl">
         <Block id="block-demo-intro" padding="sm">
             <EditableParagraph id="para-demo-intro" blockId="block-demo-intro">
-                This page demonstrates the five available layouts: StackLayout, SplitLayout,
-                GridLayout, ScrollytellingLayout, and SlideLayout. Each is shown with live
-                interactive content.
+                This page demonstrates the six available layouts: StackLayout, SplitLayout,
+                GridLayout, ScrollytellingLayout, SlideLayout, and StepLayout. Each is shown
+                with live interactive content.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -610,5 +628,212 @@ export const layoutsDemoBlocks: ReactElement[] = [
                     </SplitLayout>
                 </Slide>
         </SlideLayout>
+    </StackLayout>,
+
+    // ── 6. StepLayout ──────────────────────────────────────────────────────────
+    <StackLayout key="layout-demo-step-heading" maxWidth="xl">
+        <Block id="block-demo-step-heading" padding="md">
+            <EditableH2 id="h2-demo-step" blockId="block-demo-step-heading">
+                6 · StepLayout
+            </EditableH2>
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-demo-step-desc" maxWidth="xl">
+        <Block id="block-demo-step-desc" padding="sm">
+            <EditableParagraph id="para-demo-step-desc" blockId="block-demo-step-desc">
+                <InlineTooltip tooltip="StepLayout reveals content one step at a time. Previous steps stay visible above the current one so learners retain context. A Continue button advances to the next step, and question-type steps auto-advance as soon as the correct answer is given.">
+                    StepLayout
+                </InlineTooltip>{" "}
+                reveals lesson content{" "}
+                <InlineTooltip tooltip="Progressive disclosure means showing only as much content as the learner needs at a given moment. This reduces cognitive load and keeps the focus on one idea at a time.">
+                    progressively
+                </InlineTooltip>{" "}
+                — one step at a time. Completed steps remain visible above the current one.
+                Steps can show a{" "}
+                <InlineTooltip tooltip="A normal step shows a Continue button. A question-type step (autoAdvance) hides the button entirely — the next step appears automatically the moment the learner types the correct answer.">
+                    Continue button
+                </InlineTooltip>{" "}
+                or, for question steps, automatically reveal the next step the moment the
+                correct answer is entered.
+            </EditableParagraph>
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-demo-step-layout" maxWidth="xl">
+        <StepLayout
+            varName="stepLayoutProgress"
+            revealLabel="Continue"
+            showProgress={false}
+            allowBack
+        >
+            {/* ── Step 1: Question — auto-advances on correct answer ── */}
+            <Step completionVarName="stepPeriodAnswer" autoAdvance>
+                <Block id="block-step-demo-4-body" padding="none">
+                    <EditableParagraph id="para-step-demo-4" blockId="block-step-demo-4-body">
+                        <strong>Before we start —</strong> if a wave completes{" "}
+                        <InlineFormula latex="\clr{f}{2}" colorMap={{ f: "#8B5CF6" }} />{" "}
+                        full cycles every second, how long does each single cycle take?{" "}
+                        <InlineClozeInput
+                            varName="stepPeriodAnswer"
+                            correctAnswer="0.5"
+                            {...clozePropsFromDefinition(getExampleVariableInfo("stepPeriodAnswer"))}
+                        />{" "}
+                        seconds. Answer correctly to continue.
+                    </EditableParagraph>
+                </Block>
+            </Step>
+
+            {/* ── Step 2: Introduction ── */}
+            <Step>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-step-demo-1-title" padding="none">
+                            <EditableH3 id="h3-step-demo-1" blockId="block-step-demo-1-title">
+                                What is a Sine Wave?
+                            </EditableH3>
+                        </Block>
+                        <Block id="block-step-demo-1-body" padding="none">
+                            <EditableParagraph id="para-step-demo-1" blockId="block-step-demo-1-body">
+                                A{" "}
+                                <InlineTooltip tooltip="A sine wave is the smoothest possible oscillation. It is the building block of all periodic signals — any repeating waveform can be expressed as a sum of sines via the Fourier series.">
+                                    sine wave
+                                </InlineTooltip>{" "}
+                                is a smooth, repeating oscillation described by{" "}
+                                <InlineFormula
+                                    latex="y = \clr{A}{A}\sin(2\pi\,\clr{f}{f}\,t)"
+                                    colorMap={{ A: "#3B82F6", f: "#8B5CF6" }}
+                                />. The two key parameters are{" "}
+                                <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
+                                (amplitude) and{" "}
+                                <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />{" "}
+                                (frequency). Press <strong>Continue</strong> to explore each one.
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-step-demo-1-viz" padding="none">
+                        <ReactiveStepViz />
+                    </Block>
+                </SplitLayout>
+            </Step>
+
+            {/* ── Step 3: Amplitude ── */}
+            <Step>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-step-demo-2-title" padding="none">
+                            <EditableH3 id="h3-step-demo-2" blockId="block-step-demo-2-title">
+                                Amplitude
+                            </EditableH3>
+                        </Block>
+                        <Block id="block-step-demo-2-body" padding="none">
+                            <EditableParagraph id="para-step-demo-2" blockId="block-step-demo-2-body">
+                                The{" "}
+                                <InlineTooltip tooltip="Amplitude is the maximum displacement from equilibrium. Doubling amplitude quadruples the energy carried by the wave.">
+                                    amplitude
+                                </InlineTooltip>{" "}
+                                <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
+                                controls how tall the wave is. Currently it is{" "}
+                                <InlineScrubbleNumber
+                                    varName="amplitude"
+                                    {...numberPropsFromDefinition(getExampleVariableInfo("amplitude"))}
+                                />{" "}
+                                — drag the number to change it, or{" "}
+                                <InlineTrigger varName="amplitude" value={1} icon="refresh">
+                                    reset to 1
+                                </InlineTrigger>{" "}
+                                or{" "}
+                                <InlineTrigger varName="amplitude" value={3} icon="zap">
+                                    set to 3
+                                </InlineTrigger>.
+                                Watch the graph update live on the right.
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-step-demo-2-viz" padding="none">
+                        <ReactiveStepViz />
+                    </Block>
+                </SplitLayout>
+            </Step>
+
+            {/* ── Step 4: Frequency ── */}
+            <Step>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-step-demo-3-title" padding="none">
+                            <EditableH3 id="h3-step-demo-3" blockId="block-step-demo-3-title">
+                                Frequency &amp; Period
+                            </EditableH3>
+                        </Block>
+                        <Block id="block-step-demo-3-body" padding="none">
+                            <EditableParagraph id="para-step-demo-3" blockId="block-step-demo-3-body">
+                                The{" "}
+                                <InlineTooltip tooltip="Frequency is the number of complete cycles per second, measured in Hertz (Hz). A frequency of 1 Hz means one full oscillation every second.">
+                                    frequency
+                                </InlineTooltip>{" "}
+                                <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />{" "}
+                                controls how fast the wave oscillates. Currently it is{" "}
+                                <InlineScrubbleNumber
+                                    varName="frequency"
+                                    {...numberPropsFromDefinition(getExampleVariableInfo("frequency"))}
+                                />{" "}
+                                Hz. The{" "}
+                                <InlineTooltip tooltip="The period T is the time for one complete cycle. It is the reciprocal of frequency: T = 1/f. A higher frequency means a shorter period.">
+                                    period
+                                </InlineTooltip>{" "}
+                                is related by{" "}
+                                <InlineFormula
+                                    latex="\clr{T}{T} = 1 / \clr{f}{f}"
+                                    colorMap={{ T: "#EC4899", f: "#8B5CF6" }}
+                                />.
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-step-demo-3-viz" padding="none">
+                        <ReactiveStepViz />
+                    </Block>
+                </SplitLayout>
+            </Step>
+
+            {/* ── Step 5: Conclusion ── */}
+            <Step>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-step-demo-5-title" padding="none">
+                            <EditableH3 id="h3-step-demo-5" blockId="block-step-demo-5-title">
+                                Putting It All Together
+                            </EditableH3>
+                        </Block>
+                        <Block id="block-step-demo-5-body" padding="none">
+                            <EditableParagraph id="para-step-demo-5" blockId="block-step-demo-5-body">
+                                Your instinct was right — at{" "}
+                                <InlineFormula latex="\clr{f}{f} = 2" colorMap={{ f: "#8B5CF6" }} />{" "}
+                                Hz each cycle lasts exactly{" "}
+                                <InlineFormula latex="\clr{T}{T} = 0.5" colorMap={{ T: "#EC4899" }} />{" "}
+                                seconds, since{" "}
+                                <InlineFormula
+                                    latex="\clr{T}{T} = 1 / \clr{f}{f}"
+                                    colorMap={{ T: "#EC4899", f: "#8B5CF6" }}
+                                />. The full wave equation is{" "}
+                                <InlineFormula
+                                    latex="y = \clr{A}{A}\sin\!(2\pi \cdot \clr{f}{f} \cdot t)"
+                                    colorMap={{ A: "#3B82F6", f: "#8B5CF6" }}
+                                />. Drag amplitude and frequency freely and watch the graph respond.{" "}
+                                <InlineTrigger varName="amplitude" value={1} icon="refresh">
+                                    Reset amplitude
+                                </InlineTrigger>{" "}
+                                ·{" "}
+                                <InlineTrigger varName="frequency" value={1} icon="refresh">
+                                    Reset frequency
+                                </InlineTrigger>
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-step-demo-5-viz" padding="none">
+                        <ReactiveStepViz />
+                    </Block>
+                </SplitLayout>
+            </Step>
+        </StepLayout>
     </StackLayout>,
 ];

@@ -52,7 +52,7 @@ src/
 │   ├── organisms/                  # Complex self-contained visualizations
 │   │   └── visual/                 #   DesmosGraph, GeoGebraGraph, InteractiveAnimation
 │   │
-│   ├── layouts/                    # StackLayout, SplitLayout, GridLayout, ScrollytellingLayout
+│   ├── layouts/                    # StackLayout, SplitLayout, GridLayout, ScrollytellingLayout, SlideLayout, StepLayout
 │   │
 │   ├── templates/                  # Page infrastructure (Block, LessonView) — do not modify
 │   │
@@ -188,8 +188,48 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 | `StackLayout` | Single column | `maxWidth`: `sm` / `md` / `lg` / `xl` / `2xl` / `full` |
 | `SplitLayout` | Side-by-side | `ratio`: `1:1` / `1:2` / `2:1`; `gap`; `align` |
 | `GridLayout` | Multiple items | `columns`: 2–6; `gap` |
-| `ScrollytellingLayout` | Sticky visual + scroll steps | `varName`, `visualPosition`, `visualWidth`, `gap` |
+| `ScrollytellingLayout` | Sticky visual + scroll steps | `varName`, `visualPosition`, `visualWidth`, `gap` || `SlideLayout` | One-at-a-time slide deck | `varName`, `height`, `transition`, `showArrows`, `showDots`, `showCounter` |
+| `StepLayout` | Progressive disclosure (step-by-step) | `varName`, `revealLabel`, `showProgress`, `allowBack` |
 
+### StepLayout (Progressive Disclosure with Questions)
+
+Reveals content one step at a time. Completed steps stack above the current one. Supports two modes:
+
+- **Normal steps** — show a "Continue →" button.
+- **Question steps** (`autoAdvance`) — auto-reveal the next step once the correct answer is given.
+
+```tsx
+import { StepLayout, Step } from "@/components/layouts";
+
+<StepLayout varName="stepProgress" showProgress={false}>
+    {/* Question step — auto-advances on correct answer */}
+    <Step completionVarName="myAnswer" autoAdvance>
+        <Block id="block-q" padding="sm">
+            <EditableParagraph id="para-q" blockId="block-q">
+                What is 2 + 2?{" "}
+                <InlineClozeInput varName="myAnswer" correctAnswer="4" ... />
+            </EditableParagraph>
+        </Block>
+    </Step>
+
+    {/* Normal step */}
+    <Step>
+        <Block id="block-1" padding="sm">
+            <EditableParagraph id="para-1" blockId="block-1">
+                Correct! Press Continue to proceed.
+            </EditableParagraph>
+        </Block>
+    </Step>
+</StepLayout>
+```
+
+**Step props:**
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|--------|
+| `revealLabel` | `string` | `"Continue"` | Override the button label for this step |
+| `completionVarName` | `string` | — | Gate: variable must be truthy to enable Continue |
+| `autoAdvance` | `boolean` | `false` | Auto-reveal next step when `completionVarName` becomes truthy (hides button) |
 ### SplitLayout with Multiple Components Per Side
 
 `SplitLayout` expects exactly **2 children**. To place multiple blocks on one side, wrap them in a `<div className="space-y-4">` container. Each block inside the wrapper remains independently manageable.

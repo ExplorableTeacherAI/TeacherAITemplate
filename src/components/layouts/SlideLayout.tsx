@@ -160,10 +160,10 @@ export const SlideLayout = ({
             className="
                 flex items-center justify-center w-9 h-9 rounded-full
                 border border-border bg-background/80 backdrop-blur-sm
-                text-foreground transition-all duration-150
-                hover:bg-accent hover:text-accent-foreground
+                text-[#3cc499] transition-all duration-150
+                hover:bg-[#3cc499]/10 hover:border-[#3cc499]/40
                 disabled:opacity-25 disabled:cursor-not-allowed
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3cc499]
                 select-none shrink-0
             "
         >
@@ -252,8 +252,8 @@ export const SlideLayout = ({
                                         h-2 rounded-full transition-all duration-200 cursor-pointer
                                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
                                         ${i === current
-                                            ? "w-6 bg-primary"
-                                            : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/60"
+                                            ? "w-6 bg-[#3cc499]"
+                                            : "w-2 bg-[#3cc499]/25 hover:bg-[#3cc499]/50"
                                         }
                                     `}
                                 />

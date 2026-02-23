@@ -19,3 +19,6 @@ export type { ScrollytellingLayoutProps, ScrollStepProps, ScrollVisualProps } fr
 
 export { SlideLayout, Slide } from "./SlideLayout";
 export type { SlideLayoutProps, SlideProps } from "./SlideLayout";
+
+export { StepLayout, Step } from "./StepLayout";
+export type { StepLayoutProps, StepProps } from "./StepLayout";

@@ -390,6 +390,63 @@ Import from `@/components/layouts`.
 - `GridLayout` — grid of items (ideal for visual galleries), use `columns` (2–6), `gap`, `mobileColumns`
 - `ScrollytellingLayout` — sticky visual + scrolling text steps; use `<ScrollStep>` for each text step and `<ScrollVisual>` for the visualization; `varName` writes the active 0-based step index to a global variable; props: `visualPosition`, `visualWidth`, `gap`, `threshold`, `onStepChange`
 - `SlideLayout` — one-slide-at-a-time deck with animated transitions, arrow buttons, dot indicators, keyboard navigation, and an optional slide counter; use `<Slide>` for each slide; `varName` writes the active 0-based slide index to a global variable; props: `height` (`sm`, `md`, `lg`, `xl`, `auto`), `transition` (`fade`, `slide`, `none`), `showArrows`, `arrowPosition` (`inside`, `outside`), `showDots`, `showCounter`, `onSlideChange`
+- `StepLayout` — progressive-disclosure layout that reveals content one step at a time; completed steps remain visible above the current one; each step shows a "Continue →" button (or auto-advances when a question is answered correctly); use `<Step>` for each step; `varName` writes the 0-based revealed step index to a global variable; props: `revealLabel`, `showProgress` (text counter, default `true`), `allowBack`, `onStepReveal`
+
+### StepLayout (Progressive Disclosure with Questions)
+
+`StepLayout` reveals lesson content one step at a time. Steps stack vertically — completed steps stay visible above the current one so learners retain context. Two step modes are supported:
+
+1. **Normal step** — shows a "Continue →" button to advance.
+2. **Question step** (`autoAdvance`) — hides the button entirely; the next step appears automatically once the learner gives the correct answer.
+
+**Step props:**
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|--------|
+| `revealLabel` | `string` | layout-level `revealLabel` | Override the Continue button label for this step |
+| `completionVarName` | `string` | — | Variable that must be truthy before the learner can proceed (gates the Continue button) |
+| `autoAdvance` | `boolean` | `false` | When `true` + `completionVarName` is set, hides the Continue button and auto-reveals next step on correct answer |
+
+```tsx
+<StepLayout varName="stepProgress" showProgress={false}>
+    {/* Question step — auto-advances on correct answer */}
+    <Step completionVarName="myAnswer" autoAdvance>
+        <Block id="block-step-q" padding="sm">
+            <EditableParagraph id="para-step-q" blockId="block-step-q">
+                What is 2 + 2?{" "}
+                <InlineClozeInput
+                    varName="myAnswer"
+                    correctAnswer="4"
+                    {...clozePropsFromDefinition(getVariableInfo('myAnswer'))}
+                />
+            </EditableParagraph>
+        </Block>
+    </Step>
+
+    {/* Normal step — shows Continue button */}
+    <Step>
+        <Block id="block-step-1" padding="sm">
+            <EditableParagraph id="para-step-1" blockId="block-step-1">
+                Correct! Now let's explore further.
+            </EditableParagraph>
+        </Block>
+    </Step>
+
+    {/* Gated step — Continue button disabled until activity is done */}
+    <Step completionVarName="nextAnswer">
+        <Block id="block-step-2" padding="sm">
+            <EditableParagraph id="para-step-2" blockId="block-step-2">
+                Complete this to continue:{" "}
+                <InlineClozeInput
+                    varName="nextAnswer"
+                    correctAnswer="yes"
+                    {...clozePropsFromDefinition(getVariableInfo('nextAnswer'))}
+                />
+            </EditableParagraph>
+        </Block>
+    </Step>
+</StepLayout>
+```
 
 ### SplitLayout with Multiple Components Per Side
 
