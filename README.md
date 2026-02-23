@@ -43,7 +43,7 @@ src/
 │   │   ├── formula/                #   InlineFormula
 │   │   ├── visual/                 #   D3BarChart, Mafs*, Three*, AnimatedGraph,
 │   │   │                           #   CoordinateSystem, Cartesian2D, FlowDiagram,
-│   │   │                           #   ExpandableFlowDiagram
+│   │   │                           #   ExpandableFlowDiagram, Table
 │   │   └── ui/                     #   shadcn/ui primitives
 │   │
 │   ├── molecules/                  # Composed from multiple atoms
@@ -177,6 +177,7 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 | `FlowDiagram` | React Flow | `nodes`, `edges`, `height`, `fitView` |
 | `ExpandableFlowDiagram` | React Flow | `rootNode` |
 | `MatrixVisualization` | SVG | `data`, `colorScheme`, `highlightRows/Cols/Cells` |
+| `Table` | — | `columns`, `rows`, `color`, `compact`, `bordered` |
 | `DesmosGraph` | Desmos | `expressions`, `height`, `options` |
 | `GeoGebraGraph` | GeoGebra | `app`, `materialId`, `commands` |
 
@@ -269,6 +270,74 @@ import { StepLayout, Step } from "@/components/layouts";
 - Use `className="space-y-4"` (or `space-y-2`, `space-y-6`) on the wrapper to control vertical spacing between blocks.
 - Each `<Block>` inside the wrapper still follows the **one primary component per Block** rule.
 - If both sides need multiple blocks, wrap both sides in `<div>` containers.
+
+---
+
+## Table (Table with Inline Components)
+
+`Table` renders a styled HTML table where **each cell can contain any React node** — plain strings, numbers, or rich inline components such as `InlineScrubbleNumber`, `InlineFormula`, `InlineClozeInput`, `InlineToggle`, `InlineLinkedHighlight`, etc.
+
+The table reads its accent colour from the global variable store (via `varName`) so colours stay consistent across the lesson.
+
+```tsx
+<StackLayout key="layout-table" maxWidth="xl">
+    <Block id="block-table" padding="sm">
+        <Table
+            columns={[
+                { header: 'Parameter', align: 'left' },
+                { header: 'Value', align: 'center', width: 160 },
+                { header: 'Description' },
+            ]}
+            rows={[
+                {
+                    cells: [
+                        'Radius',
+                        <InlineScrubbleNumber
+                            varName="radius"
+                            {...numberPropsFromDefinition(getVariableInfo('radius'))}
+                        />,
+                        'The circle radius',
+                    ],
+                },
+                {
+                    cells: [
+                        'Area formula',
+                        <InlineFormula
+                            latex="\pi r^2"
+                            colorMap={{}}
+                        />,
+                        'Computed from radius',
+                    ],
+                    highlight: true,
+                    highlightColor: '#ef4444',
+                },
+            ]}
+            color="#6366f1"
+            caption="Table — Interactive parameters"
+        />
+    </Block>
+</StackLayout>
+```
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `columns` | `TableColumn[]` | *(required)* | Column definitions (header, width, align) |
+| `rows` | `TableRow[]` | *(required)* | Rows — each has `cells: ReactNode[]`, optional `highlight`, `highlightColor` |
+| `varName` | `string` | — | Variable name for accent colour in the store |
+| `color` | `string` | `#6366f1` | Accent colour for header/highlights |
+| `showHeader` | `boolean` | `true` | Show column headers |
+| `striped` | `boolean` | `true` | Alternating row stripes |
+| `bordered` | `boolean` | `true` | Show table borders |
+| `compact` | `boolean` | `false` | Reduces cell padding |
+| `caption` | `string` | — | Caption below the table |
+
+**Column definition (`TableColumn`):**
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `header` | `string` | Column header label |
+| `width` | `string \| number` | Fixed column width |
+| `align` | `'left' \| 'center' \| 'right'` | Cell text alignment |
 
 ---
 

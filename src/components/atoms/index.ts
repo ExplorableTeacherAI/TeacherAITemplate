@@ -163,3 +163,7 @@ export type { DiagramNode, DiagramLink, NodeLinkDiagramProps } from "./visual/No
 // Visual — Matrix Visualization
 export { MatrixVisualization } from "./visual/MatrixVisualization";
 export type { MatrixVisualizationProps } from "./visual/MatrixVisualization";
+
+// Visual — Table
+export { Table } from "./visual/Table";
+export type { TableProps, TableColumn, TableRow } from "./visual/Table";

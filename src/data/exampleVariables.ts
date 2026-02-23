@@ -1528,6 +1528,74 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: '-2',
         color: '#3B82F6',
     },
+
+    // ─────────────────────────────────────────
+    // TABLE COMPONENT DEMO
+    // ─────────────────────────────────────────
+    tableAccentColor: {
+        defaultValue: 'tableAccent',
+        type: 'spotColor',
+        label: 'Table Accent',
+        description: 'Accent colour for the interactive table demo',
+        color: '#6366f1',
+    },
+    tableRadius: {
+        defaultValue: 5,
+        type: 'number',
+        label: 'Table Radius',
+        description: 'Radius value displayed inside a table cell',
+        unit: 'cm',
+        min: 1,
+        max: 20,
+        step: 0.5,
+        color: '#ef4444',
+    },
+    tableHeight: {
+        defaultValue: 10,
+        type: 'number',
+        label: 'Table Height',
+        description: 'Height value displayed inside a table cell',
+        unit: 'cm',
+        min: 1,
+        max: 30,
+        step: 1,
+        color: '#3b82f6',
+    },
+    tableSpeed: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Table Speed',
+        description: 'Speed value displayed inside a table cell',
+        unit: 'm/s',
+        min: 0,
+        max: 10,
+        step: 0.5,
+        color: '#22c55e',
+    },
+    tableUnitAnswer: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Table Unit Answer',
+        description: 'Student answer for the area unit cloze input inside a table cell',
+        placeholder: '???',
+        correctAnswer: 'cm²',
+        color: '#8b5cf6',
+    },
+    tableHighlight: {
+        defaultValue: '',
+        type: 'linkedHighlight',
+        label: 'Table Highlight',
+        description: 'Active highlight for table row coordination',
+        color: '#6366f1',
+    },
+    tableMeasurement: {
+        defaultValue: 'length',
+        type: 'select',
+        label: 'Table Measurement',
+        description: 'Current measurement type shown in the table',
+        options: ['length', 'area', 'volume'],
+        color: '#f59e0b',
+    },
 };
 
 /**

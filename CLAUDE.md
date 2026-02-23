@@ -507,6 +507,7 @@ Import from `@/components/layouts`.
 - `InlineHyperlink` — click to open external URL or scroll to a block on page (connective, emerald)
 - `InlineSpotColor` — colored text highlight
 - `InlineLinkedHighlight` — bidirectional highlighting
+- `Table` — block-level table with inline components in cells (import from `@/components/atoms`)
 
 ### Math Components
 
@@ -636,6 +637,7 @@ import {
     EditableH1, EditableH2, EditableParagraph,
     InlineScrubbleNumber, InlineClozeInput, InlineClozeChoice,
     InlineToggle, InlineTooltip, InlineTrigger, InlineFormula,
+    Table,
 } from "@/components/atoms";
 import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
@@ -679,6 +681,99 @@ export const blocks: ReactElement[] = [
     ...mySectionBlocks,
 ];
 ```
+
+## Table (Table with Inline Components)
+
+`Table` renders a styled block-level HTML table. Each cell can hold **any React node** — text, numbers, or inline components like `InlineScrubbleNumber`, `InlineFormula`, `InlineClozeInput`, `InlineToggle`, `InlineLinkedHighlight`, etc.
+
+The table reads its accent colour from the global variable store (via `varName`) to stay in sync with the rest of the lesson.
+
+### Basic Usage
+
+```tsx
+<StackLayout key="layout-table" maxWidth="xl">
+    <Block id="block-table" padding="sm">
+        <Table
+            columns={[
+                { header: 'Parameter', align: 'left' },
+                { header: 'Value', align: 'center', width: 160 },
+                { header: 'Description' },
+            ]}
+            rows={[
+                {
+                    cells: [
+                        'Radius',
+                        <InlineScrubbleNumber
+                            varName="radius"
+                            {...numberPropsFromDefinition(getVariableInfo('radius'))}
+                        />,
+                        'The circle radius',
+                    ],
+                },
+                {
+                    cells: [
+                        'Area formula',
+                        <InlineFormula
+                            latex="\pi r^2"
+                            colorMap={{}}
+                        />,
+                        'Computed from radius',
+                    ],
+                    highlight: true,
+                    highlightColor: '#ef4444',
+                },
+            ]}
+            color="#6366f1"
+            caption="Table — Interactive parameters"
+        />
+    </Block>
+</StackLayout>
+```
+
+### Props Reference
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------| 
+| `columns` | `TableColumn[]` | *(required)* | Column definitions (header, width, align) |
+| `rows` | `TableRow[]` | *(required)* | Rows — each has `cells: ReactNode[]`, optional `highlight`, `highlightColor` |
+| `varName` | `string` | — | Variable name for accent colour in the store |
+| `color` | `string` | `#6366f1` | Accent colour for header/highlights |
+| `showHeader` | `boolean` | `true` | Show column headers |
+| `striped` | `boolean` | `true` | Alternating row stripes |
+| `bordered` | `boolean` | `true` | Show table borders |
+| `compact` | `boolean` | `false` | Reduces cell padding |
+| `caption` | `string` | — | Caption below the table |
+
+**Column definition (`TableColumn`):**
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `header` | `string` | Column header label |
+| `width` | `string \| number` | Fixed column width |
+| `align` | `'left' \| 'center' \| 'right'` | Cell text alignment |
+
+**Row definition (`TableRow`):**
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `cells` | `ReactNode[]` | One node per column — string, number, or inline component |
+| `highlight` | `boolean` | Highlight this row with a coloured background |
+| `highlightColor` | `string` | Custom highlight colour for this row |
+
+### Variants
+
+- **Compact**: `<Table compact ... />` — smaller cell padding for dense data
+- **Borderless**: `<Table bordered={false} ... />` — no borders, stripes only
+- **No header**: `<Table showHeader={false} ... />`
+- **No stripes**: `<Table striped={false} ... />`
+
+### Example Reference
+
+See `src/data/sections/tableDemo.tsx` and `src/data/exampleBlocks.tsx` (Table Component Demo section) for full working examples including:
+- Basic constants table with `InlineFormula` in cells
+- Cylinder parameters with `InlineScrubbleNumber` and reactive computed cells
+- Mixed inline components showcase (every component type in cells)
+- Compact and borderless variants
 
 ## Linking Variables to Visual Components
 
@@ -764,6 +859,7 @@ Reactive wrappers are **inner** components used inside a `<Block>`, not top-leve
 | `FlowDiagram` | `@/components/atoms` | `nodes`, `edges` | Process/relationship diagrams |
 | `FormulaBlock` | `@/components/molecules` | `latex`, `variables` | Block-level math with interactive elements |
 | `MatrixVisualization` | `@/components/atoms` | `data`, `colorScheme`, `highlightRows` | Matrix display |
+| `Table` | `@/components/atoms` | `columns`, `rows`, `color`, `compact`, `bordered` | Table with inline components in cells |
 
 ## Environment Variables
 
