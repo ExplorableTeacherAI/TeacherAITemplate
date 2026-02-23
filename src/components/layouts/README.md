@@ -99,45 +99,68 @@ Multi-column grid for displaying multiple items. Automatically responsive.
 
 ---
 
-### 4. SidebarLayout
+### 4. ScrollytellingLayout
 
-Layout with a sidebar and main content area. Sidebar can stick while scrolling.
+Scrollytelling layout: text steps scroll on one side while a sticky visualization reacts to each step. Active step index is written to a global variable so any visual component can react reactively.
 
 ```tsx
-<SidebarLayout sidebarPosition="left" sidebarWidth="medium" gap="lg">
-    <Sidebar>
-        <Section id="glossary">
-            <h3>Key Concepts</h3>
-            <ul>...</ul>
-        </Section>
-    </Sidebar>
-    <Main>
-        <Section id="main-content">
-            <h2>Main Content</h2>
-            <p>...</p>
-        </Section>
-    </Main>
-</SidebarLayout>
+// 1. Define a step variable in variables.ts:
+// scrollStep: { defaultValue: 0, type: 'number', min: 0, max: 3, step: 1 }
+
+// 2. Create a reactive visual:
+function ReactiveViz() {
+    const step = useVar('scrollStep', 0) as number;
+    return <MyVisualization step={step} />;
+}
+
+// 3. Assemble the layout:
+<ScrollytellingLayout varName="scrollStep" visualPosition="right" gap="lg">
+    <ScrollStep>
+        <Block id="block-step-0" padding="sm">
+            <EditableParagraph id="para-step-0" blockId="block-step-0">
+                Step 0 — introduce the concept.
+            </EditableParagraph>
+        </Block>
+    </ScrollStep>
+
+    <ScrollStep>
+        <Block id="block-step-1" padding="sm">
+            <EditableParagraph id="para-step-1" blockId="block-step-1">
+                Step 1 — add detail.
+            </EditableParagraph>
+        </Block>
+    </ScrollStep>
+
+    <ScrollVisual>
+        <Block id="block-viz" padding="sm">
+            <ReactiveViz />
+        </Block>
+    </ScrollVisual>
+</ScrollytellingLayout>
 ```
 
 **Props:**
-- `sidebarPosition?: "left" | "right"` - Position of sidebar
-- `sidebarWidth?: "narrow" | "medium" | "wide"` - Width of sidebar
-- `gap?: "none" | "sm" | "md" | "lg" | "xl"` - Space between sidebar and main
-- `stickySidebar?: boolean` - Whether sidebar should stick while scrolling (default: true)
+- `varName?: string` - Global variable name (defined in `variables.ts`) to receive the 0-based active step index
+- `visualPosition?: "left" | "right"` - Which side the sticky visual appears on (default: `"right"`)
+- `visualWidth?: "narrow" | "medium" | "wide"` - Width of the sticky visual column
+- `gap?: "none" | "sm" | "md" | "lg" | "xl"` - Space between text and visual columns
+- `threshold?: number` - Intersection fraction that triggers a step (default: `0.5`)
+- `onStepChange?: (stepIndex: number) => void` - Optional callback on step change
 - `className?: string` - Custom CSS classes
 
 **Special Components:**
-- `<Sidebar>` - Wraps sidebar content
-- `<Main>` - Wraps main content
+- `<ScrollStep>` - Wraps one prose block (or several in a `<div className="space-y-4">`). Each step is ~60 vh tall so it naturally scrolls.
+- `<ScrollVisual>` - Wraps the sticky visualization panel.
+
+**How it works:**
+An `IntersectionObserver` watches each `<ScrollStep>`. When a step crosses the middle 40% of the viewport it becomes active and its 0-based index is written to the `varName` variable. Your visual reads that variable with `useVar(varName, 0)` and updates accordingly.
 
 **Use when:**
-- Persistent navigation
-- Glossaries or vocabulary
-- Table of contents
-- Related links or resources
+- Walking a reader through a multi-step derivation or proof
+- Annotated data visualizations that change per section
+- Animated diagrams tied to narrative steps
 
-**Responsive:** Sidebar moves to top on mobile devices.
+**Responsive:** Collapses to single column (text above visual) on mobile.
 
 ---
 
@@ -195,29 +218,7 @@ export const sections = [
         <Section id="ex3">...</Section>
     </GridLayout>,
     
-    // Sidebar for deep dive
-    <SidebarLayout>
-        <Sidebar><Section id="toc">...</Section></Sidebar>
-        <Main><Section id="content">...</Section></Main>
-    </SidebarLayout>,
 ];
-```
-
-### Nested Sections
-
-You can include multiple sections within a layout or within a single sidebar/main area:
-
-```tsx
-<SidebarLayout>
-    <Sidebar>
-        <Section id="glossary">Glossary</Section>
-        <Section id="navigation">Navigation</Section>
-    </Sidebar>
-    <Main>
-        <Section id="intro">Introduction</Section>
-        <Section id="content">Main Content</Section>
-    </Main>
-</SidebarLayout>
 ```
 
 ---
@@ -231,7 +232,7 @@ All layouts are responsive by default:
 | **FullWidthLayout** | Max-width constrained | Max-width constrained | Full width |
 | **SplitLayout** | Two columns | Two columns | Single column (stacked) |
 | **GridLayout** | N columns | Auto-reduced | 1-2 columns |
-| **SidebarLayout** | Side by side | Side by side | Stacked (sidebar on top) |
+| **ScrollytellingLayout** | Text + sticky visual | Text + sticky visual | Single column (stacked) |
 
 ---
 
@@ -242,7 +243,7 @@ All layouts are responsive by default:
 - **FullWidthLayout**: Default choice for most content
 - **SplitLayout**: When pairing related content (theory + practice)
 - **GridLayout**: When showcasing multiple similar items
-- **SidebarLayout**: When persistent context is helpful
+- **ScrollytellingLayout**: When walking through narrative steps with a reactive visualization
 
 ### 2. Consistent Spacing
 

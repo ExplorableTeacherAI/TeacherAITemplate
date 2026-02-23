@@ -52,7 +52,7 @@ src/
 │   ├── organisms/                  # Complex self-contained visualizations
 │   │   └── visual/                 #   DesmosGraph, GeoGebraGraph, InteractiveAnimation
 │   │
-│   ├── layouts/                    # FullWidthLayout, SplitLayout, GridLayout, SidebarLayout
+│   ├── layouts/                    # FullWidthLayout, SplitLayout, GridLayout, ScrollytellingLayout
 │   │
 │   ├── templates/                  # Page infrastructure (Block, LessonView) — do not modify
 │   │
@@ -188,7 +188,7 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 | `FullWidthLayout` | Single column | `maxWidth`: `sm` / `md` / `lg` / `xl` / `2xl` / `full` |
 | `SplitLayout` | Side-by-side | `ratio`: `1:1` / `1:2` / `2:1`; `gap`; `align` |
 | `GridLayout` | Multiple items | `columns`: 2–6; `gap` |
-| `SidebarLayout` | Main + sidebar | `sidebarPosition`, `sidebarWidth` |
+| `ScrollytellingLayout` | Sticky visual + scroll steps | `varName`, `visualPosition`, `visualWidth`, `gap` |
 
 ### SplitLayout with Multiple Components Per Side
 

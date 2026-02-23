@@ -388,7 +388,7 @@ Import from `@/components/layouts`.
 - `FullWidthLayout` — single column, use `maxWidth` prop (`sm`, `md`, `lg`, `xl`, `2xl`, `full`)
 - `SplitLayout` — side-by-side (ideal for text + visual), use `ratio` (`1:1`, `1:2`, `2:1`, `1:3`, `3:1`, `2:3`, `3:2`), `gap` (`none`, `sm`, `md`, `lg`, `xl`), `align` (`start`, `center`, `end`, `stretch`)
 - `GridLayout` — grid of items (ideal for visual galleries), use `columns` (2–6), `gap`, `mobileColumns`
-- `SidebarLayout` — main + sidebar, use `<Sidebar>` and `<Main>` children, `sidebarPosition`, `sidebarWidth`
+- `ScrollytellingLayout` — sticky visual + scrolling text steps; use `<ScrollStep>` for each text step and `<ScrollVisual>` for the visualization; `varName` writes the active 0-based step index to a global variable; props: `visualPosition`, `visualWidth`, `gap`, `threshold`, `onStepChange`
 
 ### SplitLayout with Multiple Components Per Side
 

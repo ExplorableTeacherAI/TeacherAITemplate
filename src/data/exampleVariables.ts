@@ -1407,6 +1407,19 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         description: 'Color label for the polygon closing edge',
         color: '#a855f7',
     },
+
+    // ─────────────────────────────────────────
+    // LAYOUT DEMO
+    // ─────────────────────────────────────────
+    layoutDemoStep: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Layout Demo Step',
+        description: 'Active scroll step index in the ScrollytellingLayout demo',
+        min: 0,
+        max: 3,
+        step: 1,
+    },
 };
 
 /**

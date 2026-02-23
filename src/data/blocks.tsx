@@ -1,6 +1,6 @@
 import { type ReactElement } from "react";
 // import { Block } from "@/components/templates";
-// import { FullWidthLayout, SplitLayout, GridLayout, SidebarLayout, Sidebar, Main } from "@/components/layouts";
+// import { FullWidthLayout, SplitLayout, GridLayout, ScrollytellingLayout, ScrollStep, ScrollVisual } from "@/components/layouts";
 
 // Initialize variables and their colors from this file's variable definitions
 import { useVariableStore, initializeVariableColors } from "@/stores";
@@ -68,13 +68,14 @@ initializeVariableColors(variableDefinitions);
  *          <Block id="item-3">...</Block>
  *      </GridLayout>
  * 
- * 4. SidebarLayout
- *    - Best for: Main content with a sticky sidebar (glossary, controls).
+ * 4. ScrollytellingLayout
+ *    - Best for: Narrative steps with a reactive sticky visualization.
  *    - Usage:
- *      <SidebarLayout sidebarPosition="left" sidebarWidth="medium">
- *          <Sidebar><Block id="sidebar">...</Block></Sidebar>
- *          <Main><Block id="main">...</Block></Main>
- *      </SidebarLayout>
+ *      <ScrollytellingLayout varName="scrollStep" visualPosition="right">
+ *          <ScrollStep><Block id="step-0">...</Block></ScrollStep>
+ *          <ScrollStep><Block id="step-1">...</Block></ScrollStep>
+ *          <ScrollVisual><Block id="viz">...</Block></ScrollVisual>
+ *      </ScrollytellingLayout>
  * 
  * EXAMPLES:
  * See `src/data/exampleBlocks.tsx` for comprehensive examples.

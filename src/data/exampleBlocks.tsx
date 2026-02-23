@@ -53,6 +53,7 @@ import { symmetryDrawingDemo } from "./sections/symmetryDrawingDemo";
 import { geometricDiagramDemo } from "./sections/geometricDiagramDemo";
 import { vennAndNumberLineDemo } from "./sections/vennAndNumberLineDemo";
 import { simulationDemoBlocks } from "./sections/simulationDemo";
+import { layoutsDemoBlocks } from "./sections/layoutsDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function ReactiveHighlightDiagram() {
@@ -1089,6 +1090,11 @@ const exampleBlocks: ReactElement[] = [
     // SIMULATION PANEL DEMOS
     // ========================================
     ...simulationDemoBlocks,
+
+    // ========================================
+    // LAYOUTS DEMO
+    // ========================================
+    ...layoutsDemoBlocks,
 
 ];
 

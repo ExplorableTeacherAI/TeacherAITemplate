@@ -14,5 +14,5 @@ export type { SplitLayoutProps } from "./SplitLayout";
 export { GridLayout } from "./GridLayout";
 export type { GridLayoutProps } from "./GridLayout";
 
-export { SidebarLayout, Sidebar, Main } from "./SidebarLayout";
-export type { SidebarLayoutProps, SidebarProps, MainProps } from "./SidebarLayout";
+export { ScrollytellingLayout, ScrollStep, ScrollVisual } from "./ScrollytellingLayout";
+export type { ScrollytellingLayoutProps, ScrollStepProps, ScrollVisualProps } from "./ScrollytellingLayout";
