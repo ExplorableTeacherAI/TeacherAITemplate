@@ -7,6 +7,8 @@ import {
     ScrollytellingLayout,
     ScrollStep,
     ScrollVisual,
+    SlideLayout,
+    Slide,
 } from "@/components/layouts";
 import {
     EditableH1,
@@ -22,6 +24,34 @@ import {
 } from "@/components/atoms";
 import { useVar, useSetVar } from "@/stores";
 import { getExampleVariableInfo, numberPropsFromDefinition } from "../exampleVariables";
+
+// ─── Reactive visual for SlideLayout demo ────────────────────────────────────
+const SLIDE_VARIANTS = ["sine-wave", "parametric", "pendulum", "lissajous"] as const;
+const SLIDE_COLORS = [
+    { color: "#3B82F6", secondary: "#8B5CF6" },
+    { color: "#EC4899", secondary: "#F59E0B" },
+    { color: "#10B981", secondary: "#06B6D4" },
+    { color: "#F59E0B", secondary: "#EF4444" },
+];
+
+function SlideViz() {
+    const idx = useVar("slideIndex", 0) as number;
+    const safeIdx = Math.min(Math.max(0, idx), SLIDE_VARIANTS.length - 1);
+    return (
+        <div className="rounded-xl overflow-hidden">
+            <AnimatedGraph
+                key={safeIdx}
+                variant={SLIDE_VARIANTS[safeIdx]}
+                color={SLIDE_COLORS[safeIdx].color}
+                secondaryColor={SLIDE_COLORS[safeIdx].secondary}
+                width={420}
+                height={260}
+                showAxes={true}
+                showGrid={false}
+            />
+        </div>
+    );
+}
 
 // ─── Reactive visual for StackLayout demo ───────────────────────────────────
 function ReactiveStackViz() {
@@ -113,13 +143,15 @@ export const layoutsDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-demo-intro" maxWidth="xl">
         <Block id="block-demo-intro" padding="sm">
             <EditableParagraph id="para-demo-intro" blockId="block-demo-intro">
-                This page demonstrates the four available layouts: StackLayout, SplitLayout,
-                GridLayout, and ScrollytellingLayout. Each is shown with live interactive content.
+                This page demonstrates the five available layouts: StackLayout, SplitLayout,
+                GridLayout, ScrollytellingLayout, and SlideLayout. Each is shown with live
+                interactive content.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     // ── 1. StackLayout ──────────────────────────────────────────────────
+
     <StackLayout key="layout-demo-fw-heading" maxWidth="xl">
         <Block id="block-demo-fw-heading" padding="md">
             <EditableH2 id="h2-demo-fw" blockId="block-demo-fw-heading">
@@ -394,6 +426,189 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <ScrollViz />
         </ScrollVisual>
     </ScrollytellingLayout>,
+
+    // ── 5. SlideLayout ─────────────────────────────────────────────────────
+    <StackLayout key="layout-demo-slide-heading" maxWidth="xl">
+        <Block id="block-demo-slide-heading" padding="md">
+            <EditableH2 id="h2-demo-slide" blockId="block-demo-slide-heading">
+                5 · SlideLayout
+            </EditableH2>
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-demo-slide-desc" maxWidth="xl">
+        <Block id="block-demo-slide-desc" padding="sm">
+            <EditableParagraph id="para-demo-slide-desc" blockId="block-demo-slide-desc">
+                <InlineTooltip tooltip="SlideLayout renders one slide at a time inside a card stage. Navigate with the ← → arrows, clickable dot indicators, or the keyboard arrow keys.">
+                    SlideLayout
+                </InlineTooltip>{" "}
+                presents content as a{" "}
+                <InlineTooltip tooltip="A slide deck shows one panel at a time with transitions between slides. Each slide can hold any block content — text, formulas, visualizations, or interactive elements.">
+                    slide deck
+                </InlineTooltip>{" "}
+                — one slide is visible at a time with smooth transitions. Use keyboard{" "}
+                <strong>← / →</strong> to navigate, or click the arrow buttons and dot indicators
+                below the stage. The active slide index is written to a{" "}
+                <InlineTooltip tooltip="A global variable is stored in the Zustand variable store. Any component on the page can read it with useVar() and react whenever it changes.">
+                    global variable
+                </InlineTooltip>{" "}
+                so external visuals can respond.
+            </EditableParagraph>
+        </Block>
+    </StackLayout>,
+
+    <StackLayout key="layout-demo-slide-deck" maxWidth="2xl">
+        <SlideLayout
+                varName="slideIndex"
+                height="lg"
+                transition="slide"
+                showArrows
+                arrowPosition="inside"
+                showDots
+                showCounter
+            >
+                {/* ── Slide 1: Introduction ── */}
+                <Slide>
+                    <SplitLayout ratio="1:1" gap="lg" align="center">
+                        <div className="space-y-4">
+                            <Block id="block-slide-1-title" padding="none">
+                                <EditableH2 id="h2-slide-1" blockId="block-slide-1-title">
+                                    Waves &amp; Oscillations
+                                </EditableH2>
+                            </Block>
+                            <Block id="block-slide-1-body" padding="none">
+                                <EditableParagraph id="para-slide-1" blockId="block-slide-1-body">
+                                    Periodic motion is one of the most fundamental ideas in physics. A{" "}
+                                    <InlineTooltip tooltip="A wave is a disturbance that transfers energy through a medium without transferring matter. The shape repeats itself in both space (wavelength) and time (period).">
+                                        wave
+                                    </InlineTooltip>{" "}
+                                    carries energy through space described by{" "}
+                                    <InlineFormula
+                                        latex="y = \clr{A}{A}\sin\!\bigl(2\pi \clr{f}{f}\,t\bigr)"
+                                        colorMap={{ A: "#3B82F6", f: "#8B5CF6" }}
+                                    />.
+                                    Navigate to the next slide to interact with the parameters.
+                                </EditableParagraph>
+                            </Block>
+                        </div>
+                        <Block id="block-slide-1-viz" padding="none">
+                            <SlideViz />
+                        </Block>
+                    </SplitLayout>
+                </Slide>
+
+                {/* ── Slide 2: Amplitude ── */}
+                <Slide>
+                    <SplitLayout ratio="1:1" gap="lg" align="center">
+                        <div className="space-y-4">
+                            <Block id="block-slide-2-title" padding="none">
+                                <EditableH2 id="h2-slide-2" blockId="block-slide-2-title">
+                                    Amplitude
+                                </EditableH2>
+                            </Block>
+                            <Block id="block-slide-2-body" padding="none">
+                                <EditableParagraph id="para-slide-2" blockId="block-slide-2-body">
+                                    The{" "}
+                                    <InlineTooltip tooltip="Amplitude is the maximum displacement from the equilibrium position. Doubling the amplitude quadruples the energy carried by the wave.">
+                                        amplitude
+                                    </InlineTooltip>{" "}
+                                    <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
+                                    is currently{" "}
+                                    <InlineScrubbleNumber
+                                        varName="amplitude"
+                                        {...numberPropsFromDefinition(getExampleVariableInfo("amplitude"))}
+                                    />. Drag the number left or right to scale the wave height. Reset
+                                    with{" "}
+                                    <InlineTrigger varName="amplitude" value={1} icon="refresh">
+                                        amplitude = 1
+                                    </InlineTrigger>.
+                                </EditableParagraph>
+                            </Block>
+                        </div>
+                        <Block id="block-slide-2-viz" padding="none">
+                            <SlideViz />
+                        </Block>
+                    </SplitLayout>
+                </Slide>
+
+                {/* ── Slide 3: Frequency ── */}
+                <Slide>
+                    <SplitLayout ratio="1:1" gap="lg" align="center">
+                        <div className="space-y-4">
+                            <Block id="block-slide-3-title" padding="none">
+                                <EditableH2 id="h2-slide-3" blockId="block-slide-3-title">
+                                    Frequency
+                                </EditableH2>
+                            </Block>
+                            <Block id="block-slide-3-body" padding="none">
+                                <EditableParagraph id="para-slide-3" blockId="block-slide-3-body">
+                                    The{" "}
+                                    <InlineTooltip tooltip="Frequency is the number of complete cycles per second, measured in Hertz (Hz). Higher frequency means faster oscillation and shorter wavelength for the same wave speed.">
+                                        frequency
+                                    </InlineTooltip>{" "}
+                                    <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />{" "}
+                                    is currently{" "}
+                                    <InlineScrubbleNumber
+                                        varName="frequency"
+                                        {...numberPropsFromDefinition(getExampleVariableInfo("frequency"))}
+                                    />{" "}
+                                    Hz. The{" "}
+                                    <InlineTooltip tooltip="The period T = 1/f is the time for one complete cycle. Doubling the frequency halves the period.">
+                                        period
+                                    </InlineTooltip>{" "}
+                                    is{" "}
+                                    <InlineFormula latex="T = 1/\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />.
+                                    Try{" "}
+                                    <InlineTrigger varName="frequency" value={3} icon="zap">
+                                        triple frequency
+                                    </InlineTrigger>{" "}
+                                    or{" "}
+                                    <InlineTrigger varName="frequency" value={1} icon="refresh">
+                                        reset
+                                    </InlineTrigger>.
+                                </EditableParagraph>
+                            </Block>
+                        </div>
+                        <Block id="block-slide-3-viz" padding="none">
+                            <SlideViz />
+                        </Block>
+                    </SplitLayout>
+                </Slide>
+
+                {/* ── Slide 4: Summary ── */}
+                <Slide>
+                    <SplitLayout ratio="1:1" gap="lg" align="center">
+                        <div className="space-y-4">
+                            <Block id="block-slide-4-title" padding="none">
+                                <EditableH2 id="h2-slide-4" blockId="block-slide-4-title">
+                                    Lissajous Patterns
+                                </EditableH2>
+                            </Block>
+                            <Block id="block-slide-4-body" padding="none">
+                                <EditableParagraph id="para-slide-4" blockId="block-slide-4-body">
+                                    When two oscillations drive{" "}
+                                    <InlineFormula latex="x" /> and{" "}
+                                    <InlineFormula latex="y" /> independently, the result is a{" "}
+                                    <InlineTooltip tooltip="Lissajous figures appear on oscilloscopes when comparing two AC signals. Simple integer frequency ratios produce closed, repeating curves.">
+                                        Lissajous figure
+                                    </InlineTooltip>{" "}
+                                    defined by{" "}
+                                    <InlineFormula
+                                        latex="\clr{x}{x}=A\sin(\clr{a}{a}t+\delta),\;\clr{y}{y}=B\sin(\clr{b}{b}t)"
+                                        colorMap={{ x: "#F59E0B", y: "#EF4444", a: "#F59E0B", b: "#EF4444" }}
+                                    />.
+                                    The shape changes dramatically with the{" "}
+                                    <InlineTooltip tooltip="The frequency ratio a:b determines how many times the curve crosses each axis. Integer ratios produce closed curves; irrational ratios produce curves that densely fill a rectangle.">
+                                        frequency ratio
+                                    </InlineTooltip>.
+                                </EditableParagraph>
+                            </Block>
+                        </div>
+                        <Block id="block-slide-4-viz" padding="none">
+                            <SlideViz />
+                        </Block>
+                    </SplitLayout>
+                </Slide>
+        </SlideLayout>
+    </StackLayout>,
 ];
-
-

@@ -164,6 +164,75 @@ An `IntersectionObserver` watches each `<ScrollStep>`. When a step crosses the m
 
 ---
 
+### 5. SlideLayout
+
+Presentation-style layout that shows one `<Slide>` at a time with smooth transitions. Navigate with arrow buttons, clickable dot indicators, or keyboard **← / →** keys. The active slide index is written to a global variable so any component can react to slide changes.
+
+```tsx
+// 1. (Optional) Define a step variable in variables.ts:
+// slideIndex: { defaultValue: 0, type: 'number', min: 0, max: 3, step: 1 }
+
+// 2. Create a reactive visual that reads the active slide:
+function ReactiveViz() {
+    const idx = useVar('slideIndex', 0) as number;
+    return <MyVisualization slide={idx} />;
+}
+
+// 3. Assemble the deck:
+<SlideLayout
+    varName="slideIndex"
+    height="lg"
+    transition="slide"
+    showArrows
+    arrowPosition="inside"
+    showDots
+    showCounter
+>
+    <Slide>
+        <Block id="block-slide-1" padding="lg">
+            <EditableH2 id="h2-slide-1" blockId="block-slide-1">Slide 1</EditableH2>
+        </Block>
+    </Slide>
+
+    <Slide>
+        <SplitLayout ratio="1:1" gap="lg" align="center">
+            <Block id="block-slide-2-text" padding="lg">
+                <EditableParagraph id="para-slide-2" blockId="block-slide-2-text">
+                    Content for slide 2.
+                </EditableParagraph>
+            </Block>
+            <Block id="block-slide-2-viz" padding="sm">
+                <ReactiveViz />
+            </Block>
+        </SplitLayout>
+    </Slide>
+</SlideLayout>
+```
+
+**Props:**
+- `varName?: string` - Global variable name (defined in `variables.ts`) to receive the 0-based active slide index
+- `height?: "sm" | "md" | "lg" | "xl" | "auto"` - Height of the slide stage (default: `"md"`)
+- `transition?: "fade" | "slide" | "none"` - Visual transition between slides (default: `"fade"`)
+- `showArrows?: boolean` - Show ← → navigation buttons (default: `true`)
+- `arrowPosition?: "inside" | "outside"` - Whether arrows are overlaid on the stage or flank it (default: `"inside"`)
+- `showDots?: boolean` - Show clickable dot progress indicator (default: `true`)
+- `showCounter?: boolean` - Show "N / total" slide counter (default: `false`)
+- `onSlideChange?: (index: number) => void` - Optional callback on slide change
+- `className?: string` - Custom CSS classes
+
+**Special Components:**
+- `<Slide>` - Wraps the content of a single slide. Can contain a `Block`, a `SplitLayout`, or a `<div className="space-y-4">` with multiple Blocks.
+
+**Keyboard navigation:** Pressing **← / →** (or **↑ / ↓**) anywhere on the page while this layout is mounted will navigate between slides.
+
+**Use when:**
+- Step-by-step walkthroughs of a concept or proof
+- Before/after comparisons
+- Interactive quizzes where each question is a slide
+- Sequential demonstrations where showing everything at once would be overwhelming
+
+---
+
 ## Usage Examples
 
 ### Basic Page Structure
@@ -233,6 +302,7 @@ All layouts are responsive by default:
 | **SplitLayout** | Two columns | Two columns | Single column (stacked) |
 | **GridLayout** | N columns | Auto-reduced | 1-2 columns |
 | **ScrollytellingLayout** | Text + sticky visual | Text + sticky visual | Single column (stacked) |
+| **SlideLayout** | Card stage + arrows + dots | Card stage + arrows + dots | Card stage + arrows + dots |
 
 ---
 
@@ -244,6 +314,7 @@ All layouts are responsive by default:
 - **SplitLayout**: When pairing related content (theory + practice)
 - **GridLayout**: When showcasing multiple similar items
 - **ScrollytellingLayout**: When walking through narrative steps with a reactive visualization
+- **SlideLayout**: When presenting sequential content one panel at a time (walkthroughs, quizzes, step-by-step demos)
 
 ### 2. Consistent Spacing
 
@@ -294,7 +365,6 @@ All layout components are fully typed with TypeScript for excellent IDE support 
 
 Potential additions to the layout system:
 
-- **StackLayout**: Vertical stacking with customizable spacing
 - **TabLayout**: Tabbed content areas
 - **AccordionLayout**: Collapsible sections
 - **HeroLayout**: Full-screen hero sections

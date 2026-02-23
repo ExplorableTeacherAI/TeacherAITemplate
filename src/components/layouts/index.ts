@@ -16,3 +16,6 @@ export type { GridLayoutProps } from "./GridLayout";
 
 export { ScrollytellingLayout, ScrollStep, ScrollVisual } from "./ScrollytellingLayout";
 export type { ScrollytellingLayoutProps, ScrollStepProps, ScrollVisualProps } from "./ScrollytellingLayout";
+
+export { SlideLayout, Slide } from "./SlideLayout";
+export type { SlideLayoutProps, SlideProps } from "./SlideLayout";

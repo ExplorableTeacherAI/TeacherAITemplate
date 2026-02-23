@@ -1411,6 +1411,15 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     // ─────────────────────────────────────────
     // LAYOUT DEMO
     // ─────────────────────────────────────────
+    slideIndex: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Slide Index',
+        description: 'Active slide index in the SlideLayout demo',
+        min: 0,
+        max: 3,
+        step: 1,
+    },
     layoutDemoStep: {
         defaultValue: 0,
         type: 'number',
