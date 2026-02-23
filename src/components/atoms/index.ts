@@ -175,3 +175,7 @@ export type { TableProps, TableColumn, TableRow } from "./visual/Table";
 // Visual — Image Display
 export { ImageDisplay } from "./visual/ImageDisplay";
 export type { ImageDisplayProps, ImageFit } from "./visual/ImageDisplay";
+
+// Visual — Video Display
+export { VideoDisplay } from "./visual/VideoDisplay";
+export type { VideoDisplayProps, VideoFit } from "./visual/VideoDisplay";
