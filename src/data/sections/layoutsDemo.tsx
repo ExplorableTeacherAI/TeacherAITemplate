@@ -138,7 +138,7 @@ function ScrollViz() {
                 {SCROLL_VARIANTS.map((_, i) => (
                     <div
                         key={i}
-                        className={`w-2 h-2 rounded-full transition-all ${i === idx ? "bg-primary scale-125" : "bg-muted-foreground/30"}`}
+                        className={`w-2 h-2 rounded-full transition-all ${i === idx ? "w-6 bg-[#3cc499] scale-125" : "bg-[#3cc499]/25"}`}
                     />
                 ))}
             </div>
@@ -477,156 +477,156 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     <StackLayout key="layout-demo-slide-deck" maxWidth="2xl">
         <SlideLayout
-                varName="slideIndex"
-                height="lg"
-                transition="slide"
-                showArrows
-                arrowPosition="inside"
-                showDots
-                showCounter
-            >
-                {/* ── Slide 1: Introduction ── */}
-                <Slide>
-                    <SplitLayout ratio="1:1" gap="lg" align="center">
-                        <div className="space-y-4">
-                            <Block id="block-slide-1-title" padding="none">
-                                <EditableH2 id="h2-slide-1" blockId="block-slide-1-title">
-                                    Waves &amp; Oscillations
-                                </EditableH2>
-                            </Block>
-                            <Block id="block-slide-1-body" padding="none">
-                                <EditableParagraph id="para-slide-1" blockId="block-slide-1-body">
-                                    Periodic motion is one of the most fundamental ideas in physics. A{" "}
-                                    <InlineTooltip tooltip="A wave is a disturbance that transfers energy through a medium without transferring matter. The shape repeats itself in both space (wavelength) and time (period).">
-                                        wave
-                                    </InlineTooltip>{" "}
-                                    carries energy through space described by{" "}
-                                    <InlineFormula
-                                        latex="y = \clr{A}{A}\sin\!\bigl(2\pi \clr{f}{f}\,t\bigr)"
-                                        colorMap={{ A: "#3B82F6", f: "#8B5CF6" }}
-                                    />.
-                                    Navigate to the next slide to interact with the parameters.
-                                </EditableParagraph>
-                            </Block>
-                        </div>
-                        <Block id="block-slide-1-viz" padding="none">
-                            <SlideViz />
+            varName="slideIndex"
+            height="lg"
+            transition="slide"
+            showArrows
+            arrowPosition="inside"
+            showDots
+            showCounter
+        >
+            {/* ── Slide 1: Introduction ── */}
+            <Slide>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-slide-1-title" padding="none">
+                            <EditableH2 id="h2-slide-1" blockId="block-slide-1-title">
+                                Waves &amp; Oscillations
+                            </EditableH2>
                         </Block>
-                    </SplitLayout>
-                </Slide>
+                        <Block id="block-slide-1-body" padding="none">
+                            <EditableParagraph id="para-slide-1" blockId="block-slide-1-body">
+                                Periodic motion is one of the most fundamental ideas in physics. A{" "}
+                                <InlineTooltip tooltip="A wave is a disturbance that transfers energy through a medium without transferring matter. The shape repeats itself in both space (wavelength) and time (period).">
+                                    wave
+                                </InlineTooltip>{" "}
+                                carries energy through space described by{" "}
+                                <InlineFormula
+                                    latex="y = \clr{A}{A}\sin\!\bigl(2\pi \clr{f}{f}\,t\bigr)"
+                                    colorMap={{ A: "#3B82F6", f: "#8B5CF6" }}
+                                />.
+                                Navigate to the next slide to interact with the parameters.
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-slide-1-viz" padding="none">
+                        <SlideViz />
+                    </Block>
+                </SplitLayout>
+            </Slide>
 
-                {/* ── Slide 2: Amplitude ── */}
-                <Slide>
-                    <SplitLayout ratio="1:1" gap="lg" align="center">
-                        <div className="space-y-4">
-                            <Block id="block-slide-2-title" padding="none">
-                                <EditableH2 id="h2-slide-2" blockId="block-slide-2-title">
-                                    Amplitude
-                                </EditableH2>
-                            </Block>
-                            <Block id="block-slide-2-body" padding="none">
-                                <EditableParagraph id="para-slide-2" blockId="block-slide-2-body">
-                                    The{" "}
-                                    <InlineTooltip tooltip="Amplitude is the maximum displacement from the equilibrium position. Doubling the amplitude quadruples the energy carried by the wave.">
-                                        amplitude
-                                    </InlineTooltip>{" "}
-                                    <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
-                                    is currently{" "}
-                                    <InlineScrubbleNumber
-                                        varName="amplitude"
-                                        {...numberPropsFromDefinition(getExampleVariableInfo("amplitude"))}
-                                    />. Drag the number left or right to scale the wave height. Reset
-                                    with{" "}
-                                    <InlineTrigger varName="amplitude" value={1} icon="refresh">
-                                        amplitude = 1
-                                    </InlineTrigger>.
-                                </EditableParagraph>
-                            </Block>
-                        </div>
-                        <Block id="block-slide-2-viz" padding="none">
-                            <SlideViz />
+            {/* ── Slide 2: Amplitude ── */}
+            <Slide>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-slide-2-title" padding="none">
+                            <EditableH2 id="h2-slide-2" blockId="block-slide-2-title">
+                                Amplitude
+                            </EditableH2>
                         </Block>
-                    </SplitLayout>
-                </Slide>
+                        <Block id="block-slide-2-body" padding="none">
+                            <EditableParagraph id="para-slide-2" blockId="block-slide-2-body">
+                                The{" "}
+                                <InlineTooltip tooltip="Amplitude is the maximum displacement from the equilibrium position. Doubling the amplitude quadruples the energy carried by the wave.">
+                                    amplitude
+                                </InlineTooltip>{" "}
+                                <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
+                                is currently{" "}
+                                <InlineScrubbleNumber
+                                    varName="amplitude"
+                                    {...numberPropsFromDefinition(getExampleVariableInfo("amplitude"))}
+                                />. Drag the number left or right to scale the wave height. Reset
+                                with{" "}
+                                <InlineTrigger varName="amplitude" value={1} icon="refresh">
+                                    amplitude = 1
+                                </InlineTrigger>.
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-slide-2-viz" padding="none">
+                        <SlideViz />
+                    </Block>
+                </SplitLayout>
+            </Slide>
 
-                {/* ── Slide 3: Frequency ── */}
-                <Slide>
-                    <SplitLayout ratio="1:1" gap="lg" align="center">
-                        <div className="space-y-4">
-                            <Block id="block-slide-3-title" padding="none">
-                                <EditableH2 id="h2-slide-3" blockId="block-slide-3-title">
-                                    Frequency
-                                </EditableH2>
-                            </Block>
-                            <Block id="block-slide-3-body" padding="none">
-                                <EditableParagraph id="para-slide-3" blockId="block-slide-3-body">
-                                    The{" "}
-                                    <InlineTooltip tooltip="Frequency is the number of complete cycles per second, measured in Hertz (Hz). Higher frequency means faster oscillation and shorter wavelength for the same wave speed.">
-                                        frequency
-                                    </InlineTooltip>{" "}
-                                    <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />{" "}
-                                    is currently{" "}
-                                    <InlineScrubbleNumber
-                                        varName="frequency"
-                                        {...numberPropsFromDefinition(getExampleVariableInfo("frequency"))}
-                                    />{" "}
-                                    Hz. The{" "}
-                                    <InlineTooltip tooltip="The period T = 1/f is the time for one complete cycle. Doubling the frequency halves the period.">
-                                        period
-                                    </InlineTooltip>{" "}
-                                    is{" "}
-                                    <InlineFormula latex="T = 1/\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />.
-                                    Try{" "}
-                                    <InlineTrigger varName="frequency" value={3} icon="zap">
-                                        triple frequency
-                                    </InlineTrigger>{" "}
-                                    or{" "}
-                                    <InlineTrigger varName="frequency" value={1} icon="refresh">
-                                        reset
-                                    </InlineTrigger>.
-                                </EditableParagraph>
-                            </Block>
-                        </div>
-                        <Block id="block-slide-3-viz" padding="none">
-                            <SlideViz />
+            {/* ── Slide 3: Frequency ── */}
+            <Slide>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-slide-3-title" padding="none">
+                            <EditableH2 id="h2-slide-3" blockId="block-slide-3-title">
+                                Frequency
+                            </EditableH2>
                         </Block>
-                    </SplitLayout>
-                </Slide>
+                        <Block id="block-slide-3-body" padding="none">
+                            <EditableParagraph id="para-slide-3" blockId="block-slide-3-body">
+                                The{" "}
+                                <InlineTooltip tooltip="Frequency is the number of complete cycles per second, measured in Hertz (Hz). Higher frequency means faster oscillation and shorter wavelength for the same wave speed.">
+                                    frequency
+                                </InlineTooltip>{" "}
+                                <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />{" "}
+                                is currently{" "}
+                                <InlineScrubbleNumber
+                                    varName="frequency"
+                                    {...numberPropsFromDefinition(getExampleVariableInfo("frequency"))}
+                                />{" "}
+                                Hz. The{" "}
+                                <InlineTooltip tooltip="The period T = 1/f is the time for one complete cycle. Doubling the frequency halves the period.">
+                                    period
+                                </InlineTooltip>{" "}
+                                is{" "}
+                                <InlineFormula latex="T = 1/\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />.
+                                Try{" "}
+                                <InlineTrigger varName="frequency" value={3} icon="zap">
+                                    triple frequency
+                                </InlineTrigger>{" "}
+                                or{" "}
+                                <InlineTrigger varName="frequency" value={1} icon="refresh">
+                                    reset
+                                </InlineTrigger>.
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-slide-3-viz" padding="none">
+                        <SlideViz />
+                    </Block>
+                </SplitLayout>
+            </Slide>
 
-                {/* ── Slide 4: Summary ── */}
-                <Slide>
-                    <SplitLayout ratio="1:1" gap="lg" align="center">
-                        <div className="space-y-4">
-                            <Block id="block-slide-4-title" padding="none">
-                                <EditableH2 id="h2-slide-4" blockId="block-slide-4-title">
-                                    Lissajous Patterns
-                                </EditableH2>
-                            </Block>
-                            <Block id="block-slide-4-body" padding="none">
-                                <EditableParagraph id="para-slide-4" blockId="block-slide-4-body">
-                                    When two oscillations drive{" "}
-                                    <InlineFormula latex="x" /> and{" "}
-                                    <InlineFormula latex="y" /> independently, the result is a{" "}
-                                    <InlineTooltip tooltip="Lissajous figures appear on oscilloscopes when comparing two AC signals. Simple integer frequency ratios produce closed, repeating curves.">
-                                        Lissajous figure
-                                    </InlineTooltip>{" "}
-                                    defined by{" "}
-                                    <InlineFormula
-                                        latex="\clr{x}{x}=A\sin(\clr{a}{a}t+\delta),\;\clr{y}{y}=B\sin(\clr{b}{b}t)"
-                                        colorMap={{ x: "#F59E0B", y: "#EF4444", a: "#F59E0B", b: "#EF4444" }}
-                                    />.
-                                    The shape changes dramatically with the{" "}
-                                    <InlineTooltip tooltip="The frequency ratio a:b determines how many times the curve crosses each axis. Integer ratios produce closed curves; irrational ratios produce curves that densely fill a rectangle.">
-                                        frequency ratio
-                                    </InlineTooltip>.
-                                </EditableParagraph>
-                            </Block>
-                        </div>
-                        <Block id="block-slide-4-viz" padding="none">
-                            <SlideViz />
+            {/* ── Slide 4: Summary ── */}
+            <Slide>
+                <SplitLayout ratio="1:1" gap="lg" align="center">
+                    <div className="space-y-4">
+                        <Block id="block-slide-4-title" padding="none">
+                            <EditableH2 id="h2-slide-4" blockId="block-slide-4-title">
+                                Lissajous Patterns
+                            </EditableH2>
                         </Block>
-                    </SplitLayout>
-                </Slide>
+                        <Block id="block-slide-4-body" padding="none">
+                            <EditableParagraph id="para-slide-4" blockId="block-slide-4-body">
+                                When two oscillations drive{" "}
+                                <InlineFormula latex="x" /> and{" "}
+                                <InlineFormula latex="y" /> independently, the result is a{" "}
+                                <InlineTooltip tooltip="Lissajous figures appear on oscilloscopes when comparing two AC signals. Simple integer frequency ratios produce closed, repeating curves.">
+                                    Lissajous figure
+                                </InlineTooltip>{" "}
+                                defined by{" "}
+                                <InlineFormula
+                                    latex="\clr{x}{x}=A\sin(\clr{a}{a}t+\delta),\;\clr{y}{y}=B\sin(\clr{b}{b}t)"
+                                    colorMap={{ x: "#F59E0B", y: "#EF4444", a: "#F59E0B", b: "#EF4444" }}
+                                />.
+                                The shape changes dramatically with the{" "}
+                                <InlineTooltip tooltip="The frequency ratio a:b determines how many times the curve crosses each axis. Integer ratios produce closed curves; irrational ratios produce curves that densely fill a rectangle.">
+                                    frequency ratio
+                                </InlineTooltip>.
+                            </EditableParagraph>
+                        </Block>
+                    </div>
+                    <Block id="block-slide-4-viz" padding="none">
+                        <SlideViz />
+                    </Block>
+                </SplitLayout>
+            </Slide>
         </SlideLayout>
     </StackLayout>,
 
