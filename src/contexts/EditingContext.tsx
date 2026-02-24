@@ -1329,10 +1329,17 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setEditingFormulaBlock(null);
     }, [editingFormulaBlock, addFormulaBlockEdit]);
 
-    // Filter out inlineFormulaEdits whose block already has a structure 'add' edit
-    // with an updated marker.  The structure edit carries the new props in its marker,
-    // so processing both would duplicate the formula on the backend.  The inlineFormulaEdit
-    // is kept in local state purely for frontend visual feedback (effectiveLatex).
+    // Filter out inline component edits whose block already has a structure 'add' edit
+    // (including 'modify-content' edits for inline component insertion into existing paragraphs).
+    // The structure edit carries the component props in its content markers,
+    // so processing both would duplicate the component on the backend.
+    // Inline component edits are kept in local state purely for frontend visual feedback.
+    const _INLINE_EDIT_TYPES = new Set([
+        'inlineFormula', 'tooltip', 'trigger', 'hyperlink',
+        'scrubbleNumber', 'clozeInput', 'clozeChoice', 'toggle',
+        'spotColor', 'linkedHighlight',
+    ]);
+
     const filterEditsForBackend = useCallback((edits: PendingEdit[]): PendingEdit[] => {
         const structureAddBlockIds = new Set(
             edits
@@ -1340,7 +1347,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                 .map(e => (e as StructureEdit).blockId)
         );
         return edits.filter(e => {
-            if (e.type === 'inlineFormula' && structureAddBlockIds.has((e as InlineFormulaEdit).blockId)) {
+            if (_INLINE_EDIT_TYPES.has(e.type) && structureAddBlockIds.has((e as any).blockId)) {
                 return false;
             }
             return true;

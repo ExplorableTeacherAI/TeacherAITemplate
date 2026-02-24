@@ -350,6 +350,10 @@ export const SlashCommandMenu = ({
                 top: finalPosition.top,
                 left: finalPosition.left,
             }}
+            // Prevent mousedown from stealing focus from the contentEditable.
+            // Without this, clicking a menu item triggers blur on the editor
+            // (which closes the menu) before the onClick can fire.
+            onMouseDown={(e) => e.preventDefault()}
         >
             <div className="p-1">
                 {filteredCommands.length === 0 ? (

@@ -415,6 +415,8 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
      * Handle inline component insertion from EditableText.
      * When a user inserts an inline component via "/" in an existing paragraph,
      * the block needs to be re-rendered with real React components.
+     * Also creates a structure edit so the backend knows to insert the component
+     * into the source code.
      */
     const handleInlineContentUpdate = useCallback((blockId: string, content: string) => {
         if (!hasInlineComponents(content)) return;
@@ -437,7 +439,18 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                 return replaceBlockContent(block, blockId, contentElement);
             });
         });
-    }, []);
+
+        // Create a structure edit so the backend inserts the inline component
+        // into the existing paragraph's source code.
+        if (editing) {
+            editing.addStructureEdit({
+                action: 'add' as const,
+                blockId,
+                content,
+                blockType: 'modify-content',
+            });
+        }
+    }, [editing]);
 
     // Listen for inline component insertions from EditableText
     useEffect(() => {
