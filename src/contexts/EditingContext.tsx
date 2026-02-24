@@ -1331,22 +1331,84 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Filter out inline component edits whose block already has a structure 'add' edit
     // (including 'modify-content' edits for inline component insertion into existing paragraphs).
-    // The structure edit carries the component props in its content markers,
-    // so processing both would duplicate the component on the backend.
-    // Inline component edits are kept in local state purely for frontend visual feedback.
+    // Before filtering, merge inline edit props into the structure edit's content markers
+    // so the structure agent writes the component with the user's edited props (not defaults).
     const _INLINE_EDIT_TYPES = new Set([
         'inlineFormula', 'tooltip', 'trigger', 'hyperlink',
         'scrubbleNumber', 'clozeInput', 'clozeChoice', 'toggle',
         'spotColor', 'linkedHighlight',
     ]);
 
+    // Map edit type → marker component type used in content markers
+    const _EDIT_TO_MARKER: Record<string, string> = {
+        scrubbleNumber: 'inlineScrubbleNumber',
+        clozeInput: 'inlineClozeInput',
+        clozeChoice: 'inlineClozeChoice',
+        toggle: 'inlineToggle',
+        tooltip: 'inlineTooltip',
+        trigger: 'inlineTrigger',
+        hyperlink: 'inlineHyperlink',
+        inlineFormula: 'inlineFormula',
+        spotColor: 'inlineSpotColor',
+        linkedHighlight: 'inlineLinkedHighlight',
+    };
+
+    /** Replace a marker's base64 props in the content string with updated props. */
+    const mergePropsIntoMarker = (content: string, editType: string, newProps: Record<string, unknown>): string => {
+        const markerType = _EDIT_TO_MARKER[editType];
+        if (!markerType) return content;
+
+        // Match the first marker of this type:  {{type:id|base64}}  or  {{type:id}}
+        const re = new RegExp(`\\{\\{${markerType}:([^|}]+)(?:\\|[A-Za-z0-9+/=]*)?\\}\\}`);
+        const m = content.match(re);
+        if (!m) return content;
+
+        try {
+            const encoded = btoa(JSON.stringify(newProps));
+            return content.replace(m[0], `{{${markerType}:${m[1]}|${encoded}}}`);
+        } catch {
+            return content;
+        }
+    };
+
     const filterEditsForBackend = useCallback((edits: PendingEdit[]): PendingEdit[] => {
-        const structureAddBlockIds = new Set(
-            edits
-                .filter(e => e.type === 'structure' && (e as StructureEdit).action === 'add')
-                .map(e => (e as StructureEdit).blockId)
+        // Identify blocks with structure 'add' edits
+        const structureAddEdits = edits.filter(
+            e => e.type === 'structure' && (e as StructureEdit).action === 'add'
         );
-        return edits.filter(e => {
+        const structureAddBlockIds = new Set(
+            structureAddEdits.map(e => (e as StructureEdit).blockId)
+        );
+
+        // Collect inline edits that will be filtered out
+        const inlineEditsForStructure = edits.filter(
+            e => _INLINE_EDIT_TYPES.has(e.type) && structureAddBlockIds.has((e as any).blockId)
+        );
+
+        // Merge inline edit props into the structure edit's content markers
+        // so the structure agent creates the component with the correct props.
+        const updatedEdits = edits.map(e => {
+            if (e.type !== 'structure' || (e as StructureEdit).action !== 'add') return e;
+            const se = e as StructureEdit;
+            if (!se.content) return e;
+
+            // Find inline edits targeting this block
+            const related = inlineEditsForStructure.filter(
+                ie => (ie as any).blockId === se.blockId
+            );
+            if (related.length === 0) return e;
+
+            let updatedContent = se.content;
+            for (const ie of related) {
+                updatedContent = mergePropsIntoMarker(updatedContent, ie.type, (ie as any).newProps);
+            }
+
+            if (updatedContent === se.content) return e;
+            return { ...se, content: updatedContent };
+        });
+
+        // Filter out inline edits (their props are now merged into the structure edit)
+        return updatedEdits.filter(e => {
             if (_INLINE_EDIT_TYPES.has(e.type) && structureAddBlockIds.has((e as any).blockId)) {
                 return false;
             }
