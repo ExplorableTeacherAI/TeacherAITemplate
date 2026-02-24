@@ -403,7 +403,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                     paddingBottom: '1px',
                 }}
             >
-                {formatValue ? formatValue(value) : value}
+                {formatValue ? formatValue(value) : Number(value.toFixed(2))}
             </span>
 
             {/* Edit button - appears on hover in edit mode */}
