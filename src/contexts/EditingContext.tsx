@@ -11,6 +11,7 @@ export interface TextEdit {
     originalHtml?: string;
     newText: string;
     newHtml?: string;
+    fullContent?: string;
     timestamp: number;
 }
 
@@ -403,10 +404,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                 const updated = [...prev];
                 const existingStructure = updated[structureAddIndex] as StructureEdit;
 
-                // Update the content of the structure edit
+                // Update the content of the structure edit, preserving inline component markers if available
                 updated[structureAddIndex] = {
                     ...existingStructure,
-                    content: edit.newText,
+                    content: edit.fullContent ?? edit.newText,
                     timestamp: Date.now(),
                 };
                 return updated;
@@ -465,9 +466,15 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const existing = updated[existingAddIndex] as StructureEdit;
 
                     // Update the existing add edit with new details (e.g. placeholder -> h1)
+                    // If the existing edit is a real block creation (not a placeholder) and the new 
+                    // edit is an inline insertion ('modify-content'), we keep the original blockType 
+                    // so the backend still creates the block.
                     updated[existingAddIndex] = {
                         ...existing,
                         ...edit,
+                        blockType: (existing.blockType !== 'placeholder' && edit.blockType === 'modify-content')
+                            ? existing.blockType
+                            : edit.blockType,
                         timestamp: Date.now(),
                     };
                     return updated;
@@ -1713,7 +1720,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                 <span style={{
                                                     fontWeight: 600,
                                                     color: edit.type === 'text' ? '#60a5fa' :
-                                                        edit.type === 'equation' ? '#a78bfa' :
+                                                        edit.type === 'formulaBlock' ? '#a78bfa' :
                                                             edit.type === 'structure' ? '#34d399' :
                                                                 edit.type === 'clozeInput' ? '#38bdf8' :
                                                                     edit.type === 'clozeChoice' ? '#f472b6' :
@@ -1742,11 +1749,11 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                                                         </div>
                                                     </>
                                                 )}
-                                                {edit.type === 'equation' && (
+                                                {edit.type === 'formulaBlock' && (
                                                     <>
                                                         <div>📍 {(edit as any).blockId}</div>
                                                         <div style={{ fontFamily: 'monospace', color: '#9ca3af' }}>
-                                                            {(edit as any).newLatex}
+                                                            {(edit as any).newProps?.latex}
                                                         </div>
                                                     </>
                                                 )}

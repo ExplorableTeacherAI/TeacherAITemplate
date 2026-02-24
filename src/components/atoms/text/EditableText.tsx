@@ -208,6 +208,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
                     originalHtml,
                     newText: cleanNew,
                     newHtml,
+                    fullContent: extractContentWithMarkers(containerRef.current),
                 });
             } else {
                 addTextEdit({
@@ -217,6 +218,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
                     originalHtml,
                     newText,
                     newHtml,
+                    fullContent: extractContentWithMarkers(containerRef.current),
                 });
             }
         }
