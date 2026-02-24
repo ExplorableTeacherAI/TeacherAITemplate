@@ -88,7 +88,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineClozeChoice
                         key={uniqueId}
-                        varName={p?.varName}
+                        varName={p?.varName ?? `var_${uniqueId}`}
                         correctAnswer={p?.correctAnswer ?? "Option 1"}
                         options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
                         placeholder={p?.placeholder ?? "???"}
@@ -103,7 +103,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineClozeInput
                         key={uniqueId}
-                        varName={p?.varName}
+                        varName={p?.varName ?? `var_${uniqueId}`}
                         correctAnswer={p?.correctAnswer ?? "answer"}
                         placeholder={p?.placeholder ?? "???"}
                         color={p?.color}
@@ -118,7 +118,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineToggle
                         key={uniqueId}
-                        varName={p?.varName}
+                        varName={p?.varName ?? `var_${uniqueId}`}
                         options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
                         color={p?.color}
                         bgColor={p?.bgColor}
@@ -147,7 +147,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineTrigger
                         key={uniqueId}
-                        varName={p?.varName}
+                        varName={p?.varName ?? `var_${uniqueId}`}
                         value={p?.value}
                         color={p?.color}
                         bgColor={p?.bgColor}
