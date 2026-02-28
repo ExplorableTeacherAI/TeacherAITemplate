@@ -641,7 +641,7 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
 
                 {/* Instructions hint */}
                 {lines.length === 0 && textBoxes.length === 0 && !editingId && (
-                    <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+                    <div className="absolute -bottom-12 left-0 right-0 flex justify-center pointer-events-none">
                         <div className="bg-background/90 backdrop-blur-sm rounded-md px-3 py-1.5 text-sm text-muted-foreground shadow-sm">
                             {mode === 'draw'
                                 ? 'Draw on the section to annotate, then send to chat'
