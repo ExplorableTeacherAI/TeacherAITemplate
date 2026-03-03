@@ -518,7 +518,7 @@ export const symmetryDrawingDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-sym-line-viz" padding="sm">
+        <Block id="block-sym-line-viz" padding="sm" hasVisualization>
             <SymmetryLineExplorer />
         </Block>
     </SplitLayout>,
@@ -617,7 +617,7 @@ export const symmetryDrawingDemo: ReactElement[] = [
                 <SymmetryStatus />
             </Block>
         </div>
-        <Block id="block-sym-fn-viz" padding="sm">
+        <Block id="block-sym-fn-viz" padding="sm" hasVisualization>
             <FunctionSymmetryViz />
         </Block>
     </SplitLayout>,

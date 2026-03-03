@@ -464,7 +464,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-dv-bar-viz" padding="sm">
+        <Block id="block-dv-bar-viz" padding="sm" hasVisualization>
             <ReactiveBarChart />
         </Block>
     </SplitLayout>,
@@ -494,7 +494,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-dv-line-viz" padding="sm">
+        <Block id="block-dv-line-viz" padding="sm" hasVisualization>
             <ReactiveLineChart />
         </Block>
     </SplitLayout>,
@@ -509,7 +509,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-dv-area" maxWidth="xl">
-        <Block id="block-dv-area-viz" padding="sm">
+        <Block id="block-dv-area-viz" padding="sm" hasVisualization>
             <ReactiveAreaChart />
         </Block>
     </StackLayout>,
@@ -524,10 +524,10 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <SplitLayout key="layout-dv-pie-donut" ratio="1:1" gap="lg">
-        <Block id="block-dv-pie-viz" padding="sm">
+        <Block id="block-dv-pie-viz" padding="sm" hasVisualization>
             <ReactivePieChart />
         </Block>
-        <Block id="block-dv-donut-viz" padding="sm">
+        <Block id="block-dv-donut-viz" padding="sm" hasVisualization>
             <ReactiveDonutChart />
         </Block>
     </SplitLayout>,
@@ -556,7 +556,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-dv-scatter" maxWidth="xl">
-        <Block id="block-dv-scatter-viz" padding="sm">
+        <Block id="block-dv-scatter-viz" padding="sm" hasVisualization>
             <ReactiveScatterChart />
         </Block>
     </StackLayout>,

@@ -217,7 +217,7 @@ export const circleAnatomyDemo: ReactElement[] = [
             </Block>
         </div>
 
-        <Block id="block-ca-viz" padding="sm">
+        <Block id="block-ca-viz" padding="sm" hasVisualization>
             <ReactiveCircleAnatomy />
         </Block>
     </SplitLayout>,

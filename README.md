@@ -20,6 +20,24 @@ The **Block** is the fundamental unit of content. Every piece of a lesson — a 
 
 Every block follows the pattern: **Layout > Block > Component**.
 
+**Rule 3: Set `hasVisualization` on visualization blocks.** When a Block contains a visual component (chart, diagram, interactive visualization), add `hasVisualization` to enable the AI alternatives wand icon.
+
+```tsx
+// Text block — no hasVisualization
+<Block id="block-text" padding="sm">
+    <EditableParagraph id="para-text" blockId="block-text">Content</EditableParagraph>
+</Block>
+
+// Visualization block — with hasVisualization
+<Block id="block-viz" padding="sm" hasVisualization>
+    <Cartesian2D plots={[...]} />
+</Block>
+```
+
+**Applies to:** `Cartesian2D`, `DataVisualization`, `GeometricDiagram`, `MatrixVisualization`, `FlowDiagram`, `ExpandableFlowDiagram`, `SimulationPanel`, `DesmosGraph`, `GeoGebraGraph`, and custom visualizations.
+
+**Does NOT apply to:** `EditableParagraph`, `EditableH1/H2/H3`, `FormulaBlock`, `ImageDisplay`, `VideoDisplay`, `Table`.
+
 ---
 
 ## Project Structure

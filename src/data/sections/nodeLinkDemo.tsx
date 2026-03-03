@@ -126,7 +126,7 @@ export const nodeLinkDemo: ReactElement[] = [
                 the rest of the network. Drag nodes to rearrange the layout.
             </EditableParagraph>
         </Block>
-        <Block id="block-nl-social-viz" padding="sm">
+        <Block id="block-nl-social-viz" padding="sm" hasVisualization>
             <NodeLinkDiagram
                 nodes={socialNodes}
                 links={socialLinks}
@@ -154,7 +154,7 @@ export const nodeLinkDemo: ReactElement[] = [
                 naturally clusters related modules together.
             </EditableParagraph>
         </Block>
-        <Block id="block-nl-dep-viz" padding="sm">
+        <Block id="block-nl-dep-viz" padding="sm" hasVisualization>
             <NodeLinkDiagram
                 nodes={depNodes}
                 links={depLinks}
@@ -195,7 +195,7 @@ export const nodeLinkDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-nl-reactive-viz" padding="sm">
+        <Block id="block-nl-reactive-viz" padding="sm" hasVisualization>
             <ReactiveNodeLink />
         </Block>
     </SplitLayout>,
@@ -252,7 +252,7 @@ export const nodeLinkDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-nl-highlight-viz" padding="sm">
+        <Block id="block-nl-highlight-viz" padding="sm" hasVisualization>
             <NodeLinkDiagram
                 nodes={highlightNodes}
                 links={highlightLinks}

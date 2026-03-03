@@ -225,7 +225,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-matrix-scalar-viz" padding="sm">
+        <Block id="block-matrix-scalar-viz" padding="sm" hasVisualization>
             <ScaledMatrixViz />
         </Block>
     </SplitLayout>,
@@ -271,7 +271,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-        <Block id="block-matrix-resize-viz" padding="sm">
+        <Block id="block-matrix-resize-viz" padding="sm" hasVisualization>
             <DynamicSizeMatrix />
         </Block>
     </SplitLayout>,
@@ -350,7 +350,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-matrix-highlight-viz" padding="sm">
+        <Block id="block-matrix-highlight-viz" padding="sm" hasVisualization>
             <HighlightableMatrix />
         </Block>
     </SplitLayout>,
@@ -368,7 +368,7 @@ export const matrixDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <GridLayout key="layout-matrix-gallery" columns={4} gap="md">
-        <Block id="block-matrix-none" padding="sm">
+        <Block id="block-matrix-none" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 0],
@@ -380,7 +380,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 showBrackets
             />
         </Block>
-        <Block id="block-matrix-heatmap" padding="sm">
+        <Block id="block-matrix-heatmap" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 4],
@@ -392,7 +392,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 showBrackets
             />
         </Block>
-        <Block id="block-matrix-diverging" padding="sm">
+        <Block id="block-matrix-diverging" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [-3, 2],
@@ -404,7 +404,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 showBrackets
             />
         </Block>
-        <Block id="block-matrix-categorical" padding="sm">
+        <Block id="block-matrix-categorical" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [0, 1],
@@ -467,7 +467,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 />
             </Block>
         </div>
-        <Block id="block-matrix-det-viz" padding="sm">
+        <Block id="block-matrix-det-viz" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 3],
@@ -519,7 +519,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 everything else is 0.
             </EditableParagraph>
         </Block>
-        <Block id="block-matrix-identity-viz" padding="sm">
+        <Block id="block-matrix-identity-viz" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 0, 0, 0],

@@ -75,7 +75,7 @@ export const desmosDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-desmos-viz" padding="sm">
+        <Block id="block-desmos-viz" padding="sm" hasVisualization>
             <DesmosGraph
                 varName="desmosEquation"
                 paramVars={["desmosAmp", "desmosFreq"]}

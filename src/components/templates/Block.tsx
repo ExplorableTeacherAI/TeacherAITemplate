@@ -1,4 +1,4 @@
-import { type ReactNode, useState, useRef, useEffect } from "react";
+import { type ReactNode, useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/atoms/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/ui/tooltip";
 import {
@@ -7,9 +7,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/atoms/ui/dropdown-menu";
-import { GripVertical, Plus, Send, Pencil } from "lucide-react";
+import { GripVertical, Plus, Send, Pencil, Wand2 } from "lucide-react";
 import { AnnotationOverlay } from "@/components/utility/AnnotationOverlay";
 import { useBlockContext } from "@/contexts/BlockContext";
+import { useAppMode } from "@/contexts/AppModeContext";
+
 
 export interface BlockProps {
     /** Unique identifier for the block */
@@ -22,6 +24,15 @@ export interface BlockProps {
     padding?: "none" | "sm" | "md" | "lg";
     /** Whether in preview mode */
     isPreview?: boolean;
+    /**
+     * Whether this block contains a visualization component.
+     * When true, a magic wand icon appears on hover, allowing
+     * the teacher to request AI-generated alternative visualizations.
+     * The AI agent should set this to true when creating blocks
+     * that contain visual components (Cartesian2D, DataVisualization,
+     * SimulationPanel, FlowDiagram, GeometricDiagram, etc.).
+     */
+    hasVisualization?: boolean;
     /** Callback to send instruction to AI */
     onEditBlock?: (instruction: string) => void;
     /** Callback to add a new block */
@@ -56,6 +67,7 @@ export const Block = ({
     className = "",
     padding = "md",
     isPreview = false,
+    hasVisualization = false,
     onEditBlock,
     onAddBlock,
 }: BlockProps) => {
@@ -64,6 +76,7 @@ export const Block = ({
     const { dragControls, onDelete: blockContextDelete } = useBlockContext();
     const [isAnnotating, setIsAnnotating] = useState(false);
     const blockRef = useRef<HTMLDivElement>(null);
+    const { isPreview: appIsPreview } = useAppMode();
 
     const paddingClasses = {
         none: "",
@@ -71,6 +84,16 @@ export const Block = ({
         md: "py-3",
         lg: "py-6"
     };
+
+    // Handle magic wand click — send request to parent for AI alternatives
+    const handleMagicClick = useCallback(() => {
+        if (!id || !hasVisualization) return;
+
+        window.parent.postMessage({
+            type: 'block-magic-replace',
+            blockId: id,
+        }, '*');
+    }, [id, hasVisualization]);
 
     // Listen for events to close this overlay when another one opens
     useEffect(() => {
@@ -148,10 +171,35 @@ export const Block = ({
             <div
                 ref={blockRef}
                 data-block-id={id}
-                className={`w-full group flex gap-3 pr-3 ${paddingClasses[padding]} ${className} ${!isPreview ? 'hover:ring-1 rounded-lg transition-all' : ''}`}
+                className={`w-full group flex gap-3 pr-3 relative ${paddingClasses[padding]} ${className} ${!isPreview ? 'hover:ring-1 rounded-lg transition-all' : ''}`}
                 style={!isPreview ? { '--tw-ring-color': '#D4EDE5' } as React.CSSProperties : undefined}
                 onClick={handleBlockClick}
             >
+                {/* Magic wand icon - shown on visualization blocks in editor mode */}
+                {!isPreview && !appIsPreview && hasVisualization && (
+                    <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-full bg-[#D4EDE5] hover:bg-[#0D7377] text-[#0D7377] hover:text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 border border-[#0D7377]/20"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMagicClick();
+                                    }}
+                                >
+                                    <Wand2 className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                                <p className="font-medium">✨ AI Alternatives</p>
+                                <p className="text-xs text-muted-foreground">Click to explore different visualization options</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </div>
+                )}
+
                 {/* Hover controls - hidden in preview mode */}
                 {!isPreview && (
                     <div className="relative z-10 flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity pt-1">

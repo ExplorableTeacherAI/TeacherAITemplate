@@ -129,7 +129,7 @@ export const vennAndNumberLineDemo: ReactElement[] = [
                 {" "}to link text with diagram regions.
             </EditableParagraph>
         </Block>
-        <Block id="block-venn-viz" padding="sm">
+        <Block id="block-venn-viz" padding="sm" hasVisualization>
             <ReactiveVennDiagram />
         </Block>
     </SplitLayout>,
@@ -168,7 +168,7 @@ export const vennAndNumberLineDemo: ReactElement[] = [
                 . Click anywhere on the number line to move the point.
             </EditableParagraph>
         </Block>
-        <Block id="block-numberline-viz" padding="sm">
+        <Block id="block-numberline-viz" padding="sm" hasVisualization>
             <ReactiveNumberLine />
         </Block>
     </SplitLayout>,

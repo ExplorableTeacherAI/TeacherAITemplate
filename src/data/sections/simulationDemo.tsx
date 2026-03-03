@@ -222,7 +222,7 @@ export const simulationDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-sim-wave" maxWidth="xl">
-        <Block id="block-sim-wave" padding="sm">
+        <Block id="block-sim-wave" padding="sm" hasVisualization>
             <SimulationPanel
                 title="Controls"
                 controlsPosition="right"
@@ -298,7 +298,7 @@ export const simulationDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-sim-trig" maxWidth="xl">
-        <Block id="block-sim-trig" padding="sm">
+        <Block id="block-sim-trig" padding="sm" hasVisualization>
             <SimulationPanel
                 title="Controls"
                 controlsPosition="right"
@@ -364,7 +364,7 @@ export const simulationDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-sim-liss" maxWidth="xl">
-        <Block id="block-sim-liss" padding="sm">
+        <Block id="block-sim-liss" padding="sm" hasVisualization>
             <SimulationPanel
                 title="Controls"
                 controlsPosition="right"

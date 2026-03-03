@@ -404,6 +404,42 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 - Element IDs: `<type>-<descriptive-name>` (e.g., `para-radius-example`, `h1-main-title`)
 - Pass `blockId` prop to editable components matching the parent Block's `id`
 
+### Critical Rule: `hasVisualization` Prop
+
+When a `<Block>` contains a **visual component** (chart, diagram, interactive visualization), you **MUST** set `hasVisualization={true}`. This enables a magic wand icon (✨) on hover that lets the teacher request AI-generated alternative visualizations.
+
+**Set `hasVisualization={true}` when the block contains:**
+- `Cartesian2D`, `DataVisualization`, `GeometricDiagram`, `MatrixVisualization`
+- `FlowDiagram`, `ExpandableFlowDiagram`, `NodeLinkDiagram`
+- `SimulationPanel`, `DesmosGraph`, `GeoGebraGraph`
+- Any custom visualization component (canvas, SVG-based, etc.)
+- Any reactive visual wrapper component
+
+**Do NOT set it for:**
+- `EditableParagraph`, `EditableH1/H2/H3` (text blocks)
+- `FormulaBlock`, `InlineFormula` (math display, not visual)
+- `ImageDisplay`, `VideoDisplay` (static media)
+- `Table` (data table, not a visualization)
+
+```tsx
+// CORRECT — visualization block with hasVisualization
+<Block id="block-viz" padding="sm" hasVisualization>
+    <Cartesian2D plots={[...]} />
+</Block>
+
+// CORRECT — text block without hasVisualization
+<Block id="block-text" padding="sm">
+    <EditableParagraph id="para-text" blockId="block-text">
+        Some text...
+    </EditableParagraph>
+</Block>
+
+// CORRECT — reactive wrapper visualization
+<Block id="block-reactive-viz" padding="sm" hasVisualization>
+    <ReactiveDataViz />
+</Block>
+```
+
 ## Available Layouts
 
 Import from `@/components/layouts`.

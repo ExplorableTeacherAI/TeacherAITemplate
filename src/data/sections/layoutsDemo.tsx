@@ -123,16 +123,18 @@ function ScrollViz() {
                 Step {idx + 1} of {SCROLL_VARIANTS.length}
             </div>
             <div className="rounded-xl overflow-hidden">
-                <AnimatedGraph
-                    key={idx}
-                    variant={SCROLL_VARIANTS[idx]}
-                    color={SCROLL_COLORS[idx].color}
-                    secondaryColor={SCROLL_COLORS[idx].secondary}
-                    width={480}
-                    height={340}
-                    showAxes={true}
-                    showGrid={false}
-                />
+                <Block id="block-demo-grid-1-viz" padding="none" hasVisualization>
+                    <AnimatedGraph
+                        key={idx}
+                        variant={SCROLL_VARIANTS[idx]}
+                        color={SCROLL_COLORS[idx].color}
+                        secondaryColor={SCROLL_COLORS[idx].secondary}
+                        width={480}
+                        height={340}
+                        showAxes={true}
+                        showGrid={false}
+                    />
+                </Block>
             </div>
             <div className="flex gap-1.5 justify-center">
                 {SCROLL_VARIANTS.map((_, i) => (
@@ -196,7 +198,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-demo-fw-viz" maxWidth="2xl">
-        <Block id="block-demo-fw-viz" padding="sm">
+        <Block id="block-demo-fw-viz" padding="sm" hasVisualization>
             <ReactiveStackViz />
         </Block>
     </StackLayout>,
@@ -235,7 +237,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-demo-split-viz" padding="sm">
+        <Block id="block-demo-split-viz" padding="sm" hasVisualization>
             <ReactiveSineWave />
         </Block>
     </SplitLayout>,
@@ -269,10 +271,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Block id="block-demo-grid-1-title" padding="none">
                 <EditableH3 id="h3-demo-grid-1" blockId="block-demo-grid-1-title">Parametric Rose</EditableH3>
             </Block>
-            <Block id="block-demo-grid-1-viz" padding="none">
-                <div className="rounded-lg overflow-hidden">
-                    <AnimatedGraph variant="parametric" color="#EC4899" secondaryColor="#F59E0B" width={300} height={220} showAxes={false} showGrid={false} />
-                </div>
+            <Block id="block-demo-grid-1-viz" padding="none" hasVisualization>
+                <AnimatedGraph variant="parametric" color="#EC4899" secondaryColor="#F59E0B" width={300} height={220} showAxes={false} showGrid={false} />
             </Block>
             <Block id="block-demo-grid-1-desc" padding="none">
                 <EditableParagraph id="para-demo-grid-1" blockId="block-demo-grid-1-desc">
@@ -288,10 +288,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Block id="block-demo-grid-2-title" padding="none">
                 <EditableH3 id="h3-demo-grid-2" blockId="block-demo-grid-2-title">Pendulum Motion</EditableH3>
             </Block>
-            <Block id="block-demo-grid-2-viz" padding="none">
-                <div className="rounded-lg overflow-hidden">
-                    <AnimatedGraph variant="pendulum" color="#8B5CF6" secondaryColor="#EC4899" width={300} height={220} showAxes={false} />
-                </div>
+            <Block id="block-demo-grid-2-viz" padding="none" hasVisualization>
+                <AnimatedGraph variant="pendulum" color="#8B5CF6" secondaryColor="#EC4899" width={300} height={220} showAxes={false} />
             </Block>
             <Block id="block-demo-grid-2-desc" padding="none">
                 <EditableParagraph id="para-demo-grid-2" blockId="block-demo-grid-2-desc">
@@ -308,10 +306,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Block id="block-demo-grid-3-title" padding="none">
                 <EditableH3 id="h3-demo-grid-3" blockId="block-demo-grid-3-title">Lissajous Curve</EditableH3>
             </Block>
-            <Block id="block-demo-grid-3-viz" padding="none">
-                <div className="rounded-lg overflow-hidden">
-                    <AnimatedGraph variant="lissajous" color="#06B6D4" secondaryColor="#3B82F6" width={300} height={220} showAxes={false} showGrid={true} />
-                </div>
+            <Block id="block-demo-grid-3-viz" padding="none" hasVisualization>
+                <AnimatedGraph variant="lissajous" color="#06B6D4" secondaryColor="#3B82F6" width={300} height={220} showAxes={false} showGrid={true} />
             </Block>
             <Block id="block-demo-grid-3-desc" padding="none">
                 <EditableParagraph id="para-demo-grid-3" blockId="block-demo-grid-3-desc">
@@ -509,7 +505,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-1-viz" padding="none">
+                    <Block id="block-slide-1-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -543,7 +539,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-2-viz" padding="none">
+                    <Block id="block-slide-2-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -587,7 +583,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-3-viz" padding="none">
+                    <Block id="block-slide-3-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -622,7 +618,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-4-viz" padding="none">
+                    <Block id="block-slide-4-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -711,7 +707,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-1-viz" padding="none">
+                    <Block id="block-step-demo-1-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>
@@ -750,7 +746,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-2-viz" padding="none">
+                    <Block id="block-step-demo-2-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>
@@ -789,7 +785,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-3-viz" padding="none">
+                    <Block id="block-step-demo-3-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>
@@ -829,7 +825,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-5-viz" padding="none">
+                    <Block id="block-step-demo-5-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>

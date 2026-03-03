@@ -90,7 +90,7 @@ export const geometricDiagramDemo: ReactElement[] = [
                 .
             </EditableParagraph>
         </Block>
-        <Block id="block-gd-demo1-viz" padding="sm">
+        <Block id="block-gd-demo1-viz" padding="sm" hasVisualization>
             <ReactiveGeometricDiagram />
         </Block>
     </SplitLayout>,
@@ -136,7 +136,7 @@ export const geometricDiagramDemo: ReactElement[] = [
                 {" "}to spotlight the outer shape.
             </EditableParagraph>
         </Block>
-        <Block id="block-gd-demo2-viz" padding="sm">
+        <Block id="block-gd-demo2-viz" padding="sm" hasVisualization>
             <ReactiveGeometricDiagram />
         </Block>
     </SplitLayout>,

@@ -549,7 +549,7 @@ export const cartesian2dDemo: ReactElement[] = [
                 x = π/2, and the dashed vertical line shows the drop to the x-axis.
             </EditableParagraph>
         </Block>
-        <Block id="block-c2d-basic-viz" padding="sm">
+        <Block id="block-c2d-basic-viz" padding="sm" hasVisualization>
             <BasicFunctionsViz />
         </Block>
     </SplitLayout>,
@@ -587,7 +587,7 @@ export const cartesian2dDemo: ReactElement[] = [
                 {" "}(vertical) change in real time.
             </EditableParagraph>
         </Block>
-        <Block id="block-c2d-unit-viz" padding="sm">
+        <Block id="block-c2d-unit-viz" padding="sm" hasVisualization>
             <UnitCircleExplorer />
         </Block>
     </SplitLayout>,
@@ -620,7 +620,7 @@ export const cartesian2dDemo: ReactElement[] = [
                 , both looping over a full period.
             </EditableParagraph>
         </Block>
-        <Block id="block-c2d-parametric-viz" padding="sm">
+        <Block id="block-c2d-parametric-viz" padding="sm" hasVisualization>
             <ParametricCurvesViz />
         </Block>
     </SplitLayout>,
@@ -734,7 +734,7 @@ export const cartesian2dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c2d-explorer-viz" padding="sm">
+        <Block id="block-c2d-explorer-viz" padding="sm" hasVisualization>
             <ReactiveSineWaveViz />
         </Block>
     </SplitLayout>,
@@ -780,7 +780,7 @@ export const cartesian2dDemo: ReactElement[] = [
                 <LiveRegressionEquation />
             </Block>
         </div>
-        <Block id="block-c2d-scatter-viz" padding="sm">
+        <Block id="block-c2d-scatter-viz" padding="sm" hasVisualization>
             <ScatterPlotViz />
         </Block>
     </SplitLayout>,
@@ -855,7 +855,7 @@ export const cartesian2dDemo: ReactElement[] = [
             </Block>
         </div>
 
-        <Block id="block-c2d-drawing-viz" padding="sm">
+        <Block id="block-c2d-drawing-viz" padding="sm" hasVisualization>
             <LineDrawingViz />
         </Block>
     </SplitLayout>,

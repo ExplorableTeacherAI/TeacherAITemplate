@@ -255,7 +255,7 @@ export const mathTreeDemo: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-mt-factor-viz" maxWidth="2xl">
-        <Block id="block-mt-factor-viz" padding="sm">
+        <Block id="block-mt-factor-viz" padding="sm" hasVisualization>
             <ReactiveFactorTree />
         </Block>
     </StackLayout>,
@@ -288,7 +288,7 @@ export const mathTreeDemo: ReactElement[] = [
     </StackLayout>,
 
     <StackLayout key="layout-mt-prob-viz" maxWidth="2xl">
-        <Block id="block-mt-prob-viz" padding="sm">
+        <Block id="block-mt-prob-viz" padding="sm" hasVisualization>
             <ReactiveProbabilityTree />
         </Block>
     </StackLayout>,

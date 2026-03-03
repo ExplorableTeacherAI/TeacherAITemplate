@@ -551,7 +551,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 />
             </Block>
         </div>
-        <Block id="block-c3d-vectors-viz" padding="sm">
+        <Block id="block-c3d-vectors-viz" padding="sm" hasVisualization>
             <VectorsAndPointsViz />
         </Block>
     </SplitLayout>,
@@ -623,7 +623,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-helix-viz" padding="sm">
+        <Block id="block-c3d-helix-viz" padding="sm" hasVisualization>
             <ReactiveHelixViz />
         </Block>
     </SplitLayout>,
@@ -721,7 +721,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-surface-viz" padding="sm">
+        <Block id="block-c3d-surface-viz" padding="sm" hasVisualization>
             <ReactiveSurfaceViz />
         </Block>
     </SplitLayout>,
@@ -757,7 +757,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 geometry from every angle.
             </EditableParagraph>
         </Block>
-        <Block id="block-c3d-sphere-viz" padding="sm">
+        <Block id="block-c3d-sphere-viz" padding="sm" hasVisualization>
             <SphereAndPlaneViz />
         </Block>
     </SplitLayout>,
@@ -846,7 +846,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-torus-viz" padding="sm">
+        <Block id="block-c3d-torus-viz" padding="sm" hasVisualization>
             <ReactiveTorusViz />
         </Block>
     </SplitLayout>,
@@ -917,7 +917,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 unit-circle explorer.
             </EditableParagraph>
         </Block>
-        <Block id="block-c3d-drag-viz" padding="sm">
+        <Block id="block-c3d-drag-viz" padding="sm" hasVisualization>
             <DraggablePointExplorer />
         </Block>
     </SplitLayout>,
@@ -1010,7 +1010,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-lissajous-viz" padding="sm">
+        <Block id="block-c3d-lissajous-viz" padding="sm" hasVisualization>
             <ReactiveLissajousViz />
         </Block>
     </SplitLayout>,
