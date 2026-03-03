@@ -497,7 +497,13 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
      * Also removes the placeholder structure edit that handleAddBlock created,
      * since the builder chat will handle the block creation.
      */
-    const handleAIRequest = (blockId: string, instruction: string) => {
+    /**
+     * Handle AI request from a BlockInput: sends the instruction + location context
+     * to the parent window (Frontend) which routes it to the builder chat.
+     * Also removes the placeholder structure edit that handleAddBlock created,
+     * since the builder chat will handle the block creation.
+     */
+    const handleAIRequest = (blockId: string, instruction: string, afterBlockId: string | null, beforeBlockId: string | null) => {
         // Remove the placeholder structure edit for this block
         // (handleAddBlock added one immediately, but AI path doesn't use inline editing)
         if (editing) {
@@ -509,36 +515,6 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             if (placeholderEdit) {
                 editing.removeEdit(placeholderEdit.id);
             }
-        }
-
-        // Find the new block's position in the current list
-        const blockIndex = initialBlocks.findIndex(block => hasElementId(block, blockId));
-
-        // Debug: log block structure to understand ID extraction
-        console.log('🔍 AI Request - Block context debug:');
-        console.log('  Total blocks:', initialBlocks.length);
-        console.log('  New block index:', blockIndex);
-        if (blockIndex > 0) {
-            const prevEl = initialBlocks[blockIndex - 1];
-            console.log('  Prev block element:', prevEl?.type, 'key:', prevEl?.key, 'props.id:', (prevEl?.props as any)?.id);
-            console.log('  Prev block extractedId:', extractBlockId(prevEl));
-        }
-        if (blockIndex !== -1 && blockIndex < initialBlocks.length - 1) {
-            const nextEl = initialBlocks[blockIndex + 1];
-            console.log('  Next block element:', nextEl?.type, 'key:', nextEl?.key, 'props.id:', (nextEl?.props as any)?.id);
-            console.log('  Next block extractedId:', extractBlockId(nextEl));
-        }
-
-        // Determine the previous block ID (the block before the new one)
-        let afterBlockId: string | null = null;
-        if (blockIndex > 0) {
-            afterBlockId = extractBlockId(initialBlocks[blockIndex - 1]) || null;
-        }
-
-        // Determine the next block ID (the block after the new one)
-        let beforeBlockId: string | null = null;
-        if (blockIndex !== -1 && blockIndex < initialBlocks.length - 1) {
-            beforeBlockId = extractBlockId(initialBlocks[blockIndex + 1]) || null;
         }
 
         console.log("AI Request:", { blockId, instruction, afterBlockId, beforeBlockId });
@@ -562,13 +538,22 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
         if (index !== -1) {
             // Create new Block directly (no Section wrapper needed)
             const newId = `block-${Date.now()}`;
+
+            // Capture location context NOW (targetId is the block we're inserting after)
+            const afterId = targetId;
+            // The block after the new one is the block currently at index+1
+            let beforeId: string | null = null;
+            if (index + 1 < initialBlocks.length) {
+                beforeId = extractBlockId(initialBlocks[index + 1]) || null;
+            }
+
             const newBlock = (
                 <StackLayout key={`layout-${newId}`} maxWidth="xl">
                     <Block id={newId} padding="sm">
                         <BlockInput
                             id={newId}
                             onCommit={handleCommitBlock}
-                            onAIRequest={handleAIRequest}
+                            onAIRequest={(id, instruction) => handleAIRequest(id, instruction, afterId, beforeId)}
                             placeholder="Type '/' for commands or press Space to ask AI"
                         />
                     </Block>
