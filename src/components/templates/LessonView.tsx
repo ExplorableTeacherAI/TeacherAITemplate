@@ -462,6 +462,71 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
         return () => window.removeEventListener('block-inline-content-update', handler);
     }, [handleInlineContentUpdate]);
 
+    /**
+     * Extract the first block ID found in a top-level element.
+     */
+    const extractBlockId = (element: ReactElement): string | undefined => {
+        if (!isValidElement(element)) return undefined;
+        const el = element as ReactElement<{ id?: string; children?: ReactNode }>;
+        if (el.props.id) return el.props.id;
+        let foundId: string | undefined;
+        if (el.props.children) {
+            Children.forEach(el.props.children, (child) => {
+                if (!foundId && isValidElement(child)) {
+                    foundId = extractBlockId(child as ReactElement);
+                }
+            });
+        }
+        return foundId;
+    };
+
+    /**
+     * Handle AI request from a BlockInput: sends the instruction + location context
+     * to the parent window (Frontend) which routes it to the builder chat.
+     * Also removes the placeholder structure edit that handleAddBlock created,
+     * since the builder chat will handle the block creation.
+     */
+    const handleAIRequest = (blockId: string, instruction: string) => {
+        // Remove the placeholder structure edit for this block
+        // (handleAddBlock added one immediately, but AI path doesn't use inline editing)
+        if (editing) {
+            const placeholderEdit = editing.pendingEdits.find(
+                e => e.type === 'structure' &&
+                    (e as any).action === 'add' &&
+                    (e as any).blockId === blockId
+            );
+            if (placeholderEdit) {
+                editing.removeEdit(placeholderEdit.id);
+            }
+        }
+
+        // Find the new block's position in the current list
+        const blockIndex = initialBlocks.findIndex(block => hasElementId(block, blockId));
+
+        // Determine the previous block ID (the block before the new one)
+        let afterBlockId: string | null = null;
+        if (blockIndex > 0) {
+            afterBlockId = extractBlockId(initialBlocks[blockIndex - 1]) || null;
+        }
+
+        // Determine the next block ID (the block after the new one)
+        let beforeBlockId: string | null = null;
+        if (blockIndex !== -1 && blockIndex < initialBlocks.length - 1) {
+            beforeBlockId = extractBlockId(initialBlocks[blockIndex + 1]) || null;
+        }
+
+        console.log("AI Request:", { blockId, instruction, afterBlockId, beforeBlockId });
+
+        // Send to parent window (Frontend)
+        window.parent.postMessage({
+            type: 'block-ai-request',
+            newBlockId: blockId,
+            instruction,
+            afterBlockId,
+            beforeBlockId,
+        }, '*');
+    };
+
     const handleAddBlock = (targetId: string) => {
         console.log("handleAddBlock called with targetId:", targetId);
         // Find index of element containing targetId
@@ -477,7 +542,8 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                         <BlockInput
                             id={newId}
                             onCommit={handleCommitBlock}
-                            placeholder="Type '/' for commands"
+                            onAIRequest={handleAIRequest}
+                            placeholder="Type '/' for commands or press Space to ask AI"
                         />
                     </Block>
                 </StackLayout>

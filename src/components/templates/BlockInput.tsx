@@ -3,19 +3,24 @@ import ReactDOM from "react-dom";
 import { cn } from "@/lib/utils";
 import { SlashCommandMenu, type SlashCommandType, isInlineCommand, type BlockCommandType } from "./SlashCommandMenu";
 import { getInlineComponentHTML, extractContentWithMarkers } from "@/hooks/useInlineSlashCommands";
+import { Sparkles, Send } from "lucide-react";
 
 interface BlockInputProps {
     id: string;
     onCommit: (id: string, value: string, blockType?: SlashCommandType) => void;
+    onAIRequest?: (id: string, instruction: string) => void;
     placeholder?: string;
 }
 
-export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands" }: BlockInputProps) => {
+export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' for commands or press Space to ask AI" }: BlockInputProps) => {
     const contentRef = useRef<HTMLParagraphElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSlashMenu, setShowSlashMenu] = useState(false);
     const [slashQuery, setSlashQuery] = useState("");
     const [selectedBlockType, setSelectedBlockType] = useState<BlockCommandType | null>(null);
+    const [isAIMode, setIsAIMode] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+    const [sentInstruction, setSentInstruction] = useState<string | null>(null);
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
     // Track the position in the text where the slash was typed
     const slashPositionRef = useRef<number>(-1);
@@ -53,12 +58,32 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
             setShowSlashMenu(false);
             setSlashQuery("");
             slashPositionRef.current = -1;
+            setIsAIMode(false);
             if (selectedBlockType) {
                 setSelectedBlockType(null);
                 if (contentRef.current) {
                     contentRef.current.dataset.placeholder = placeholder;
                 }
             }
+            return;
+        }
+
+        // Detect AI mode: if the first character typed is a space (content starts with space)
+        // and we're not already in slash menu or block type mode.
+        // Note: browsers insert \u00a0 (non-breaking space) in contentEditable, not regular " "
+        if (!isAIMode && !selectedBlockType && text.length <= 2 && /^[\s\u00a0]+$/.test(text)) {
+            setIsAIMode(true);
+            // Clear the space and set AI placeholder
+            if (contentRef.current) {
+                contentRef.current.innerText = "";
+                contentRef.current.dataset.placeholder = "Ask AI to create something...";
+                contentRef.current.focus();
+            }
+            return;
+        }
+
+        // In AI mode, don't process slash commands
+        if (isAIMode) {
             return;
         }
 
@@ -88,7 +113,7 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
             setSlashQuery("");
             slashPositionRef.current = -1;
         }
-    }, [selectedBlockType, placeholder, computeMenuPosition]);
+    }, [selectedBlockType, placeholder, computeMenuPosition, isAIMode]);
 
     const handleKeyDown = (e: KeyboardEvent<HTMLParagraphElement>) => {
         // Don't interfere if slash menu is handling navigation
@@ -106,6 +131,20 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
             }
 
             e.preventDefault();
+
+            // In AI mode, send the instruction to the builder chat
+            if (isAIMode) {
+                if (contentRef.current) {
+                    const instruction = contentRef.current.innerText?.trim();
+                    if (instruction && onAIRequest) {
+                        setIsSending(true);
+                        setSentInstruction(instruction);
+                        onAIRequest(id, instruction);
+                    }
+                }
+                return;
+            }
+
             if (contentRef.current) {
                 // Extract content with inline component markers
                 const content = extractContentWithMarkers(contentRef.current);
@@ -131,6 +170,14 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
                 setShowSlashMenu(false);
                 setSlashQuery("");
                 slashPositionRef.current = -1;
+
+                // If backspace on empty field in AI mode, exit AI mode
+                if (!text && isAIMode) {
+                    setIsAIMode(false);
+                    if (contentRef.current) {
+                        contentRef.current.dataset.placeholder = placeholder;
+                    }
+                }
 
                 // If backspace on empty field, reset block type
                 if (!text && selectedBlockType) {
@@ -280,19 +327,81 @@ export const BlockInput = ({ id, onCommit, placeholder = "Type '/' for commands"
     };
 
     return (
-        <div ref={containerRef} className="w-full relative">
-            <p
-                ref={contentRef}
-                contentEditable
-                onKeyDown={handleKeyDown}
-                onInput={handleInput}
-                className={cn(
-                    "w-full outline-none leading-relaxed cursor-text min-h-[1.5em]",
-                    "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50",
-                    getBlockTypeStyles()
-                )}
-                data-placeholder={placeholder}
-            />
+        <div ref={containerRef} className={cn(
+            "w-full relative transition-all duration-200",
+            isAIMode && !isSending && "rounded-lg border-2 border-[#D4EDE5] bg-[#D4EDE5]/20 px-3 py-2",
+            isSending && "rounded-lg border-2 border-[#0D7377] bg-[#D4EDE5]/10 px-3 py-2 animate-[pulse-border_2s_ease-in-out_infinite]"
+        )}
+            style={isSending ? {
+                animation: 'pulse-border 2s ease-in-out infinite',
+            } : undefined}
+        >
+            {/* CSS for blinking border animation */}
+            {isSending && (
+                <style>{`
+                    @keyframes pulse-border {
+                        0%, 100% { border-color: #0D7377; box-shadow: 0 0 0 0 rgba(13, 115, 119, 0.1); }
+                        50% { border-color: #D4EDE5; box-shadow: 0 0 8px 2px rgba(13, 115, 119, 0.15); }
+                    }
+                `}</style>
+            )}
+
+            {/* Sent state — simple instruction + blinking border */}
+            {isSending ? (
+                <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#0D7377] animate-pulse" />
+                    <span className="text-sm text-[#0D7377]">
+                        <span className="font-medium">Generating:</span>{' '}
+                        <span className="text-gray-600">{sentInstruction}</span>
+                    </span>
+                </div>
+            ) : (
+                <>
+                    {/* AI Mode indicator */}
+                    {isAIMode && (
+                        <div className="flex items-center gap-1.5 mb-1">
+                            <Sparkles className="h-3.5 w-3.5 text-[#0D7377]" />
+                            <span className="text-xs font-medium text-[#0D7377]">AI Assistant</span>
+                            <span className="text-xs text-[#0D7377]/50 ml-auto">Press Enter to send</span>
+                        </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                        <p
+                            ref={contentRef}
+                            contentEditable
+                            onKeyDown={handleKeyDown}
+                            onInput={handleInput}
+                            className={cn(
+                                "w-full outline-none leading-relaxed cursor-text min-h-[1.5em] flex-1",
+                                "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50",
+                                isAIMode
+                                    ? "text-gray-800"
+                                    : getBlockTypeStyles()
+                            )}
+                            data-placeholder={isAIMode ? "Ask AI to create something..." : placeholder}
+                        />
+                        {isAIMode && (
+                            <button
+                                type="button"
+                                className="flex-shrink-0 p-1.5 rounded-md bg-[#0D7377] hover:bg-[#0a5c5f] text-white transition-colors"
+                                onClick={() => {
+                                    if (contentRef.current) {
+                                        const instruction = contentRef.current.innerText?.trim();
+                                        if (instruction && onAIRequest) {
+                                            setIsSending(true);
+                                            setSentInstruction(instruction);
+                                            onAIRequest(id, instruction);
+                                        }
+                                    }
+                                }}
+                                title="Send to AI"
+                            >
+                                <Send className="h-3.5 w-3.5" />
+                            </button>
+                        )}
+                    </div>
+                </>
+            )}
 
             {ReactDOM.createPortal(
                 <SlashCommandMenu
