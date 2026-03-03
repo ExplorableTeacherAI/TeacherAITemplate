@@ -464,11 +464,22 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
 
     /**
      * Extract the first block ID found in a top-level element.
+     * Checks id, blockId props, and key as fallbacks.
      */
     const extractBlockId = (element: ReactElement): string | undefined => {
         if (!isValidElement(element)) return undefined;
-        const el = element as ReactElement<{ id?: string; children?: ReactNode }>;
+        const el = element as ReactElement<{ id?: string; blockId?: string; children?: ReactNode }>;
+        // Check common ID props
         if (el.props.id) return el.props.id;
+        if (el.props.blockId) return el.props.blockId;
+        // Check key as fallback (strip "layout-" prefix if present)
+        if (el.key) {
+            const keyStr = String(el.key);
+            if (keyStr.startsWith('layout-')) return keyStr.replace('layout-', '');
+            if (keyStr.startsWith('.')) return keyStr.substring(1); // React internal prefix
+            return keyStr;
+        }
+        // Recurse into children
         let foundId: string | undefined;
         if (el.props.children) {
             Children.forEach(el.props.children, (child) => {
@@ -502,6 +513,21 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
 
         // Find the new block's position in the current list
         const blockIndex = initialBlocks.findIndex(block => hasElementId(block, blockId));
+
+        // Debug: log block structure to understand ID extraction
+        console.log('🔍 AI Request - Block context debug:');
+        console.log('  Total blocks:', initialBlocks.length);
+        console.log('  New block index:', blockIndex);
+        if (blockIndex > 0) {
+            const prevEl = initialBlocks[blockIndex - 1];
+            console.log('  Prev block element:', prevEl?.type, 'key:', prevEl?.key, 'props.id:', (prevEl?.props as any)?.id);
+            console.log('  Prev block extractedId:', extractBlockId(prevEl));
+        }
+        if (blockIndex !== -1 && blockIndex < initialBlocks.length - 1) {
+            const nextEl = initialBlocks[blockIndex + 1];
+            console.log('  Next block element:', nextEl?.type, 'key:', nextEl?.key, 'props.id:', (nextEl?.props as any)?.id);
+            console.log('  Next block extractedId:', extractBlockId(nextEl));
+        }
 
         // Determine the previous block ID (the block before the new one)
         let afterBlockId: string | null = null;
