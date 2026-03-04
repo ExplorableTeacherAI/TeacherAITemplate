@@ -7,7 +7,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/atoms/ui/dropdown-menu";
-import { GripVertical, Plus, Send, Pencil, Wand2 } from "lucide-react";
+import { GripVertical, Plus, Send, Pencil, Wand2, X, Sparkles } from "lucide-react";
 import { AnnotationOverlay } from "@/components/utility/AnnotationOverlay";
 import { useBlockContext } from "@/contexts/BlockContext";
 import { useAppMode } from "@/contexts/AppModeContext";
@@ -41,16 +41,16 @@ export interface BlockProps {
 
 /**
  * Block component wraps individual content elements.
- * 
+ *
  * A Block is the unit of content that can be:
  * - Dragged and reordered
  * - Edited individually
  * - Annotated
  * - Deleted
- * 
+ *
  * Each content element (heading, paragraph, image, etc.) should be wrapped in a Block.
  * Blocks can be used directly inside layouts.
- * 
+ *
  * @example
  * ```tsx
  * <Block id="intro-title">
@@ -75,7 +75,10 @@ export const Block = ({
     const handleAdd = onAddBlock;
     const { dragControls, onDelete: blockContextDelete } = useBlockContext();
     const [isAnnotating, setIsAnnotating] = useState(false);
+    const [isAsking, setIsAsking] = useState(false);
+    const [askText, setAskText] = useState("");
     const blockRef = useRef<HTMLDivElement>(null);
+    const askTextareaRef = useRef<HTMLTextAreaElement>(null);
     const { isPreview: appIsPreview } = useAppMode();
 
     const paddingClasses = {
@@ -83,6 +86,97 @@ export const Block = ({
         sm: "py-2",
         md: "py-3",
         lg: "py-6"
+    };
+
+    // Auto-focus textarea when Ask panel opens
+    useEffect(() => {
+        if (isAsking) {
+            setTimeout(() => askTextareaRef.current?.focus(), 60);
+        }
+    }, [isAsking]);
+
+    // Auto-resize textarea to fit content
+    useEffect(() => {
+        const el = askTextareaRef.current;
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
+    }, [askText]);
+
+    // Close ask panel when Escape is pressed — works even if textarea is empty/unfocused
+    useEffect(() => {
+        if (!isAsking) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                setIsAsking(false);
+                setAskText('');
+            }
+        };
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [isAsking]);
+
+    // Close ask panel when the user clicks anywhere outside this block
+    useEffect(() => {
+        if (!isAsking) return;
+        const onMouseDown = (e: MouseEvent) => {
+            if (blockRef.current && !blockRef.current.contains(e.target as Node)) {
+                setIsAsking(false);
+                setAskText('');
+            }
+        };
+        // Use capture so we run before any stopPropagation in children
+        document.addEventListener('mousedown', onMouseDown, true);
+        return () => document.removeEventListener('mousedown', onMouseDown, true);
+    }, [isAsking]);
+
+    // Close ask panel when another block broadcasts it opened its own ask panel
+    useEffect(() => {
+        const onOtherBlockAsk = (e: CustomEvent) => {
+            if (e.detail.blockId !== id) {
+                setIsAsking(false);
+                setAskText('');
+            }
+        };
+        window.addEventListener('block-ask-opened' as any, onOtherBlockAsk);
+        return () => window.removeEventListener('block-ask-opened' as any, onOtherBlockAsk);
+    }, [id]);
+
+    const handleOpenAsk = () => {
+        // Notify other blocks to close their ask panels
+        window.dispatchEvent(new CustomEvent('block-ask-opened', { detail: { blockId: id } }));
+        setIsAsking(true);
+        setAskText('');
+    };
+
+    const handleCloseAsk = () => {
+        setIsAsking(false);
+        setAskText('');
+    };
+
+    const handleSendAsk = () => {
+        const message = askText.trim();
+        if (!message || !id) return;
+
+        // Post to parent with both blockId and the user's message text
+        window.parent.postMessage({
+            type: 'add-to-chat',
+            blockId: id,
+            message,
+        }, '*');
+
+        setIsAsking(false);
+        setAskText('');
+    };
+
+    // Textarea keydown: Enter sends, Esc is handled by the doc-level listener
+    const handleAskKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendAsk();
+        }
+        // Escape: let the document-level listener handle it (preventDefault is there)
     };
 
     // Handle magic wand click — send request to parent for AI alternatives
@@ -147,6 +241,9 @@ export const Block = ({
             if ((e.target as HTMLElement).closest('button')) {
                 return;
             }
+
+            // Clicking on a block body closes any other block's ask panel
+            window.dispatchEvent(new CustomEvent('block-ask-opened', { detail: { blockId: id } }));
 
             // Send message to parent window to highlight in hierarchy
             window.parent.postMessage({
@@ -258,22 +355,11 @@ export const Block = ({
                                 <DropdownMenuItem
                                     className="text"
                                     onClick={() => {
-                                        if (id) {
-                                            // Send message to parent window with block context
-                                            window.parent.postMessage({
-                                                type: 'add-to-chat',
-                                                blockId: id,
-                                            }, '*');
-
-                                            // Also call the callback if provided (for backwards compatibility)
-                                            if (handleEdit) {
-                                                handleEdit(`Context: Block ${id}`);
-                                            }
-                                        }
+                                        handleOpenAsk();
                                     }}
                                 >
-                                    <Send className="mr-2 h-4 w-4" />
-                                    Add to chat
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    AI Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={handleStartAnnotation}
@@ -300,8 +386,67 @@ export const Block = ({
 
                 <div className="flex-1 min-w-0">
                     {children}
+
+                    {/* ── Inline Ask AI panel ── slides open below the block content */}
+                    {isAsking && !isPreview && (
+                        <div
+                            className="mt-3 rounded-lg border-2 border-[#D4EDE5] bg-[#D4EDE5]/20 px-3 py-2"
+                            style={{ animation: 'slideDown 0.18s ease-out' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header row */}
+                            <div className="flex items-center gap-1.5 mb-1">
+                                <Sparkles className="h-3.5 w-3.5 text-[#0D7377]" />
+                                <span className="text-xs font-medium text-[#0D7377]">MathVibe Assistant</span>
+                                <span className="text-xs text-[#0D7377]/50 ml-auto">Press Enter to send</span>
+                                <button
+                                    className="h-4 w-4 rounded flex items-center justify-center text-[#0D7377]/50 hover:text-[#0D7377] hover:bg-[#0D7377]/10 transition-colors ml-1"
+                                    onClick={handleCloseAsk}
+                                    aria-label="Dismiss"
+                                >
+                                    <X className="h-3 w-3" />
+                                </button>
+                            </div>
+
+                            {/* Input + Send button row */}
+                            <div className="flex items-center gap-2">
+                                <textarea
+                                    ref={askTextareaRef}
+                                    value={askText}
+                                    onChange={(e) => setAskText(e.target.value)}
+                                    onKeyDown={handleAskKeyDown}
+                                    placeholder="Tell what you want to change"
+                                    rows={1}
+                                    className="flex-1 resize-none overflow-hidden bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em]"
+                                />
+                                <button
+                                    className="flex-shrink-0 p-1.5 rounded-md bg-[#0D7377] hover:bg-[#0a5c5f] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    onClick={handleSendAsk}
+                                    disabled={!askText.trim()}
+                                    title="Send to AI"
+                                >
+                                    <Send className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+
+                            {/* Esc hint */}
+                            <div className="mt-1.5">
+                                <span className="text-[10px] text-gray-400">
+                                    <kbd className="px-1 py-0.5 rounded bg-white border border-gray-200 font-mono text-[10px]">Esc</kbd> to dismiss
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {/* Slide-down animation */}
+            <style>{`
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-6px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
         </>
     );
 };

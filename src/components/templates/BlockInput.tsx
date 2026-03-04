@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { cn } from "@/lib/utils";
 import { SlashCommandMenu, type SlashCommandType, isInlineCommand, type BlockCommandType } from "./SlashCommandMenu";
 import { getInlineComponentHTML, extractContentWithMarkers } from "@/hooks/useInlineSlashCommands";
-import { Sparkles, Send } from "lucide-react";
+import { Sparkles, Send, X } from "lucide-react";
 
 interface BlockInputProps {
     id: string;
@@ -154,8 +154,15 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
             }
         }
 
-        // Close menu on Escape
+        // Close menu on Escape, or exit AI mode
         if (e.key === "Escape") {
+            if (isAIMode) {
+                setIsAIMode(false);
+                if (contentRef.current) {
+                    contentRef.current.innerText = "";
+                    contentRef.current.dataset.placeholder = placeholder;
+                }
+            }
             setShowSlashMenu(false);
             setSlashQuery("");
             slashPositionRef.current = -1;
@@ -361,8 +368,22 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
                     {isAIMode && (
                         <div className="flex items-center gap-1.5 mb-1">
                             <Sparkles className="h-3.5 w-3.5 text-[#0D7377]" />
-                            <span className="text-xs font-medium text-[#0D7377]">AI Assistant</span>
+                            <span className="text-xs font-medium text-[#0D7377]">MathVibe Assistant</span>
                             <span className="text-xs text-[#0D7377]/50 ml-auto">Press Enter to send</span>
+                            <button
+                                type="button"
+                                className="h-4 w-4 rounded flex items-center justify-center text-[#0D7377]/50 hover:text-[#0D7377] hover:bg-[#0D7377]/10 transition-colors ml-1"
+                                onClick={() => {
+                                    setIsAIMode(false);
+                                    if (contentRef.current) {
+                                        contentRef.current.innerText = "";
+                                        contentRef.current.dataset.placeholder = placeholder;
+                                    }
+                                }}
+                                aria-label="Dismiss AI mode"
+                            >
+                                <X className="h-3 w-3" />
+                            </button>
                         </div>
                     )}
                     <div className="flex items-center gap-2">
@@ -400,6 +421,14 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
                             </button>
                         )}
                     </div>
+                    {/* Esc hint */}
+                    {isAIMode && (
+                        <div className="mt-1.5">
+                            <span className="text-[10px] text-gray-400">
+                                <kbd className="px-1 py-0.5 rounded bg-white border border-gray-200 font-mono text-[10px]">Esc</kbd> to dismiss
+                            </span>
+                        </div>
+                    )}
                 </>
             )}
 
