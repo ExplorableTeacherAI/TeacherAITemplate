@@ -123,7 +123,7 @@ function ScrollViz() {
                 Step {idx + 1} of {SCROLL_VARIANTS.length}
             </div>
             <div className="rounded-xl overflow-hidden">
-                <Block id="block-demo-grid-1-viz" padding="none" hasVisualization>
+                <Block id="block-scrollviz-animated-graph" padding="none" hasVisualization>
                     <AnimatedGraph
                         key={idx}
                         variant={SCROLL_VARIANTS[idx]}
@@ -354,87 +354,103 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     <ScrollytellingLayout key="layout-demo-scrolly" varName="layoutDemoStep" visualPosition="right" gap="lg">
         <ScrollStep>
-            <Block id="block-scroll-step-0" padding="sm">
-                <EditableH3 id="h3-scroll-step-0" blockId="block-scroll-step-0">Step 1 · Sine Wave</EditableH3>
-                <EditableParagraph id="para-scroll-step-0" blockId="block-scroll-step-0">
-                    The{" "}
-                    <InlineTooltip tooltip="A sine wave is a smooth, periodic oscillation. It is the simplest waveform and the building block of all periodic signals via the Fourier theorem.">
-                        sine wave
-                    </InlineTooltip>{" "}
-                    is the most fundamental{" "}
-                    <InlineTooltip tooltip="A periodic function repeats its pattern exactly every T seconds, where T = 1/f is the period and f is the frequency.">
-                        periodic function
-                    </InlineTooltip>. Its shape is fully described by{" "}
-                    <InlineFormula
-                        latex="y = \clr{A}{A}\sin(2\pi \clr{f}{f}\,t + \clr{phi}{\phi})"
-                        colorMap={{ A: "#10B981", f: "#3B82F6", phi: "#F59E0B" }}
-                    />{" "}
-                    where <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#10B981" }} /> is amplitude,{" "}
-                    <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#3B82F6" }} /> is frequency, and{" "}
-                    <InlineFormula latex="\clr{phi}{\phi}" colorMap={{ phi: "#F59E0B" }} /> is phase.
-                </EditableParagraph>
-            </Block>
+            <div className="space-y-4">
+                <Block id="block-scroll-step-0-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-0" blockId="block-scroll-step-0-title">Step 1 · Sine Wave</EditableH3>
+                </Block>
+                <Block id="block-scroll-step-0-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-0" blockId="block-scroll-step-0-body">
+                        The{" "}
+                        <InlineTooltip tooltip="A sine wave is a smooth, periodic oscillation. It is the simplest waveform and the building block of all periodic signals via the Fourier theorem.">
+                            sine wave
+                        </InlineTooltip>{" "}
+                        is the most fundamental{" "}
+                        <InlineTooltip tooltip="A periodic function repeats its pattern exactly every T seconds, where T = 1/f is the period and f is the frequency.">
+                            periodic function
+                        </InlineTooltip>. Its shape is fully described by{" "}
+                        <InlineFormula
+                            latex="y = \clr{A}{A}\sin(2\pi \clr{f}{f}\,t + \clr{phi}{\phi})"
+                            colorMap={{ A: "#10B981", f: "#3B82F6", phi: "#F59E0B" }}
+                        />{" "}
+                        where <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#10B981" }} /> is amplitude,{" "}
+                        <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#3B82F6" }} /> is frequency, and{" "}
+                        <InlineFormula latex="\clr{phi}{\phi}" colorMap={{ phi: "#F59E0B" }} /> is phase.
+                    </EditableParagraph>
+                </Block>
+            </div>
         </ScrollStep>
         <ScrollStep>
-            <Block id="block-scroll-step-1" padding="sm">
-                <EditableH3 id="h3-scroll-step-1" blockId="block-scroll-step-1">Step 2 · Parametric Curves</EditableH3>
-                <EditableParagraph id="para-scroll-step-1" blockId="block-scroll-step-1">
-                    When two periodic functions drive the <InlineFormula latex="x" /> and{" "}
-                    <InlineFormula latex="y" /> axes simultaneously, the result is a{" "}
-                    <InlineTooltip tooltip="A parametric curve defines position as (x(t), y(t)) where both coordinates are functions of an independent parameter t. Unlike y=f(x), a parametric curve can loop back on itself.">
-                        parametric curve
-                    </InlineTooltip>. The{" "}
-                    <InlineTooltip tooltip="The frequency ratio determines how many petals the rose curve has. A ratio of p:q (in lowest terms) produces p or 2p petals depending on whether p+q is odd or even.">
-                        frequency ratio
-                    </InlineTooltip>{" "}
-                    between the two oscillations produces the characteristic petal shapes of a{" "}
-                    <InlineTooltip tooltip="A rose curve (rhodonea) has the polar form r = cos(kθ). Its Cartesian parametric form is x = cos(kt)·cos(t), y = cos(kt)·sin(t).">
-                        rose curve
-                    </InlineTooltip>.
-                </EditableParagraph>
-            </Block>
+            <div className="space-y-4">
+                <Block id="block-scroll-step-1-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-1" blockId="block-scroll-step-1-title">Step 2 · Parametric Curves</EditableH3>
+                </Block>
+                <Block id="block-scroll-step-1-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-1" blockId="block-scroll-step-1-body">
+                        When two periodic functions drive the <InlineFormula latex="x" /> and{" "}
+                        <InlineFormula latex="y" /> axes simultaneously, the result is a{" "}
+                        <InlineTooltip tooltip="A parametric curve defines position as (x(t), y(t)) where both coordinates are functions of an independent parameter t. Unlike y=f(x), a parametric curve can loop back on itself.">
+                            parametric curve
+                        </InlineTooltip>. The{" "}
+                        <InlineTooltip tooltip="The frequency ratio determines how many petals the rose curve has. A ratio of p:q (in lowest terms) produces p or 2p petals depending on whether p+q is odd or even.">
+                            frequency ratio
+                        </InlineTooltip>{" "}
+                        between the two oscillations produces the characteristic petal shapes of a{" "}
+                        <InlineTooltip tooltip="A rose curve (rhodonea) has the polar form r = cos(kθ). Its Cartesian parametric form is x = cos(kt)·cos(t), y = cos(kt)·sin(t).">
+                            rose curve
+                        </InlineTooltip>.
+                    </EditableParagraph>
+                </Block>
+            </div>
         </ScrollStep>
         <ScrollStep>
-            <Block id="block-scroll-step-2" padding="sm">
-                <EditableH3 id="h3-scroll-step-2" blockId="block-scroll-step-2">Step 3 · Fourier Series</EditableH3>
-                <EditableParagraph id="para-scroll-step-2" blockId="block-scroll-step-2">
-                    Any periodic function can be reconstructed by summing sine waves of
-                    different frequencies — this is the{" "}
-                    <InlineTooltip tooltip="The Fourier series decomposes any periodic function into a sum of sines and cosines. Joseph Fourier proved in 1822 that even discontinuous functions can be represented this way.">
-                        Fourier series
-                    </InlineTooltip>:{" "}
-                    <InlineFormula
-                        latex="f(t) = \sum_{n=1}^{\infty} \clr{a}{a_n}\cos(2\pi n t) + \clr{b}{b_n}\sin(2\pi n t)"
-                        colorMap={{ a: "#F59E0B", b: "#EF4444" }}
-                    />.{" "}
-                    The visualization shows rotating{" "}
-                    <InlineTooltip tooltip="An epicycle is a small circle whose centre moves along the circumference of a larger circle. Fourier series can be visualised as nested epicycles, each adding a new frequency component.">
-                        epicycles
-                    </InlineTooltip>{" "}
-                    tracing out a complex waveform. Adding more terms increases accuracy.
-                </EditableParagraph>
-            </Block>
+            <div className="space-y-4">
+                <Block id="block-scroll-step-2-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-2" blockId="block-scroll-step-2-title">Step 3 · Fourier Series</EditableH3>
+                </Block>
+                <Block id="block-scroll-step-2-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-2" blockId="block-scroll-step-2-body">
+                        Any periodic function can be reconstructed by summing sine waves of
+                        different frequencies — this is the{" "}
+                        <InlineTooltip tooltip="The Fourier series decomposes any periodic function into a sum of sines and cosines. Joseph Fourier proved in 1822 that even discontinuous functions can be represented this way.">
+                            Fourier series
+                        </InlineTooltip>:{" "}
+                        <InlineFormula
+                            latex="f(t) = \sum_{n=1}^{\infty} \clr{a}{a_n}\cos(2\pi n t) + \clr{b}{b_n}\sin(2\pi n t)"
+                            colorMap={{ a: "#F59E0B", b: "#EF4444" }}
+                        />.{" "}
+                        The visualization shows rotating{" "}
+                        <InlineTooltip tooltip="An epicycle is a small circle whose centre moves along the circumference of a larger circle. Fourier series can be visualised as nested epicycles, each adding a new frequency component.">
+                            epicycles
+                        </InlineTooltip>{" "}
+                        tracing out a complex waveform. Adding more terms increases accuracy.
+                    </EditableParagraph>
+                </Block>
+            </div>
         </ScrollStep>
         <ScrollStep>
-            <Block id="block-scroll-step-3" padding="sm">
-                <EditableH3 id="h3-scroll-step-3" blockId="block-scroll-step-3">Step 4 · Lissajous Figures</EditableH3>
-                <EditableParagraph id="para-scroll-step-3" blockId="block-scroll-step-3">
-                    <InlineTooltip tooltip="Jules Antoine Lissajous first studied these figures in 1857. They appear on oscilloscopes when comparing two AC signals and are used to measure frequency ratios.">
-                        Lissajous figures
-                    </InlineTooltip>{" "}
-                    are defined by{" "}
-                    <InlineFormula
-                        latex="\clr{x}{x}=A\sin(\clr{a}{a}\,t+\delta),\;\clr{y}{y}=B\sin(\clr{b}{b}\,t)"
-                        colorMap={{ x: "#06B6D4", y: "#3B82F6", a: "#F59E0B", b: "#EF4444" }}
-                    />.{" "}
-                    Simple integer{" "}
-                    <InlineTooltip tooltip="When a:b is a ratio of small integers (e.g. 1:2, 3:4), the curve closes after a finite number of oscillations. An irrational ratio like 1:√2 never closes.">
-                        frequency ratios
-                    </InlineTooltip>{" "}
-                    <InlineFormula latex="\clr{a}{a}:\clr{b}{b}" colorMap={{ a: "#F59E0B", b: "#EF4444" }} />{" "}
-                    produce closed curves; irrational ratios produce curves that never quite close.
-                </EditableParagraph>
-            </Block>
+            <div className="space-y-4">
+                <Block id="block-scroll-step-3-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-3" blockId="block-scroll-step-3-title">Step 4 · Lissajous Figures</EditableH3>
+                </Block>
+                <Block id="block-scroll-step-3-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-3" blockId="block-scroll-step-3-body">
+                        <InlineTooltip tooltip="Jules Antoine Lissajous first studied these figures in 1857. They appear on oscilloscopes when comparing two AC signals and are used to measure frequency ratios.">
+                            Lissajous figures
+                        </InlineTooltip>{" "}
+                        are defined by{" "}
+                        <InlineFormula
+                            latex="\clr{x}{x}=A\sin(\clr{a}{a}\,t+\delta),\;\clr{y}{y}=B\sin(\clr{b}{b}\,t)"
+                            colorMap={{ x: "#06B6D4", y: "#3B82F6", a: "#F59E0B", b: "#EF4444" }}
+                        />.{" "}
+                        Simple integer{" "}
+                        <InlineTooltip tooltip="When a:b is a ratio of small integers (e.g. 1:2, 3:4), the curve closes after a finite number of oscillations. An irrational ratio like 1:√2 never closes.">
+                            frequency ratios
+                        </InlineTooltip>{" "}
+                        <InlineFormula latex="\clr{a}{a}:\clr{b}{b}" colorMap={{ a: "#F59E0B", b: "#EF4444" }} />{" "}
+                        produce closed curves; irrational ratios produce curves that never quite close.
+                    </EditableParagraph>
+                </Block>
+            </div>
         </ScrollStep>
         <ScrollVisual>
             <ScrollViz />

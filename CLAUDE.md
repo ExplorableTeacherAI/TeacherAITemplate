@@ -369,7 +369,12 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 ### Critical Rule: One Component Per Block
 
-**Each `<Block>` must contain exactly ONE primary component** — a single heading, a single paragraph, a single formula, or a single visual. Never place multiple components inside the same Block.
+**Each `<Block>` MUST contain exactly ONE primary component** — a single heading, a single paragraph, a single formula, or a single visual. This is essential because:
+- Each block is independently editable, deletable, and reorderable by teachers
+- Combining components makes them inseparable and breaks the editing system
+- The block manager needs to identify and control each piece individually
+
+**NEVER place multiple components inside the same Block.**
 
 ```tsx
 // WRONG — two components crammed into one Block
@@ -398,11 +403,61 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 **Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph`.
 
-### ID Conventions
-- Layout keys: `layout-<descriptive-name>` (e.g., `layout-paragraph-04`)
-- Block IDs: `block-<descriptive-name>` (e.g., `block-paragraph-04`)
-- Element IDs: `<type>-<descriptive-name>` (e.g., `para-radius-example`, `h1-main-title`)
+### Critical Rule: Hierarchical ID Naming Convention
+
+Every block, layout, and component MUST have a **unique, descriptive, hierarchical ID** that reflects the content hierarchy. Well-structured IDs make it easy to find, edit, and understand the structure of the lesson.
+
+**ID Format Rules:**
+
+| Element | Pattern | Example |
+|---------|---------|---------|
+| Layout keys | `layout-<section>-<purpose>` | `layout-intro-title`, `layout-waves-viz` |
+| Block IDs | `block-<section>-<purpose>` | `block-intro-title`, `block-waves-chart` |
+| Heading IDs | `h1/h2/h3-<section>-<purpose>` | `h1-intro-title`, `h2-waves-heading` |
+| Paragraph IDs | `para-<section>-<purpose>` | `para-intro-description`, `para-waves-explanation` |
+| Visual IDs | Use block ID hierarchy | `block-waves-sine-chart` |
+
+**Rules:**
+- IDs must be **unique across the entire lesson** — never reuse an ID
+- IDs should be **descriptive and readable** — a developer should understand what the block contains from its ID alone
+- IDs must include the **section name** to show hierarchy (e.g., `block-intro-title` not just `block-title`)
 - Pass `blockId` prop to editable components matching the parent Block's `id`
+- Avoid generic numbered IDs like `block-1`, `block-2` — use meaningful names
+
+```tsx
+// WRONG — generic, non-descriptive IDs
+<Block id="block-1" padding="sm">
+    <EditableParagraph id="para-1" blockId="block-1">...</EditableParagraph>
+</Block>
+
+// WRONG — missing section context in IDs
+<Block id="block-title" padding="md">
+    <EditableH1 id="h1-title" blockId="block-title">Circles</EditableH1>
+</Block>
+
+// CORRECT — hierarchical, descriptive IDs
+<StackLayout key="layout-circles-title" maxWidth="xl">
+    <Block id="block-circles-title" padding="md">
+        <EditableH1 id="h1-circles-title" blockId="block-circles-title">
+            Understanding Circles
+        </EditableH1>
+    </Block>
+</StackLayout>,
+
+<StackLayout key="layout-circles-radius-explanation" maxWidth="xl">
+    <Block id="block-circles-radius-explanation" padding="sm">
+        <EditableParagraph id="para-circles-radius-explanation" blockId="block-circles-radius-explanation">
+            The radius is the distance from the center...
+        </EditableParagraph>
+    </Block>
+</StackLayout>,
+
+<StackLayout key="layout-circles-area-chart" maxWidth="xl">
+    <Block id="block-circles-area-chart" padding="sm" hasVisualization>
+        <ReactiveAreaChart />
+    </Block>
+</StackLayout>
+```
 
 ### Critical Rule: `hasVisualization` Prop
 
@@ -438,6 +493,88 @@ When a `<Block>` contains a **visual component** (chart, diagram, interactive vi
 <Block id="block-reactive-viz" padding="sm" hasVisualization>
     <ReactiveDataViz />
 </Block>
+```
+
+### Critical Rule: White Backgrounds for Visualizations
+
+**ALL visualization components MUST use a white (`#FFFFFF`) or very light neutral background.** Never use colored, dark, or gradient backgrounds behind charts, diagrams, or interactive visuals.
+
+This ensures:
+- Maximum readability and contrast for data elements
+- Clean, professional appearance
+- Consistent look across all visualizations
+- Accessibility for all users
+
+```tsx
+// WRONG — colored or dark background on visualization
+<div style={{ background: '#1a1a2e' }}>
+    <DataVisualization type="bar" data={...} />
+</div>
+
+// WRONG — gradient background on visualization
+<div style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+    <Cartesian2D plots={[...]} />
+</div>
+
+// CORRECT — white/clean background (default behavior, no wrapper needed)
+<Block id="block-chart" padding="sm" hasVisualization>
+    <DataVisualization type="bar" data={...} height={320} />
+</Block>
+```
+
+**This applies to:**
+- All chart/graph components (`DataVisualization`, `Cartesian2D`, `DesmosGraph`, etc.)
+- All diagram components (`FlowDiagram`, `MatrixVisualization`, etc.)
+- All custom wrapper visualization components
+- SVG and Canvas-based custom visuals
+
+### Critical Rule: No Gradients — Use Flat Muted Colors
+
+**NEVER use gradient backgrounds or gradient colors in any component — whether custom or pre-built.** Always use **flat, solid colors** with **muted, not overly saturated tones**.
+
+This ensures:
+- A clean, modern, distraction-free learning environment
+- Content and data remain the visual focus
+- Consistent, professional aesthetic across the lesson
+
+**Rules:**
+1. **No gradient backgrounds** — no `linear-gradient()`, `radial-gradient()`, or CSS gradient functions anywhere
+2. **No gradient fills** in SVG, Canvas, or custom components
+3. **Use muted, desaturated colors** — avoid pure/vibrant primaries like `#FF0000`, `#00FF00`, `#0000FF`
+4. **Prefer soft color palettes** — use colors with reduced saturation (HSL saturation < 70%)
+5. **Good color examples:** `#6366f1` (soft indigo), `#3cc499` (muted teal), `#f59e0b` (warm amber), `#8b5cf6` (soft violet)
+6. **Bad color examples:** `#FF0000` (pure red), `#00FF00` (pure green), `#0000FF` (pure blue), neon colors
+
+```tsx
+// WRONG — gradient background
+<div style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+    <h2>Section Title</h2>
+</div>
+
+// WRONG — overly saturated colors
+<DataVisualization
+    data={[{ label: 'A', value: 10, color: '#FF0000' }]}
+    color="#00FF00"
+/>
+
+// CORRECT — flat muted colors
+<DataVisualization
+    data={[
+        { label: 'A', value: 10, color: '#6366f1' },
+        { label: 'B', value: 20, color: '#3cc499' },
+    ]}
+    color="#6366f1"
+/>
+
+// CORRECT — soft color palette for charts
+const CHART_COLORS = [
+    '#6366f1', // soft indigo
+    '#3cc499', // muted teal
+    '#f59e0b', // warm amber
+    '#8b5cf6', // soft violet
+    '#ec4899', // soft pink
+    '#14b8a6', // muted cyan
+];
 ```
 
 ## Available Layouts

@@ -23,7 +23,7 @@ function MafsEquationDisplay() {
     const frequency = useVar('mafsFrequency', 1) as number;
 
     return (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-teal-500/10">
+        <div className="p-4 rounded-xl bg-emerald-500/10">
             <p className="text-sm text-muted-foreground mb-2">The wave equation:</p>
             <p className="font-mono text-xl">
                 y ={" "}
@@ -85,58 +85,66 @@ function ReactiveMafsViz() {
 export function MafsInteractiveDemo() {
     return (
         <SplitLayout ratio="1:1" gap="lg">
-            <Block id="block-mafs-interactive-text" padding="sm">
-                <EditableH2 id="h2-mafs-exploring" blockId="block-mafs-interactive-text">
-                    Exploring Sine Waves
-                </EditableH2>
+            <div className="space-y-4">
+                <Block id="block-mafs-interactive-title" padding="sm">
+                    <EditableH2 id="h2-mafs-exploring" blockId="block-mafs-interactive-title">
+                        Exploring Sine Waves
+                    </EditableH2>
+                </Block>
 
-                <EditableParagraph id="para-mafs-amplitude" blockId="block-mafs-interactive-text">
-                    A sine wave is defined by two key parameters. The{" "}
-                    <InlineLinkedHighlight
-                        varName="mafsHighlight"
-                        highlightId="amplitude"
-                        {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('mafsHighlight'))}
-                        color="#ef4444"
-                    >
-                        amplitude
-                    </InlineLinkedHighlight>{" "}
-                    controls the height of the wave — try setting it to{" "}
-                    <InlineScrubbleNumber
-                        varName="mafsAmplitude"
-                        {...numberPropsFromDefinition(getExampleVariableInfo('mafsAmplitude'))}
-                        formatValue={(v) => v.toFixed(1)}
-                    />{" "}
-                    and watch how the wave stretches vertically.
-                </EditableParagraph>
+                <Block id="block-mafs-interactive-amplitude" padding="sm">
+                    <EditableParagraph id="para-mafs-amplitude" blockId="block-mafs-interactive-amplitude">
+                        A sine wave is defined by two key parameters. The{" "}
+                        <InlineLinkedHighlight
+                            varName="mafsHighlight"
+                            highlightId="amplitude"
+                            {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('mafsHighlight'))}
+                            color="#ef4444"
+                        >
+                            amplitude
+                        </InlineLinkedHighlight>{" "}
+                        controls the height of the wave — try setting it to{" "}
+                        <InlineScrubbleNumber
+                            varName="mafsAmplitude"
+                            {...numberPropsFromDefinition(getExampleVariableInfo('mafsAmplitude'))}
+                            formatValue={(v) => v.toFixed(1)}
+                        />{" "}
+                        and watch how the wave stretches vertically.
+                    </EditableParagraph>
+                </Block>
 
-                <EditableParagraph id="para-mafs-frequency" blockId="block-mafs-interactive-text">
-                    The{" "}
-                    <InlineLinkedHighlight
-                        varName="mafsHighlight"
-                        highlightId="frequency"
-                        {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('mafsHighlight'))}
-                        color="#3b82f6"
-                    >
-                        frequency
-                    </InlineLinkedHighlight>{" "}
-                    determines how rapidly the wave oscillates. Currently set to{" "}
-                    <InlineScrubbleNumber
-                        varName="mafsFrequency"
-                        {...numberPropsFromDefinition(getExampleVariableInfo('mafsFrequency'))}
-                        formatValue={(v) => v.toFixed(1)}
-                    />{" "}
-                    — a higher frequency means more oscillations per unit distance.
-                </EditableParagraph>
+                <Block id="block-mafs-interactive-frequency" padding="sm">
+                    <EditableParagraph id="para-mafs-frequency" blockId="block-mafs-interactive-frequency">
+                        The{" "}
+                        <InlineLinkedHighlight
+                            varName="mafsHighlight"
+                            highlightId="frequency"
+                            {...linkedHighlightPropsFromDefinition(getExampleVariableInfo('mafsHighlight'))}
+                            color="#3b82f6"
+                        >
+                            frequency
+                        </InlineLinkedHighlight>{" "}
+                        determines how rapidly the wave oscillates. Currently set to{" "}
+                        <InlineScrubbleNumber
+                            varName="mafsFrequency"
+                            {...numberPropsFromDefinition(getExampleVariableInfo('mafsFrequency'))}
+                            formatValue={(v) => v.toFixed(1)}
+                        />{" "}
+                        — a higher frequency means more oscillations per unit distance.
+                    </EditableParagraph>
+                </Block>
 
                 {/* Formula Display */}
                 <MafsEquationDisplay />
 
-                <EditableParagraph id="para-mafs-tip" blockId="block-mafs-interactive-text">
-                    💡 You can also drag the colored points directly
-                    in the chart — the values above will update automatically!
-                </EditableParagraph>
-            </Block>
-            <Block id="block-mafs-interactive-viz" padding="sm">
+                <Block id="block-mafs-interactive-tip" padding="sm">
+                    <EditableParagraph id="para-mafs-tip" blockId="block-mafs-interactive-tip">
+                        💡 You can also drag the colored points directly
+                        in the chart — the values above will update automatically!
+                    </EditableParagraph>
+                </Block>
+            </div>
+            <Block id="block-mafs-interactive-viz" padding="sm" hasVisualization>
                 <div className="w-full">
                     <ReactiveMafsViz />
                 </div>

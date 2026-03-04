@@ -14,7 +14,7 @@ The **Block** is the fundamental unit of content. Every piece of a lesson — a 
 
 **Rule 1: Never use a component outside a Block.** Unwrapped components are invisible to the editing system.
 
-**Rule 2: Each Block must contain exactly ONE primary component.** Teachers add, delete, and reorder blocks individually — combining components makes them inseparable.
+**Rule 2: Each Block must contain exactly ONE primary component.** A single heading, a single paragraph, a single formula, or a single visual. Teachers add, delete, and reorder blocks individually — combining multiple components in one block makes them inseparable and breaks the editing system. The block manager needs to identify and control each piece individually.
 
 > **Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph` — they are part of the text, not separate blocks.
 
@@ -143,14 +143,24 @@ export const blocks: ReactElement[] = [...introBlocks];
 
 Sections MUST export a **flat array** — never a wrapper component. Each element = one manageable block.
 
-### ID Conventions
+### ID Conventions — Hierarchical, Descriptive Naming
+
+Every block, layout, and component MUST have a **unique, descriptive, hierarchical ID** that reflects the content hierarchy. Well-structured IDs make it easy to find, edit, and understand the lesson structure.
 
 | Element | Pattern | Example |
 |---------|---------|---------|
-| Layout keys | `layout-<name>` | `layout-intro-title` |
-| Block IDs | `block-<name>` | `block-intro-title` |
-| Element IDs | `<type>-<name>` | `para-intro-text`, `h1-main-title` |
+| Layout keys | `layout-<section>-<purpose>` | `layout-intro-title`, `layout-waves-viz` |
+| Block IDs | `block-<section>-<purpose>` | `block-intro-title`, `block-waves-chart` |
+| Heading IDs | `h1/h2/h3-<section>-<purpose>` | `h1-intro-title`, `h2-waves-heading` |
+| Paragraph IDs | `para-<section>-<purpose>` | `para-intro-description`, `para-waves-explanation` |
+| Visual IDs | Use block ID hierarchy | `block-waves-sine-chart` |
 | `blockId` prop | Must match parent Block's `id` | |
+
+**Rules:**
+- IDs must be **unique across the entire lesson** — never reuse an ID
+- IDs should be **descriptive and readable** — a developer should understand what the block contains from its ID alone
+- IDs must include the **section name** to show hierarchy (e.g., `block-intro-title` not just `block-title`)
+- Avoid generic numbered IDs like `block-1`, `block-2` — use meaningful names
 
 ---
 
@@ -378,6 +388,24 @@ The table reads its accent colour from the global variable store (via `varName`)
 | `header` | `string` | Column header label |
 | `width` | `string \| number` | Fixed column width |
 | `align` | `'left' \| 'center' \| 'right'` | Cell text alignment |
+
+---
+
+## Visual Styling Rules
+
+### White Backgrounds for Visualizations
+
+**ALL visualization components MUST use a white (`#FFFFFF`) or very light neutral background.** Never use colored, dark, or gradient backgrounds behind charts, diagrams, or interactive visuals. This ensures maximum readability, clean appearance, and consistency.
+
+### No Gradients — Flat Muted Colors Only
+
+**NEVER use gradient backgrounds or gradient colors** in any component. Always use **flat, solid colors** with **muted, not overly saturated tones**.
+
+- No `linear-gradient()`, `radial-gradient()`, or CSS gradient functions
+- No gradient fills in SVG, Canvas, or custom components
+- Use muted, desaturated colors (HSL saturation < 70%)
+- **Good:** `#6366f1` (soft indigo), `#3cc499` (muted teal), `#f59e0b` (warm amber), `#8b5cf6` (soft violet)
+- **Avoid:** `#FF0000`, `#00FF00`, `#0000FF`, neon colors, pure saturated primaries
 
 ---
 

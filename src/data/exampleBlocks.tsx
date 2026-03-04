@@ -1047,7 +1047,7 @@ const exampleBlocks: ReactElement[] = [
                 the corresponding box light up in the diagram.
             </EditableParagraph>
         </Block>
-        <Block id="block-linkedhighlight-viz" padding="sm">
+        <Block id="block-linkedhighlight-viz" padding="sm" hasVisualization>
             <ReactiveHighlightDiagram />
         </Block>
     </SplitLayout>,
