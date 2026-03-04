@@ -184,6 +184,13 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                 return;
             }
 
+            // Esc to cancel the annotation overlay (if chat textarea is not focused)
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                onCancel();
+                return;
+            }
+
             if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
                 e.preventDefault();
                 setTextBoxes(prev => prev.filter(t => t.id !== selectedId));
@@ -193,7 +200,7 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
 
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [selectedId, editingId]);
+    }, [selectedId, editingId, onCancel]);
 
     const finishEditing = useCallback(() => {
         if (editingId) {
@@ -398,12 +405,12 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
         }
     }, [handleSend, onCancel]);
 
-    // Auto-resize chat textarea
+    // Auto-resize chat textarea (capped to prevent oversized panel)
     useEffect(() => {
         const el = chatInputRef.current;
         if (!el) return;
         el.style.height = 'auto';
-        el.style.height = `${el.scrollHeight}px`;
+        el.style.height = `${Math.min(el.scrollHeight, 80)}px`;
     }, [chatMessage]);
 
     const editingTextBox = textBoxes.find(t => t.id === editingId);
@@ -696,7 +703,7 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                             onKeyDown={handleChatKeyDown}
                             placeholder="Tell what you want to change"
                             rows={1}
-                            className="flex-1 resize-none overflow-hidden bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em]"
+                            className="flex-1 resize-none overflow-y-auto bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em] max-h-[80px]"
                         />
                         <button
                             className="flex-shrink-0 p-1.5 rounded-md bg-[#0D7377] hover:bg-[#0a5c5f] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -711,7 +718,7 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                     {/* Esc hint */}
                     <div className="mt-1.5">
                         <span className="text-[10px] text-gray-400">
-                            <kbd className="px-1 py-0.5 rounded bg-white border border-gray-200 font-mono text-[10px]">Esc</kbd> to dismiss
+                            <kbd className="px-1 py-0.5 rounded bg-white border border-gray-200 font-mono text-[10px]">Esc</kbd> to cancel
                         </span>
                     </div>
                 </div>

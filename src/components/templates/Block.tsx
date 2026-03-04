@@ -95,12 +95,12 @@ export const Block = ({
         }
     }, [isAsking]);
 
-    // Auto-resize textarea to fit content
+    // Auto-resize textarea to fit content (capped)
     useEffect(() => {
         const el = askTextareaRef.current;
         if (!el) return;
         el.style.height = 'auto';
-        el.style.height = `${el.scrollHeight}px`;
+        el.style.height = `${Math.min(el.scrollHeight, 80)}px`;
     }, [askText]);
 
     // Close ask panel when Escape is pressed — works even if textarea is empty/unfocused
@@ -418,7 +418,7 @@ export const Block = ({
                                     onKeyDown={handleAskKeyDown}
                                     placeholder="Tell what you want to change"
                                     rows={1}
-                                    className="flex-1 resize-none overflow-hidden bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em]"
+                                    className="flex-1 resize-none overflow-y-auto bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em] max-h-[80px]"
                                 />
                                 <button
                                     className="flex-shrink-0 p-1.5 rounded-md bg-[#0D7377] hover:bg-[#0a5c5f] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
