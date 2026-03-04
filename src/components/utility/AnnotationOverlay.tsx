@@ -3,7 +3,7 @@ import html2canvas from 'html2canvas';
 import { Stage, Layer, Line, Text, Transformer } from 'react-konva';
 import Konva from 'konva';
 import { Button } from '@/components/atoms/ui/button';
-import { X, Send, Undo, Trash2, Palette, Type, Pencil } from 'lucide-react';
+import { X, Send, Undo, Trash2, Palette, Type, Pencil, Sparkles } from 'lucide-react';
 import {
     Popover,
     PopoverContent,
@@ -14,7 +14,7 @@ interface AnnotationOverlayProps {
     /** The element to annotate (block element) */
     targetElement: HTMLElement;
     /** Callback when annotation is complete and sent */
-    onSend: (imageDataUrl: string) => void;
+    onSend: (imageDataUrl: string, message?: string) => void;
     /** Callback when annotation is cancelled */
     onCancel: () => void;
     /** Block ID for context */
@@ -89,6 +89,10 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
 
     // Sending state
     const [isSending, setIsSending] = useState(false);
+
+    // Chat message input
+    const [chatMessage, setChatMessage] = useState('');
+    const chatInputRef = useRef<HTMLTextAreaElement>(null);
 
     // Track bounds with requestAnimationFrame
     useEffect(() => {
@@ -334,6 +338,7 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
         setEditingId(null);
     }, []);
 
+    // Capture the annotation image and send with chat message
     const handleSend = useCallback(async () => {
         if (!stageRef.current) return;
 
@@ -373,12 +378,29 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
             }
 
             const dataUrl = combinedCanvas.toDataURL('image/png');
-            onSend(dataUrl);
+            const message = chatMessage.trim();
+            onSend(dataUrl, message || undefined);
         } catch (error) {
             console.error('Error capturing annotation:', error);
             setIsSending(false);
         }
-    }, [targetElement, bounds.width, onSend]);
+    }, [targetElement, bounds.width, onSend, chatMessage]);
+
+    // Handle key down in chat input — Enter sends annotation + message
+    const handleChatKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    }, [handleSend]);
+
+    // Auto-resize chat textarea
+    useEffect(() => {
+        const el = chatInputRef.current;
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
+    }, [chatMessage]);
 
     const editingTextBox = textBoxes.find(t => t.id === editingId);
 
@@ -494,7 +516,7 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                     />
                 )}
 
-                {/* Toolbar */}
+                {/* ── Drawing Toolbar ── */}
                 <div className="absolute -top-14 left-0 right-0 flex items-center justify-center gap-2" data-annotation-toolbar>
                     <div className="flex items-center gap-2 bg-background/95 backdrop-blur-sm rounded-lg shadow-lg border p-2">
                         {/* Mode toggle */}
@@ -624,22 +646,10 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                             <X className="h-4 w-4 mr-1" />
                             Cancel
                         </Button>
-
-                        {/* Send */}
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleSend}
-                            disabled={isSending}
-                            className="h-8 hover:bg-[#D4EDE5] hover:text-[#0D7377] hover:border-[#D4EDE5]"
-                        >
-                            <Send className="h-4 w-4 mr-1" />
-                            {isSending ? 'Sending...' : 'Send to Chat'}
-                        </Button>
                     </div>
                 </div>
 
-                {/* Instructions hint */}
+                {/* Instructions hint — only when no drawing has started */}
                 {lines.length === 0 && textBoxes.length === 0 && !editingId && (
                     <div className="absolute -bottom-12 left-0 right-0 flex justify-center pointer-events-none">
                         <div className="bg-background/90 backdrop-blur-sm rounded-md px-3 py-1.5 text-sm text-muted-foreground shadow-sm">
@@ -649,7 +659,63 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                         </div>
                     </div>
                 )}
+
+                {/* ── Chat input bar below the annotation ── */}
+                <div
+                    className="absolute left-0 right-0 z-[10000]"
+                    style={{ top: bounds.height + 8 }}
+                    data-annotation-toolbar
+                >
+                    <div
+                        className="w-full rounded-lg border-2 border-[#D4EDE5] bg-white shadow-lg px-3 py-2"
+                        style={{ animation: 'slideDown 0.18s ease-out' }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header row */}
+                        <div className="flex items-center gap-1.5 mb-1">
+                            <Sparkles className="h-3.5 w-3.5 text-[#0D7377]" />
+                            <span className="text-xs font-medium text-[#0D7377]">MathVibe Assistant</span>
+                            <span className="text-xs text-[#0D7377]/50 ml-auto">Press Enter to send</span>
+                        </div>
+
+                        {/* Input + Send button row */}
+                        <div className="flex items-center gap-2">
+                            <textarea
+                                ref={chatInputRef}
+                                value={chatMessage}
+                                onChange={(e) => setChatMessage(e.target.value)}
+                                onKeyDown={handleChatKeyDown}
+                                placeholder="Tell what you want to change..."
+                                rows={1}
+                                className="flex-1 resize-none overflow-hidden bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em]"
+                            />
+                            <button
+                                className="flex-shrink-0 p-1.5 rounded-md bg-[#0D7377] hover:bg-[#0a5c5f] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                onClick={handleSend}
+                                disabled={isSending || (lines.length === 0 && textBoxes.length === 0)}
+                                title="Send to AI"
+                            >
+                                <Send className="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+
+                        {/* Esc hint */}
+                        <div className="mt-1.5">
+                            <span className="text-[10px] text-gray-400">
+                                <kbd className="px-1 py-0.5 rounded bg-gray-50 border border-gray-200 font-mono text-[10px]">Esc</kbd> to dismiss
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {/* Slide-down animation */}
+            <style>{`
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-6px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+            `}</style>
         </>
     );
 };

@@ -216,20 +216,21 @@ export const Block = ({
         setIsAnnotating(false);
     };
 
-    const handleSendAnnotation = (imageDataUrl: string) => {
+    const handleSendAnnotation = (imageDataUrl: string, message?: string) => {
         setIsAnnotating(false);
 
         if (id) {
-            // Send message to parent window with annotated image
+            // Send message to parent window with annotated image and optional text
             window.parent.postMessage({
                 type: 'add-annotation-to-chat',
                 blockId: id,
                 imageDataUrl: imageDataUrl,
+                message: message,
             }, '*');
 
             // Also call the callback if provided
             if (handleEdit) {
-                handleEdit(`Annotated Block ${id}: [Image attached]`);
+                handleEdit(`Annotated Block ${id}: [Image attached]${message ? ` - ${message}` : ''}`);
             }
         }
     };
