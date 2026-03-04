@@ -392,7 +392,11 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
             e.preventDefault();
             handleSend();
         }
-    }, [handleSend]);
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            onCancel();
+        }
+    }, [handleSend, onCancel]);
 
     // Auto-resize chat textarea
     useEffect(() => {
@@ -659,52 +663,56 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                         </div>
                     </div>
                 )}
+            </div>
 
-                {/* ── Chat input bar below the annotation ── */}
+            {/* ── Chat input bar ── rendered as separate fixed element below the block */}
+            <div
+                className="fixed z-[10000]"
+                style={{
+                    top: bounds.top + bounds.height + 8,
+                    left: bounds.left,
+                    width: bounds.width,
+                }}
+                data-annotation-toolbar
+            >
                 <div
-                    className="absolute left-0 right-0 z-[10000]"
-                    style={{ top: bounds.height + 8 }}
-                    data-annotation-toolbar
+                    className="rounded-lg border-2 border-[#D4EDE5] bg-white shadow-lg px-3 py-2"
+                    style={{ animation: 'slideDown 0.18s ease-out' }}
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    <div
-                        className="w-full rounded-lg border-2 border-[#D4EDE5] bg-white shadow-lg px-3 py-2"
-                        style={{ animation: 'slideDown 0.18s ease-out' }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {/* Header row */}
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <Sparkles className="h-3.5 w-3.5 text-[#0D7377]" />
-                            <span className="text-xs font-medium text-[#0D7377]">MathVibe Assistant</span>
-                            <span className="text-xs text-[#0D7377]/50 ml-auto">Press Enter to send</span>
-                        </div>
+                    {/* Header row */}
+                    <div className="flex items-center gap-1.5 mb-1">
+                        <Sparkles className="h-3.5 w-3.5 text-[#0D7377]" />
+                        <span className="text-xs font-medium text-[#0D7377]">MathVibe Assistant</span>
+                        <span className="text-xs text-[#0D7377]/50 ml-auto">Press Enter to send</span>
+                    </div>
 
-                        {/* Input + Send button row */}
-                        <div className="flex items-center gap-2">
-                            <textarea
-                                ref={chatInputRef}
-                                value={chatMessage}
-                                onChange={(e) => setChatMessage(e.target.value)}
-                                onKeyDown={handleChatKeyDown}
-                                placeholder="Tell what you want to change..."
-                                rows={1}
-                                className="flex-1 resize-none overflow-hidden bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em]"
-                            />
-                            <button
-                                className="flex-shrink-0 p-1.5 rounded-md bg-[#0D7377] hover:bg-[#0a5c5f] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                                onClick={handleSend}
-                                disabled={isSending || (lines.length === 0 && textBoxes.length === 0)}
-                                title="Send to AI"
-                            >
-                                <Send className="h-3.5 w-3.5" />
-                            </button>
-                        </div>
+                    {/* Input + Send button row */}
+                    <div className="flex items-center gap-2">
+                        <textarea
+                            ref={chatInputRef}
+                            value={chatMessage}
+                            onChange={(e) => setChatMessage(e.target.value)}
+                            onKeyDown={handleChatKeyDown}
+                            placeholder="Tell what you want to change"
+                            rows={1}
+                            className="flex-1 resize-none overflow-hidden bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[1.5em]"
+                        />
+                        <button
+                            className="flex-shrink-0 p-1.5 rounded-md bg-[#0D7377] hover:bg-[#0a5c5f] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            onClick={handleSend}
+                            disabled={isSending || (lines.length === 0 && textBoxes.length === 0)}
+                            title="Send to AI"
+                        >
+                            <Send className="h-3.5 w-3.5" />
+                        </button>
+                    </div>
 
-                        {/* Esc hint */}
-                        <div className="mt-1.5">
-                            <span className="text-[10px] text-gray-400">
-                                <kbd className="px-1 py-0.5 rounded bg-gray-50 border border-gray-200 font-mono text-[10px]">Esc</kbd> to dismiss
-                            </span>
-                        </div>
+                    {/* Esc hint */}
+                    <div className="mt-1.5">
+                        <span className="text-[10px] text-gray-400">
+                            <kbd className="px-1 py-0.5 rounded bg-white border border-gray-200 font-mono text-[10px]">Esc</kbd> to dismiss
+                        </span>
                     </div>
                 </div>
             </div>
