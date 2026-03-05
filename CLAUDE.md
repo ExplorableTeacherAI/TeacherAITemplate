@@ -762,6 +762,103 @@ Import from `@/components/layouts`.
   - `app`: `"classic"` | `"graphing"` | `"geometry"` | `"3d"` | `"cas"`
   - `materialId`, `commands`, `width`, `height`
 
+### Feedback Components (import from `@/components/organisms`)
+
+- `BlockFeedback` — A reusable wrapper that shows contextual feedback as an **animated mascot + speech bubble below the block** for any block containing a cloze input or cloze choice
+
+**BlockFeedback** wraps block content and watches a variable from the store. Feedback appears automatically when the student provides an answer — no "Check Answer" button is needed. An animated Lottie mascot appears alongside a speech bubble containing the feedback message.
+
+**Key behaviours:**
+- Feedback panel appears **below the block** as a mascot (Lottie animation) + speech bubble layout
+- **Correct answer**: Running corgi mascot (`Corgi running.json`) with an encouraging message that motivates toward the next question
+- **Incorrect answer**: Sitting dog mascot (`Happy Dog.json`) with failure message + hint + review link — all rendered as one flowing paragraph inside the bubble
+- **One feedback at a time**: only the most recently answered question shows its panel; previous panels dismiss automatically
+- Each panel has a **close (×) button** so the student can dismiss it manually
+- The review link (emerald green) scrolls smoothly to the relevant content block and flashes a highlight ring
+- Speech bubble is neutral gray (`bg-gray-100`) with a left-pointing tail pointing at the mascot
+
+**BlockFeedback Props:**
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|--------|
+| `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
+| `correctValue` | `string` | *(required)* | Expected correct value |
+| `caseSensitive` | `boolean` | `false` | Whether comparison is case-sensitive |
+| `successMessage` | `ReactNode` | `"Correct! Well done."` | Message shown on correct answer — should appreciate and motivate toward the next question |
+| `failureMessage` | `ReactNode` | `"Not quite right. Try again."` | Message shown on wrong answer — should redirect thinking without giving the answer |
+| `hint` | `ReactNode` | — | Hint that flows inline after `failureMessage` — should end naturally leading into the review link |
+| `reviewBlockId` | `string` | — | Block ID to scroll to for reviewing the concept |
+| `reviewLabel` | `string` | `"Review this concept"` | Label for the review link — reads as the end of the hint sentence (e.g., `"circle anatomy."`) |
+
+**Example usage:**
+
+```tsx
+import { BlockFeedback } from "@/components/organisms";
+
+// In variables.ts:
+// answer_radius: { defaultValue: '', type: 'text', correctAnswer: '5', placeholder: '???', color: '#6366f1' }
+// answer_shape: { defaultValue: '', type: 'select', correctAnswer: 'circle', options: ['square', 'circle', 'triangle'], placeholder: '???', color: '#6366f1' }
+
+<StackLayout key="layout-circles-q1" maxWidth="xl">
+    <Block id="block-circles-q1" padding="md">
+        <BlockFeedback
+            varName="answer_radius"
+            correctValue="5"
+            successMessage="Nice work! The radius is half the diameter — 10 ÷ 2 = 5. Now try naming the shape below."
+            failureMessage="Not quite — remember, the radius is always half the diameter."
+            hint="If the diameter is 10, what is 10 ÷ 2? Take another look at"
+            reviewBlockId="block-circles-radius"
+            reviewLabel="radius and diameter."
+        >
+            <EditableParagraph id="para-q1" blockId="block-circles-q1">
+                If a circle has diameter 10, its radius is{" "}
+                <InlineClozeInput
+                    varName="answer_radius"
+                    correctAnswer="5"
+                    {...clozePropsFromDefinition(getVariableInfo('answer_radius'))}
+                />.
+            </EditableParagraph>
+        </BlockFeedback>
+    </Block>
+</StackLayout>
+
+<StackLayout key="layout-circles-q2" maxWidth="xl">
+    <Block id="block-circles-q2" padding="md">
+        <BlockFeedback
+            varName="answer_shape"
+            correctValue="circle"
+            successMessage="Great job! Every point equidistant from the center = a circle. You've nailed it!"
+            failureMessage="Think about which shape has all points the same distance from its center."
+            hint="Squares and triangles have corners at different distances. You can revisit"
+            reviewBlockId="block-circles-definition"
+            reviewLabel="the definition."
+        >
+            <EditableParagraph id="para-q2" blockId="block-circles-q2">
+                A shape where every point is the same distance from the center is a{" "}
+                <InlineClozeChoice
+                    varName="answer_shape"
+                    correctAnswer="circle"
+                    options={["square", "circle", "triangle"]}
+                    {...choicePropsFromDefinition(getVariableInfo('answer_shape'))}
+                />.
+            </EditableParagraph>
+        </BlockFeedback>
+    </Block>
+</StackLayout>
+```
+
+**Key rules for BlockFeedback:**
+- The `varName` in `BlockFeedback` must match the `varName` used in the `InlineClozeInput`/`InlineClozeChoice` inside
+- The `correctValue` in `BlockFeedback` must match the `correctAnswer` of the inline component
+- Always set `reviewBlockId` to point to the relevant content block so students can review
+- Each question gets its own `Block` wrapped with `BlockFeedback` — do NOT group questions in a single container
+- Define answer variables in `variables.ts` just like any other cloze variable
+- Works with `InlineClozeInput` (text fill-in) and `InlineClozeChoice` (dropdown)
+- Only one feedback panel is shown at a time — the most recently answered question claims the active slot
+- `BlockFeedback` can be placed anywhere in a section (inline with content or at the end) — it is not restricted to a dedicated quiz section
+- **Feedback text style**: `failureMessage`, `hint`, and `reviewLabel` flow as one continuous paragraph in the bubble. Write the hint so it ends naturally leading into the review link label (e.g., hint: `"... Take another look at"` + reviewLabel: `"circle anatomy."`)
+- **Success messages**: Appreciate the correct answer, explain WHY it's right, and motivate toward the next question
+
 ### Required Props for All Text Components
 
 Every `EditableParagraph` and `EditableH1/H2/H3` MUST have:
@@ -826,11 +923,11 @@ import {
     InlineToggle, InlineTooltip, InlineTrigger, InlineFormula,
     Table,
 } from "@/components/atoms";
-import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, togglePropsFromDefinition } from "../variables";
+import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, choicePropsFromDefinition, togglePropsFromDefinition } from "../variables";
 
 import { DataVisualization, ImageDisplay, FlowDiagram, MatrixVisualization } from "@/components/atoms";
 import { FormulaBlock } from "@/components/molecules";
-import { DesmosGraph } from "@/components/organisms";
+import { DesmosGraph, BlockFeedback } from "@/components/organisms";
 
 // Store hooks for reactive visual wrappers
 import { useVar, useSetVar } from "@/stores";
@@ -854,6 +951,30 @@ export const mySectionBlocks: ReactElement[] = [
                 />
                 {" "}units.
             </EditableParagraph>
+        </Block>
+    </StackLayout>,
+
+    // Assessment question with inline feedback
+    <StackLayout key="layout-my-q1" maxWidth="xl">
+        <Block id="block-my-q1" padding="md">
+            <BlockFeedback
+                varName="answer_my_q1"
+                correctValue="expected"
+                successMessage="Nice work! That's exactly right. Ready for the next challenge?"
+                failureMessage="Not quite — think about what you just learned."
+                hint="Remember the key relationship from the introduction. You can revisit"
+                reviewBlockId="block-my-intro"
+                reviewLabel="the intro."
+            >
+                <EditableParagraph id="para-my-q1" blockId="block-my-q1">
+                    Your question here with{" "}
+                    <InlineClozeInput
+                        varName="answer_my_q1"
+                        correctAnswer="expected"
+                        {...clozePropsFromDefinition(getVariableInfo('answer_my_q1'))}
+                    />.
+                </EditableParagraph>
+            </BlockFeedback>
         </Block>
     </StackLayout>,
 ];

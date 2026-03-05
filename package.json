@@ -69,6 +69,7 @@
     "input-otp": "^1.4.2",
     "katex": "^0.16.27",
     "konva": "^10.0.12",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.462.0",
     "mafs": "^0.21.0",
     "mermaid": "^10.9.4",

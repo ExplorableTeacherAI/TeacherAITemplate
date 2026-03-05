@@ -1718,6 +1718,43 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         step: 0.1,
         color: '#3b82f6',
     },
+
+    // ─────────────────────────────────────────
+    // TEXT (cloze) - BlockFeedback Demo — fill-in-the-blank answers
+    // ─────────────────────────────────────────
+    fbCircleDiameter: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Circle Diameter Answer',
+        description: 'Student answer for the diameter of a circle with radius 3',
+        placeholder: '???',
+        correctAnswer: '6',
+        color: '#6366f1',
+    },
+
+    // ─────────────────────────────────────────
+    // SELECT (cloze choice) - BlockFeedback Demo — dropdown answers
+    // ─────────────────────────────────────────
+    fbCirclePart: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Circle Part Answer',
+        description: 'Student answer for which part connects centre to edge',
+        placeholder: '???',
+        correctAnswer: 'radius',
+        options: ['diameter', 'radius', 'circumference', 'arc'],
+        color: '#6366f1',
+    },
+    fbAreaFormula: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Area Formula Answer',
+        description: 'Student answer for the area formula of a circle',
+        placeholder: '???',
+        correctAnswer: 'πr²',
+        options: ['2πr', 'πr²', 'πd', 'r²'],
+        color: '#6366f1',
+    },
 };
 
 /**
