@@ -65,7 +65,8 @@ src/
 │   │   └── ui/                     #   shadcn/ui primitives
 │   │
 │   ├── molecules/                  # Composed from multiple atoms
-│   │   └── formula/                #   FormulaBlock
+│   │   ├── formula/                #   FormulaBlock
+│   │   └── InteractionLegend.tsx   #   Auto-rendered how-to-interact banner
 │   │
 │   ├── organisms/                  # Complex self-contained visualizations + feedback
 │   │   └── visual/                 #   DesmosGraph, GeoGebraGraph, BlockFeedback
@@ -188,7 +189,13 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 | Component | Purpose |
 |-----------|---------|
 | `FormulaBlock` | Block-level math display with interactive elements |
+### Interaction Legend (`@/components/molecules`)
 
+| Component | Purpose |
+|-----------|---------||
+| `InteractionLegend` | Collapsible "How to read this article" banner with live mini-demos |
+
+`InteractionLegend` is **automatically rendered** at the top of every article by `BlockRenderer`. It shows three self-contained mini-demos (drag a number, fill in a blank, pick from a dropdown) so first-time readers learn the interaction patterns before encountering them in the lesson. The component uses `localStorage` to remember if the user has already seen the expanded legend, collapsing it on subsequent visits. **Do not add this component in section files** — it is handled by the template infrastructure.
 ### Visual Components
 
 | Component | Library | Key Props |

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, cloneElement, isValidElement, Children, Fragment, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { BlockContext } from "@/contexts/BlockContext";
+import { InteractionLegend } from "@/components/molecules";
 
 export interface BlockRendererProps {
     /** Array of Block elements to render */
@@ -157,6 +158,9 @@ export const BlockRenderer = ({
                 aria-label="Content Blocks"
             >
                 <div className="max-w-5xl mx-auto w-full">
+                    {/* Interaction legend — teaches first-time users how the interactive elements work */}
+                    {initialBlocks.length > 0 && <InteractionLegend />}
+
                     {onReorder ? (
                         <Reorder.Group
                             axis="y"

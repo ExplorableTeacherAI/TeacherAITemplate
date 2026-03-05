@@ -228,6 +228,12 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
                     className="font-medium cursor-pointer"
                     style={{
                         color: effectiveColor,
+                        textDecoration: 'none',
+                        backgroundImage: `repeating-linear-gradient(to right, ${effectiveColor} 0px, ${effectiveColor} 1.5px, transparent 1.5px, transparent 3.5px, ${effectiveColor} 3.5px, ${effectiveColor} 9px, transparent 9px, transparent 11px)`,
+                        backgroundPosition: '0 100%',
+                        backgroundSize: '11px 1.5px',
+                        backgroundRepeat: 'repeat-x',
+                        paddingBottom: '2.5px',
                     }}
                 >
                     {effectiveText ?? children}
@@ -266,8 +272,14 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
                     display: 'inline-flex',
                     alignItems: 'center',
                     color: effectiveColor,
-                    background: isHovered ? effectiveBgColor : 'transparent',
+                    backgroundColor: isHovered ? effectiveBgColor : 'transparent',
                     borderRadius: isHovered ? '3px' : '0',
+                    textDecoration: 'none',
+                    backgroundImage: `repeating-linear-gradient(to right, ${effectiveColor} 0px, ${effectiveColor} 1.5px, transparent 1.5px, transparent 3.5px, ${effectiveColor} 3.5px, ${effectiveColor} 9px, transparent 9px, transparent 11px)`,
+                    backgroundPosition: '0 100%',
+                    backgroundSize: '11px 1.5px',
+                    backgroundRepeat: 'repeat-x',
+                    paddingBottom: '2.5px',
                     transition: 'all 0.2s ease',
                 }}
                 whileTap={{ scale: 0.97 }}

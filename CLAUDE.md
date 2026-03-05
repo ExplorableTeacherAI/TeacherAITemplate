@@ -712,6 +712,10 @@ Import from `@/components/layouts`.
 - `InlineFormula` — inline math formula with colored variables (no variable store, import from `@/components/atoms`)
 - `FormulaBlock` — block-level math display with interactive elements (import from `@/components/molecules`)
 
+### UI Components (import from `@/components/molecules`)
+
+- `InteractionLegend` — collapsible "How to read this article" banner with live mini-demos of each interaction type (drag a number, fill in a blank, pick from a dropdown). **Automatically rendered** at the top of every article by `BlockRenderer` — the AI should never add it manually. Uses `localStorage` to remember whether the user has already seen it (starts expanded for first-timers, collapsed thereafter).
+
 ### Visual Components (import from `@/components/atoms`)
 
 #### Media
@@ -933,6 +937,7 @@ import { getVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition, c
 
 import { DataVisualization, ImageDisplay, FlowDiagram, MatrixVisualization } from "@/components/atoms";
 import { FormulaBlock } from "@/components/molecules";
+// InteractionLegend is auto-rendered by BlockRenderer — do NOT import or use it in sections
 import { DesmosGraph, BlockFeedback } from "@/components/organisms";
 
 // Store hooks for reactive visual wrappers
@@ -1151,6 +1156,7 @@ Reactive wrappers are **inner** components used inside a `<Block>`, not top-leve
 | `DesmosGraph` | `@/components/organisms` | `expressions` | Full graphing calculator |
 | `FlowDiagram` | `@/components/atoms` | `nodes`, `edges` | Process/relationship diagrams |
 | `FormulaBlock` | `@/components/molecules` | `latex`, `variables` | Block-level math with interactive elements |
+| `InteractionLegend` | `@/components/molecules` | _(none — auto-rendered)_ | Collapsible how-to-interact banner at top of article |
 | `MatrixVisualization` | `@/components/atoms` | `data`, `colorScheme`, `highlightRows` | Matrix display |
 | `Table` | `@/components/atoms` | `columns`, `rows`, `color`, `compact` | Table with inline components |
 
