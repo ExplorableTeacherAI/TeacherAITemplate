@@ -808,8 +808,8 @@ import { BlockFeedback } from "@/components/organisms";
         <BlockFeedback
             varName="answer_radius"
             correctValue="5"
-            successMessage="Nice work! The radius is half the diameter — 10 ÷ 2 = 5. Now try naming the shape below."
-            failureMessage="Not quite — remember, the radius is always half the diameter."
+            successMessage="Nice work! The radius is half the diameter, so 10 ÷ 2 = 5. Now try naming the shape below."
+            failureMessage="Not quite. Remember, the radius is always half the diameter."
             hint="If the diameter is 10, what is 10 ÷ 2? Take another look at"
             reviewBlockId="block-circles-radius"
             reviewLabel="radius and diameter."
@@ -862,6 +862,7 @@ import { BlockFeedback } from "@/components/organisms";
 - `BlockFeedback` can be placed anywhere in a section (inline with content or at the end) — it is not restricted to a dedicated quiz section
 - **Feedback text style**: `failureMessage`, `hint`, and `reviewLabel` flow as one continuous paragraph in the bubble. Write the hint so it ends naturally leading into the review link label (e.g., hint: `"... Take another look at"` + reviewLabel: `"circle anatomy."`)
 - **Success messages**: Appreciate the correct answer, explain WHY it's right, and motivate toward the next question
+- **NEVER use `--` (double hyphens) in any feedback or lesson text.** Use commas, periods, semicolons, or restructure the sentence instead. Write naturally, like an article.
 - **Feedback appears only after submission**: `InlineClozeInput` writes to the store only on Enter, blur, or auto-correct match — NOT on every keystroke. `InlineClozeChoice` writes on option selection. The mascot + bubble never appears while the student is still typing.
 
 ### Required Props for All Text Components
@@ -966,7 +967,7 @@ export const mySectionBlocks: ReactElement[] = [
                 varName="answer_my_q1"
                 correctValue="expected"
                 successMessage="Nice work! That's exactly right. Ready for the next challenge?"
-                failureMessage="Not quite — think about what you just learned."
+                failureMessage="Not quite. Think about what you just learned."
                 hint="Remember the key relationship from the introduction. You can revisit"
                 reviewBlockId="block-my-intro"
                 reviewLabel="the intro."

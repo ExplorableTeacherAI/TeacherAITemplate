@@ -227,8 +227,8 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
         <BlockFeedback
             varName="answer_radius"
             correctValue="5"
-            successMessage="Nice work! The radius is half the diameter — 10 ÷ 2 = 5. Now try the next one!"
-            failureMessage="Not quite — remember, the radius is always half the diameter."
+            successMessage="Nice work! The radius is half the diameter, so 10 ÷ 2 = 5. Now try the next one!"
+            failureMessage="Not quite. Remember, the radius is always half the diameter."
             hint="If the diameter is 10, what is 10 ÷ 2? Take another look at"
             reviewBlockId="block-circles-intro"
             reviewLabel="radius and diameter."
