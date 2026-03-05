@@ -96,16 +96,16 @@ export const BlockFeedback: React.FC<BlockFeedbackProps> = ({
     const [confettiData, setConfettiData] = useState<object | null>(null);
     const [sadFaceData, setSadFaceData] = useState<object | null>(null);
 
-    // Lazy-load Lottie JSON files
+    // Lazy-load Lottie JSON files (use BASE_URL so it works under any deploy path)
     useEffect(() => {
         if (!confettiData) {
-            fetch('/Corgi%20running.json')
+            fetch(`${import.meta.env.BASE_URL}Corgi%20running.json`)
                 .then((r) => r.json())
                 .then(setConfettiData)
                 .catch(() => {});
         }
         if (!sadFaceData) {
-            fetch('/Happy%20Dog.json')
+            fetch(`${import.meta.env.BASE_URL}Happy%20Dog.json`)
                 .then((r) => r.json())
                 .then(setSadFaceData)
                 .catch(() => {});
