@@ -106,6 +106,8 @@ setVar('amplitude', 2.5);
 
 **NEVER pass inline props directly to `InlineClozeInput`.** Always define the variable in the central variables file first, then reference it — same pattern as `InlineScrubbleNumber`.
 
+> **Submission timing**: `InlineClozeInput` does NOT update the variable store while the student is typing. The store is only written when the student **submits**: by pressing **Enter**, **clicking away** (blur), or when the typed text **auto-matches** the correct answer. This is important because `BlockFeedback` watches the store — feedback only appears after submission, not during typing.
+
 ### Two-Step Workflow for Cloze Inputs
 
 #### Step 1: Define the variable in `src/data/variables.ts`
@@ -766,7 +768,9 @@ Import from `@/components/layouts`.
 
 - `BlockFeedback` — A reusable wrapper that shows contextual feedback as an **animated mascot + speech bubble below the block** for any block containing a cloze input or cloze choice
 
-**BlockFeedback** wraps block content and watches a variable from the store. Feedback appears automatically when the student provides an answer — no "Check Answer" button is needed. An animated Lottie mascot appears alongside a speech bubble containing the feedback message.
+**BlockFeedback** wraps block content and watches a variable from the store. Feedback appears automatically when the student **submits** their answer — no "Check Answer" button is needed. An animated Lottie mascot appears alongside a speech bubble containing the feedback message.
+
+> **Submission timing**: The variable store is only updated when the student actually submits, NOT while typing. For `InlineClozeInput`, submission happens on **Enter key**, **blur (clicking away)**, or when the typed value **auto-matches** the correct answer. For `InlineClozeChoice`, **selecting a dropdown option** counts as submission. This means feedback never appears while the student is still typing.
 
 **Key behaviours:**
 - Feedback panel appears **below the block** as a mascot (Lottie animation) + speech bubble layout
@@ -858,6 +862,7 @@ import { BlockFeedback } from "@/components/organisms";
 - `BlockFeedback` can be placed anywhere in a section (inline with content or at the end) — it is not restricted to a dedicated quiz section
 - **Feedback text style**: `failureMessage`, `hint`, and `reviewLabel` flow as one continuous paragraph in the bubble. Write the hint so it ends naturally leading into the review link label (e.g., hint: `"... Take another look at"` + reviewLabel: `"circle anatomy."`)
 - **Success messages**: Appreciate the correct answer, explain WHY it's right, and motivate toward the next question
+- **Feedback appears only after submission**: `InlineClozeInput` writes to the store only on Enter, blur, or auto-correct match — NOT on every keystroke. `InlineClozeChoice` writes on option selection. The mascot + bubble never appears while the student is still typing.
 
 ### Required Props for All Text Components
 

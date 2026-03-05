@@ -212,7 +212,8 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 
 `BlockFeedback` watches a variable from the store, compares it against a correct value, and displays an **animated mascot + speech bubble below the block**. Key features:
 
-- **Automatic** — feedback appears as soon as the student answers; no "Check Answer" button
+- **Automatic** — feedback appears as soon as the student **submits** their answer; no "Check Answer" button
+- **Submission triggers** — for `InlineClozeInput`: Enter key, blur (clicking away), or auto-correct match while typing. For `InlineClozeChoice`: selecting an option. Feedback never appears while the student is still typing.
 - **One at a time** — only the most recently answered question shows its panel; older panels dismiss automatically
 - **Dismissible** — each panel has a close (×) button
 - **Correct answer** → running corgi Lottie animation with an encouraging, motivating message

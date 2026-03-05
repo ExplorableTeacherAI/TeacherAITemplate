@@ -126,6 +126,10 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     const [isHovered, setIsHovered] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    // Intermediate typing state — NOT synced to the store until the student
+    // submits (Enter key, correct auto-match, or blur with content).
+    const [typingValue, setTypingValue] = useState('');
+
     // Determine which value to use
     const usesVarStore = effectiveVarName !== undefined;
     const inputValue = usesVarStore ? (storeValue as string) : localValue;
@@ -196,19 +200,23 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     const handleClick = () => {
         if (canEdit && isEditing && !disableEditing) return;
         if (!isCorrect && !isChecked) {
+            setTypingValue(inputValue); // seed typing state from store
             setIsInputting(true);
         }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setInputValue(value);
+        // Only update local typing state — do NOT write to the store yet.
+        // The store is updated only on submission (Enter, blur, or auto-correct match).
+        setTypingValue(value);
 
         // Auto-check the answer as user types
         const userAnswer = effectiveCaseSensitive ? value : value.toLowerCase();
         const correctAns = effectiveCaseSensitive ? effectiveCorrectAnswer : effectiveCorrectAnswer.toLowerCase();
 
         if (userAnswer.trim() === correctAns.trim()) {
+            setInputValue(value); // Correct — commit to the store now
             setIsCorrect(true);
             setIsChecked(true);
             setIsInputting(false);
@@ -222,32 +230,38 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         } else if (e.key === 'Escape') {
             setIsInputting(false);
             if (!isChecked) {
-                setInputValue('');
+                setTypingValue('');
             }
         }
     };
 
     const checkAnswer = () => {
-        const userAnswer = effectiveCaseSensitive ? inputValue : inputValue.toLowerCase();
+        const userAnswer = effectiveCaseSensitive ? typingValue : typingValue.toLowerCase();
         const correctAns = effectiveCaseSensitive ? effectiveCorrectAnswer : effectiveCorrectAnswer.toLowerCase();
 
         const correct = userAnswer.trim() === correctAns.trim();
+        setInputValue(typingValue); // Commit to the store on submission
         setIsCorrect(correct);
         setIsChecked(true);
         setIsInputting(false);
-        onChange?.(inputValue, correct);
+        onChange?.(typingValue, correct);
     };
 
     const handleClear = () => {
         setInputValue('');
+        setTypingValue('');
         setIsChecked(false);
         setIsCorrect(false);
         setIsInputting(false);
     };
 
     const handleBlur = () => {
-        if (inputValue.trim() === '') {
+        if (typingValue.trim() === '') {
+            // Nothing typed — just close the input
             setIsInputting(false);
+        } else {
+            // Student typed something and clicked away — treat as submission
+            checkAnswer();
         }
     };
 
@@ -358,7 +372,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
                 <input
                     ref={inputRef}
                     type="text"
-                    value={inputValue}
+                    value={typingValue}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
                     onBlur={handleBlur}

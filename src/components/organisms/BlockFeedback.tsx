@@ -57,9 +57,14 @@ const scrollToBlock = (blockId: string) => {
  * BlockFeedback
  *
  * A reusable wrapper that watches a cloze variable and shows contextual
- * feedback as a tooltip above the cloze component. Works with both
- * `InlineClozeInput` and `InlineClozeChoice`. No "Check Answer" button —
- * feedback appears automatically as soon as the student provides an answer.
+ * feedback as a mascot + speech bubble below the block. Works with both
+ * `InlineClozeInput` and `InlineClozeChoice`.
+ *
+ * **Submission timing**: Feedback only appears after the student actually
+ * submits their answer — NOT while they are still typing. For
+ * `InlineClozeInput`, submission happens on Enter, blur (clicking away),
+ * or when the typed value auto-matches the correct answer. For
+ * `InlineClozeChoice`, selecting a dropdown option counts as submission.
  *
  * @example
  * ```tsx
