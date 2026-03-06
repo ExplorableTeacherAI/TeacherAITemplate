@@ -1720,7 +1720,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
-    // TEXT (cloze) - BlockFeedback Demo — fill-in-the-blank answers
+    // TEXT (cloze) - InlineFeedback Demo — fill-in-the-blank answers
     // ─────────────────────────────────────────
     fbCircleDiameter: {
         defaultValue: '',
@@ -1733,7 +1733,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
     },
 
     // ─────────────────────────────────────────
-    // SELECT (cloze choice) - BlockFeedback Demo — dropdown answers
+    // SELECT (cloze choice) - InlineFeedback Demo — dropdown answers
     // ─────────────────────────────────────────
     fbCirclePart: {
         defaultValue: '',
@@ -1754,6 +1754,33 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: 'πr²',
         options: ['2πr', 'πr²', 'πd', 'r²'],
         color: '#6366f1',
+    },
+
+    // ─────────────────────────────────────────
+    // TEXT (cloze) - InlineFeedback Demo — fill-in-the-blank answers
+    // ─────────────────────────────────────────
+    ifTriangleArea: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Triangle Area Answer',
+        description: 'Student answer for the area of a triangle with base 4 and height 3',
+        placeholder: '???',
+        correctAnswer: '6',
+        color: '#8b5cf6',
+    },
+
+    // ─────────────────────────────────────────
+    // SELECT (cloze choice) - InlineFeedback Demo — dropdown answers
+    // ─────────────────────────────────────────
+    ifTriangleAngles: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Triangle Angles Sum',
+        description: 'Student answer for the sum of angles in a triangle',
+        placeholder: '???',
+        correctAnswer: '180°',
+        options: ['90°', '180°', '360°', '270°'],
+        color: '#8b5cf6',
     },
 };
 

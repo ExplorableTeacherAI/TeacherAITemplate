@@ -11,7 +11,3 @@ export { default as MermaidRenderer } from "./visual/MermaidRenderer";
 
 // Editor Components
 export { default as DiagramEditorDialog } from "./visual/DiagramEditorDialog";
-
-// Feedback Components
-export { BlockFeedback } from "./BlockFeedback";
-export type { BlockFeedbackProps } from "./BlockFeedback";

@@ -36,7 +36,7 @@ Every block follows the pattern: **Layout > Block > Component**.
 
 **Applies to:** `Cartesian2D`, `DataVisualization`, `GeometricDiagram`, `MatrixVisualization`, `FlowDiagram`, `ExpandableFlowDiagram`, `SimulationPanel`, `DesmosGraph`, `GeoGebraGraph`, and custom visualizations.
 
-**Does NOT apply to:** `EditableParagraph`, `EditableH1/H2/H3`, `FormulaBlock`, `ImageDisplay`, `VideoDisplay`, `Table`, `BlockFeedback`.
+**Does NOT apply to:** `EditableParagraph`, `EditableH1/H2/H3`, `FormulaBlock`, `ImageDisplay`, `VideoDisplay`, `Table`, `InlineFeedback`.
 
 ---
 
@@ -68,8 +68,8 @@ src/
 │   │   ├── formula/                #   FormulaBlock
 │   │   └── InteractionLegend.tsx   #   Auto-rendered how-to-interact banner
 │   │
-│   ├── organisms/                  # Complex self-contained visualizations + feedback
-│   │   └── visual/                 #   DesmosGraph, GeoGebraGraph, BlockFeedback
+│   ├── organisms/                  # Complex self-contained visualizations
+│   │   └── visual/                 #   DesmosGraph, GeoGebraGraph
 │   │
 │   ├── layouts/                    # StackLayout, SplitLayout, GridLayout, ScrollytellingLayout, SlideLayout, StepLayout
 │   │
@@ -211,46 +211,39 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 | `DesmosGraph` | Desmos | `expressions`, `height`, `options` |
 | `GeoGebraGraph` | GeoGebra | `app`, `materialId`, `commands` |
 
-### Feedback Components (`@/components/organisms`)
+### Feedback Components (`@/components/atoms/text`)
 
 | Component | Purpose |
 |-----------|----------|
-| `BlockFeedback` | Wraps a block and shows contextual feedback as a mascot + speech bubble below when the student answers a cloze input/choice |
+| `InlineFeedback` | Wraps a cloze input/choice and shows contextual feedback as inline flowing text |
 
-`BlockFeedback` watches a variable from the store, compares it against a correct value, and displays an **animated mascot + speech bubble below the block**. Key features:
+`InlineFeedback` watches a variable from the store, compares it against a correct value, and displays **feedback as natural paragraph text** immediately after the cloze component. Key features:
 
 - **Automatic** — feedback appears as soon as the student **submits** their answer; no "Check Answer" button
 - **Submission triggers** — for `InlineClozeInput`: Enter key, blur (clicking away), or auto-correct match while typing. For `InlineClozeChoice`: selecting an option. Feedback never appears while the student is still typing.
-- **One at a time** — only the most recently answered question shows its panel; older panels dismiss automatically
-- **Dismissible** — each panel has a close (×) button
-- **Correct answer** → running corgi Lottie animation with an encouraging, motivating message
-- **Wrong answer** → sitting dog Lottie animation with failure message + hint + review link as one flowing paragraph
-- **Speech bubble** — neutral gray rounded bubble with a left-pointing tail toward the mascot
-- **Review link** — emerald green inline link that scrolls smoothly to the relevant content block
+- **Inline flow** — feedback flows as part of the paragraph text, not as a separate block
+- **Subtle styling** — green text for correct, amber for incorrect — no icons, no backgrounds
+- **Animated** — smooth fade-in/out transitions with Framer Motion
 
 ```tsx
-<StackLayout key="layout-q1" maxWidth="xl">
-    <Block id="block-q1" padding="md">
-        <BlockFeedback
+<EditableParagraph id="para-q1" blockId="block-q1">
+    A circle with diameter 10 has radius{" "}
+    <InlineFeedback
+        varName="answer_radius"
+        correctValue="5"
+        successMessage="Well done! The radius is half the diameter, so 10 ÷ 2 = 5"
+        failureMessage="Not quite — remember, the radius is always half the diameter"
+        hint="If the diameter is 10, what is 10 ÷ 2?"
+        reviewBlockId="block-circles-intro"
+        reviewLabel="Review radius and diameter"
+    >
+        <InlineClozeInput
             varName="answer_radius"
-            correctValue="5"
-            successMessage="Nice work! The radius is half the diameter, so 10 ÷ 2 = 5. Now try the next one!"
-            failureMessage="Not quite. Remember, the radius is always half the diameter."
-            hint="If the diameter is 10, what is 10 ÷ 2? Take another look at"
-            reviewBlockId="block-circles-intro"
-            reviewLabel="radius and diameter."
-        >
-            <EditableParagraph id="para-q1" blockId="block-q1">
-                A circle with diameter 10 has radius{" "}
-                <InlineClozeInput
-                    varName="answer_radius"
-                    correctAnswer="5"
-                    {...clozePropsFromDefinition(getVariableInfo('answer_radius'))}
-                />.
-            </EditableParagraph>
-        </BlockFeedback>
-    </Block>
-</StackLayout>
+            correctAnswer="5"
+            {...clozePropsFromDefinition(getVariableInfo('answer_radius'))}
+        />
+    </InlineFeedback>.
+</EditableParagraph>
 ```
 
 | Prop | Type | Default | Purpose |
@@ -258,11 +251,11 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 | `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
 | `correctValue` | `string` | *(required)* | Expected correct value |
 | `caseSensitive` | `boolean` | `false` | Case-sensitive comparison |
-| `successMessage` | `ReactNode` | `"Correct! Well done."` | Encouraging message for correct answers — appreciate + motivate |
-| `failureMessage` | `ReactNode` | `"Not quite right. Try again."` | Supportive message for wrong answers — redirect thinking |
-| `hint` | `ReactNode` | — | Flows inline after failureMessage; end it leading into the review link |
+| `successMessage` | `ReactNode` | `"Well done! That's exactly right"` | Encouraging message for correct answers |
+| `failureMessage` | `ReactNode` | `"Good effort!"` | Supportive message for wrong answers |
+| `hint` | `ReactNode` | — | Additional guidance after failure message |
 | `reviewBlockId` | `string` | — | Block ID to scroll to for review |
-| `reviewLabel` | `string` | `"Review this concept"` | Review link text — reads as end of the hint sentence (e.g., `"circle anatomy."`) |
+| `reviewLabel` | `string` | `"Review this concept"` | Review link text |
 
 ---
 

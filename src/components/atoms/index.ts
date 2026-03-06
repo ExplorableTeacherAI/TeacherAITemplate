@@ -49,6 +49,8 @@ export * from "./ui/use-toast";
 // Text Components
 export { InlineClozeChoice } from "./text/InlineClozeChoice";
 export { InlineClozeInput } from "./text/InlineClozeInput";
+export { InlineFeedback } from "./text/InlineFeedback";
+export type { InlineFeedbackProps } from "./text/InlineFeedback";
 export { InlineToggle } from "./text/InlineToggle";
 export { InlineTooltip } from "./text/InlineTooltip";
 export { InlineTrigger } from "./text/InlineTrigger";
