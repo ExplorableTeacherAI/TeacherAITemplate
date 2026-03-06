@@ -225,7 +225,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                     <InlineScrubbleNumber
                         varName="frequency"
                         {...numberPropsFromDefinition(getExampleVariableInfo("frequency"))}
-                    />. Drag the numbers or drag the points on the graph — they stay in sync.
+                    />. Drag the numbers or drag the points on the graph, and they stay in sync.
                 </EditableParagraph>
             </Block>
             <Block id="block-demo-split-reset" padding="sm">
@@ -279,8 +279,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
                     Patterns from{" "}
                     <InlineTooltip tooltip="Parametric equations define x and y independently as functions of a third variable t. Varying t traces out a curve in 2D space, and the curve can loop back on itself.">
                         parametric equations
-                    </InlineTooltip>
-                    {" "}— two sinusoids with a frequency ratio produce characteristic petal shapes.
+                    </InlineTooltip>.
+                    Two sinusoids with a frequency ratio produce characteristic petal shapes.
                 </EditableParagraph>
             </Block>
         </div>
@@ -410,7 +410,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 <Block id="block-scroll-step-2-body" padding="sm">
                     <EditableParagraph id="para-scroll-step-2" blockId="block-scroll-step-2-body">
                         Any periodic function can be reconstructed by summing sine waves of
-                        different frequencies — this is the{" "}
+                        different frequencies. This is the{" "}
                         <InlineTooltip tooltip="The Fourier series decomposes any periodic function into a sum of sines and cosines. Joseph Fourier proved in 1822 that even discontinuous functions can be represented this way.">
                             Fourier series
                         </InlineTooltip>:{" "}
@@ -473,10 +473,10 @@ export const layoutsDemoBlocks: ReactElement[] = [
                     SlideLayout
                 </InlineTooltip>{" "}
                 presents content as a{" "}
-                <InlineTooltip tooltip="A slide deck shows one panel at a time with transitions between slides. Each slide can hold any block content — text, formulas, visualizations, or interactive elements.">
+                <InlineTooltip tooltip="A slide deck shows one panel at a time with transitions between slides. Each slide can hold any block content: text, formulas, visualizations, or interactive elements.">
                     slide deck
-                </InlineTooltip>{" "}
-                — one slide is visible at a time with smooth transitions. Use keyboard{" "}
+                </InlineTooltip>.
+                One slide is visible at a time with smooth transitions. Use keyboard{" "}
                 <strong>← / →</strong> to navigate, or click the arrow buttons and dot indicators
                 below the stage. The active slide index is written to a{" "}
                 <InlineTooltip tooltip="A global variable is stored in the Zustand variable store. Any component on the page can read it with useVar() and react whenever it changes.">
@@ -657,17 +657,16 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 <InlineTooltip tooltip="StepLayout reveals content one step at a time. Previous steps stay visible above the current one so learners retain context. A Continue button advances to the next step, and question-type steps auto-advance as soon as the correct answer is given.">
                     StepLayout
                 </InlineTooltip>{" "}
-                reveals lesson content{" "}
+                guides learners through{" "}
                 <InlineTooltip tooltip="Progressive disclosure means showing only as much content as the learner needs at a given moment. This reduces cognitive load and keeps the focus on one idea at a time.">
-                    progressively
+                    progressively revealed
+                </InlineTooltip>.{" "}
+                Each step builds on the previous one. Some steps include{" "}
+                <InlineTooltip tooltip="A normal step shows a Continue button. A question-type step (autoAdvance) hides the button entirely, and the next step appears automatically the moment the learner types the correct answer.">
+                    checkpoint questions
                 </InlineTooltip>{" "}
-                — one step at a time. Completed steps remain visible above the current one.
-                Steps can show a{" "}
-                <InlineTooltip tooltip="A normal step shows a Continue button. A question-type step (autoAdvance) hides the button entirely — the next step appears automatically the moment the learner types the correct answer.">
-                    Continue button
-                </InlineTooltip>{" "}
-                or, for question steps, automatically reveal the next step the moment the
-                correct answer is entered.
+                that must be answered correctly before continuing. Try the lesson below to
+                experience how gated progression keeps learners engaged and ensures understanding.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -680,10 +679,10 @@ export const layoutsDemoBlocks: ReactElement[] = [
             allowBack
         >
             {/* ── Step 1: Question — auto-advances on correct answer ── */}
-            <Step completionVarName="stepPeriodAnswer" autoAdvance>
+            <Step completionVarName="stepPeriodAnswer" correctAnswer="0.5" autoAdvance>
                 <Block id="block-step-demo-4-body" padding="none">
                     <EditableParagraph id="para-step-demo-4" blockId="block-step-demo-4-body">
-                        <strong>Before we start —</strong> if a wave completes{" "}
+                        <strong>Before we start:</strong> if a wave completes{" "}
                         <InlineFormula latex="\clr{f}{2}" colorMap={{ f: "#8B5CF6" }} />{" "}
                         full cycles every second, how long does each single cycle take?{" "}
                         <InlineClozeInput
@@ -708,7 +707,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                         <Block id="block-step-demo-1-body" padding="none">
                             <EditableParagraph id="para-step-demo-1" blockId="block-step-demo-1-body">
                                 A{" "}
-                                <InlineTooltip tooltip="A sine wave is the smoothest possible oscillation. It is the building block of all periodic signals — any repeating waveform can be expressed as a sum of sines via the Fourier series.">
+                                <InlineTooltip tooltip="A sine wave is the smoothest possible oscillation. It is the building block of all periodic signals, and any repeating waveform can be expressed as a sum of sines via the Fourier series.">
                                     sine wave
                                 </InlineTooltip>{" "}
                                 is a smooth, repeating oscillation described by{" "}
@@ -750,13 +749,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
                                     varName="amplitude"
                                     {...numberPropsFromDefinition(getExampleVariableInfo("amplitude"))}
                                 />{" "}
-                                — drag the number to change it, or{" "}
+                                and you can explore different values using the scrubber, or try{" "}
                                 <InlineTrigger varName="amplitude" value={1} icon="refresh">
-                                    reset to 1
+                                    resetting to 1
                                 </InlineTrigger>{" "}
                                 or{" "}
                                 <InlineTrigger varName="amplitude" value={3} icon="zap">
-                                    set to 3
+                                    setting it to 3
                                 </InlineTrigger>.
                                 Watch the graph update live on the right.
                             </EditableParagraph>
@@ -768,7 +767,24 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 </SplitLayout>
             </Step>
 
-            {/* ── Step 4: Frequency ── */}
+            {/* ── Step 4: Amplitude checkpoint ── */}
+            <Step completionVarName="stepAmplitudeAnswer" correctAnswer="3" autoAdvance>
+                <Block id="block-step-amp-check" padding="none">
+                    <EditableParagraph id="para-step-amp-check" blockId="block-step-amp-check">
+                        <strong>Quick check:</strong> If you set the amplitude{" "}
+                        <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
+                        to 3, how tall will the wave be at its peak?{" "}
+                        <InlineClozeInput
+                            varName="stepAmplitudeAnswer"
+                            correctAnswer="3"
+                            {...clozePropsFromDefinition(getExampleVariableInfo("stepAmplitudeAnswer"))}
+                        />{" "}
+                        units. Answer correctly to continue.
+                    </EditableParagraph>
+                </Block>
+            </Step>
+
+            {/* ── Step 5: Frequency ── */}
             <Step>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
@@ -807,7 +823,26 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 </SplitLayout>
             </Step>
 
-            {/* ── Step 5: Conclusion ── */}
+            {/* ── Step 6: Frequency checkpoint ── */}
+            <Step completionVarName="stepFrequencyAnswer" correctAnswer="2" autoAdvance>
+                <Block id="block-step-freq-check" padding="none">
+                    <EditableParagraph id="para-step-freq-check" blockId="block-step-freq-check">
+                        <strong>Quick check:</strong> If the period{" "}
+                        <InlineFormula latex="\clr{T}{T}" colorMap={{ T: "#EC4899" }} />{" "}
+                        is 0.5 seconds, what is the frequency{" "}
+                        <InlineFormula latex="\clr{f}{f}" colorMap={{ f: "#8B5CF6" }} />{" "}
+                        in Hz?{" "}
+                        <InlineClozeInput
+                            varName="stepFrequencyAnswer"
+                            correctAnswer="2"
+                            {...clozePropsFromDefinition(getExampleVariableInfo("stepFrequencyAnswer"))}
+                        />{" "}
+                        Hz. Answer correctly to continue.
+                    </EditableParagraph>
+                </Block>
+            </Step>
+
+            {/* ── Step 7: Conclusion ── */}
             <Step>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
@@ -818,7 +853,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                         </Block>
                         <Block id="block-step-demo-5-body" padding="none">
                             <EditableParagraph id="para-step-demo-5" blockId="block-step-demo-5-body">
-                                Your instinct was right — at{" "}
+                                Your instinct was right: at{" "}
                                 <InlineFormula latex="\clr{f}{f} = 2" colorMap={{ f: "#8B5CF6" }} />{" "}
                                 Hz each cycle lasts exactly{" "}
                                 <InlineFormula latex="\clr{T}{T} = 0.5" colorMap={{ T: "#EC4899" }} />{" "}

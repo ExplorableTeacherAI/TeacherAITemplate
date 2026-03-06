@@ -5,9 +5,6 @@ import {
     EditableH1,
     EditableH2,
     EditableParagraph,
-    InlineScrubbleNumber,
-    InlineToggle,
-    InlineTooltip,
     DataVisualization,
     SimulationPanel,
 } from "@/components/atoms";
@@ -15,8 +12,6 @@ import type { ChartType, ChartDataPoint, ScatterDataPoint } from "@/components/a
 import { useVar } from "@/stores";
 import {
     getExampleVariableInfo,
-    numberPropsFromDefinition,
-    togglePropsFromDefinition,
 } from "../exampleVariables";
 
 // ─── Reactive wrapper: reads category values from the store ──────────────────
@@ -292,16 +287,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-dv-intro" maxWidth="xl">
         <Block id="block-dv-intro" padding="sm">
             <EditableParagraph id="para-dv-intro" blockId="block-dv-intro">
-                The{" "}
-                <InlineTooltip
-                    id="tooltip-data-viz"
-                    tooltip="A versatile D3-powered component that renders bar, line, area, pie, donut, and scatter charts — all reactive to the global variable store."
-                >
-                    DataVisualization
-                </InlineTooltip>{" "}
-                component visualises data in multiple chart types. Every example
-                below reads its data from the global variable store, so adjusting a
-                value instantly updates every chart on the page.
+                Data visualization transforms raw numbers into visual patterns that our brains can quickly interpret. Whether comparing categories with bar charts, tracking trends with line graphs, or showing proportions with pie charts, each visualization type has its strengths. The examples below demonstrate how the same underlying data can be presented in different ways.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -318,14 +304,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-dv-multi-desc" maxWidth="xl">
         <Block id="block-dv-multi-desc" padding="sm">
             <EditableParagraph id="para-dv-multi-desc" blockId="block-dv-multi-desc">
-                Use the controls to switch chart type, adjust individual category
-                values, and apply a{" "}
-                <InlineScrubbleNumber
-                    id="scrubble-dv-scale"
-                    varName="dvScaleFactor"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("dvScaleFactor"))}
-                />{" "}
-                scale factor. The chart reacts to every change in real time.
+                The same data can tell different stories depending on how we visualize it. Use the controls on the right to switch between chart types and adjust values. Notice how bar charts emphasize individual comparisons, while pie charts highlight proportions, and line charts reveal trends. Each representation offers a unique perspective on the same underlying numbers.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -430,37 +409,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-dv-bar-text" padding="sm">
                 <EditableParagraph id="para-dv-bar-text" blockId="block-dv-bar-text">
-                    The bar chart displays{" "}
-                    <InlineScrubbleNumber
-                        id="scrubble-dv-a"
-                        varName="dvCategoryA"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("dvCategoryA"))}
-                    />{" "}
-                    in Physics,{" "}
-                    <InlineScrubbleNumber
-                        id="scrubble-dv-b"
-                        varName="dvCategoryB"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("dvCategoryB"))}
-                    />{" "}
-                    in Chemistry,{" "}
-                    <InlineScrubbleNumber
-                        id="scrubble-dv-c"
-                        varName="dvCategoryC"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("dvCategoryC"))}
-                    />{" "}
-                    in Biology,{" "}
-                    <InlineScrubbleNumber
-                        id="scrubble-dv-d"
-                        varName="dvCategoryD"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("dvCategoryD"))}
-                    />{" "}
-                    in Math, and{" "}
-                    <InlineScrubbleNumber
-                        id="scrubble-dv-e"
-                        varName="dvCategoryE"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("dvCategoryE"))}
-                    />{" "}
-                    in English. Drag any number to instantly update the chart.
+                    Bar charts are ideal for comparing discrete categories at a glance. Each vertical bar represents a subject, with its height showing the student's score. This makes it easy to spot which subjects a student excels in and where they might need more practice. Try adjusting the values using the simulation panel above to see how the bars respond.
                 </EditableParagraph>
             </Block>
         </div>
@@ -482,15 +431,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-dv-line-text" padding="sm">
                 <EditableParagraph id="para-dv-line-text" blockId="block-dv-line-text">
-                    The line chart uses the same data points but visualises them as a
-                    continuous trend. Change the curve type to{" "}
-                    <InlineToggle
-                        id="toggle-dv-curve"
-                        varName="dvCurve"
-                        options={["linear", "smooth", "step"]}
-                        {...togglePropsFromDefinition(getExampleVariableInfo("dvCurve"))}
-                    />{" "}
-                    to see different interpolation styles.
+                    Line charts excel at showing trends over time. By connecting data points, they reveal patterns that might be hidden in a table of numbers. The way points are connected matters too: a smooth curve suggests continuous change, linear segments emphasize the exact path between measurements, and step lines highlight that values remain constant until the next observation.
                 </EditableParagraph>
             </Block>
         </div>
@@ -544,13 +485,7 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-dv-scatter-desc" maxWidth="xl">
         <Block id="block-dv-scatter-desc" padding="sm">
             <EditableParagraph id="para-dv-scatter-desc" blockId="block-dv-scatter-desc">
-                Scatter plots show individual data points on a 2D plane. Adjust the{" "}
-                <InlineScrubbleNumber
-                    id="scrubble-dv-scale-s"
-                    varName="dvScaleFactor"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("dvScaleFactor"))}
-                />{" "}
-                scale factor to see how all Y values rescale proportionally.
+                Scatter plots reveal relationships between two variables by displaying individual data points as dots on a coordinate plane. Each dot represents one observation, showing how study hours relate to test scores. When points cluster in a pattern (rising from left to right), we see a positive correlation. Scattered points suggest little relationship between the variables.
             </EditableParagraph>
         </Block>
     </StackLayout>,

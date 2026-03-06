@@ -1439,7 +1439,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         label: 'Step Progress',
         description: '0-based index of the currently revealed step in the StepLayout demo',
         min: 0,
-        max: 4,
+        max: 6,
         step: 1,
     },
     stepPeriodAnswer: {
@@ -1450,6 +1450,24 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         placeholder: '???',
         correctAnswer: '0.5',
         color: '#3B82F6',
+    },
+    stepAmplitudeAnswer: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Amplitude Answer',
+        description: 'Student answer for the amplitude question in the StepLayout demo',
+        placeholder: '???',
+        correctAnswer: '3',
+        color: '#3B82F6',
+    },
+    stepFrequencyAnswer: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Frequency Answer',
+        description: 'Student answer for the frequency question in the StepLayout demo',
+        placeholder: '???',
+        correctAnswer: '2',
+        color: '#8B5CF6',
     },
 
     // ─────────────────────────────────────────

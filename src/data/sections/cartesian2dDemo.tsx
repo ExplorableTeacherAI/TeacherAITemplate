@@ -507,9 +507,7 @@ export const cartesian2dDemo: ReactElement[] = [
     <StackLayout key="layout-c2d-header-desc" maxWidth="xl">
         <Block id="block-c2d-header-desc" padding="sm">
             <EditableParagraph id="para-c2d-desc" blockId="block-c2d-header-desc">
-                Interactive 2D math plots powered by Cartesian2D — supporting
-                function plots, parametric curves, movable points, dynamic
-                geometry, and linked highlights.
+                The Cartesian coordinate system, named after mathematician René Descartes, provides a framework for visualizing mathematical relationships in two dimensions. Points, lines, curves, and shapes can all be precisely described using x and y coordinates, making abstract equations tangible and explorable.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -526,7 +524,7 @@ export const cartesian2dDemo: ReactElement[] = [
     <SplitLayout key="layout-c2d-basic-split" ratio="1:1" gap="lg">
         <Block id="block-c2d-basic-desc" padding="sm">
             <EditableParagraph id="para-c2d-basic-desc" blockId="block-c2d-basic-desc">
-                The simplest usage — pass a plots array of function objects. Three
+                This example shows the simplest usage: passing an array of function objects. Three
                 curves are shown:{" "}
                 <InlineSpotColor varName="fpSin"
                     {...spotColorPropsFromDefinition(getExampleVariableInfo('fpSin'))}
@@ -677,7 +675,7 @@ export const cartesian2dDemo: ReactElement[] = [
                     >
                         amplitude
                     </InlineLinkedHighlight>{" "}
-                    (A) stretches the wave vertically — currently{" "}
+                    (A) stretches the wave vertically. The current value is{" "}
                     <InlineScrubbleNumber
                         varName="sineAmplitude"
                         {...numberPropsFromDefinition(getExampleVariableInfo('sineAmplitude'))}
@@ -692,7 +690,7 @@ export const cartesian2dDemo: ReactElement[] = [
                     >
                         frequency
                     </InlineLinkedHighlight>{" "}
-                    (ω) controls how many oscillations fit per unit — currently{" "}
+                    (ω) controls how many oscillations fit per unit. The current value is{" "}
                     <InlineScrubbleNumber
                         varName="sineOmega"
                         {...numberPropsFromDefinition(getExampleVariableInfo('sineOmega'))}
@@ -707,7 +705,7 @@ export const cartesian2dDemo: ReactElement[] = [
                     >
                         phase shift
                     </InlineLinkedHighlight>{" "}
-                    (φ) shifts the wave horizontally — currently{" "}
+                    (φ) shifts the wave horizontally. The current value is{" "}
                     <InlineScrubbleNumber
                         varName="sinePhase"
                         {...numberPropsFromDefinition(getExampleVariableInfo('sinePhase'))}
@@ -752,28 +750,7 @@ export const cartesian2dDemo: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-c2d-scatter-desc" padding="sm">
                 <EditableParagraph id="para-c2d-scatter-desc" blockId="block-c2d-scatter-desc">
-                    A scatter plot built from individual point items. Two
-                    groups are shown:{" "}
-                    <InlineSpotColor varName="scGroupA"
-                        {...spotColorPropsFromDefinition(getExampleVariableInfo('scGroupA'))}
-                    >
-                        Group A
-                    </InlineSpotColor>
-                    {" "}(higher scores) and{" "}
-                    <InlineSpotColor varName="scGroupB"
-                        {...spotColorPropsFromDefinition(getExampleVariableInfo('scGroupB'))}
-                    >
-                        Group B
-                    </InlineSpotColor>
-                    {" "}(lower scores), with a{" "}
-                    <InlineSpotColor varName="scTrend"
-                        {...spotColorPropsFromDefinition(getExampleVariableInfo('scTrend'))}
-                    >
-                        trend line
-                    </InlineSpotColor>
-                    {" "}fitted by linear regression across both groups.
-                    Drag any data point to reposition it — the trend line
-                    recalculates in real time.
+                    Scatter plots display individual data points to reveal patterns and relationships. In this example, two groups of students are plotted based on their study hours and test scores. A trend line shows the overall relationship between these variables. Try dragging any data point to a new position and watch how the trend line automatically recalculates using linear regression.
                 </EditableParagraph>
             </Block>
             <Block id="block-c2d-scatter-equation" padding="sm">
@@ -798,53 +775,13 @@ export const cartesian2dDemo: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-c2d-drawing-desc" padding="sm">
                 <EditableParagraph id="para-c2d-drawing-desc" blockId="block-c2d-drawing-desc">
-                    Click inside the graph to place points and draw connected{" "}
-                    <InlineSpotColor
-                        varName="ldLineColor"
-                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldLineColor'))}
-                    >
-                        segments
-                    </InlineSpotColor>
-                    . Every point becomes a{" "}
-                    <InlineSpotColor
-                        varName="ldPointColor"
-                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldPointColor'))}
-                    >
-                        vertex
-                    </InlineSpotColor>
-                    , and each segment shows its{" "}
-                    <InlineSpotColor
-                        varName="ldMidpointColor"
-                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldMidpointColor'))}
-                    >
-                        midpoint
-                    </InlineSpotColor>
-                    .
+                    This drawing canvas lets you create geometric shapes directly on the coordinate plane. Click anywhere to place a point, and the system will automatically connect consecutive points with line segments. Each segment displays its midpoint, helping visualize geometric relationships as you draw.
                 </EditableParagraph>
             </Block>
 
             <Block id="block-c2d-drawing-controls" padding="sm">
                 <EditableParagraph id="para-c2d-drawing-controls" blockId="block-c2d-drawing-controls">
-                    Snap to grid: {" "}
-                    <InlineToggle
-                        varName="ldSnapToGrid"
-                        options={["on", "off"]}
-                        {...togglePropsFromDefinition(getExampleVariableInfo('ldSnapToGrid'))}
-                    />
-                    . Draw mode: {" "}
-                    <InlineToggle
-                        varName="ldDrawMode"
-                        options={["lines", "polygon"]}
-                        {...togglePropsFromDefinition(getExampleVariableInfo('ldDrawMode'))}
-                    />
-                    . In polygon mode, a{" "}
-                    <InlineSpotColor
-                        varName="ldClosingColor"
-                        {...spotColorPropsFromDefinition(getExampleVariableInfo('ldClosingColor'))}
-                    >
-                        dashed closing edge
-                    </InlineSpotColor>
-                    {" "}connects the last point back to the first.
+                    Toggle grid snapping to constrain your points to integer coordinates, making it easier to draw precise shapes. In polygon mode, a dashed line automatically connects your last point back to the first, forming a closed figure.
                 </EditableParagraph>
             </Block>
 

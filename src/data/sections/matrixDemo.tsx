@@ -2,7 +2,7 @@
  * Matrix Visualization Demo
  * -------------------------
  * Showcases the MatrixVisualization component with variable-store integration:
- *   - Scalar multiplication with InlineScrubbleNumber
+ *   - Scalar multiplication
  *   - Dynamic row/col resizing
  *   - Color scheme toggling
  *   - Row/column highlighting
@@ -16,7 +16,6 @@ import {
     EditableH1,
     EditableH2,
     EditableParagraph,
-    InlineScrubbleNumber,
     InlineToggle,
     InlineTooltip,
     InlineTrigger,
@@ -26,7 +25,6 @@ import {
 import { FormulaBlock } from "@/components/molecules";
 import {
     getExampleVariableInfo as getVariableInfo,
-    numberPropsFromDefinition,
     togglePropsFromDefinition,
 } from "../exampleVariables";
 import { useVar, useSetVar } from "@/stores";
@@ -134,13 +132,7 @@ export const matrixDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-matrix-intro" maxWidth="xl">
         <Block id="block-matrix-intro" padding="sm">
             <EditableParagraph id="para-matrix-intro" blockId="block-matrix-intro">
-                A{" "}
-                <InlineTooltip tooltip="A matrix is a rectangular array of numbers arranged in rows and columns.">
-                    matrix
-                </InlineTooltip>{" "}
-                is one of the most fundamental objects in linear algebra. Below we
-                explore matrices interactively — scale them, resize them, highlight
-                rows and columns, and even answer questions about their properties.
+                A matrix is a rectangular array of numbers arranged in rows and columns, forming one of the most fundamental structures in linear algebra. Matrices allow us to represent systems of equations, perform geometric transformations, and encode relationships between variables. Below we explore several key matrix operations interactively.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -164,19 +156,17 @@ export const matrixDemoBlocks: ReactElement[] = [
                     id="para-matrix-scalar"
                     blockId="block-matrix-scalar-text"
                 >
-                    Multiply every entry by the scalar{" "}
-                    <InlineScrubbleNumber
-                        varName="matrixScale"
-                        {...numberPropsFromDefinition(
-                            getVariableInfo("matrixScale")
-                        )}
-                    />
-                    . The formula is{" "}
+                    Scalar multiplication takes a single number (the scalar) and multiplies it with every entry in the matrix. If we denote our scalar as{" "}
                     <InlineFormula
-                        latex="\clr{scalar}{k} \cdot \clr{matrix}{A}"
-                        colorMap={{ scalar: "#4F46E5", matrix: "#8B5CF6" }}
+                        latex="\clr{scalar}{k}"
+                        colorMap={{ scalar: "#4F46E5" }}
+                    />{" "}
+                    and our matrix as{" "}
+                    <InlineFormula
+                        latex="\clr{matrix}{A}"
+                        colorMap={{ matrix: "#8B5CF6" }}
                     />
-                    , where each cell{" "}
+                    , then each cell{" "}
                     <InlineFormula
                         latex="a_{ij}"
                         colorMap={{}}
@@ -185,8 +175,8 @@ export const matrixDemoBlocks: ReactElement[] = [
                     <InlineFormula
                         latex="\clr{scalar}{k} \, a_{ij}"
                         colorMap={{ scalar: "#4F46E5" }}
-                    />
-                    .
+                    />.
+                    Use the slider to change the scalar and watch how every value in the matrix transforms proportionally.
                 </EditableParagraph>
             </Block>
             <Block id="block-matrix-scalar-actions" padding="sm">
@@ -248,27 +238,12 @@ export const matrixDemoBlocks: ReactElement[] = [
                 id="para-matrix-resize"
                 blockId="block-matrix-resize-text"
             >
-                Change the number of rows{" "}
-                <InlineScrubbleNumber
-                    varName="matrixRows"
-                    {...numberPropsFromDefinition(
-                        getVariableInfo("matrixRows")
-                    )}
-                />{" "}
-                and columns{" "}
-                <InlineScrubbleNumber
-                    varName="matrixCols"
-                    {...numberPropsFromDefinition(
-                        getVariableInfo("matrixCols")
-                    )}
-                />{" "}
-                to see how the matrix shape adapts. Each entry is the sum of its
-                1-based row and column indices:{" "}
+                The shape of a matrix is defined by its dimensions: the number of rows and columns it contains. An m×n matrix has m rows and n columns, giving it m·n total entries. In this example, each entry equals the sum of its row and column indices:{" "}
                 <InlineFormula
                     latex="a_{ij} = i + j"
                     colorMap={{}}
                 />
-                .
+                . Use the controls to resize the matrix and observe how the grid structure changes.
             </EditableParagraph>
         </Block>
         <Block id="block-matrix-resize-viz" padding="sm" hasVisualization>
@@ -295,27 +270,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                     id="para-matrix-highlight"
                     blockId="block-matrix-highlight-text"
                 >
-                    This is a{" "}
-                    <InlineTooltip tooltip="A magic square is a grid where every row, column, and diagonal sums to the same number.">
-                        magic square
-                    </InlineTooltip>
-                    . Highlight row{" "}
-                    <InlineScrubbleNumber
-                        varName="matrixHighlightRow"
-                        {...numberPropsFromDefinition(
-                            getVariableInfo("matrixHighlightRow")
-                        )}
-                        formatValue={(v) => (v < 0 ? "none" : String(v))}
-                    />{" "}
-                    and column{" "}
-                    <InlineScrubbleNumber
-                        varName="matrixHighlightCol"
-                        {...numberPropsFromDefinition(
-                            getVariableInfo("matrixHighlightCol")
-                        )}
-                        formatValue={(v) => (v < 0 ? "none" : String(v))}
-                    />{" "}
-                    to verify that each sums to 15.
+                    A magic square is a special grid where every row, column, and diagonal sums to the same value, called the magic constant. This 3×3 magic square has a magic constant of 15. Click on any row or column in the visualization to highlight it and verify that each line indeed sums to 15.
                 </EditableParagraph>
             </Block>
             <Block id="block-matrix-highlight-triggers" padding="sm">

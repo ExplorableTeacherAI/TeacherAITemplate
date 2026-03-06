@@ -208,7 +208,7 @@ export const simulationDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-sim-intro" maxWidth="xl">
         <Block id="block-sim-intro" padding="sm">
             <EditableParagraph id="para-sim-intro" blockId="block-sim-intro">
-                Compact control panels let you explore pure mathematical models. Adjust parameters and observe immediate changes in superposition, transformations, and parametric curves such as <InlineFormula latex="y = A\sin(\omega x + \phi)" colorMap={{}} />.
+                Mathematical functions come alive when you can interact with their parameters directly. As you explore the simulations below, notice how changes in amplitude, frequency, and phase reshape familiar curves like <InlineFormula latex="y = A\sin(\omega x + \phi)" colorMap={{}} />.
             </EditableParagraph>
         </Block>
     </StackLayout>,

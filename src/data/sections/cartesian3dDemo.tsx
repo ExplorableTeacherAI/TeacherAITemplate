@@ -479,7 +479,7 @@ export const cartesian3dDemo: ReactElement[] = [
     <StackLayout key="layout-c3d-header-desc" maxWidth="xl">
         <Block id="block-c3d-header-desc" padding="sm">
             <EditableParagraph id="para-c3d-desc" blockId="block-c3d-header-desc">
-                Interactive 3D math plots powered by Cartesian3D — supporting
+                Interactive 3D math plots powered by Cartesian3D support
                 surface plots, parametric curves, vectors, spheres, planes,
                 draggable points, and linked highlights. Orbit the camera by
                 dragging, and scroll to zoom.
@@ -940,7 +940,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 >
                     A 3D Lissajous curve extends the classic 2D figure into
                     three dimensions. Three integer frequencies control the
-                    knot pattern — a ={" "}
+                    knot pattern: a ={" "}
                     <InlineScrubbleNumber
                         varName="lissFreqA"
                         {...numberPropsFromDefinition(

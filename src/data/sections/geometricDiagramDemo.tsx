@@ -5,15 +5,11 @@ import {
     EditableH2,
     EditableH3,
     EditableParagraph,
-    InlineScrubbleNumber,
-    InlineToggle,
     InlineLinkedHighlight,
     GeometricDiagram,
 } from "@/components/atoms";
 import {
     getExampleVariableInfo,
-    numberPropsFromDefinition,
-    togglePropsFromDefinition,
     linkedHighlightPropsFromDefinition,
 } from "../exampleVariables";
 import { useVar } from "@/stores";
@@ -48,9 +44,9 @@ export const geometricDiagramDemo: ReactElement[] = [
     <StackLayout key="layout-gd-intro" maxWidth="xl">
         <Block id="block-gd-intro" padding="sm">
             <EditableParagraph id="para-gd-intro" blockId="block-gd-intro">
-                This component renders circle, triangle, and regular polygon diagrams with store-driven controls.
-                Use inline controls to update geometry in real time, then hover highlights to connect explanation text
-                with the diagram parts.
+                Geometric shapes become more intuitive when you can manipulate their properties directly.
+                The diagrams below respond to your input in real time. Hover over highlighted terms to see
+                how text and visuals connect.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -66,28 +62,7 @@ export const geometricDiagramDemo: ReactElement[] = [
     <SplitLayout key="layout-gd-demo1" ratio="1:1" gap="lg">
         <Block id="block-gd-demo1-text" padding="sm">
             <EditableParagraph id="para-gd-demo1-text" blockId="block-gd-demo1-text">
-                Choose the diagram type as{" "}
-                <InlineToggle
-                    varName="gdVariant"
-                    options={["circle", "triangle", "polygon"]}
-                    {...togglePropsFromDefinition(getExampleVariableInfo("gdVariant"))}
-                />
-                {" "}and set the radius to{" "}
-                <InlineScrubbleNumber
-                    varName="gdRadius"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("gdRadius"))}
-                />
-                . Adjust the central angle to{" "}
-                <InlineScrubbleNumber
-                    varName="gdAngle"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("gdAngle"))}
-                />
-                ° and, for polygons, the number of sides to{" "}
-                <InlineScrubbleNumber
-                    varName="gdSides"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("gdSides"))}
-                />
-                .
+                Every geometric shape can be described by a set of defining measurements. Circles are characterized by their radius, the distance from center to edge. Polygons add the number of sides, which determines their structure. An angle can highlight a wedge-shaped sector of any shape. Use the controls on the visualization to explore how changing these properties transforms the figure.
             </EditableParagraph>
         </Block>
         <Block id="block-gd-demo1-viz" padding="sm" hasVisualization>
@@ -106,7 +81,7 @@ export const geometricDiagramDemo: ReactElement[] = [
     <SplitLayout key="layout-gd-demo2" ratio="1:1" gap="lg">
         <Block id="block-gd-demo2-text" padding="sm">
             <EditableParagraph id="para-gd-demo2-text" blockId="block-gd-demo2-text">
-                Hover the{" "}
+                Understanding geometric vocabulary is easier when you can see each term in action. The{" "}
                 <InlineLinkedHighlight
                     varName="gdHighlight"
                     highlightId="radius"
@@ -115,16 +90,16 @@ export const geometricDiagramDemo: ReactElement[] = [
                 >
                     radius
                 </InlineLinkedHighlight>
-                {" "}term to emphasize the segment from center to boundary. Hover{" "}
+                {" "}connects the center to any point on the boundary. The{" "}
                 <InlineLinkedHighlight
                     varName="gdHighlight"
                     highlightId="angle"
                     {...linkedHighlightPropsFromDefinition(getExampleVariableInfo("gdHighlight"))}
                     color="#14B8A6"
                 >
-                    angle
+                    central angle
                 </InlineLinkedHighlight>
-                {" "}to focus the central arc, and hover{" "}
+                {" "}measures the opening of a sector at the center. The{" "}
                 <InlineLinkedHighlight
                     varName="gdHighlight"
                     highlightId="boundary"
@@ -133,7 +108,7 @@ export const geometricDiagramDemo: ReactElement[] = [
                 >
                     boundary
                 </InlineLinkedHighlight>
-                {" "}to spotlight the outer shape.
+                {" "}forms the outer edge of the shape.
             </EditableParagraph>
         </Block>
         <Block id="block-gd-demo2-viz" padding="sm" hasVisualization>

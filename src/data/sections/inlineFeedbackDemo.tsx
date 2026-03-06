@@ -29,10 +29,10 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-ifd-intro" maxWidth="xl">
         <Block id="block-ifd-intro" padding="sm">
             <EditableParagraph id="para-ifd-intro" blockId="block-ifd-intro">
-                InlineFeedback shows instant feedback right next to your answer — 
-                no "Check Answer" button needed. When you answer correctly, you'll 
-                see a confirmation with an explanation. If you need another try, 
-                you'll get a helpful hint. Try the questions below!
+                Inline feedback provides instant responses right next to your answer, 
+                eliminating the need for a separate "Check Answer" button. When you 
+                answer correctly, you'll see a confirmation with an explanation. If 
+                you need another try, you'll get a helpful hint. Try the questions below!
             </EditableParagraph>
         </Block>
     </StackLayout>,

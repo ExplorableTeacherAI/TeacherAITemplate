@@ -6,13 +6,11 @@ import {
     EditableH2,
     EditableParagraph,
     InlineLinkedHighlight,
-    InlineScrubbleNumber,
     InlineFormula,
 } from "@/components/atoms";
 import { useVar } from "@/stores";
 import {
     getExampleVariableInfo,
-    numberPropsFromDefinition,
     linkedHighlightPropsFromDefinition,
 } from "../exampleVariables";
 
@@ -109,9 +107,7 @@ export const circleAnatomyDemo: ReactElement[] = [
     <StackLayout key="layout-ca-intro" maxWidth="xl">
         <Block id="block-ca-intro" padding="sm">
             <EditableParagraph id="para-ca-intro" blockId="block-ca-intro">
-                Hover over any term below to highlight the corresponding part of the circle
-                on the Cartesian plot. Drag the radius value to resize the circle and watch
-                all measurements update in real time.
+                A circle is defined entirely by its center point and radius. From these two simple ingredients emerge all the other properties: diameter, circumference, and area. Understanding how these parts relate helps build intuition for circular geometry.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -121,13 +117,7 @@ export const circleAnatomyDemo: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-ca-description" padding="sm">
                 <EditableParagraph id="para-ca-description" blockId="block-ca-description">
-                    A circle with radius{" "}
-                    <InlineScrubbleNumber
-                        varName="circleRadius"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("circleRadius"))}
-                        formatValue={(v) => v.toFixed(1)}
-                    />{" "}
-                    is drawn on the coordinate plane. Its key parts are:
+                    Every circle can be placed on a coordinate plane, making its geometry precise and measurable. The visualization shows a circle centered at the origin, with its key parts highlighted as you interact with the text.
                 </EditableParagraph>
             </Block>
 

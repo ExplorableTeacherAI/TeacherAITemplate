@@ -133,7 +133,7 @@ export const videoDisplayDemoBlocks: ReactElement[] = [
                     Enable the <code>bordered</code> prop to add a subtle
                     accent-coloured border. Combine with <code>maxWidth</code>{" "}
                     to constrain size. This example features 3Blue1Brown's
-                    visual explanation of the Fourier Transform — one of the
+                    visual explanation of the Fourier Transform, one of the
                     most important mathematical tools in signal processing,
                     physics, and engineering.
                 </EditableParagraph>

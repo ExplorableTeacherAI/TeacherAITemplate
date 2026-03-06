@@ -73,13 +73,7 @@ export const tableDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-table-intro" maxWidth="xl">
         <Block id="block-table-intro" padding="sm">
             <EditableParagraph id="para-table-intro" blockId="block-table-intro">
-                The{" "}
-                <InlineTooltip tooltip="Table renders a styled HTML table where each cell can hold any React node — text, numbers, or inline components like scrubble numbers and formulas.">
-                    Table
-                </InlineTooltip>{" "}
-                component brings the full power of inline components into table
-                cells. Scrub a number, fill in a blank, hover a highlight — all
-                inside a structured grid.
+                Tables organize information into rows and columns, making it easy to compare values and spot patterns. Unlike static tables, interactive tables can contain adjustable values, formulas that update automatically, and highlighted elements that respond to your interactions.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -161,9 +155,7 @@ export const tableDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-table-scrubble-intro" maxWidth="xl">
         <Block id="block-table-scrubble-intro" padding="sm">
             <EditableParagraph id="para-table-scrubble-intro" blockId="block-table-scrubble-intro">
-                Drag the numbers below to change the cylinder's dimensions.
-                The computed cells update automatically because they read the
-                same global variables.
+                Tables become powerful learning tools when their values can be adjusted interactively. In this cylinder calculation example, changing the radius or height immediately recalculates the area and volume. This instant feedback helps build intuition for how these geometric formulas behave.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -253,10 +245,7 @@ export const tableDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-table-mixed-intro" maxWidth="xl">
         <Block id="block-table-mixed-intro" padding="sm">
             <EditableParagraph id="para-table-mixed-intro" blockId="block-table-mixed-intro">
-                Each cell below demonstrates a different inline component.
-                Tooltips, toggles, formulas, cloze inputs, linked highlights,
-                scrubble numbers, triggers, and spot colours — all working
-                seamlessly inside table cells.
+                Tables can include a variety of interactive elements within their cells. From adjustable numbers and mathematical formulas to fill-in-the-blank inputs and hover-activated highlights, each type of interaction serves a different educational purpose. The examples below showcase these possibilities.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -404,9 +393,7 @@ export const tableDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-table-variants-intro" maxWidth="xl">
         <Block id="block-table-variants-intro" padding="sm">
             <EditableParagraph id="para-table-variants-intro" blockId="block-table-variants-intro">
-                The table supports several visual variants. Turn off borders,
-                stripes, or headers independently — or use compact mode for
-                denser data.
+                Different contexts call for different table styles. A compact layout works well for dense data, while removing borders creates a cleaner look for simple lists. The visual styling can be adjusted to match the content and context of each lesson.
             </EditableParagraph>
         </Block>
     </StackLayout>,

@@ -548,7 +548,7 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     >
                         even function
                     </InlineSpotColor>{" "}
-                    satisfies f(x) = f(−x) — its graph is a mirror image
+                    satisfies f(x) = f(−x), so its graph is a mirror image
                     across the y-axis (like x² or cos x). An{" "}
                     <InlineSpotColor
                         varName="symOddColor"
@@ -558,7 +558,7 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     >
                         odd function
                     </InlineSpotColor>{" "}
-                    satisfies f(x) = −f(−x) — it has 180° rotational
+                    satisfies f(x) = −f(−x), giving it 180° rotational
                     symmetry about the origin (like x³ or sin x).
                 </EditableParagraph>
             </Block>

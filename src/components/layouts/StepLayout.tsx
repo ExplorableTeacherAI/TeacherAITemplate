@@ -25,12 +25,18 @@ export interface StepProps {
      */
     completionVarName?: string;
     /**
-     * When true the step hides the Continue button entirely and instead
-     * watches `completionVarName` — as soon as that variable becomes truthy
-     * (i.e. the learner gives the correct answer) the next step is revealed
-     * automatically after a short delay.
+     * The correct answer that completionVarName must match for the step to
+     * be considered complete. Comparison is case-insensitive by default.
      *
-     * Requires `completionVarName` to be set.
+     * Example: correctAnswer="0.5"
+     */
+    correctAnswer?: string;
+    /**
+     * When true the step hides the Continue button entirely and instead
+     * watches `completionVarName` — as soon as that variable matches the
+     * correctAnswer the next step is revealed automatically after a short delay.
+     *
+     * Requires `completionVarName` and `correctAnswer` to be set.
      */
     autoAdvance?: boolean;
 }
@@ -47,19 +53,21 @@ export const Step = ({ children, className = "" }: StepProps) => {
 
 interface AutoAdvanceWatcherProps {
     gateVarName: string;
+    correctAnswer: string;
     onReady: () => void;
 }
 
 /**
  * AutoAdvanceWatcher — subscribes to `gateVarName` and fires `onReady` once,
- * with a brief delay, as soon as the variable becomes truthy.
+ * with a brief delay, as soon as the variable matches the correctAnswer.
  */
-function AutoAdvanceWatcher({ gateVarName, onReady }: AutoAdvanceWatcherProps) {
+function AutoAdvanceWatcher({ gateVarName, correctAnswer, onReady }: AutoAdvanceWatcherProps) {
     const gateValue = useVar(gateVarName, "");
     const hasTriggered = useRef(false);
 
-    const isReady =
-        gateValue !== "" && gateValue !== 0 && gateValue !== false;
+    // Check if the answer is correct (case-insensitive, trimmed)
+    const isReady = typeof gateValue === 'string' && 
+        gateValue.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
 
     useEffect(() => {
         if (isReady && !hasTriggered.current) {
@@ -78,6 +86,7 @@ interface ContinueButtonProps {
     label: string;
     onClick: () => void;
     gateVarName?: string;
+    correctAnswer?: string;
     isLast: boolean;
 }
 
@@ -85,13 +94,14 @@ interface ContinueButtonProps {
  * ContinueButton — subscribes to `gateVarName` so it can enable/disable
  * itself reactively without a top-level re-render of the entire StepLayout.
  */
-function ContinueButton({ label, onClick, gateVarName, isLast }: ContinueButtonProps) {
+function ContinueButton({ label, onClick, gateVarName, correctAnswer, isLast }: ContinueButtonProps) {
     // Always call useVar — pass a sentinel key when there is no gate so the
     // hook call count is stable across renders.
     const gateValue = useVar(gateVarName ?? "__step_no_gate__", "");
-    const isReady =
-        !gateVarName ||
-        (gateValue !== "" && gateValue !== 0 && gateValue !== false);
+    
+    // If no gate, always ready. If gate exists, check answer matches.
+    const isReady = !gateVarName || !correctAnswer || 
+        (typeof gateValue === 'string' && gateValue.trim().toLowerCase() === correctAnswer.trim().toLowerCase());
 
     if (isLast) return null;
 
@@ -185,7 +195,7 @@ export interface StepLayoutProps {
  *     </Block>
  *   </Step>
  *
- *   <Step completionVarName="myAnswer">
+ *   <Step completionVarName="myAnswer" correctAnswer="42" autoAdvance>
  *     <Block id="block-step-1" padding="sm">
  *       <EditableParagraph id="para-step-1" blockId="block-step-1">
  *         Fill in the answer: <InlineClozeInput varName="myAnswer" correctAnswer="42" ... />
@@ -290,9 +300,10 @@ export const StepLayout = ({
                             <div>{child}</div>
 
                             {/* Auto-advance watcher (question-type steps) */}
-                            {isCurrentStep && isAutoAdvance && !isLast && (
+                            {isCurrentStep && isAutoAdvance && !isLast && stepProps.correctAnswer && (
                                 <AutoAdvanceWatcher
                                     gateVarName={stepProps.completionVarName!}
+                                    correctAnswer={stepProps.correctAnswer}
                                     onReady={() => revealNext(index)}
                                 />
                             )}
@@ -304,6 +315,7 @@ export const StepLayout = ({
                                         label={buttonLabel}
                                         onClick={() => revealNext(index)}
                                         gateVarName={stepProps.completionVarName}
+                                        correctAnswer={stepProps.correctAnswer}
                                         isLast={isLast}
                                     />
                                 )}

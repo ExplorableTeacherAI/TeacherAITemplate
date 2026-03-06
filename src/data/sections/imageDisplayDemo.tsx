@@ -5,7 +5,6 @@ import {
     EditableH1,
     EditableH2,
     EditableParagraph,
-    InlineTooltip,
     ImageDisplay,
 } from "@/components/atoms";
 
@@ -24,17 +23,7 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-img-intro" maxWidth="xl">
         <Block id="block-img-intro" padding="sm">
             <EditableParagraph id="para-img-intro" blockId="block-img-intro">
-                The{" "}
-                <InlineTooltip
-                    id="tooltip-img-display"
-                    tooltip="A styled image renderer with captions, accent-colour borders, object-fit modes, and an optional click-to-zoom lightbox."
-                >
-                    ImageDisplay
-                </InlineTooltip>{" "}
-                component renders images inside lessons with optional captions,
-                coloured borders, and a click-to-zoom lightbox. It reads its
-                accent colour from the global variable store so it stays in
-                sync with the rest of a lesson.
+                Images enhance mathematical explanations by providing visual context that words alone cannot convey. From geometric diagrams to graphs and proofs, well-placed images help learners form mental models of abstract concepts. Click on any image below to view it in a larger lightbox.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -85,12 +74,7 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-img-bordered-text" padding="sm">
                 <EditableParagraph id="para-img-bordered-text" blockId="block-img-bordered-text">
-                    Enable the <code>bordered</code> prop to add a subtle
-                    accent-coloured border. The border colour is derived from
-                    the component's accent colour (or the variable store value).
-                    Here we see the classic Pythagorean theorem proof: the sum
-                    of the areas of the two smaller squares equals the area of
-                    the largest square.
+                    The Pythagorean theorem is one of the most famous results in mathematics. This visual proof shows why a² + b² = c²: the area of the square built on the hypotenuse equals the combined areas of the squares built on the other two sides. Geometric diagrams like this make abstract algebraic relationships concrete and memorable.
                 </EditableParagraph>
             </Block>
         </div>
@@ -120,10 +104,7 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-img-fit-desc" maxWidth="xl">
         <Block id="block-img-fit-desc" padding="sm">
             <EditableParagraph id="para-img-fit-desc" blockId="block-img-fit-desc">
-                The <code>objectFit</code> prop controls how the image scales
-                within its container. Compare <strong>cover</strong> (fills the
-                area, may crop) with <strong>contain</strong> (fits entirely,
-                may letterbox).
+                Images can be displayed in different ways depending on the available space and content priorities. Some images benefit from filling their container completely even if parts are cropped, while others should be shown in full even if that leaves empty space around them.
             </EditableParagraph>
         </Block>
     </StackLayout>,

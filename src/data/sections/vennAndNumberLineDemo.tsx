@@ -5,14 +5,12 @@ import {
     EditableH2,
     EditableH3,
     EditableParagraph,
-    InlineScrubbleNumber,
     InlineLinkedHighlight,
     VennDiagram,
     NumberLine,
 } from "@/components/atoms";
 import {
     getExampleVariableInfo,
-    numberPropsFromDefinition,
     linkedHighlightPropsFromDefinition,
 } from "../exampleVariables";
 import { useVar, useSetVar } from "@/stores";
@@ -78,55 +76,34 @@ export const vennAndNumberLineDemo: ReactElement[] = [
     <SplitLayout key="layout-venn-demo" ratio="1:1" gap="lg">
         <Block id="block-venn-text" padding="sm">
             <EditableParagraph id="para-venn-text" blockId="block-venn-text">
-                In this transport-preference example,{" "}
-                <InlineScrubbleNumber
-                    varName="vennLeftOnly"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("vennLeftOnly"))}
-                />
-                {" "}are in Car-only, the overlap has{" "}
-                <InlineScrubbleNumber
-                    varName="vennOverlap"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("vennOverlap"))}
-                />
-                {" "}in both sets, and{" "}
-                <InlineScrubbleNumber
-                    varName="vennRightOnly"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("vennRightOnly"))}
-                />
-                {" "}are Airplane-only. The outside value is{" "}
-                <InlineScrubbleNumber
-                    varName="vennNeither"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("vennNeither"))}
-                />
-                {" "}(neither set)
-                . Hover{" "}
+                A Venn diagram visualizes how two sets overlap. In this example, we survey people about their transport preferences: those who like cars, those who like airplanes, and those who like both. The{" "}
                 <InlineLinkedHighlight
                     varName="vennHighlight"
                     highlightId="left"
                     {...linkedHighlightPropsFromDefinition(getExampleVariableInfo("vennHighlight"))}
                     color="#3B82F6"
                 >
-                    Car-only region
-                </InlineLinkedHighlight>
-                {" "}/
-                <InlineLinkedHighlight
-                    varName="vennHighlight"
-                    highlightId="overlap"
-                    {...linkedHighlightPropsFromDefinition(getExampleVariableInfo("vennHighlight"))}
-                    color="#8B5CF6"
-                >
-                    both sports region
-                </InlineLinkedHighlight>
-                {" "}/
+                    left circle
+                </InlineLinkedHighlight>{" "}
+                represents car enthusiasts, the{" "}
                 <InlineLinkedHighlight
                     varName="vennHighlight"
                     highlightId="right"
                     {...linkedHighlightPropsFromDefinition(getExampleVariableInfo("vennHighlight"))}
                     color="#EC4899"
                 >
-                    Airplane-only region
-                </InlineLinkedHighlight>
-                {" "}to link text with diagram regions.
+                    right circle
+                </InlineLinkedHighlight>{" "}
+                represents airplane fans, and the{" "}
+                <InlineLinkedHighlight
+                    varName="vennHighlight"
+                    highlightId="overlap"
+                    {...linkedHighlightPropsFromDefinition(getExampleVariableInfo("vennHighlight"))}
+                    color="#8B5CF6"
+                >
+                    overlapping region
+                </InlineLinkedHighlight>{" "}
+                shows people who enjoy both. Hover over each term to highlight the corresponding region.
             </EditableParagraph>
         </Block>
         <Block id="block-venn-viz" padding="sm" hasVisualization>
@@ -145,27 +122,7 @@ export const vennAndNumberLineDemo: ReactElement[] = [
     <SplitLayout key="layout-numberline-demo" ratio="1:1" gap="lg">
         <Block id="block-numberline-text" padding="sm">
             <EditableParagraph id="para-numberline-text" blockId="block-numberline-text">
-                Explore values from{" "}
-                <InlineScrubbleNumber
-                    varName="nlMin"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("nlMin"))}
-                />
-                {" "}to{" "}
-                <InlineScrubbleNumber
-                    varName="nlMax"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("nlMax"))}
-                />
-                {" "}with tick step{" "}
-                <InlineScrubbleNumber
-                    varName="nlStep"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("nlStep"))}
-                />
-                . The highlighted point is{" "}
-                <InlineScrubbleNumber
-                    varName="nlPoint"
-                    {...numberPropsFromDefinition(getExampleVariableInfo("nlPoint"))}
-                />
-                . Click anywhere on the number line to move the point.
+                A number line provides a visual representation of numbers arranged in order along a straight path. This interactive version lets you click anywhere on the line to place or move a point. The highlighted marker shows the currently selected value, making it easy to see where numbers fall relative to each other.
             </EditableParagraph>
         </Block>
         <Block id="block-numberline-viz" padding="sm" hasVisualization>

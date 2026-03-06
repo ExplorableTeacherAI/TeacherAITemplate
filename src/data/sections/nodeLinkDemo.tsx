@@ -5,13 +5,11 @@ import {
     EditableH2,
     EditableH3,
     EditableParagraph,
-    InlineScrubbleNumber,
     InlineLinkedHighlight,
     NodeLinkDiagram,
 } from "@/components/atoms";
 import {
     getExampleVariableInfo,
-    numberPropsFromDefinition,
     linkedHighlightPropsFromDefinition,
 } from "../exampleVariables";
 import { useVar } from "@/stores";
@@ -180,18 +178,7 @@ export const nodeLinkDemo: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-nl-reactive-text" padding="sm">
                 <EditableParagraph id="para-nl-reactive" blockId="block-nl-reactive-text">
-                    Adjust the charge strength to{" "}
-                    <InlineScrubbleNumber
-                        varName="nlCharge"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("nlCharge"))}
-                    />{" "}
-                    — more negative values push nodes further apart. Set the
-                    preferred link distance to{" "}
-                    <InlineScrubbleNumber
-                        varName="nlDistance"
-                        {...numberPropsFromDefinition(getExampleVariableInfo("nlDistance"))}
-                    />{" "}
-                    to control how long edges want to be.
+                    Force-directed layouts use simulated physics to position nodes automatically. Two fundamental forces govern the layout: a repulsive charge between all nodes (like electrons pushing each other apart) and an attractive spring force along each link (pulling connected nodes together). The balance between these forces determines the final arrangement of the graph.
                 </EditableParagraph>
             </Block>
         </div>
@@ -214,7 +201,7 @@ export const nodeLinkDemo: ReactElement[] = [
         <div className="space-y-4">
             <Block id="block-nl-highlight-text" padding="sm">
                 <EditableParagraph id="para-nl-highlight" blockId="block-nl-highlight-text">
-                    This diagram uses{" "}
+                    Neural networks flow information through layers of nodes, starting from the{" "}
                     <InlineLinkedHighlight
                         varName="nlHighlight"
                         highlightId="nlInput"
@@ -225,7 +212,7 @@ export const nodeLinkDemo: ReactElement[] = [
                     >
                         input layer
                     </InlineLinkedHighlight>{" "}
-                    →{" "}
+                    through one or more{" "}
                     <InlineLinkedHighlight
                         varName="nlHighlight"
                         highlightId="nlHidden"
@@ -236,7 +223,7 @@ export const nodeLinkDemo: ReactElement[] = [
                     >
                         hidden layers
                     </InlineLinkedHighlight>{" "}
-                    →{" "}
+                    to produce results at the{" "}
                     <InlineLinkedHighlight
                         varName="nlHighlight"
                         highlightId="nlOutput"
@@ -246,9 +233,8 @@ export const nodeLinkDemo: ReactElement[] = [
                         color="#14B8A6"
                     >
                         output layer
-                    </InlineLinkedHighlight>{" "}
-                    highlighting. Hover the text or the nodes to see them
-                    highlight bidirectionally.
+                    </InlineLinkedHighlight>
+                    . Hover over any term to see the corresponding part of the network light up.
                 </EditableParagraph>
             </Block>
         </div>
