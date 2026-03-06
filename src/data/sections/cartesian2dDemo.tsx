@@ -496,34 +496,34 @@ function LineDrawingViz() {
 
 export const cartesian2dDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
-    <StackLayout key="layout-c2d-header-title" maxWidth="xl">
-        <Block id="block-c2d-header-title" padding="sm">
-            <EditableH1 id="h1-c2d-title" blockId="block-c2d-header-title">
+    <StackLayout key="layout-cartesian-2d-header-title" maxWidth="xl">
+        <Block id="cartesian-2d-header-title" padding="sm">
+            <EditableH1 id="h1-cartesian-2d-title" blockId="cartesian-2d-header-title">
                 2D Cartesian Visualizations
             </EditableH1>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-c2d-header-desc" maxWidth="xl">
-        <Block id="block-c2d-header-desc" padding="sm">
-            <EditableParagraph id="para-c2d-desc" blockId="block-c2d-header-desc">
+    <StackLayout key="layout-cartesian-2d-header-desc" maxWidth="xl">
+        <Block id="cartesian-2d-header-desc" padding="sm">
+            <EditableParagraph id="para-cartesian-2d-desc" blockId="cartesian-2d-header-desc">
                 The Cartesian coordinate system, named after mathematician René Descartes, provides a framework for visualizing mathematical relationships in two dimensions. Points, lines, curves, and shapes can all be precisely described using x and y coordinates, making abstract equations tangible and explorable.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     // ── Demo 1: Basic Function Plots ─────────────────────────────────────────
-    <StackLayout key="layout-c2d-basic-title" maxWidth="xl">
-        <Block id="block-c2d-basic-title" padding="sm">
-            <EditableH2 id="h2-c2d-basic" blockId="block-c2d-basic-title">
+    <StackLayout key="layout-cartesian-2d-basic-title" maxWidth="xl">
+        <Block id="cartesian-2d-basic-title" padding="sm">
+            <EditableH2 id="h2-cartesian-2d-basic" blockId="cartesian-2d-basic-title">
                 Function Plots
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c2d-basic-split" ratio="1:1" gap="lg">
-        <Block id="block-c2d-basic-desc" padding="sm">
-            <EditableParagraph id="para-c2d-basic-desc" blockId="block-c2d-basic-desc">
+    <SplitLayout key="layout-cartesian-2d-basic-split" ratio="1:1" gap="lg">
+        <Block id="cartesian-2d-basic-desc" padding="sm">
+            <EditableParagraph id="para-cartesian-2d-basic-desc" blockId="cartesian-2d-basic-desc">
                 This example shows the simplest usage: passing an array of function objects. Three
                 curves are shown:{" "}
                 <InlineSpotColor varName="fpSin"
@@ -547,23 +547,23 @@ export const cartesian2dDemo: ReactElement[] = [
                 x = π/2, and the dashed vertical line shows the drop to the x-axis.
             </EditableParagraph>
         </Block>
-        <Block id="block-c2d-basic-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-2d-basic-viz" padding="sm" hasVisualization>
             <BasicFunctionsViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 2: Unit Circle Explorer ─────────────────────────────────────────
-    <StackLayout key="layout-c2d-unit-title" maxWidth="xl">
-        <Block id="block-c2d-unit-title" padding="sm">
-            <EditableH2 id="h2-c2d-unit" blockId="block-c2d-unit-title">
+    <StackLayout key="layout-cartesian-2d-unit-title" maxWidth="xl">
+        <Block id="cartesian-2d-unit-title" padding="sm">
+            <EditableH2 id="h2-cartesian-2d-unit" blockId="cartesian-2d-unit-title">
                 Unit Circle Explorer
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c2d-unit-split" ratio="1:1" gap="lg">
-        <Block id="block-c2d-unit-desc" padding="sm">
-            <EditableParagraph id="para-c2d-unit-desc" blockId="block-c2d-unit-desc">
+    <SplitLayout key="layout-cartesian-2d-unit-split" ratio="1:1" gap="lg">
+        <Block id="cartesian-2d-unit-desc" padding="sm">
+            <EditableParagraph id="para-cartesian-2d-unit-desc" blockId="cartesian-2d-unit-desc">
                 A movable point is constrained to the unit circle. Drag the{" "}
                 <InlineSpotColor varName="ucRadius"
                     {...spotColorPropsFromDefinition(getExampleVariableInfo('ucRadius'))}
@@ -585,23 +585,23 @@ export const cartesian2dDemo: ReactElement[] = [
                 {" "}(vertical) change in real time.
             </EditableParagraph>
         </Block>
-        <Block id="block-c2d-unit-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-2d-unit-viz" padding="sm" hasVisualization>
             <UnitCircleExplorer />
         </Block>
     </SplitLayout>,
 
     // ── Demo 3: Parametric Curves ─────────────────────────────────────────────
-    <StackLayout key="layout-c2d-parametric-title" maxWidth="xl">
-        <Block id="block-c2d-parametric-title" padding="sm">
-            <EditableH2 id="h2-c2d-parametric" blockId="block-c2d-parametric-title">
+    <StackLayout key="layout-cartesian-2d-parametric-title" maxWidth="xl">
+        <Block id="cartesian-2d-parametric-title" padding="sm">
+            <EditableH2 id="h2-cartesian-2d-parametric" blockId="cartesian-2d-parametric-title">
                 Parametric Curves
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c2d-parametric-split" ratio="1:1" gap="lg">
-        <Block id="block-c2d-parametric-desc" padding="sm">
-            <EditableParagraph id="para-c2d-parametric-desc" blockId="block-c2d-parametric-desc">
+    <SplitLayout key="layout-cartesian-2d-parametric-split" ratio="1:1" gap="lg">
+        <Block id="cartesian-2d-parametric-desc" padding="sm">
+            <EditableParagraph id="para-cartesian-2d-parametric-desc" blockId="cartesian-2d-parametric-desc">
                 Parametric plot types draw curves that can’t be expressed as
                 simple functions of x. Two curves are shown:{" "}
                 <InlineSpotColor varName="pcLissajous"
@@ -618,24 +618,24 @@ export const cartesian2dDemo: ReactElement[] = [
                 , both looping over a full period.
             </EditableParagraph>
         </Block>
-        <Block id="block-c2d-parametric-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-2d-parametric-viz" padding="sm" hasVisualization>
             <ParametricCurvesViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 4: Sine Wave Explorer (InlineLinkedHighlight + Store) ─────────────
-    <StackLayout key="layout-c2d-explorer-title" maxWidth="xl">
-        <Block id="block-c2d-explorer-title" padding="sm">
-            <EditableH2 id="h2-c2d-explorer" blockId="block-c2d-explorer-title">
+    <StackLayout key="layout-cartesian-2d-explorer-title" maxWidth="xl">
+        <Block id="cartesian-2d-explorer-title" padding="sm">
+            <EditableH2 id="h2-cartesian-2d-explorer" blockId="cartesian-2d-explorer-title">
                 Sine Wave Explorer
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c2d-explorer-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-2d-explorer-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c2d-explorer-intro" padding="sm">
-                <EditableParagraph id="para-c2d-explorer-intro" blockId="block-c2d-explorer-intro">
+            <Block id="cartesian-2d-explorer-intro" padding="sm">
+                <EditableParagraph id="para-cartesian-2d-explorer-intro" blockId="cartesian-2d-explorer-intro">
                     The general sine wave y = A · sin(ωx + φ) has three parameters.
                     The plot shows{" "}
                     <InlineSpotColor varName="swReference"
@@ -664,8 +664,8 @@ export const cartesian2dDemo: ReactElement[] = [
                     {" "}as the full wave. Hover over a term or drag its slider to highlight the effect.
                 </EditableParagraph>
             </Block>
-            <Block id="block-c2d-explorer-params" padding="sm">
-                <EditableParagraph id="para-c2d-explorer-params" blockId="block-c2d-explorer-params">
+            <Block id="cartesian-2d-explorer-params" padding="sm">
+                <EditableParagraph id="para-cartesian-2d-explorer-params" blockId="cartesian-2d-explorer-params">
                     The{" "}
                     <InlineLinkedHighlight
                         varName="c2dHighlight"
@@ -714,7 +714,7 @@ export const cartesian2dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
 
-            <Block id="block-c2d-explorer-equation" padding="sm">
+            <Block id="cartesian-2d-explorer-equation" padding="sm">
                 <FormulaBlock
                     latex="\clr{result}{y} = \scrub{sineAmplitude} \cdot \sin\!\left( \scrub{sineOmega}\, x + \scrub{sinePhase} \right)"
                     colorMap={{ result: '#22c55e' }}
@@ -725,74 +725,74 @@ export const cartesian2dDemo: ReactElement[] = [
                     }}
                 />
             </Block>
-            <Block id="block-c2d-explorer-hint" padding="sm">
-                <EditableParagraph id="para-c2d-explorer-hint" blockId="block-c2d-explorer-hint">
+            <Block id="cartesian-2d-explorer-hint" padding="sm">
+                <EditableParagraph id="para-cartesian-2d-explorer-hint" blockId="cartesian-2d-explorer-hint">
                     💡 Drag the numbers above or hover the parameter names
                     to highlight each curve in the plot.
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c2d-explorer-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-2d-explorer-viz" padding="sm" hasVisualization>
             <ReactiveSineWaveViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 5: Scatter Plot ──────────────────────────────────────────────────
-    <StackLayout key="layout-c2d-scatter-title" maxWidth="xl">
-        <Block id="block-c2d-scatter-title" padding="sm">
-            <EditableH2 id="h2-c2d-scatter" blockId="block-c2d-scatter-title">
+    <StackLayout key="layout-cartesian-2d-scatter-title" maxWidth="xl">
+        <Block id="cartesian-2d-scatter-title" padding="sm">
+            <EditableH2 id="h2-cartesian-2d-scatter" blockId="cartesian-2d-scatter-title">
                 Scatter Plot
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c2d-scatter-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-2d-scatter-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c2d-scatter-desc" padding="sm">
-                <EditableParagraph id="para-c2d-scatter-desc" blockId="block-c2d-scatter-desc">
+            <Block id="cartesian-2d-scatter-desc" padding="sm">
+                <EditableParagraph id="para-cartesian-2d-scatter-desc" blockId="cartesian-2d-scatter-desc">
                     Scatter plots display individual data points to reveal patterns and relationships. In this example, two groups of students are plotted based on their study hours and test scores. A trend line shows the overall relationship between these variables. Try dragging any data point to a new position and watch how the trend line automatically recalculates using linear regression.
                 </EditableParagraph>
             </Block>
-            <Block id="block-c2d-scatter-equation" padding="sm">
+            <Block id="cartesian-2d-scatter-equation" padding="sm">
                 <LiveRegressionEquation />
             </Block>
         </div>
-        <Block id="block-c2d-scatter-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-2d-scatter-viz" padding="sm" hasVisualization>
             <ScatterPlotViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 6: Line Drawing Playground ─────────────────────────────────────
-    <StackLayout key="layout-c2d-drawing-title" maxWidth="xl">
-        <Block id="block-c2d-drawing-title" padding="sm">
-            <EditableH2 id="h2-c2d-drawing" blockId="block-c2d-drawing-title">
+    <StackLayout key="layout-cartesian-2d-drawing-title" maxWidth="xl">
+        <Block id="cartesian-2d-drawing-title" padding="sm">
+            <EditableH2 id="h2-cartesian-2d-drawing" blockId="cartesian-2d-drawing-title">
                 Line Drawing Playground
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c2d-drawing-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-2d-drawing-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c2d-drawing-desc" padding="sm">
-                <EditableParagraph id="para-c2d-drawing-desc" blockId="block-c2d-drawing-desc">
+            <Block id="cartesian-2d-drawing-desc" padding="sm">
+                <EditableParagraph id="para-cartesian-2d-drawing-desc" blockId="cartesian-2d-drawing-desc">
                     This drawing canvas lets you create geometric shapes directly on the coordinate plane. Click anywhere to place a point, and the system will automatically connect consecutive points with line segments. Each segment displays its midpoint, helping visualize geometric relationships as you draw.
                 </EditableParagraph>
             </Block>
 
-            <Block id="block-c2d-drawing-controls" padding="sm">
-                <EditableParagraph id="para-c2d-drawing-controls" blockId="block-c2d-drawing-controls">
+            <Block id="cartesian-2d-drawing-controls" padding="sm">
+                <EditableParagraph id="para-cartesian-2d-drawing-controls" blockId="cartesian-2d-drawing-controls">
                     Toggle grid snapping to constrain your points to integer coordinates, making it easier to draw precise shapes. In polygon mode, a dashed line automatically connects your last point back to the first, forming a closed figure.
                 </EditableParagraph>
             </Block>
 
-            <Block id="block-c2d-drawing-hint" padding="sm">
-                <EditableParagraph id="para-c2d-drawing-hint" blockId="block-c2d-drawing-hint">
+            <Block id="cartesian-2d-drawing-hint" padding="sm">
+                <EditableParagraph id="para-cartesian-2d-drawing-hint" blockId="cartesian-2d-drawing-hint">
                     💡 Use the Clear button in the top-right of the graph to start a new sketch.
                 </EditableParagraph>
             </Block>
         </div>
 
-        <Block id="block-c2d-drawing-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-2d-drawing-viz" padding="sm" hasVisualization>
             <LineDrawingViz />
         </Block>
     </SplitLayout>,

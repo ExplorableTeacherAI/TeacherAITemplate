@@ -123,7 +123,7 @@ function ScrollViz() {
                 Step {idx + 1} of {SCROLL_VARIANTS.length}
             </div>
             <div className="rounded-xl overflow-hidden">
-                <Block id="block-scrollviz-animated-graph" padding="none" hasVisualization>
+                <Block id="scrollviz-animated-graph" padding="none" hasVisualization>
                     <AnimatedGraph
                         key={idx}
                         variant={SCROLL_VARIANTS[idx]}
@@ -153,16 +153,16 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     // ── Section title ──────────────────────────────────────────────────────────
     <StackLayout key="layout-demo-title" maxWidth="xl">
-        <Block id="block-demo-title" padding="md">
-            <EditableH1 id="h1-demo-title" blockId="block-demo-title">
+        <Block id="demo-title" padding="md">
+            <EditableH1 id="h1-demo-title" blockId="demo-title">
                 Layout Showcase
             </EditableH1>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-demo-intro" maxWidth="xl">
-        <Block id="block-demo-intro" padding="sm">
-            <EditableParagraph id="para-demo-intro" blockId="block-demo-intro">
+        <Block id="demo-intro" padding="sm">
+            <EditableParagraph id="para-demo-intro" blockId="demo-intro">
                 This page demonstrates the six available layouts: StackLayout, SplitLayout,
                 GridLayout, ScrollytellingLayout, SlideLayout, and StepLayout. Each is shown
                 with live interactive content.
@@ -172,17 +172,17 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     // ── 1. StackLayout ──────────────────────────────────────────────────
 
-    <StackLayout key="layout-demo-fw-heading" maxWidth="xl">
-        <Block id="block-demo-fw-heading" padding="md">
-            <EditableH2 id="h2-demo-fw" blockId="block-demo-fw-heading">
+    <StackLayout key="layout-demo-full-width-heading" maxWidth="xl">
+        <Block id="demo-full-width-heading" padding="md">
+            <EditableH2 id="h2-demo-fw" blockId="demo-full-width-heading">
                 1 · StackLayout
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-demo-fw-desc" maxWidth="xl">
-        <Block id="block-demo-fw-desc" padding="sm">
-            <EditableParagraph id="para-demo-fw-desc" blockId="block-demo-fw-desc">
+    <StackLayout key="layout-demo-full-width-desc" maxWidth="xl">
+        <Block id="demo-full-width-desc" padding="sm">
+            <EditableParagraph id="para-demo-full-width-desc" blockId="demo-full-width-desc">
                 StackLayout centres its single child with an optional max-width constraint.
                 Use it for headings, prose paragraphs, and wide visualizations. Available
                 max-widths are <strong>sm, md, lg, xl, 2xl, full</strong>. The animation
@@ -197,16 +197,16 @@ export const layoutsDemoBlocks: ReactElement[] = [
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-demo-fw-viz" maxWidth="2xl">
-        <Block id="block-demo-fw-viz" padding="sm" hasVisualization>
+    <StackLayout key="layout-demo-full-width-viz" maxWidth="2xl">
+        <Block id="demo-full-width-viz" padding="sm" hasVisualization>
             <ReactiveStackViz />
         </Block>
     </StackLayout>,
 
     // ── 2. SplitLayout ──────────────────────────────────────────────────────
     <StackLayout key="layout-demo-split-heading" maxWidth="xl">
-        <Block id="block-demo-split-heading" padding="md">
-            <EditableH2 id="h2-demo-split" blockId="block-demo-split-heading">
+        <Block id="demo-split-heading" padding="md">
+            <EditableH2 id="h2-demo-split" blockId="demo-split-heading">
                 2 · SplitLayout
             </EditableH2>
         </Block>
@@ -214,8 +214,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     <SplitLayout key="layout-demo-split" ratio="1:1" gap="lg" align="center">
         <div className="space-y-4">
-            <Block id="block-demo-split-text" padding="sm">
-                <EditableParagraph id="para-demo-split-text" blockId="block-demo-split-text">
+            <Block id="demo-split-text" padding="sm">
+                <EditableParagraph id="para-demo-split-text" blockId="demo-split-text">
                     SplitLayout places two children side-by-side. Here the amplitude is{" "}
                     <InlineScrubbleNumber
                         varName="amplitude"
@@ -228,8 +228,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
                     />. Drag the numbers or drag the points on the graph, and they stay in sync.
                 </EditableParagraph>
             </Block>
-            <Block id="block-demo-split-reset" padding="sm">
-                <EditableParagraph id="para-demo-split-reset" blockId="block-demo-split-reset">
+            <Block id="demo-split-reset" padding="sm">
+                <EditableParagraph id="para-demo-split-reset" blockId="demo-split-reset">
                     Reset to defaults:{" "}
                     <InlineTrigger varName="amplitude" value={1} icon="refresh">amplitude = 1</InlineTrigger>{" "}
                     ·{" "}
@@ -237,23 +237,23 @@ export const layoutsDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-demo-split-viz" padding="sm" hasVisualization>
+        <Block id="demo-split-viz" padding="sm" hasVisualization>
             <ReactiveSineWave />
         </Block>
     </SplitLayout>,
 
     // ── 3. GridLayout ──────────────────────────────────────────────────────
     <StackLayout key="layout-demo-grid-heading" maxWidth="xl">
-        <Block id="block-demo-grid-heading" padding="md">
-            <EditableH2 id="h2-demo-grid" blockId="block-demo-grid-heading">
+        <Block id="demo-grid-heading" padding="md">
+            <EditableH2 id="h2-demo-grid" blockId="demo-grid-heading">
                 3 · GridLayout
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-demo-grid-desc" maxWidth="xl">
-        <Block id="block-demo-grid-desc" padding="sm">
-            <EditableParagraph id="para-demo-grid-desc" blockId="block-demo-grid-desc">
+        <Block id="demo-grid-desc" padding="sm">
+            <EditableParagraph id="para-demo-grid-desc" blockId="demo-grid-desc">
                 <InlineTooltip tooltip="GridLayout divides the row into equal-width columns. Use the columns prop (2–6) to control how many fit per row.">
                     GridLayout
                 </InlineTooltip>{" "}
@@ -268,14 +268,14 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     <GridLayout key="layout-demo-grid" columns={3} gap="md">
         <div className="space-y-3 rounded-xl bg-card p-4 h-full">
-            <Block id="block-demo-grid-1-title" padding="none">
-                <EditableH3 id="h3-demo-grid-1" blockId="block-demo-grid-1-title">Parametric Rose</EditableH3>
+            <Block id="demo-grid-1-title" padding="none">
+                <EditableH3 id="h3-demo-grid-1" blockId="demo-grid-1-title">Parametric Rose</EditableH3>
             </Block>
-            <Block id="block-demo-grid-1-viz" padding="none" hasVisualization>
+            <Block id="demo-grid-1-viz" padding="none" hasVisualization>
                 <AnimatedGraph variant="parametric" color="#EC4899" secondaryColor="#F59E0B" width={300} height={220} showAxes={false} showGrid={false} />
             </Block>
-            <Block id="block-demo-grid-1-desc" padding="none">
-                <EditableParagraph id="para-demo-grid-1" blockId="block-demo-grid-1-desc">
+            <Block id="demo-grid-1-desc" padding="none">
+                <EditableParagraph id="para-demo-grid-1" blockId="demo-grid-1-desc">
                     Patterns from{" "}
                     <InlineTooltip tooltip="Parametric equations define x and y independently as functions of a third variable t. Varying t traces out a curve in 2D space, and the curve can loop back on itself.">
                         parametric equations
@@ -285,14 +285,14 @@ export const layoutsDemoBlocks: ReactElement[] = [
             </Block>
         </div>
         <div className="space-y-3 rounded-xl bg-card p-4 h-full">
-            <Block id="block-demo-grid-2-title" padding="none">
-                <EditableH3 id="h3-demo-grid-2" blockId="block-demo-grid-2-title">Pendulum Motion</EditableH3>
+            <Block id="demo-grid-2-title" padding="none">
+                <EditableH3 id="h3-demo-grid-2" blockId="demo-grid-2-title">Pendulum Motion</EditableH3>
             </Block>
-            <Block id="block-demo-grid-2-viz" padding="none" hasVisualization>
+            <Block id="demo-grid-2-viz" padding="none" hasVisualization>
                 <AnimatedGraph variant="pendulum" color="#8B5CF6" secondaryColor="#EC4899" width={300} height={220} showAxes={false} />
             </Block>
-            <Block id="block-demo-grid-2-desc" padding="none">
-                <EditableParagraph id="para-demo-grid-2" blockId="block-demo-grid-2-desc">
+            <Block id="demo-grid-2-desc" padding="none">
+                <EditableParagraph id="para-demo-grid-2" blockId="demo-grid-2-desc">
                     Physics simulation of{" "}
                     <InlineTooltip tooltip="Simple harmonic motion occurs when the restoring force is proportional to displacement. A pendulum approximates this for small angles.">
                         simple harmonic motion
@@ -303,14 +303,14 @@ export const layoutsDemoBlocks: ReactElement[] = [
             </Block>
         </div>
         <div className="space-y-3 rounded-xl bg-card p-4 h-full">
-            <Block id="block-demo-grid-3-title" padding="none">
-                <EditableH3 id="h3-demo-grid-3" blockId="block-demo-grid-3-title">Lissajous Curve</EditableH3>
+            <Block id="demo-grid-3-title" padding="none">
+                <EditableH3 id="h3-demo-grid-3" blockId="demo-grid-3-title">Lissajous Curve</EditableH3>
             </Block>
-            <Block id="block-demo-grid-3-viz" padding="none" hasVisualization>
+            <Block id="demo-grid-3-viz" padding="none" hasVisualization>
                 <AnimatedGraph variant="lissajous" color="#06B6D4" secondaryColor="#3B82F6" width={300} height={220} showAxes={false} showGrid={true} />
             </Block>
-            <Block id="block-demo-grid-3-desc" padding="none">
-                <EditableParagraph id="para-demo-grid-3" blockId="block-demo-grid-3-desc">
+            <Block id="demo-grid-3-desc" padding="none">
+                <EditableParagraph id="para-demo-grid-3" blockId="demo-grid-3-desc">
                     Patterns from{" "}
                     <InlineTooltip tooltip="A Lissajous figure is the graph of (A·sin(at+δ), B·sin(bt)). Integer frequency ratios a:b produce closed, repeating curves; irrational ratios never close.">
                         perpendicular oscillations
@@ -325,16 +325,16 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     // ── 4. ScrollytellingLayout ────────────────────────────────────────────
     <StackLayout key="layout-demo-scroll-heading" maxWidth="xl">
-        <Block id="block-demo-scroll-heading" padding="md">
-            <EditableH2 id="h2-demo-scroll" blockId="block-demo-scroll-heading">
+        <Block id="demo-scroll-heading" padding="md">
+            <EditableH2 id="h2-demo-scroll" blockId="demo-scroll-heading">
                 4 · ScrollytellingLayout
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-demo-scroll-desc" maxWidth="xl">
-        <Block id="block-demo-scroll-desc" padding="sm">
-            <EditableParagraph id="para-demo-scroll-desc" blockId="block-demo-scroll-desc">
+        <Block id="demo-scroll-desc" padding="sm">
+            <EditableParagraph id="para-demo-scroll-desc" blockId="demo-scroll-desc">
                 <InlineTooltip tooltip="ScrollytellingLayout pins a visual to one side of the screen while text steps scroll into view on the other side. Each step can trigger changes in the pinned visual.">
                     ScrollytellingLayout
                 </InlineTooltip>{" "}
@@ -355,11 +355,11 @@ export const layoutsDemoBlocks: ReactElement[] = [
     <ScrollytellingLayout key="layout-demo-scrolly" varName="layoutDemoStep" visualPosition="right" gap="lg">
         <ScrollStep>
             <div className="space-y-4">
-                <Block id="block-scroll-step-0-title" padding="sm">
-                    <EditableH3 id="h3-scroll-step-0" blockId="block-scroll-step-0-title">Step 1 · Sine Wave</EditableH3>
+                <Block id="scroll-step-0-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-0" blockId="scroll-step-0-title">Step 1 · Sine Wave</EditableH3>
                 </Block>
-                <Block id="block-scroll-step-0-body" padding="sm">
-                    <EditableParagraph id="para-scroll-step-0" blockId="block-scroll-step-0-body">
+                <Block id="scroll-step-0-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-0" blockId="scroll-step-0-body">
                         The{" "}
                         <InlineTooltip tooltip="A sine wave is a smooth, periodic oscillation. It is the simplest waveform and the building block of all periodic signals via the Fourier theorem.">
                             sine wave
@@ -381,11 +381,11 @@ export const layoutsDemoBlocks: ReactElement[] = [
         </ScrollStep>
         <ScrollStep>
             <div className="space-y-4">
-                <Block id="block-scroll-step-1-title" padding="sm">
-                    <EditableH3 id="h3-scroll-step-1" blockId="block-scroll-step-1-title">Step 2 · Parametric Curves</EditableH3>
+                <Block id="scroll-step-1-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-1" blockId="scroll-step-1-title">Step 2 · Parametric Curves</EditableH3>
                 </Block>
-                <Block id="block-scroll-step-1-body" padding="sm">
-                    <EditableParagraph id="para-scroll-step-1" blockId="block-scroll-step-1-body">
+                <Block id="scroll-step-1-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-1" blockId="scroll-step-1-body">
                         When two periodic functions drive the <InlineFormula latex="x" /> and{" "}
                         <InlineFormula latex="y" /> axes simultaneously, the result is a{" "}
                         <InlineTooltip tooltip="A parametric curve defines position as (x(t), y(t)) where both coordinates are functions of an independent parameter t. Unlike y=f(x), a parametric curve can loop back on itself.">
@@ -404,11 +404,11 @@ export const layoutsDemoBlocks: ReactElement[] = [
         </ScrollStep>
         <ScrollStep>
             <div className="space-y-4">
-                <Block id="block-scroll-step-2-title" padding="sm">
-                    <EditableH3 id="h3-scroll-step-2" blockId="block-scroll-step-2-title">Step 3 · Fourier Series</EditableH3>
+                <Block id="scroll-step-2-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-2" blockId="scroll-step-2-title">Step 3 · Fourier Series</EditableH3>
                 </Block>
-                <Block id="block-scroll-step-2-body" padding="sm">
-                    <EditableParagraph id="para-scroll-step-2" blockId="block-scroll-step-2-body">
+                <Block id="scroll-step-2-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-2" blockId="scroll-step-2-body">
                         Any periodic function can be reconstructed by summing sine waves of
                         different frequencies. This is the{" "}
                         <InlineTooltip tooltip="The Fourier series decomposes any periodic function into a sum of sines and cosines. Joseph Fourier proved in 1822 that even discontinuous functions can be represented this way.">
@@ -429,11 +429,11 @@ export const layoutsDemoBlocks: ReactElement[] = [
         </ScrollStep>
         <ScrollStep>
             <div className="space-y-4">
-                <Block id="block-scroll-step-3-title" padding="sm">
-                    <EditableH3 id="h3-scroll-step-3" blockId="block-scroll-step-3-title">Step 4 · Lissajous Figures</EditableH3>
+                <Block id="scroll-step-3-title" padding="sm">
+                    <EditableH3 id="h3-scroll-step-3" blockId="scroll-step-3-title">Step 4 · Lissajous Figures</EditableH3>
                 </Block>
-                <Block id="block-scroll-step-3-body" padding="sm">
-                    <EditableParagraph id="para-scroll-step-3" blockId="block-scroll-step-3-body">
+                <Block id="scroll-step-3-body" padding="sm">
+                    <EditableParagraph id="para-scroll-step-3" blockId="scroll-step-3-body">
                         <InlineTooltip tooltip="Jules Antoine Lissajous first studied these figures in 1857. They appear on oscilloscopes when comparing two AC signals and are used to measure frequency ratios.">
                             Lissajous figures
                         </InlineTooltip>{" "}
@@ -459,16 +459,16 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     // ── 5. SlideLayout ─────────────────────────────────────────────────────
     <StackLayout key="layout-demo-slide-heading" maxWidth="xl">
-        <Block id="block-demo-slide-heading" padding="md">
-            <EditableH2 id="h2-demo-slide" blockId="block-demo-slide-heading">
+        <Block id="demo-slide-heading" padding="md">
+            <EditableH2 id="h2-demo-slide" blockId="demo-slide-heading">
                 5 · SlideLayout
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-demo-slide-desc" maxWidth="xl">
-        <Block id="block-demo-slide-desc" padding="sm">
-            <EditableParagraph id="para-demo-slide-desc" blockId="block-demo-slide-desc">
+        <Block id="demo-slide-desc" padding="sm">
+            <EditableParagraph id="para-demo-slide-desc" blockId="demo-slide-desc">
                 <InlineTooltip tooltip="SlideLayout renders one slide at a time inside a card stage. Navigate with the ← → arrows, clickable dot indicators, or the keyboard arrow keys.">
                     SlideLayout
                 </InlineTooltip>{" "}
@@ -501,13 +501,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Slide>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-slide-1-title" padding="none">
-                            <EditableH2 id="h2-slide-1" blockId="block-slide-1-title">
+                        <Block id="slide-1-title" padding="none">
+                            <EditableH2 id="h2-slide-1" blockId="slide-1-title">
                                 Waves &amp; Oscillations
                             </EditableH2>
                         </Block>
-                        <Block id="block-slide-1-body" padding="none">
-                            <EditableParagraph id="para-slide-1" blockId="block-slide-1-body">
+                        <Block id="slide-1-body" padding="none">
+                            <EditableParagraph id="para-slide-1" blockId="slide-1-body">
                                 Periodic motion is one of the most fundamental ideas in physics. A{" "}
                                 <InlineTooltip tooltip="A wave is a disturbance that transfers energy through a medium without transferring matter. The shape repeats itself in both space (wavelength) and time (period).">
                                     wave
@@ -521,7 +521,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-1-viz" padding="none" hasVisualization>
+                    <Block id="slide-1-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -531,13 +531,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Slide>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-slide-2-title" padding="none">
-                            <EditableH2 id="h2-slide-2" blockId="block-slide-2-title">
+                        <Block id="slide-2-title" padding="none">
+                            <EditableH2 id="h2-slide-2" blockId="slide-2-title">
                                 Amplitude
                             </EditableH2>
                         </Block>
-                        <Block id="block-slide-2-body" padding="none">
-                            <EditableParagraph id="para-slide-2" blockId="block-slide-2-body">
+                        <Block id="slide-2-body" padding="none">
+                            <EditableParagraph id="para-slide-2" blockId="slide-2-body">
                                 The{" "}
                                 <InlineTooltip tooltip="Amplitude is the maximum displacement from the equilibrium position. Doubling the amplitude quadruples the energy carried by the wave.">
                                     amplitude
@@ -555,7 +555,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-2-viz" padding="none" hasVisualization>
+                    <Block id="slide-2-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -565,13 +565,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Slide>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-slide-3-title" padding="none">
-                            <EditableH2 id="h2-slide-3" blockId="block-slide-3-title">
+                        <Block id="slide-3-title" padding="none">
+                            <EditableH2 id="h2-slide-3" blockId="slide-3-title">
                                 Frequency
                             </EditableH2>
                         </Block>
-                        <Block id="block-slide-3-body" padding="none">
-                            <EditableParagraph id="para-slide-3" blockId="block-slide-3-body">
+                        <Block id="slide-3-body" padding="none">
+                            <EditableParagraph id="para-slide-3" blockId="slide-3-body">
                                 The{" "}
                                 <InlineTooltip tooltip="Frequency is the number of complete cycles per second, measured in Hertz (Hz). Higher frequency means faster oscillation and shorter wavelength for the same wave speed.">
                                     frequency
@@ -599,7 +599,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-3-viz" padding="none" hasVisualization>
+                    <Block id="slide-3-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -609,13 +609,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Slide>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-slide-4-title" padding="none">
-                            <EditableH2 id="h2-slide-4" blockId="block-slide-4-title">
+                        <Block id="slide-4-title" padding="none">
+                            <EditableH2 id="h2-slide-4" blockId="slide-4-title">
                                 Lissajous Patterns
                             </EditableH2>
                         </Block>
-                        <Block id="block-slide-4-body" padding="none">
-                            <EditableParagraph id="para-slide-4" blockId="block-slide-4-body">
+                        <Block id="slide-4-body" padding="none">
+                            <EditableParagraph id="para-slide-4" blockId="slide-4-body">
                                 When two oscillations drive{" "}
                                 <InlineFormula latex="x" /> and{" "}
                                 <InlineFormula latex="y" /> independently, the result is a{" "}
@@ -634,7 +634,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-slide-4-viz" padding="none" hasVisualization>
+                    <Block id="slide-4-viz" padding="none" hasVisualization>
                         <SlideViz />
                     </Block>
                 </SplitLayout>
@@ -644,16 +644,16 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     // ── 6. StepLayout ──────────────────────────────────────────────────────────
     <StackLayout key="layout-demo-step-heading" maxWidth="xl">
-        <Block id="block-demo-step-heading" padding="md">
-            <EditableH2 id="h2-demo-step" blockId="block-demo-step-heading">
+        <Block id="demo-step-heading" padding="md">
+            <EditableH2 id="h2-demo-step" blockId="demo-step-heading">
                 6 · StepLayout
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-demo-step-desc" maxWidth="xl">
-        <Block id="block-demo-step-desc" padding="sm">
-            <EditableParagraph id="para-demo-step-desc" blockId="block-demo-step-desc">
+        <Block id="demo-step-desc" padding="sm">
+            <EditableParagraph id="para-demo-step-desc" blockId="demo-step-desc">
                 <InlineTooltip tooltip="StepLayout reveals content one step at a time. Previous steps stay visible above the current one so learners retain context. A Continue button advances to the next step, and question-type steps auto-advance as soon as the correct answer is given.">
                     StepLayout
                 </InlineTooltip>{" "}
@@ -680,8 +680,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
         >
             {/* ── Step 1: Question — auto-advances on correct answer ── */}
             <Step completionVarName="stepPeriodAnswer" correctAnswer="0.5" autoAdvance>
-                <Block id="block-step-demo-4-body" padding="none">
-                    <EditableParagraph id="para-step-demo-4" blockId="block-step-demo-4-body">
+                <Block id="step-demo-4-body" padding="none">
+                    <EditableParagraph id="para-step-demo-4" blockId="step-demo-4-body">
                         <strong>Before we start:</strong> if a wave completes{" "}
                         <InlineFormula latex="\clr{f}{2}" colorMap={{ f: "#8B5CF6" }} />{" "}
                         full cycles every second, how long does each single cycle take?{" "}
@@ -699,13 +699,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Step>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-step-demo-1-title" padding="none">
-                            <EditableH3 id="h3-step-demo-1" blockId="block-step-demo-1-title">
+                        <Block id="step-demo-1-title" padding="none">
+                            <EditableH3 id="h3-step-demo-1" blockId="step-demo-1-title">
                                 What is a Sine Wave?
                             </EditableH3>
                         </Block>
-                        <Block id="block-step-demo-1-body" padding="none">
-                            <EditableParagraph id="para-step-demo-1" blockId="block-step-demo-1-body">
+                        <Block id="step-demo-1-body" padding="none">
+                            <EditableParagraph id="para-step-demo-1" blockId="step-demo-1-body">
                                 A{" "}
                                 <InlineTooltip tooltip="A sine wave is the smoothest possible oscillation. It is the building block of all periodic signals, and any repeating waveform can be expressed as a sum of sines via the Fourier series.">
                                     sine wave
@@ -722,7 +722,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-1-viz" padding="none" hasVisualization>
+                    <Block id="step-demo-1-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>
@@ -732,13 +732,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Step>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-step-demo-2-title" padding="none">
-                            <EditableH3 id="h3-step-demo-2" blockId="block-step-demo-2-title">
+                        <Block id="step-demo-2-title" padding="none">
+                            <EditableH3 id="h3-step-demo-2" blockId="step-demo-2-title">
                                 Amplitude
                             </EditableH3>
                         </Block>
-                        <Block id="block-step-demo-2-body" padding="none">
-                            <EditableParagraph id="para-step-demo-2" blockId="block-step-demo-2-body">
+                        <Block id="step-demo-2-body" padding="none">
+                            <EditableParagraph id="para-step-demo-2" blockId="step-demo-2-body">
                                 The{" "}
                                 <InlineTooltip tooltip="Amplitude is the maximum displacement from equilibrium. Doubling amplitude quadruples the energy carried by the wave.">
                                     amplitude
@@ -761,7 +761,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-2-viz" padding="none" hasVisualization>
+                    <Block id="step-demo-2-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>
@@ -769,8 +769,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
             {/* ── Step 4: Amplitude checkpoint ── */}
             <Step completionVarName="stepAmplitudeAnswer" correctAnswer="3" autoAdvance>
-                <Block id="block-step-amp-check" padding="none">
-                    <EditableParagraph id="para-step-amp-check" blockId="block-step-amp-check">
+                <Block id="step-amp-check" padding="none">
+                    <EditableParagraph id="para-step-amp-check" blockId="step-amp-check">
                         <strong>Quick check:</strong> If you set the amplitude{" "}
                         <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
                         to 3, how tall will the wave be at its peak?{" "}
@@ -788,13 +788,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Step>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-step-demo-3-title" padding="none">
-                            <EditableH3 id="h3-step-demo-3" blockId="block-step-demo-3-title">
+                        <Block id="step-demo-3-title" padding="none">
+                            <EditableH3 id="h3-step-demo-3" blockId="step-demo-3-title">
                                 Frequency &amp; Period
                             </EditableH3>
                         </Block>
-                        <Block id="block-step-demo-3-body" padding="none">
-                            <EditableParagraph id="para-step-demo-3" blockId="block-step-demo-3-body">
+                        <Block id="step-demo-3-body" padding="none">
+                            <EditableParagraph id="para-step-demo-3" blockId="step-demo-3-body">
                                 The{" "}
                                 <InlineTooltip tooltip="Frequency is the number of complete cycles per second, measured in Hertz (Hz). A frequency of 1 Hz means one full oscillation every second.">
                                     frequency
@@ -817,7 +817,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-3-viz" padding="none" hasVisualization>
+                    <Block id="step-demo-3-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>
@@ -825,8 +825,8 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
             {/* ── Step 6: Frequency checkpoint ── */}
             <Step completionVarName="stepFrequencyAnswer" correctAnswer="2" autoAdvance>
-                <Block id="block-step-freq-check" padding="none">
-                    <EditableParagraph id="para-step-freq-check" blockId="block-step-freq-check">
+                <Block id="step-freq-check" padding="none">
+                    <EditableParagraph id="para-step-freq-check" blockId="step-freq-check">
                         <strong>Quick check:</strong> If the period{" "}
                         <InlineFormula latex="\clr{T}{T}" colorMap={{ T: "#EC4899" }} />{" "}
                         is 0.5 seconds, what is the frequency{" "}
@@ -846,13 +846,13 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Step>
                 <SplitLayout ratio="1:1" gap="lg" align="center">
                     <div className="space-y-4">
-                        <Block id="block-step-demo-5-title" padding="none">
-                            <EditableH3 id="h3-step-demo-5" blockId="block-step-demo-5-title">
+                        <Block id="step-demo-5-title" padding="none">
+                            <EditableH3 id="h3-step-demo-5" blockId="step-demo-5-title">
                                 Putting It All Together
                             </EditableH3>
                         </Block>
-                        <Block id="block-step-demo-5-body" padding="none">
-                            <EditableParagraph id="para-step-demo-5" blockId="block-step-demo-5-body">
+                        <Block id="step-demo-5-body" padding="none">
+                            <EditableParagraph id="para-step-demo-5" blockId="step-demo-5-body">
                                 Your instinct was right: at{" "}
                                 <InlineFormula latex="\clr{f}{f} = 2" colorMap={{ f: "#8B5CF6" }} />{" "}
                                 Hz each cycle lasts exactly{" "}
@@ -876,7 +876,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                             </EditableParagraph>
                         </Block>
                     </div>
-                    <Block id="block-step-demo-5-viz" padding="none" hasVisualization>
+                    <Block id="step-demo-5-viz" padding="none" hasVisualization>
                         <ReactiveStepViz />
                     </Block>
                 </SplitLayout>

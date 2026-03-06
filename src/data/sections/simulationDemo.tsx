@@ -197,32 +197,32 @@ const lissB = numDef("lissB");
 const lissDelta = numDef("lissDelta");
 
 export const simulationDemoBlocks: ReactElement[] = [
-    <StackLayout key="layout-sim-title" maxWidth="xl">
-        <Block id="block-sim-title" padding="md">
-            <EditableH1 id="h1-sim-title" blockId="block-sim-title">
+    <StackLayout key="layout-simulation-title" maxWidth="xl">
+        <Block id="simulation-title" padding="md">
+            <EditableH1 id="h1-simulation-title" blockId="simulation-title">
                 Interactive Mathematics Simulations
             </EditableH1>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sim-intro" maxWidth="xl">
-        <Block id="block-sim-intro" padding="sm">
-            <EditableParagraph id="para-sim-intro" blockId="block-sim-intro">
+    <StackLayout key="layout-simulation-intro" maxWidth="xl">
+        <Block id="simulation-intro" padding="sm">
+            <EditableParagraph id="para-simulation-intro" blockId="simulation-intro">
                 Mathematical functions come alive when you can interact with their parameters directly. As you explore the simulations below, notice how changes in amplitude, frequency, and phase reshape familiar curves like <InlineFormula latex="y = A\sin(\omega x + \phi)" colorMap={{}} />.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sim-wave-h2" maxWidth="xl">
-        <Block id="block-sim-wave-h2" padding="sm">
-            <EditableH2 id="h2-sim-wave" blockId="block-sim-wave-h2">
+    <StackLayout key="layout-simulation-wave-h2" maxWidth="xl">
+        <Block id="simulation-wave-h2" padding="sm">
+            <EditableH2 id="h2-simulation-wave" blockId="simulation-wave-h2">
                 1) Wave Superposition
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sim-wave" maxWidth="xl">
-        <Block id="block-sim-wave" padding="sm" hasVisualization>
+    <StackLayout key="layout-simulation-wave" maxWidth="xl">
+        <Block id="simulation-wave" padding="sm" hasVisualization>
             <SimulationPanel
                 title="Controls"
                 controlsPosition="right"
@@ -289,16 +289,16 @@ export const simulationDemoBlocks: ReactElement[] = [
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sim-trig-h2" maxWidth="xl">
-        <Block id="block-sim-trig-h2" padding="sm">
-            <EditableH2 id="h2-sim-trig" blockId="block-sim-trig-h2">
+    <StackLayout key="layout-simulation-trig-h2" maxWidth="xl">
+        <Block id="simulation-trig-h2" padding="sm">
+            <EditableH2 id="h2-simulation-trig" blockId="simulation-trig-h2">
                 2) Trigonometric Transformations
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sim-trig" maxWidth="xl">
-        <Block id="block-sim-trig" padding="sm" hasVisualization>
+    <StackLayout key="layout-simulation-trig" maxWidth="xl">
+        <Block id="simulation-trig" padding="sm" hasVisualization>
             <SimulationPanel
                 title="Controls"
                 controlsPosition="right"
@@ -355,16 +355,16 @@ export const simulationDemoBlocks: ReactElement[] = [
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sim-liss-h2" maxWidth="xl">
-        <Block id="block-sim-liss-h2" padding="sm">
-            <EditableH2 id="h2-sim-liss" blockId="block-sim-liss-h2">
+    <StackLayout key="layout-simulation-liss-h2" maxWidth="xl">
+        <Block id="simulation-liss-h2" padding="sm">
+            <EditableH2 id="h2-simulation-liss" blockId="simulation-liss-h2">
                 3) Lissajous Curves
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sim-liss" maxWidth="xl">
-        <Block id="block-sim-liss" padding="sm" hasVisualization>
+    <StackLayout key="layout-simulation-liss" maxWidth="xl">
+        <Block id="simulation-liss" padding="sm" hasVisualization>
             <SimulationPanel
                 title="Controls"
                 controlsPosition="right"

@@ -58,24 +58,24 @@ function ReactiveNumberLine() {
 
 export const vennAndNumberLineDemo: ReactElement[] = [
     <StackLayout key="layout-venn-numberline-title" maxWidth="xl">
-        <Block id="block-venn-numberline-title" padding="md">
-            <EditableH2 id="h2-venn-numberline-title" blockId="block-venn-numberline-title">
+        <Block id="venn-numberline-title" padding="md">
+            <EditableH2 id="h2-venn-numberline-title" blockId="venn-numberline-title">
                 Venn Diagram and Number Line Examples
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-venn-title" maxWidth="xl">
-        <Block id="block-venn-title" padding="sm">
-            <EditableH3 id="h3-venn-title" blockId="block-venn-title">
+        <Block id="venn-title" padding="sm">
+            <EditableH3 id="h3-venn-title" blockId="venn-title">
                 1. Venn Diagram Example
             </EditableH3>
         </Block>
     </StackLayout>,
 
     <SplitLayout key="layout-venn-demo" ratio="1:1" gap="lg">
-        <Block id="block-venn-text" padding="sm">
-            <EditableParagraph id="para-venn-text" blockId="block-venn-text">
+        <Block id="venn-text" padding="sm">
+            <EditableParagraph id="para-venn-text" blockId="venn-text">
                 A Venn diagram visualizes how two sets overlap. In this example, we survey people about their transport preferences: those who like cars, those who like airplanes, and those who like both. The{" "}
                 <InlineLinkedHighlight
                     varName="vennHighlight"
@@ -106,26 +106,26 @@ export const vennAndNumberLineDemo: ReactElement[] = [
                 shows people who enjoy both. Hover over each term to highlight the corresponding region.
             </EditableParagraph>
         </Block>
-        <Block id="block-venn-viz" padding="sm" hasVisualization>
+        <Block id="venn-viz" padding="sm" hasVisualization>
             <ReactiveVennDiagram />
         </Block>
     </SplitLayout>,
 
     <StackLayout key="layout-numberline-title" maxWidth="xl">
-        <Block id="block-numberline-title" padding="sm">
-            <EditableH3 id="h3-numberline-title" blockId="block-numberline-title">
+        <Block id="numberline-title" padding="sm">
+            <EditableH3 id="h3-numberline-title" blockId="numberline-title">
                 2. Number Line Example
             </EditableH3>
         </Block>
     </StackLayout>,
 
     <SplitLayout key="layout-numberline-demo" ratio="1:1" gap="lg">
-        <Block id="block-numberline-text" padding="sm">
-            <EditableParagraph id="para-numberline-text" blockId="block-numberline-text">
+        <Block id="numberline-text" padding="sm">
+            <EditableParagraph id="para-numberline-text" blockId="numberline-text">
                 A number line provides a visual representation of numbers arranged in order along a straight path. This interactive version lets you click anywhere on the line to place or move a point. The highlighted marker shows the currently selected value, making it easy to see where numbers fall relative to each other.
             </EditableParagraph>
         </Block>
-        <Block id="block-numberline-viz" padding="sm" hasVisualization>
+        <Block id="numberline-viz" padding="sm" hasVisualization>
             <ReactiveNumberLine />
         </Block>
     </SplitLayout>,

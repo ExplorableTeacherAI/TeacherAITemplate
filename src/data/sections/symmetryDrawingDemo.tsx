@@ -378,17 +378,17 @@ function SymmetryStatus() {
 
 export const symmetryDrawingDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
-    <StackLayout key="layout-sym-header-title" maxWidth="xl">
-        <Block id="block-sym-header-title" padding="sm">
-            <EditableH1 id="h1-sym-title" blockId="block-sym-header-title">
+    <StackLayout key="layout-symmetry-header-title" maxWidth="xl">
+        <Block id="symmetry-header-title" padding="sm">
+            <EditableH1 id="h1-symmetry-title" blockId="symmetry-header-title">
                 Drawing Symmetry
             </EditableH1>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-sym-header-desc" maxWidth="xl">
-        <Block id="block-sym-header-desc" padding="sm">
-            <EditableParagraph id="para-sym-desc" blockId="block-sym-header-desc">
+    <StackLayout key="layout-symmetry-header-desc" maxWidth="xl">
+        <Block id="symmetry-header-desc" padding="sm">
+            <EditableParagraph id="para-symmetry-desc" blockId="symmetry-header-desc">
                 Symmetry is one of the most beautiful ideas in mathematics.
                 A shape is symmetric when it looks the same after being
                 reflected across a line. Drag the vertices below to build any
@@ -398,20 +398,20 @@ export const symmetryDrawingDemo: ReactElement[] = [
     </StackLayout>,
 
     // ── Demo 1: Line of Symmetry ─────────────────────────────────────────────
-    <StackLayout key="layout-sym-line-title" maxWidth="xl">
-        <Block id="block-sym-line-title" padding="sm">
-            <EditableH2 id="h2-sym-line" blockId="block-sym-line-title">
+    <StackLayout key="layout-symmetry-line-title" maxWidth="xl">
+        <Block id="symmetry-line-title" padding="sm">
+            <EditableH2 id="h2-symmetry-line" blockId="symmetry-line-title">
                 Reflecting a Triangle
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-sym-line-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-symmetry-line-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-sym-line-desc" padding="sm">
+            <Block id="symmetry-line-desc" padding="sm">
                 <EditableParagraph
-                    id="para-sym-line-desc"
-                    blockId="block-sym-line-desc"
+                    id="para-symmetry-line-desc"
+                    blockId="symmetry-line-desc"
                 >
                     Drag the three{" "}
                     <InlineSpotColor
@@ -452,10 +452,10 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     </InlineSpotColor>.
                 </EditableParagraph>
             </Block>
-            <Block id="block-sym-line-controls" padding="sm">
+            <Block id="symmetry-line-controls" padding="sm">
                 <EditableParagraph
-                    id="para-sym-line-controls"
-                    blockId="block-sym-line-controls"
+                    id="para-symmetry-line-controls"
+                    blockId="symmetry-line-controls"
                 >
                     Reflect across:{" "}
                     <InlineToggle
@@ -473,10 +473,10 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     />
                 </EditableParagraph>
             </Block>
-            <Block id="block-sym-custom-params" padding="sm">
+            <Block id="symmetry-custom-params" padding="sm">
                 <EditableParagraph
-                    id="para-sym-custom-params"
-                    blockId="block-sym-custom-params"
+                    id="para-symmetry-custom-params"
+                    blockId="symmetry-custom-params"
                 >
                     Custom line: y ={" "}
                     <InlineScrubbleNumber
@@ -497,7 +497,7 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     . These controls only apply when the line type is set to "custom".
                 </EditableParagraph>
             </Block>
-            <Block id="block-sym-line-equation" padding="sm">
+            <Block id="symmetry-line-equation" padding="sm">
                 <FormulaBlock
                     latex="\clr{reflected}{P'} = \clr{original}{P} - 2\,\frac{(\clr{line}{\mathbf{n}} \cdot \clr{original}{P} + d)}{|\clr{line}{\mathbf{n}}|^2}\,\clr{line}{\mathbf{n}}"
                     colorMap={{
@@ -507,10 +507,10 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     }}
                 />
             </Block>
-            <Block id="block-sym-line-hint" padding="sm">
+            <Block id="symmetry-line-hint" padding="sm">
                 <EditableParagraph
-                    id="para-sym-line-hint"
-                    blockId="block-sym-line-hint"
+                    id="para-symmetry-line-hint"
+                    blockId="symmetry-line-hint"
                 >
                     💡 Notice that the connection lines are always
                     perpendicular to the mirror line and each vertex is the
@@ -518,26 +518,26 @@ export const symmetryDrawingDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-sym-line-viz" padding="sm" hasVisualization>
+        <Block id="symmetry-line-viz" padding="sm" hasVisualization>
             <SymmetryLineExplorer />
         </Block>
     </SplitLayout>,
 
     // ── Demo 2: Function Symmetry (Even / Odd) ──────────────────────────────
-    <StackLayout key="layout-sym-fn-title" maxWidth="xl">
-        <Block id="block-sym-fn-title" padding="sm">
-            <EditableH2 id="h2-sym-fn" blockId="block-sym-fn-title">
+    <StackLayout key="layout-symmetry-fn-title" maxWidth="xl">
+        <Block id="symmetry-fn-title" padding="sm">
+            <EditableH2 id="h2-symmetry-fn" blockId="symmetry-fn-title">
                 Even &amp; Odd Function Symmetry
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-sym-fn-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-symmetry-fn-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-sym-fn-desc" padding="sm">
+            <Block id="symmetry-fn-desc" padding="sm">
                 <EditableParagraph
-                    id="para-sym-fn-desc"
-                    blockId="block-sym-fn-desc"
+                    id="para-symmetry-fn-desc"
+                    blockId="symmetry-fn-desc"
                 >
                     Functions can be symmetric too! An{" "}
                     <InlineSpotColor
@@ -562,10 +562,10 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     symmetry about the origin (like x³ or sin x).
                 </EditableParagraph>
             </Block>
-            <Block id="block-sym-fn-controls" padding="sm">
+            <Block id="symmetry-fn-controls" padding="sm">
                 <EditableParagraph
-                    id="para-sym-fn-controls"
-                    blockId="block-sym-fn-controls"
+                    id="para-symmetry-fn-controls"
+                    blockId="symmetry-fn-controls"
                 >
                     Choose a function:{" "}
                     <InlineToggle
@@ -596,10 +596,10 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     shows f(−x). When the curves overlap, the function is even.
                 </EditableParagraph>
             </Block>
-            <Block id="block-sym-fn-probe" padding="sm">
+            <Block id="symmetry-fn-probe" padding="sm">
                 <EditableParagraph
-                    id="para-sym-fn-probe"
-                    blockId="block-sym-fn-probe"
+                    id="para-symmetry-fn-probe"
+                    blockId="symmetry-fn-probe"
                 >
                     Probe at x ={" "}
                     <InlineScrubbleNumber
@@ -613,11 +613,11 @@ export const symmetryDrawingDemo: ReactElement[] = [
                     symmetry condition.
                 </EditableParagraph>
             </Block>
-            <Block id="block-sym-fn-status" padding="sm">
+            <Block id="symmetry-fn-status" padding="sm">
                 <SymmetryStatus />
             </Block>
         </div>
-        <Block id="block-sym-fn-viz" padding="sm" hasVisualization>
+        <Block id="symmetry-fn-viz" padding="sm" hasVisualization>
             <FunctionSymmetryViz />
         </Block>
     </SplitLayout>,

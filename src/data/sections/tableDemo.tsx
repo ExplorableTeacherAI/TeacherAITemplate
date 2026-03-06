@@ -63,16 +63,16 @@ function ComputedVolumeCell() {
 export const tableDemoBlocks: ReactElement[] = [
     // ── Title ──────────────────────────────────────────
     <StackLayout key="layout-table-title" maxWidth="xl">
-        <Block id="block-table-title" padding="md">
-            <EditableH1 id="h1-table-title" blockId="block-table-title">
+        <Block id="table-title" padding="md">
+            <EditableH1 id="h1-table-title" blockId="table-title">
                 Interactive Tables
             </EditableH1>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-table-intro" maxWidth="xl">
-        <Block id="block-table-intro" padding="sm">
-            <EditableParagraph id="para-table-intro" blockId="block-table-intro">
+        <Block id="table-intro" padding="sm">
+            <EditableParagraph id="para-table-intro" blockId="table-intro">
                 Tables organize information into rows and columns, making it easy to compare values and spot patterns. Unlike static tables, interactive tables can contain adjustable values, formulas that update automatically, and highlighted elements that respond to your interactions.
             </EditableParagraph>
         </Block>
@@ -82,15 +82,15 @@ export const tableDemoBlocks: ReactElement[] = [
     // Section 1: Basic Table with Text
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-basic-heading" maxWidth="xl">
-        <Block id="block-table-basic-heading" padding="sm">
-            <EditableH2 id="h2-table-basic-heading" blockId="block-table-basic-heading">
+        <Block id="table-basic-heading" padding="sm">
+            <EditableH2 id="h2-table-basic-heading" blockId="table-basic-heading">
                 Basic Table
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-table-basic" maxWidth="xl">
-        <Block id="block-table-basic" padding="sm">
+        <Block id="table-basic" padding="sm">
             <Table
                 id="table-basic-constants"
                 columns={[
@@ -145,23 +145,23 @@ export const tableDemoBlocks: ReactElement[] = [
     // Section 2: Table with InlineScrubbleNumbers
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-scrubble-heading" maxWidth="xl">
-        <Block id="block-table-scrubble-heading" padding="sm">
-            <EditableH2 id="h2-table-scrubble-heading" blockId="block-table-scrubble-heading">
+        <Block id="table-scrubble-heading" padding="sm">
+            <EditableH2 id="h2-table-scrubble-heading" blockId="table-scrubble-heading">
                 Scrubble Numbers in Tables
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-table-scrubble-intro" maxWidth="xl">
-        <Block id="block-table-scrubble-intro" padding="sm">
-            <EditableParagraph id="para-table-scrubble-intro" blockId="block-table-scrubble-intro">
+        <Block id="table-scrubble-intro" padding="sm">
+            <EditableParagraph id="para-table-scrubble-intro" blockId="table-scrubble-intro">
                 Tables become powerful learning tools when their values can be adjusted interactively. In this cylinder calculation example, changing the radius or height immediately recalculates the area and volume. This instant feedback helps build intuition for how these geometric formulas behave.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-table-scrubble" maxWidth="xl">
-        <Block id="block-table-scrubble" padding="sm">
+        <Block id="table-scrubble" padding="sm">
             <Table
                 id="table-cylinder-params"
                 columns={[
@@ -235,23 +235,23 @@ export const tableDemoBlocks: ReactElement[] = [
     // Section 3: Mixed Inline Components in a Table
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-mixed-heading" maxWidth="xl">
-        <Block id="block-table-mixed-heading" padding="sm">
-            <EditableH2 id="h2-table-mixed-heading" blockId="block-table-mixed-heading">
+        <Block id="table-mixed-heading" padding="sm">
+            <EditableH2 id="h2-table-mixed-heading" blockId="table-mixed-heading">
                 Mixed Inline Components
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-table-mixed-intro" maxWidth="xl">
-        <Block id="block-table-mixed-intro" padding="sm">
-            <EditableParagraph id="para-table-mixed-intro" blockId="block-table-mixed-intro">
+        <Block id="table-mixed-intro" padding="sm">
+            <EditableParagraph id="para-table-mixed-intro" blockId="table-mixed-intro">
                 Tables can include a variety of interactive elements within their cells. From adjustable numbers and mathematical formulas to fill-in-the-blank inputs and hover-activated highlights, each type of interaction serves a different educational purpose. The examples below showcase these possibilities.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-table-mixed" maxWidth="xl">
-        <Block id="block-table-mixed" padding="sm">
+        <Block id="table-mixed" padding="sm">
             <Table
                 id="table-mixed-inline"
                 columns={[
@@ -339,7 +339,7 @@ export const tableDemoBlocks: ReactElement[] = [
                             "Linked Highlight",
                             <span>
                                 <InlineLinkedHighlight
-                                    id="lh-table-radius"
+                                    id="linked-highlight-table-radius"
                                     varName="tableHighlight"
                                     highlightId="radius"
                                     color="#ef4444"
@@ -348,7 +348,7 @@ export const tableDemoBlocks: ReactElement[] = [
                                 </InlineLinkedHighlight>{" "}
                                 &{" "}
                                 <InlineLinkedHighlight
-                                    id="lh-table-height"
+                                    id="linked-highlight-table-height"
                                     varName="tableHighlight"
                                     highlightId="height"
                                     color="#3b82f6"
@@ -383,23 +383,23 @@ export const tableDemoBlocks: ReactElement[] = [
     // Section 4: Compact & Borderless Variants
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-variants-heading" maxWidth="xl">
-        <Block id="block-table-variants-heading" padding="sm">
-            <EditableH2 id="h2-table-variants-heading" blockId="block-table-variants-heading">
+        <Block id="table-variants-heading" padding="sm">
+            <EditableH2 id="h2-table-variants-heading" blockId="table-variants-heading">
                 Table Variants
             </EditableH2>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-table-variants-intro" maxWidth="xl">
-        <Block id="block-table-variants-intro" padding="sm">
-            <EditableParagraph id="para-table-variants-intro" blockId="block-table-variants-intro">
+        <Block id="table-variants-intro" padding="sm">
+            <EditableParagraph id="para-table-variants-intro" blockId="table-variants-intro">
                 Different contexts call for different table styles. A compact layout works well for dense data, while removing borders creates a cleaner look for simple lists. The visual styling can be adjusted to match the content and context of each lesson.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     <SplitLayout key="layout-table-variants" ratio="1:1" gap="lg">
-        <Block id="block-table-compact" padding="sm">
+        <Block id="table-compact" padding="sm">
             <Table
                 id="table-compact-example"
                 columns={[
@@ -420,7 +420,7 @@ export const tableDemoBlocks: ReactElement[] = [
                 caption="Compact mode"
             />
         </Block>
-        <Block id="block-table-borderless" padding="sm">
+        <Block id="table-borderless" padding="sm">
             <Table
                 id="table-borderless-example"
                 columns={[

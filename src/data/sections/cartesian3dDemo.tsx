@@ -468,17 +468,17 @@ function ReactiveLissajousViz() {
 
 export const cartesian3dDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
-    <StackLayout key="layout-c3d-header-title" maxWidth="xl">
-        <Block id="block-c3d-header-title" padding="sm">
-            <EditableH1 id="h1-c3d-title" blockId="block-c3d-header-title">
+    <StackLayout key="layout-cartesian-3d-header-title" maxWidth="xl">
+        <Block id="cartesian-3d-header-title" padding="sm">
+            <EditableH1 id="h1-cartesian-3d-title" blockId="cartesian-3d-header-title">
                 3D Cartesian Visualizations
             </EditableH1>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-c3d-header-desc" maxWidth="xl">
-        <Block id="block-c3d-header-desc" padding="sm">
-            <EditableParagraph id="para-c3d-desc" blockId="block-c3d-header-desc">
+    <StackLayout key="layout-cartesian-3d-header-desc" maxWidth="xl">
+        <Block id="cartesian-3d-header-desc" padding="sm">
+            <EditableParagraph id="para-cartesian-3d-desc" blockId="cartesian-3d-header-desc">
                 Interactive 3D math plots powered by Cartesian3D support
                 surface plots, parametric curves, vectors, spheres, planes,
                 draggable points, and linked highlights. Orbit the camera by
@@ -488,20 +488,20 @@ export const cartesian3dDemo: ReactElement[] = [
     </StackLayout>,
 
     // ── Demo 1: Vectors & Points ─────────────────────────────────────────────
-    <StackLayout key="layout-c3d-vectors-title" maxWidth="xl">
-        <Block id="block-c3d-vectors-title" padding="sm">
-            <EditableH2 id="h2-c3d-vectors" blockId="block-c3d-vectors-title">
+    <StackLayout key="layout-cartesian-3d-vectors-title" maxWidth="xl">
+        <Block id="cartesian-3d-vectors-title" padding="sm">
+            <EditableH2 id="h2-cartesian-3d-vectors" blockId="cartesian-3d-vectors-title">
                 3D Vectors
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c3d-vectors-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-3d-vectors-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c3d-vectors-desc" padding="sm">
+            <Block id="cartesian-3d-vectors-desc" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-vectors-desc"
-                    blockId="block-c3d-vectors-desc"
+                    id="para-cartesian-3d-vectors-desc"
+                    blockId="cartesian-3d-vectors-desc"
                 >
                     Two vectors originate from the origin. Hover the labels to
                     highlight each in the plot:{" "}
@@ -540,7 +540,7 @@ export const cartesian3dDemo: ReactElement[] = [
                     (scaled). The dashed line connects the two tips.
                 </EditableParagraph>
             </Block>
-            <Block id="block-c3d-vectors-eq" padding="sm">
+            <Block id="cartesian-3d-vectors-eq" padding="sm">
                 <FormulaBlock
                     latex="\clr{a}{\vec{a}} \times \clr{b}{\vec{b}} = \clr{cross}{\vec{c}}"
                     colorMap={{
@@ -551,26 +551,26 @@ export const cartesian3dDemo: ReactElement[] = [
                 />
             </Block>
         </div>
-        <Block id="block-c3d-vectors-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-3d-vectors-viz" padding="sm" hasVisualization>
             <VectorsAndPointsViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 2: Parametric Helix ─────────────────────────────────────────────
-    <StackLayout key="layout-c3d-helix-title" maxWidth="xl">
-        <Block id="block-c3d-helix-title" padding="sm">
-            <EditableH2 id="h2-c3d-helix" blockId="block-c3d-helix-title">
+    <StackLayout key="layout-cartesian-3d-helix-title" maxWidth="xl">
+        <Block id="cartesian-3d-helix-title" padding="sm">
+            <EditableH2 id="h2-cartesian-3d-helix" blockId="cartesian-3d-helix-title">
                 Parametric Helix
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c3d-helix-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-3d-helix-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c3d-helix-desc" padding="sm">
+            <Block id="cartesian-3d-helix-desc" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-helix-desc"
-                    blockId="block-c3d-helix-desc"
+                    id="para-cartesian-3d-helix-desc"
+                    blockId="cartesian-3d-helix-desc"
                 >
                     A helix winds upwards around the Y axis. The{" "}
                     <InlineSpotColor
@@ -600,16 +600,16 @@ export const cartesian3dDemo: ReactElement[] = [
                     />.
                 </EditableParagraph>
             </Block>
-            <Block id="block-c3d-helix-eq" padding="sm">
+            <Block id="cartesian-3d-helix-eq" padding="sm">
                 <FormulaBlock
                     latex="\vec{r}(t) = \left(\clr{rad}{R}\cos t,\;\frac{t}{2\pi},\;\clr{rad}{R}\sin t\right)"
                     colorMap={{ rad: "#F59E0B" }}
                 />
             </Block>
-            <Block id="block-c3d-helix-hint" padding="sm">
+            <Block id="cartesian-3d-helix-hint" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-helix-hint"
-                    blockId="block-c3d-helix-hint"
+                    id="para-cartesian-3d-helix-hint"
+                    blockId="cartesian-3d-helix-hint"
                 >
                     You can{" "}
                     <InlineTrigger varName="helixTurns" value={1}>
@@ -623,26 +623,26 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-helix-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-3d-helix-viz" padding="sm" hasVisualization>
             <ReactiveHelixViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 3: Reactive Surface Plot ────────────────────────────────────────
-    <StackLayout key="layout-c3d-surface-title" maxWidth="xl">
-        <Block id="block-c3d-surface-title" padding="sm">
-            <EditableH2 id="h2-c3d-surface" blockId="block-c3d-surface-title">
+    <StackLayout key="layout-cartesian-3d-surface-title" maxWidth="xl">
+        <Block id="cartesian-3d-surface-title" padding="sm">
+            <EditableH2 id="h2-cartesian-3d-surface" blockId="cartesian-3d-surface-title">
                 Surface Plot
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c3d-surface-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-3d-surface-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c3d-surface-desc" padding="sm">
+            <Block id="cartesian-3d-surface-desc" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-surface-desc"
-                    blockId="block-c3d-surface-desc"
+                    id="para-cartesian-3d-surface-desc"
+                    blockId="cartesian-3d-surface-desc"
                 >
                     A height-coloured surface z = A · sin(ωₓ x) · cos(ωᵧ y).
                     The vertical scale (A) is{" "}
@@ -690,7 +690,7 @@ export const cartesian3dDemo: ReactElement[] = [
                     .
                 </EditableParagraph>
             </Block>
-            <Block id="block-c3d-surface-eq" padding="sm">
+            <Block id="cartesian-3d-surface-eq" padding="sm">
                 <FormulaBlock
                     latex="z = \clr{amp}{A}\;\sin\!\left(\clr{fx}{\omega_x}\, x\right)\cos\!\left(\clr{fy}{\omega_y}\, y\right)"
                     colorMap={{
@@ -700,10 +700,10 @@ export const cartesian3dDemo: ReactElement[] = [
                     }}
                 />
             </Block>
-            <Block id="block-c3d-surface-triggers" padding="sm">
+            <Block id="cartesian-3d-surface-triggers" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-surface-triggers"
-                    blockId="block-c3d-surface-triggers"
+                    id="para-cartesian-3d-surface-triggers"
+                    blockId="cartesian-3d-surface-triggers"
                 >
                     Try{" "}
                     <InlineTrigger varName="surfaceFreqX" value={2}>
@@ -721,25 +721,25 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-surface-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-3d-surface-viz" padding="sm" hasVisualization>
             <ReactiveSurfaceViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 4: Sphere & Plane ───────────────────────────────────────────────
-    <StackLayout key="layout-c3d-sphere-title" maxWidth="xl">
-        <Block id="block-c3d-sphere-title" padding="sm">
-            <EditableH2 id="h2-c3d-sphere" blockId="block-c3d-sphere-title">
+    <StackLayout key="layout-cartesian-3d-sphere-title" maxWidth="xl">
+        <Block id="cartesian-3d-sphere-title" padding="sm">
+            <EditableH2 id="h2-cartesian-3d-sphere" blockId="cartesian-3d-sphere-title">
                 Sphere & Plane Intersection
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c3d-sphere-split" ratio="1:1" gap="lg">
-        <Block id="block-c3d-sphere-desc" padding="sm">
+    <SplitLayout key="layout-cartesian-3d-sphere-split" ratio="1:1" gap="lg">
+        <Block id="cartesian-3d-sphere-desc" padding="sm">
             <EditableParagraph
-                id="para-c3d-sphere-desc"
-                blockId="block-c3d-sphere-desc"
+                id="para-cartesian-3d-sphere-desc"
+                blockId="cartesian-3d-sphere-desc"
             >
                 A semi-transparent sphere of radius 1.5 sits at the origin.
                 A horizontal cutting plane intersects it at
@@ -757,26 +757,26 @@ export const cartesian3dDemo: ReactElement[] = [
                 geometry from every angle.
             </EditableParagraph>
         </Block>
-        <Block id="block-c3d-sphere-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-3d-sphere-viz" padding="sm" hasVisualization>
             <SphereAndPlaneViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 5: Parametric Surface — Torus ───────────────────────────────────
-    <StackLayout key="layout-c3d-torus-title" maxWidth="xl">
-        <Block id="block-c3d-torus-title" padding="sm">
-            <EditableH2 id="h2-c3d-torus" blockId="block-c3d-torus-title">
+    <StackLayout key="layout-cartesian-3d-torus-title" maxWidth="xl">
+        <Block id="cartesian-3d-torus-title" padding="sm">
+            <EditableH2 id="h2-cartesian-3d-torus" blockId="cartesian-3d-torus-title">
                 Parametric Surface — Torus
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c3d-torus-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-3d-torus-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c3d-torus-desc" padding="sm">
+            <Block id="cartesian-3d-torus-desc" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-torus-desc"
-                    blockId="block-c3d-torus-desc"
+                    id="para-cartesian-3d-torus-desc"
+                    blockId="cartesian-3d-torus-desc"
                 >
                     A torus is generated by revolving a circle (the tube) around
                     an axis. The{" "}
@@ -816,7 +816,7 @@ export const cartesian3dDemo: ReactElement[] = [
                     (the tube thickness).
                 </EditableParagraph>
             </Block>
-            <Block id="block-c3d-torus-eq" padding="sm">
+            <Block id="cartesian-3d-torus-eq" padding="sm">
                 <FormulaBlock
                     latex="\vec{r}(u,v) = \begin{pmatrix} (\clr{R}{R} + \clr{r}{r}\cos v)\cos u \\[4pt] \clr{r}{r}\sin v \\[4pt] (\clr{R}{R} + \clr{r}{r}\cos v)\sin u \end{pmatrix}"
                     colorMap={{
@@ -825,10 +825,10 @@ export const cartesian3dDemo: ReactElement[] = [
                     }}
                 />
             </Block>
-            <Block id="block-c3d-torus-triggers" padding="sm">
+            <Block id="cartesian-3d-torus-triggers" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-torus-triggers"
-                    blockId="block-c3d-torus-triggers"
+                    id="para-cartesian-3d-torus-triggers"
+                    blockId="cartesian-3d-torus-triggers"
                 >
                     Try a{" "}
                     <InlineTrigger varName="torusMinorR" value={1.8} icon="zap">
@@ -846,25 +846,25 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-torus-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-3d-torus-viz" padding="sm" hasVisualization>
             <ReactiveTorusViz />
         </Block>
     </SplitLayout>,
 
     // ── Demo 6: 3D Draggable Point Explorer ──────────────────────────────────
-    <StackLayout key="layout-c3d-drag-title" maxWidth="xl">
-        <Block id="block-c3d-drag-title" padding="sm">
-            <EditableH2 id="h2-c3d-drag" blockId="block-c3d-drag-title">
+    <StackLayout key="layout-cartesian-3d-drag-title" maxWidth="xl">
+        <Block id="cartesian-3d-drag-title" padding="sm">
+            <EditableH2 id="h2-cartesian-3d-drag" blockId="cartesian-3d-drag-title">
                 Draggable Point Explorer
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c3d-drag-split" ratio="1:1" gap="lg">
-        <Block id="block-c3d-drag-desc" padding="sm">
+    <SplitLayout key="layout-cartesian-3d-drag-split" ratio="1:1" gap="lg">
+        <Block id="cartesian-3d-drag-desc" padding="sm">
             <EditableParagraph
-                id="para-c3d-drag-desc"
-                blockId="block-c3d-drag-desc"
+                id="para-cartesian-3d-drag-desc"
+                blockId="cartesian-3d-drag-desc"
             >
                 Drag the{" "}
                 <InlineSpotColor
@@ -917,26 +917,26 @@ export const cartesian3dDemo: ReactElement[] = [
                 unit-circle explorer.
             </EditableParagraph>
         </Block>
-        <Block id="block-c3d-drag-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-3d-drag-viz" padding="sm" hasVisualization>
             <DraggablePointExplorer />
         </Block>
     </SplitLayout>,
 
     // ── Demo 7: 3D Lissajous Curve ───────────────────────────────────────────
-    <StackLayout key="layout-c3d-lissajous-title" maxWidth="xl">
-        <Block id="block-c3d-lissajous-title" padding="sm">
-            <EditableH2 id="h2-c3d-lissajous" blockId="block-c3d-lissajous-title">
+    <StackLayout key="layout-cartesian-3d-lissajous-title" maxWidth="xl">
+        <Block id="cartesian-3d-lissajous-title" padding="sm">
+            <EditableH2 id="h2-cartesian-3d-lissajous" blockId="cartesian-3d-lissajous-title">
                 3D Lissajous Curve
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-c3d-lissajous-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-cartesian-3d-lissajous-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-c3d-lissajous-desc" padding="sm">
+            <Block id="cartesian-3d-lissajous-desc" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-lissajous-desc"
-                    blockId="block-c3d-lissajous-desc"
+                    id="para-cartesian-3d-lissajous-desc"
+                    blockId="cartesian-3d-lissajous-desc"
                 >
                     A 3D Lissajous curve extends the classic 2D figure into
                     three dimensions. Three integer frequencies control the
@@ -974,7 +974,7 @@ export const cartesian3dDemo: ReactElement[] = [
                     floor and back planes.
                 </EditableParagraph>
             </Block>
-            <Block id="block-c3d-lissajous-eq" padding="sm">
+            <Block id="cartesian-3d-lissajous-eq" padding="sm">
                 <FormulaBlock
                     latex="\vec{r}(t) = \begin{pmatrix} \sin(\clr{a}{a}\,t) \\[3pt] \sin(\clr{b}{b}\,t + \tfrac{\pi}{4}) \\[3pt] \sin(\clr{c}{c}\,t) \end{pmatrix}"
                     colorMap={{
@@ -984,10 +984,10 @@ export const cartesian3dDemo: ReactElement[] = [
                     }}
                 />
             </Block>
-            <Block id="block-c3d-lissajous-triggers" padding="sm">
+            <Block id="cartesian-3d-lissajous-triggers" padding="sm">
                 <EditableParagraph
-                    id="para-c3d-lissajous-triggers"
-                    blockId="block-c3d-lissajous-triggers"
+                    id="para-cartesian-3d-lissajous-triggers"
+                    blockId="cartesian-3d-lissajous-triggers"
                 >
                     Try{" "}
                     <InlineTrigger varName="lissFreqA" value={3}>
@@ -1010,7 +1010,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-c3d-lissajous-viz" padding="sm" hasVisualization>
+        <Block id="cartesian-3d-lissajous-viz" padding="sm" hasVisualization>
             <ReactiveLissajousViz />
         </Block>
     </SplitLayout>,

@@ -98,9 +98,9 @@ const highlightLinks = [
 
 export const nodeLinkDemo: ReactElement[] = [
     // Title
-    <StackLayout key="layout-nl-title" maxWidth="xl">
-        <Block id="block-nl-title" padding="md">
-            <EditableH2 id="h2-nl-title" blockId="block-nl-title">
+    <StackLayout key="layout-node-link-title" maxWidth="xl">
+        <Block id="node-link-title" padding="md">
+            <EditableH2 id="h2-node-link-title" blockId="node-link-title">
                 Node-Link Diagram (Force-Directed Graph)
             </EditableH2>
         </Block>
@@ -108,23 +108,23 @@ export const nodeLinkDemo: ReactElement[] = [
 
     // ── Demo 1: Simple social network ─────────────────────────────────────
 
-    <StackLayout key="layout-nl-social-title" maxWidth="xl">
-        <Block id="block-nl-social-title" padding="sm">
-            <EditableH3 id="h3-nl-social-title" blockId="block-nl-social-title">
+    <StackLayout key="layout-node-link-social-title" maxWidth="xl">
+        <Block id="node-link-social-title" padding="sm">
+            <EditableH3 id="h3-node-link-social-title" blockId="node-link-social-title">
                 1. Social Network
             </EditableH3>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-nl-social" ratio="1:1" gap="lg">
-        <Block id="block-nl-social-desc" padding="sm">
-            <EditableParagraph id="para-nl-social-desc" blockId="block-nl-social-desc">
+    <SplitLayout key="layout-node-link-social" ratio="1:1" gap="lg">
+        <Block id="node-link-social-desc" padding="sm">
+            <EditableParagraph id="para-node-link-social-desc" blockId="node-link-social-desc">
                 An undirected force-directed graph showing social connections.
                 Hover over a node to highlight its immediate neighbours and dim
                 the rest of the network. Drag nodes to rearrange the layout.
             </EditableParagraph>
         </Block>
-        <Block id="block-nl-social-viz" padding="sm" hasVisualization>
+        <Block id="node-link-social-viz" padding="sm" hasVisualization>
             <NodeLinkDiagram
                 nodes={socialNodes}
                 links={socialLinks}
@@ -137,22 +137,22 @@ export const nodeLinkDemo: ReactElement[] = [
 
     // ── Demo 2: Directed dependency graph ─────────────────────────────────
 
-    <StackLayout key="layout-nl-dep-title" maxWidth="xl">
-        <Block id="block-nl-dep-title" padding="sm">
-            <EditableH3 id="h3-nl-dep-title" blockId="block-nl-dep-title">
+    <StackLayout key="layout-node-link-dep-title" maxWidth="xl">
+        <Block id="node-link-dep-title" padding="sm">
+            <EditableH3 id="h3-node-link-dep-title" blockId="node-link-dep-title">
                 2. Directed Dependency Graph
             </EditableH3>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-nl-dep" ratio="1:1" gap="lg">
-        <Block id="block-nl-dep-desc" padding="sm">
-            <EditableParagraph id="para-nl-dep-desc" blockId="block-nl-dep-desc">
+    <SplitLayout key="layout-node-link-dep" ratio="1:1" gap="lg">
+        <Block id="node-link-dep-desc" padding="sm">
+            <EditableParagraph id="para-node-link-dep-desc" blockId="node-link-dep-desc">
                 Arrows show the direction of dependencies. The force simulation
                 naturally clusters related modules together.
             </EditableParagraph>
         </Block>
-        <Block id="block-nl-dep-viz" padding="sm" hasVisualization>
+        <Block id="node-link-dep-viz" padding="sm" hasVisualization>
             <NodeLinkDiagram
                 nodes={depNodes}
                 links={depLinks}
@@ -166,41 +166,41 @@ export const nodeLinkDemo: ReactElement[] = [
 
     // ── Demo 3: Reactive parameters ───────────────────────────────────────
 
-    <StackLayout key="layout-nl-reactive-title" maxWidth="xl">
-        <Block id="block-nl-reactive-title" padding="sm">
-            <EditableH3 id="h3-nl-reactive-title" blockId="block-nl-reactive-title">
+    <StackLayout key="layout-node-link-reactive-title" maxWidth="xl">
+        <Block id="node-link-reactive-title" padding="sm">
+            <EditableH3 id="h3-node-link-reactive-title" blockId="node-link-reactive-title">
                 3. Reactive Force Parameters
             </EditableH3>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-nl-reactive" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-node-link-reactive" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-nl-reactive-text" padding="sm">
-                <EditableParagraph id="para-nl-reactive" blockId="block-nl-reactive-text">
+            <Block id="node-link-reactive-text" padding="sm">
+                <EditableParagraph id="para-node-link-reactive" blockId="node-link-reactive-text">
                     Force-directed layouts use simulated physics to position nodes automatically. Two fundamental forces govern the layout: a repulsive charge between all nodes (like electrons pushing each other apart) and an attractive spring force along each link (pulling connected nodes together). The balance between these forces determines the final arrangement of the graph.
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-nl-reactive-viz" padding="sm" hasVisualization>
+        <Block id="node-link-reactive-viz" padding="sm" hasVisualization>
             <ReactiveNodeLink />
         </Block>
     </SplitLayout>,
 
     // ── Demo 4: Linked-highlight integration ──────────────────────────────
 
-    <StackLayout key="layout-nl-highlight-title" maxWidth="xl">
-        <Block id="block-nl-highlight-title" padding="sm">
-            <EditableH3 id="h3-nl-highlight-title" blockId="block-nl-highlight-title">
+    <StackLayout key="layout-node-link-highlight-title" maxWidth="xl">
+        <Block id="node-link-highlight-title" padding="sm">
+            <EditableH3 id="h3-node-link-highlight-title" blockId="node-link-highlight-title">
                 4. Linked-Highlight Integration
             </EditableH3>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-nl-highlight" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-node-link-highlight" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-nl-highlight-text" padding="sm">
-                <EditableParagraph id="para-nl-highlight" blockId="block-nl-highlight-text">
+            <Block id="node-link-highlight-text" padding="sm">
+                <EditableParagraph id="para-node-link-highlight" blockId="node-link-highlight-text">
                     Neural networks flow information through layers of nodes, starting from the{" "}
                     <InlineLinkedHighlight
                         varName="nlHighlight"
@@ -238,7 +238,7 @@ export const nodeLinkDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-nl-highlight-viz" padding="sm" hasVisualization>
+        <Block id="node-link-highlight-viz" padding="sm" hasVisualization>
             <NodeLinkDiagram
                 nodes={highlightNodes}
                 links={highlightLinks}

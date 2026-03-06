@@ -17,16 +17,16 @@ import {
 export const desmosDemoBlocks: ReactElement[] = [
     // ── Title ────────────────────────────────────────────────────────────────
     <StackLayout key="layout-desmos-title" maxWidth="xl">
-        <Block id="block-desmos-title" padding="md">
-            <EditableH1 id="h1-desmos-title" blockId="block-desmos-title">
+        <Block id="desmos-title" padding="md">
+            <EditableH1 id="h1-desmos-title" blockId="desmos-title">
                 Desmos Graphing Component
             </EditableH1>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-desmos-intro" maxWidth="xl">
-        <Block id="block-desmos-intro" padding="sm">
-            <EditableParagraph id="para-desmos-intro" blockId="block-desmos-intro">
+        <Block id="desmos-intro" padding="sm">
+            <EditableParagraph id="para-desmos-intro" blockId="desmos-intro">
                 The{" "}
                 <InlineTooltip
                     id="tooltip-desmos-comp"
@@ -44,8 +44,8 @@ export const desmosDemoBlocks: ReactElement[] = [
 
     // ── Reactive Desmos Example ───────────────────────────────────────────
     <StackLayout key="layout-desmos-reactive-h2" maxWidth="xl">
-        <Block id="block-desmos-reactive-h2" padding="sm">
-            <EditableH2 id="h2-desmos-reactive" blockId="block-desmos-reactive-h2">
+        <Block id="desmos-reactive-h2" padding="sm">
+            <EditableH2 id="h2-desmos-reactive" blockId="desmos-reactive-h2">
                 Realtime Reactive Graph
             </EditableH2>
         </Block>
@@ -53,8 +53,8 @@ export const desmosDemoBlocks: ReactElement[] = [
 
     <SplitLayout key="layout-desmos-reactive" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-desmos-reactive-text" padding="sm">
-                <EditableParagraph id="para-desmos-reactive-text" blockId="block-desmos-reactive-text">
+            <Block id="desmos-reactive-text" padding="sm">
+                <EditableParagraph id="para-desmos-reactive-text" blockId="desmos-reactive-text">
                     By specifying `varName="desmosEquation"`, the component reads its
                     primary expression directly from the global store. We can also link
                     parameters `a_1` and `a_2` directly to variable state variables.
@@ -75,7 +75,7 @@ export const desmosDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-desmos-viz" padding="sm" hasVisualization>
+        <Block id="desmos-viz" padding="sm" hasVisualization>
             <DesmosGraph
                 varName="desmosEquation"
                 paramVars={["desmosAmp", "desmosFreq"]}

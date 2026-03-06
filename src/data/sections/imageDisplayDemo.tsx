@@ -12,44 +12,44 @@ import {
 
 export const imageDisplayDemoBlocks: ReactElement[] = [
     // ── Title ────────────────────────────────────────────────────────────────
-    <StackLayout key="layout-img-title" maxWidth="xl">
-        <Block id="block-img-title" padding="md">
-            <EditableH1 id="h1-img-title" blockId="block-img-title">
+    <StackLayout key="layout-image-title" maxWidth="xl">
+        <Block id="image-title" padding="md">
+            <EditableH1 id="h1-image-title" blockId="image-title">
                 Image Display
             </EditableH1>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-img-intro" maxWidth="xl">
-        <Block id="block-img-intro" padding="sm">
-            <EditableParagraph id="para-img-intro" blockId="block-img-intro">
+    <StackLayout key="layout-image-intro" maxWidth="xl">
+        <Block id="image-intro" padding="sm">
+            <EditableParagraph id="para-image-intro" blockId="image-intro">
                 Images enhance mathematical explanations by providing visual context that words alone cannot convey. From geometric diagrams to graphs and proofs, well-placed images help learners form mental models of abstract concepts. Click on any image below to view it in a larger lightbox.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     // ── Basic Image ──────────────────────────────────────────────────────────
-    <StackLayout key="layout-img-basic-h2" maxWidth="xl">
-        <Block id="block-img-basic-h2" padding="sm">
-            <EditableH2 id="h2-img-basic" blockId="block-img-basic-h2">
+    <StackLayout key="layout-image-basic-h2" maxWidth="xl">
+        <Block id="image-basic-h2" padding="sm">
+            <EditableH2 id="h2-image-basic" blockId="image-basic-h2">
                 1) Basic Image with Caption
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-img-basic-desc" maxWidth="xl">
-        <Block id="block-img-basic-desc" padding="sm">
-            <EditableParagraph id="para-img-basic-desc" blockId="block-img-basic-desc">
+    <StackLayout key="layout-image-basic-desc" maxWidth="xl">
+        <Block id="image-basic-desc" padding="sm">
+            <EditableParagraph id="para-image-basic-desc" blockId="image-basic-desc">
                 A simple image with a caption underneath. Click on the image to
                 zoom into a fullscreen lightbox overlay.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-img-basic" maxWidth="xl">
-        <Block id="block-img-basic-viz" padding="sm">
+    <StackLayout key="layout-image-basic" maxWidth="xl">
+        <Block id="image-basic-viz" padding="sm">
             <ImageDisplay
-                id="img-basic-demo"
+                id="image-basic-demo"
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Unit_circle_angles_color.svg/800px-Unit_circle_angles_color.svg.png"
                 alt="Unit circle diagram showing standard angles and their sine/cosine coordinates"
                 caption="Figure 1 — The unit circle with standard angle positions and (cos θ, sin θ) coordinates"
@@ -62,25 +62,25 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     // ── Bordered Image ───────────────────────────────────────────────────────
-    <StackLayout key="layout-img-bordered-h2" maxWidth="xl">
-        <Block id="block-img-bordered-h2" padding="sm">
-            <EditableH2 id="h2-img-bordered" blockId="block-img-bordered-h2">
+    <StackLayout key="layout-image-bordered-h2" maxWidth="xl">
+        <Block id="image-bordered-h2" padding="sm">
+            <EditableH2 id="h2-image-bordered" blockId="image-bordered-h2">
                 2) Bordered Image
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-img-bordered" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-image-bordered" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-img-bordered-text" padding="sm">
-                <EditableParagraph id="para-img-bordered-text" blockId="block-img-bordered-text">
+            <Block id="image-bordered-text" padding="sm">
+                <EditableParagraph id="para-image-bordered-text" blockId="image-bordered-text">
                     The Pythagorean theorem is one of the most famous results in mathematics. This visual proof shows why a² + b² = c²: the area of the square built on the hypotenuse equals the combined areas of the squares built on the other two sides. Geometric diagrams like this make abstract algebraic relationships concrete and memorable.
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-img-bordered-viz" padding="sm">
+        <Block id="image-bordered-viz" padding="sm">
             <ImageDisplay
-                id="img-bordered-demo"
+                id="image-bordered-demo"
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Pythagorean.svg/600px-Pythagorean.svg.png"
                 alt="Pythagorean theorem — a² + b² = c² with visual proof using squares on each side"
                 caption="a² + b² = c² — the Pythagorean Theorem"
@@ -93,26 +93,26 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     </SplitLayout>,
 
     // ── Object-fit Comparison ────────────────────────────────────────────────
-    <StackLayout key="layout-img-fit-h2" maxWidth="xl">
-        <Block id="block-img-fit-h2" padding="sm">
-            <EditableH2 id="h2-img-fit" blockId="block-img-fit-h2">
+    <StackLayout key="layout-image-fit-h2" maxWidth="xl">
+        <Block id="image-fit-h2" padding="sm">
+            <EditableH2 id="h2-image-fit" blockId="image-fit-h2">
                 3) Object-Fit Modes
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-img-fit-desc" maxWidth="xl">
-        <Block id="block-img-fit-desc" padding="sm">
-            <EditableParagraph id="para-img-fit-desc" blockId="block-img-fit-desc">
+    <StackLayout key="layout-image-fit-desc" maxWidth="xl">
+        <Block id="image-fit-desc" padding="sm">
+            <EditableParagraph id="para-image-fit-desc" blockId="image-fit-desc">
                 Images can be displayed in different ways depending on the available space and content priorities. Some images benefit from filling their container completely even if parts are cropped, while others should be shown in full even if that leaves empty space around them.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
-    <SplitLayout key="layout-img-fit-compare" ratio="1:1" gap="lg">
-        <Block id="block-img-fit-cover" padding="sm">
+    <SplitLayout key="layout-image-fit-compare" ratio="1:1" gap="lg">
+        <Block id="image-fit-cover" padding="sm">
             <ImageDisplay
-                id="img-fit-cover"
+                id="image-fit-cover"
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Unit_circle_angles_color.svg/800px-Unit_circle_angles_color.svg.png"
                 alt="Conic sections diagram — cover mode"
                 caption="objectFit: cover"
@@ -122,9 +122,9 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
                 color="#22c55e"
             />
         </Block>
-        <Block id="block-img-fit-contain" padding="sm">
+        <Block id="image-fit-contain" padding="sm">
             <ImageDisplay
-                id="img-fit-contain"
+                id="image-fit-contain"
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Unit_circle_angles_color.svg/800px-Unit_circle_angles_color.svg.png"
                 alt="Conic sections diagram — contain mode"
                 caption="objectFit: contain"
@@ -137,19 +137,19 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     </SplitLayout>,
 
     // ── Max-width constrained ────────────────────────────────────────────────
-    <StackLayout key="layout-img-constrained-h2" maxWidth="xl">
-        <Block id="block-img-constrained-h2" padding="sm">
-            <EditableH2 id="h2-img-constrained" blockId="block-img-constrained-h2">
+    <StackLayout key="layout-image-constrained-h2" maxWidth="xl">
+        <Block id="image-constrained-h2" padding="sm">
+            <EditableH2 id="h2-image-constrained" blockId="image-constrained-h2">
                 4) Size-Constrained Image
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-img-constrained" maxWidth="xl">
-        <Block id="block-img-constrained-viz" padding="sm">
+    <StackLayout key="layout-image-constrained" maxWidth="xl">
+        <Block id="image-constrained-viz" padding="sm">
             <div className="flex justify-center">
                 <ImageDisplay
-                    id="img-constrained-demo"
+                    id="image-constrained-demo"
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Fibonacci_spiral_34.svg/600px-Fibonacci_spiral_34.svg.png"
                     alt="The golden ratio / Fibonacci spiral overlaid on golden rectangles"
                     caption="The Golden Ratio (φ ≈ 1.618) — maxWidth: 400px"

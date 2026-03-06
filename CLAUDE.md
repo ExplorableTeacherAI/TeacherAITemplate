@@ -216,7 +216,7 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 `InlineTooltip` shows a tooltip/definition on hover. Does **NOT** use the variable store — purely informational. No `varName` prop needed.
 
 ```tsx
-<EditableParagraph id="para-example" blockId="block-example">
+<EditableParagraph id="para-example" blockId="circle-definition">
     Every point on a{" "}
     <InlineTooltip tooltip="A shape where all points are equidistant from the center.">
         circle
@@ -239,7 +239,7 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 `InlineFormula` renders a KaTeX math formula inline within paragraph text, with optional colored variables using `\clr{name}{content}` syntax. Does **NOT** use the variable store.
 
 ```tsx
-<EditableParagraph id="para-example" blockId="block-example">
+<EditableParagraph id="para-example" blockId="circle-definition">
     The area of a circle is{" "}
     <InlineFormula
         latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
@@ -283,7 +283,7 @@ This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`,
 `InlineTrigger` is a clickable inline element that **sets a global variable to a specific value** on click. Belongs to the connective category (emerald `#10B981`).
 
 ```tsx
-<EditableParagraph id="para-example" blockId="block-example">
+<EditableParagraph id="para-example" blockId="circle-definition">
     The speed is <InlineScrubbleNumber varName="speed" ... />.
     You can{" "}
     <InlineTrigger varName="speed" value={1} icon="refresh">
@@ -313,13 +313,13 @@ This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`,
 `InlineHyperlink` is a clickable inline element that either **opens an external URL** in a new tab or **smooth-scrolls to a block** on the page. Does **NOT** use the variable store.
 
 ```tsx
-<EditableParagraph id="para-example" blockId="block-example">
+<EditableParagraph id="para-example" blockId="circle-definition">
     Read the{" "}
     <InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
         Wikipedia article on circles
     </InlineHyperlink>{" "}
     for more background, or{" "}
-    <InlineHyperlink targetBlockId="block-intro">
+    <InlineHyperlink targetBlockId="intro">
         jump to the intro
     </InlineHyperlink>{" "}
     to start over.
@@ -356,8 +356,8 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 ```tsx
 <StackLayout key="layout-unique-key" maxWidth="xl">
-    <Block id="block-unique-id" padding="sm">
-        <EditableParagraph id="para-unique-id" blockId="block-unique-id">
+    <Block id="intro-title" padding="sm">
+        <EditableParagraph id="para-unique-id" blockId="intro-title">
             Content here with{" "}
             <InlineScrubbleNumber
                 varName="myVar"
@@ -380,23 +380,23 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 ```tsx
 // WRONG — two components crammed into one Block
-<Block id="block-demo" padding="lg">
+<Block id="formula-einstein" padding="lg">
     <FormulaBlock latex="E = mc^2" />
-    <EditableParagraph id="para-explain" blockId="block-demo">
+    <EditableParagraph id="para-explain" blockId="formula-einstein">
         This is the explanation.
     </EditableParagraph>
 </Block>
 
 // CORRECT — each component in its own Block
 <StackLayout key="layout-formula" maxWidth="xl">
-    <Block id="block-formula" padding="lg">
+    <Block id="einstein-formula" padding="lg">
         <FormulaBlock latex="E = mc^2" />
     </Block>
 </StackLayout>,
 
 <StackLayout key="layout-explanation" maxWidth="xl">
-    <Block id="block-explanation" padding="sm">
-        <EditableParagraph id="para-explain" blockId="block-explanation">
+    <Block id="einstein-explanation" padding="sm">
+        <EditableParagraph id="para-explain" blockId="einstein-explanation">
             This is the explanation.
         </EditableParagraph>
     </Block>
@@ -409,53 +409,54 @@ Every block must be wrapped in a `Layout` > `Block` hierarchy:
 
 Every block, layout, and component MUST have a **unique, descriptive, hierarchical ID** that reflects the content hierarchy. Well-structured IDs make it easy to find, edit, and understand the structure of the lesson.
 
-**ID Format Rules:**
+**New Stricter ID Format Rules:**
+- **No generic wrappers**: NEVER use the words "block", "container", "item", or similar generic terms in IDs. (e.g., `intro-title` instead of `block-intro-title`).
+- **No arbitrary numbers**: NEVER use arbitrary numbering like `-01`, `-02`, `-03`. IDs must be contextually meaningful based on their content (e.g., `paragraph-cloze-angle` instead of `paragraph-cloze-01`).
+- **No abbreviations**: NEVER use short obscure abbreviations. Use full words (e.g., `cartesian-2d-` instead of `c2d-`, `math-tree-` instead of `mt-`, `video-` instead of `vid-`).
 
 | Element | Pattern | Example |
 |---------|---------|---------|
-| Layout keys | `layout-<section>-<purpose>` | `layout-intro-title`, `layout-waves-viz` |
-| Block IDs | `block-<section>-<purpose>` | `block-intro-title`, `block-waves-chart` |
+| Layout keys | `layout-<section>-<purpose>` | `layout-intro-title`, `layout-waves-chart` |
+| Block IDs | `<section>-<purpose>` | `intro-title`, `waves-chart` |
 | Heading IDs | `h1/h2/h3-<section>-<purpose>` | `h1-intro-title`, `h2-waves-heading` |
 | Paragraph IDs | `para-<section>-<purpose>` | `para-intro-description`, `para-waves-explanation` |
-| Visual IDs | Use block ID hierarchy | `block-waves-sine-chart` |
+| Visual IDs | Use block ID hierarchy | `waves-sine-chart` |
 
 **Rules:**
 - IDs must be **unique across the entire lesson** — never reuse an ID
 - IDs should be **descriptive and readable** — a developer should understand what the block contains from its ID alone
-- IDs must include the **section name** to show hierarchy (e.g., `block-intro-title` not just `block-title`)
 - Pass `blockId` prop to editable components matching the parent Block's `id`
-- Avoid generic numbered IDs like `block-1`, `block-2` — use meaningful names
 
 ```tsx
-// WRONG — generic, non-descriptive IDs
-<Block id="block-1" padding="sm">
-    <EditableParagraph id="para-1" blockId="block-1">...</EditableParagraph>
+// WRONG — generic, non-descriptive, uses "block", uses numbers, uses abbreviations
+<Block id="intro-success" padding="sm">
+    <EditableParagraph id="para-intro-success" blockId="intro-success">...</EditableParagraph>
 </Block>
 
-// WRONG — missing section context in IDs
-<Block id="block-title" padding="md">
-    <EditableH1 id="h1-title" blockId="block-title">Circles</EditableH1>
+// WRONG — missing section context, uses "block"
+<Block id="title" padding="md">
+    <EditableH1 id="h1-title" blockId="title">Circles</EditableH1>
 </Block>
 
 // CORRECT — hierarchical, descriptive IDs
 <StackLayout key="layout-circles-title" maxWidth="xl">
-    <Block id="block-circles-title" padding="md">
-        <EditableH1 id="h1-circles-title" blockId="block-circles-title">
+    <Block id="circles-title" padding="md">
+        <EditableH1 id="h1-circles-title" blockId="circles-title">
             Understanding Circles
         </EditableH1>
     </Block>
 </StackLayout>,
 
 <StackLayout key="layout-circles-radius-explanation" maxWidth="xl">
-    <Block id="block-circles-radius-explanation" padding="sm">
-        <EditableParagraph id="para-circles-radius-explanation" blockId="block-circles-radius-explanation">
+    <Block id="circles-radius-explanation" padding="sm">
+        <EditableParagraph id="para-circles-radius-explanation" blockId="circles-radius-explanation">
             The radius is the distance from the center...
         </EditableParagraph>
     </Block>
 </StackLayout>,
 
 <StackLayout key="layout-circles-area-chart" maxWidth="xl">
-    <Block id="block-circles-area-chart" padding="sm" hasVisualization>
+    <Block id="circles-area-chart" padding="sm" hasVisualization>
         <ReactiveAreaChart />
     </Block>
 </StackLayout>
@@ -480,19 +481,19 @@ When a `<Block>` contains a **visual component** (chart, diagram, interactive vi
 
 ```tsx
 // CORRECT — visualization block with hasVisualization
-<Block id="block-viz" padding="sm" hasVisualization>
+<Block id="data-chart" padding="sm" hasVisualization>
     <Cartesian2D plots={[...]} />
 </Block>
 
 // CORRECT — text block without hasVisualization
-<Block id="block-text" padding="sm">
-    <EditableParagraph id="para-text" blockId="block-text">
+<Block id="intro-paragraph" padding="sm">
+    <EditableParagraph id="para-text" blockId="intro-paragraph">
         Some text...
     </EditableParagraph>
 </Block>
 
 // CORRECT — reactive wrapper visualization
-<Block id="block-reactive-viz" padding="sm" hasVisualization>
+<Block id="reactive-chart" padding="sm" hasVisualization>
     <ReactiveDataViz />
 </Block>
 ```
@@ -519,7 +520,7 @@ This ensures:
 </div>
 
 // CORRECT — white/clean background (default behavior, no wrapper needed)
-<Block id="block-chart" padding="sm" hasVisualization>
+<Block id="chart" padding="sm" hasVisualization>
     <DataVisualization type="bar" data={...} height={320} />
 </Block>
 ```
@@ -609,8 +610,8 @@ Import from `@/components/layouts`.
 <StepLayout varName="stepProgress" showProgress={false}>
     {/* Question step — auto-advances on correct answer */}
     <Step completionVarName="myAnswer" autoAdvance>
-        <Block id="block-step-q" padding="sm">
-            <EditableParagraph id="para-step-q" blockId="block-step-q">
+        <Block id="step-question" padding="sm">
+            <EditableParagraph id="para-step-question" blockId="step-question">
                 What is 2 + 2?{" "}
                 <InlineClozeInput
                     varName="myAnswer"
@@ -623,8 +624,8 @@ Import from `@/components/layouts`.
 
     {/* Normal step — shows Continue button */}
     <Step>
-        <Block id="block-step-1" padding="sm">
-            <EditableParagraph id="para-step-1" blockId="block-step-1">
+        <Block id="step-exploration" padding="sm">
+            <EditableParagraph id="para-step-exploration" blockId="step-exploration">
                 Correct! Now let's explore further.
             </EditableParagraph>
         </Block>
@@ -632,8 +633,8 @@ Import from `@/components/layouts`.
 
     {/* Gated step — Continue button disabled until activity is done */}
     <Step completionVarName="nextAnswer">
-        <Block id="block-step-2" padding="sm">
-            <EditableParagraph id="para-step-2" blockId="block-step-2">
+        <Block id="step-completion" padding="sm">
+            <EditableParagraph id="para-step-completion" blockId="step-completion">
                 Complete this to continue:{" "}
                 <InlineClozeInput
                     varName="nextAnswer"
@@ -654,8 +655,8 @@ Import from `@/components/layouts`.
 <SplitLayout key="layout-example-split" ratio="1:1" gap="lg">
     {/* Left side: multiple blocks wrapped in a div */}
     <div className="space-y-4">
-        <Block id="block-left-desc" padding="sm">
-            <EditableParagraph id="para-left-desc" blockId="block-left-desc">
+        <Block id="left-description" padding="sm">
+            <EditableParagraph id="para-left-desc" blockId="left-description">
                 Description text with an interactive value of{" "}
                 <InlineScrubbleNumber
                     varName="myVar"
@@ -663,17 +664,17 @@ Import from `@/components/layouts`.
                 />{" "}units.
             </EditableParagraph>
         </Block>
-        <Block id="block-left-equation" padding="sm">
+        <Block id="left-formula" padding="sm">
             <FormulaBlock latex="y = mx + b" />
         </Block>
-        <Block id="block-left-hint" padding="sm">
-            <EditableParagraph id="para-left-hint" blockId="block-left-hint">
+        <Block id="left-drag-hint" padding="sm">
+            <EditableParagraph id="para-left-hint" blockId="left-drag-hint">
                 Drag the number above to see the visualization update.
             </EditableParagraph>
         </Block>
     </div>
     {/* Right side: single block (no wrapper needed) */}
-    <Block id="block-right-viz" padding="sm">
+    <Block id="right-chart" padding="sm">
         <ReactiveVisualization />
     </Block>
 </SplitLayout>
@@ -807,8 +808,8 @@ import { InlineFeedback, InlineClozeInput, InlineClozeChoice } from "@/component
 // answer_shape: { defaultValue: '', type: 'select', correctAnswer: 'circle', options: ['square', 'circle', 'triangle'], placeholder: '???', color: '#6366f1' }
 
 <StackLayout key="layout-circles-q1" maxWidth="xl">
-    <Block id="block-circles-q1" padding="md">
-        <EditableParagraph id="para-q1" blockId="block-circles-q1">
+    <Block id="circles-question-radius" padding="md">
+        <EditableParagraph id="para-question-radius" blockId="circles-question-radius">
             If a circle has diameter 10, its radius is{" "}
             <InlineFeedback
                 varName="answer_radius"
@@ -828,8 +829,8 @@ import { InlineFeedback, InlineClozeInput, InlineClozeChoice } from "@/component
 </StackLayout>
 
 <StackLayout key="layout-circles-q2" maxWidth="xl">
-    <Block id="block-circles-q2" padding="md">
-        <EditableParagraph id="para-q2" blockId="block-circles-q2">
+    <Block id="circles-question-diameter" padding="md">
+        <EditableParagraph id="para-q2" blockId="circles-question-diameter">
             A shape where every point is the same distance from the center is a{" "}
             <InlineFeedback
                 varName="answer_shape"
@@ -867,14 +868,14 @@ import { InlineFeedback, InlineClozeInput, InlineClozeChoice } from "@/component
 
 Every `EditableParagraph` and `EditableH1/H2/H3` MUST have:
 - A unique `id` prop (e.g., `id="para-intro"`)
-- A `blockId` prop matching the parent `Block`'s `id` (e.g., `blockId="block-intro"`)
+- A `blockId` prop matching the parent `Block`'s `id` (e.g., `blockId="intro"`)
 
 ```tsx
 // WRONG — plain HTML tags, missing id and blockId
 <p>Content here</p>
 
 // CORRECT — Editable components with required id and blockId
-<EditableParagraph id="para-intro" blockId="block-intro">
+<EditableParagraph id="para-intro" blockId="intro">
     Content here
 </EditableParagraph>
 ```
@@ -897,16 +898,16 @@ export const mySectionBlocks = [<MySection key="my-section" />];
 // CORRECT — flat array of individual block elements
 export const mySectionBlocks: ReactElement[] = [
     <StackLayout key="layout-section-title" maxWidth="xl">
-        <Block id="block-section-title" padding="md">
-            <EditableH1 id="h1-section-title" blockId="block-section-title">
+        <Block id="section-title" padding="md">
+            <EditableH1 id="h1-section-title" blockId="section-title">
                 Section Title
             </EditableH1>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-section-content" maxWidth="xl">
-        <Block id="block-section-content" padding="sm">
-            <EditableParagraph id="para-section-content" blockId="block-section-content">
+        <Block id="section-content" padding="sm">
+            <EditableParagraph id="para-section-content" blockId="section-content">
                 Content here...
             </EditableParagraph>
         </Block>
@@ -939,16 +940,16 @@ import { useVar, useSetVar } from "@/stores";
 
 export const mySectionBlocks: ReactElement[] = [
     <StackLayout key="layout-my-title" maxWidth="xl">
-        <Block id="block-my-title" padding="md">
-            <EditableH1 id="h1-my-title" blockId="block-my-title">
+        <Block id="my-title" padding="md">
+            <EditableH1 id="h1-my-title" blockId="my-title">
                 My Section Title
             </EditableH1>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-my-intro" maxWidth="xl">
-        <Block id="block-my-intro" padding="sm">
-            <EditableParagraph id="para-my-intro" blockId="block-my-intro">
+        <Block id="my-intro" padding="sm">
+            <EditableParagraph id="para-my-intro" blockId="my-intro">
                 Introduction text with an interactive value of{" "}
                 <InlineScrubbleNumber
                     varName="myVar"
@@ -961,8 +962,8 @@ export const mySectionBlocks: ReactElement[] = [
 
     // Assessment question with inline feedback
     <StackLayout key="layout-my-q1" maxWidth="xl">
-        <Block id="block-my-q1" padding="md">
-            <EditableParagraph id="para-my-q1" blockId="block-my-q1">
+        <Block id="my-question-initial" padding="md">
+            <EditableParagraph id="para-my-question-initial" blockId="my-question-initial">
                 Your question here with{" "}
                 <InlineFeedback
                     varName="answer_my_q1"
@@ -1002,7 +1003,7 @@ The table reads its accent colour from the global variable store (via `varName`)
 
 ```tsx
 <StackLayout key="layout-table" maxWidth="xl">
-    <Block id="block-table" padding="sm">
+    <Block id="table" padding="sm">
         <Table
             columns={[
                 { header: 'Parameter', align: 'left' },
@@ -1114,8 +1115,8 @@ Then use it inside a `SplitLayout` with scrubble numbers and triggers in the tex
 
 ```tsx
 <SplitLayout key="layout-dataviz" ratio="1:1" gap="lg">
-    <Block id="block-dataviz-text" padding="sm">
-        <EditableParagraph id="para-dataviz" blockId="block-dataviz-text">
+    <Block id="dataviz-text" padding="sm">
+        <EditableParagraph id="para-dataviz" blockId="dataviz-text">
             The value is{" "}
             <InlineScrubbleNumber
                 varName="myValue"
@@ -1127,7 +1128,7 @@ Then use it inside a `SplitLayout` with scrubble numbers and triggers in the tex
             <InlineTrigger varName="myValue" value={50} icon="zap">make it huge</InlineTrigger>.
         </EditableParagraph>
     </Block>
-    <Block id="block-dataviz-viz" padding="sm">
+    <Block id="dataviz-viz" padding="sm">
         <ReactiveDataViz />
     </Block>
 </SplitLayout>

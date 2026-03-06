@@ -174,7 +174,6 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
     };
 
     const handleClick = () => {
-        if (canEdit && isEditing) return;
         if (effectiveHref) {
             window.open(effectiveHref, '_blank', 'noopener,noreferrer');
         } else if (effectiveTargetBlockId) {
@@ -203,7 +202,12 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
             >
                 <span
                     onMouseDown={handleMouseDown}
-                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                    onClick={(e) => {
+                        // Allow navigation even in edit mode when clicking the text directly
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleClick();
+                    }}
                     className="font-medium cursor-pointer"
                     style={{
                         color: effectiveColor,

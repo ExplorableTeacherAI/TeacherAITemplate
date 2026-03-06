@@ -192,25 +192,25 @@ function ReactiveProbabilityTree() {
 }
 
 export const mathTreeDemo: ReactElement[] = [
-    <StackLayout key="layout-mt-title" maxWidth="xl">
-        <Block id="block-mt-title" padding="md">
-            <EditableH2 id="h2-mt-title" blockId="block-mt-title">
+    <StackLayout key="layout-math-tree-title" maxWidth="xl">
+        <Block id="math-tree-title" padding="md">
+            <EditableH2 id="h2-math-tree-title" blockId="math-tree-title">
                 Math Tree Visualization with Step-by-Step Scaffolding
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-mt-factor-title" maxWidth="xl">
-        <Block id="block-mt-factor-title" padding="sm">
-            <EditableH3 id="h3-mt-factor-title" blockId="block-mt-factor-title">
+    <StackLayout key="layout-math-tree-factor-title" maxWidth="xl">
+        <Block id="math-tree-factor-title" padding="sm">
+            <EditableH3 id="h3-math-tree-factor-title" blockId="math-tree-factor-title">
                 1. Prime Factorization Tree
             </EditableH3>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-mt-factor-desc" maxWidth="xl">
-        <Block id="block-mt-factor-desc" padding="sm">
-            <EditableParagraph id="para-mt-factor-desc" blockId="block-mt-factor-desc">
+    <StackLayout key="layout-math-tree-factor-desc" maxWidth="xl">
+        <Block id="math-tree-factor-desc" padding="sm">
+            <EditableParagraph id="para-math-tree-factor-desc" blockId="math-tree-factor-desc">
                 Reveal the factorization progressively using step{" "}
                 <InlineScrubbleNumber
                     varName="mtFactorStep"
@@ -232,9 +232,9 @@ export const mathTreeDemo: ReactElement[] = [
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-mt-factor-controls" maxWidth="xl">
-        <Block id="block-mt-factor-controls" padding="sm">
-            <EditableParagraph id="para-mt-factor-controls" blockId="block-mt-factor-controls">
+    <StackLayout key="layout-math-tree-factor-controls" maxWidth="xl">
+        <Block id="math-tree-factor-controls" padding="sm">
+            <EditableParagraph id="para-math-tree-factor-controls" blockId="math-tree-factor-controls">
                 Switch scaffold panel with{" "}
                 <InlineToggle
                     varName="mtScaffoldPanel"
@@ -254,23 +254,23 @@ export const mathTreeDemo: ReactElement[] = [
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-mt-factor-viz" maxWidth="2xl">
-        <Block id="block-mt-factor-viz" padding="sm" hasVisualization>
+    <StackLayout key="layout-math-tree-factor-viz" maxWidth="2xl">
+        <Block id="math-tree-factor-viz" padding="sm" hasVisualization>
             <ReactiveFactorTree />
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-mt-prob-title" maxWidth="xl">
-        <Block id="block-mt-prob-title" padding="sm">
-            <EditableH3 id="h3-mt-prob-title" blockId="block-mt-prob-title">
+    <StackLayout key="layout-math-tree-prob-title" maxWidth="xl">
+        <Block id="math-tree-prob-title" padding="sm">
+            <EditableH3 id="h3-math-tree-prob-title" blockId="math-tree-prob-title">
                 2. Probability Tree (Scaffolded)
             </EditableH3>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-mt-prob-text" maxWidth="xl">
-        <Block id="block-mt-prob-text" padding="sm">
-            <EditableParagraph id="para-mt-prob-text" blockId="block-mt-prob-text">
+    <StackLayout key="layout-math-tree-prob-text" maxWidth="xl">
+        <Block id="math-tree-prob-text" padding="sm">
+            <EditableParagraph id="para-math-tree-prob-text" blockId="math-tree-prob-text">
                 Move through probability scaffolding using step{" "}
                 <InlineScrubbleNumber
                     varName="mtProbStep"
@@ -287,8 +287,8 @@ export const mathTreeDemo: ReactElement[] = [
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-mt-prob-viz" maxWidth="2xl">
-        <Block id="block-mt-prob-viz" padding="sm" hasVisualization>
+    <StackLayout key="layout-math-tree-prob-viz" maxWidth="2xl">
+        <Block id="math-tree-prob-viz" padding="sm" hasVisualization>
             <ReactiveProbabilityTree />
         </Block>
     </StackLayout>,

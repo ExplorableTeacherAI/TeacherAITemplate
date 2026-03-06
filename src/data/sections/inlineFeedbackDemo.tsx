@@ -18,17 +18,17 @@ import {
 
 export const inlineFeedbackDemoBlocks: ReactElement[] = [
     // ── Title ─────────────────────────────────────────────────────────────
-    <StackLayout key="layout-ifd-title" maxWidth="xl">
-        <Block id="block-ifd-title" padding="sm">
-            <EditableH2 id="h2-ifd-title" blockId="block-ifd-title">
+    <StackLayout key="layout-inline-feedback-title" maxWidth="xl">
+        <Block id="inline-feedback-title" padding="sm">
+            <EditableH2 id="h2-inline-feedback-title" blockId="inline-feedback-title">
                 Inline Feedback — Interactive Assessment
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-ifd-intro" maxWidth="xl">
-        <Block id="block-ifd-intro" padding="sm">
-            <EditableParagraph id="para-ifd-intro" blockId="block-ifd-intro">
+    <StackLayout key="layout-inline-feedback-intro" maxWidth="xl">
+        <Block id="inline-feedback-intro" padding="sm">
+            <EditableParagraph id="para-inline-feedback-intro" blockId="inline-feedback-intro">
                 Inline feedback provides instant responses right next to your answer, 
                 eliminating the need for a separate "Check Answer" button. When you 
                 answer correctly, you'll see a confirmation with an explanation. If 
@@ -38,9 +38,9 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     // ── Q1: Circle diameter (fill-in-the-blank) ───────────────────────────
-    <StackLayout key="layout-ifd-q1" maxWidth="xl">
-        <Block id="block-ifd-q1" padding="md">
-            <EditableParagraph id="para-ifd-q1" blockId="block-ifd-q1">
+    <StackLayout key="layout-inline-feedback-q1" maxWidth="xl">
+        <Block id="inline-feedback-q1" padding="md">
+            <EditableParagraph id="para-inline-feedback-q1" blockId="inline-feedback-q1">
                 A circle with radius 3 has a diameter of{" "}
                 <InlineFeedback
                     varName="fbCircleDiameter"
@@ -60,9 +60,9 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     // ── Q2: Circle part (dropdown choice) ─────────────────────────────────
-    <StackLayout key="layout-ifd-q2" maxWidth="xl">
-        <Block id="block-ifd-q2" padding="md">
-            <EditableParagraph id="para-ifd-q2" blockId="block-ifd-q2">
+    <StackLayout key="layout-inline-feedback-q2" maxWidth="xl">
+        <Block id="inline-feedback-q2" padding="md">
+            <EditableParagraph id="para-inline-feedback-q2" blockId="inline-feedback-q2">
                 The part of a circle that connects the centre to a point on the edge is
                 called the{" "}
                 <InlineFeedback
@@ -84,9 +84,9 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     // ── Q3: Area formula (dropdown choice) ────────────────────────────────
-    <StackLayout key="layout-ifd-q3" maxWidth="xl">
-        <Block id="block-ifd-q3" padding="md">
-            <EditableParagraph id="para-ifd-q3" blockId="block-ifd-q3">
+    <StackLayout key="layout-inline-feedback-q3" maxWidth="xl">
+        <Block id="inline-feedback-q3" padding="md">
+            <EditableParagraph id="para-inline-feedback-q3" blockId="inline-feedback-q3">
                 The formula for the area of a circle is{" "}
                 <InlineFeedback
                     varName="fbAreaFormula"
@@ -107,9 +107,9 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     // ── Q4: Triangle area (fill-in-the-blank) ─────────────────────────────
-    <StackLayout key="layout-ifd-q4" maxWidth="xl">
-        <Block id="block-ifd-q4" padding="md">
-            <EditableParagraph id="para-ifd-q4" blockId="block-ifd-q4">
+    <StackLayout key="layout-inline-feedback-q4" maxWidth="xl">
+        <Block id="inline-feedback-q4" padding="md">
+            <EditableParagraph id="para-inline-feedback-q4" blockId="inline-feedback-q4">
                 A triangle with base 4 and height 3 has an area of{" "}
                 <InlineFeedback
                     varName="ifTriangleArea"
@@ -129,9 +129,9 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     // ── Q5: Triangle angles (dropdown choice) ─────────────────────────────
-    <StackLayout key="layout-ifd-q5" maxWidth="xl">
-        <Block id="block-ifd-q5" padding="md">
-            <EditableParagraph id="para-ifd-q5" blockId="block-ifd-q5">
+    <StackLayout key="layout-inline-feedback-q5" maxWidth="xl">
+        <Block id="inline-feedback-q5" padding="md">
+            <EditableParagraph id="para-inline-feedback-q5" blockId="inline-feedback-q5">
                 The sum of interior angles in any triangle is{" "}
                 <InlineFeedback
                     varName="ifTriangleAngles"

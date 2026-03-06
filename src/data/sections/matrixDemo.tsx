@@ -122,16 +122,16 @@ function HighlightableMatrix() {
 export const matrixDemoBlocks: ReactElement[] = [
     // ── Title ──────────────────────────────────────────
     <StackLayout key="layout-matrix-title" maxWidth="xl">
-        <Block id="block-matrix-title" padding="md">
-            <EditableH1 id="h1-matrix-title" blockId="block-matrix-title">
+        <Block id="matrix-title" padding="md">
+            <EditableH1 id="h1-matrix-title" blockId="matrix-title">
                 Matrix Visualization
             </EditableH1>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-matrix-intro" maxWidth="xl">
-        <Block id="block-matrix-intro" padding="sm">
-            <EditableParagraph id="para-matrix-intro" blockId="block-matrix-intro">
+        <Block id="matrix-intro" padding="sm">
+            <EditableParagraph id="para-matrix-intro" blockId="matrix-intro">
                 A matrix is a rectangular array of numbers arranged in rows and columns, forming one of the most fundamental structures in linear algebra. Matrices allow us to represent systems of equations, perform geometric transformations, and encode relationships between variables. Below we explore several key matrix operations interactively.
             </EditableParagraph>
         </Block>
@@ -139,10 +139,10 @@ export const matrixDemoBlocks: ReactElement[] = [
 
     // ── Section 1: Scalar Multiplication ──────────────
     <StackLayout key="layout-matrix-scalar-heading" maxWidth="xl">
-        <Block id="block-matrix-scalar-heading" padding="sm">
+        <Block id="matrix-scalar-heading" padding="sm">
             <EditableH2
                 id="h2-scalar-heading"
-                blockId="block-matrix-scalar-heading"
+                blockId="matrix-scalar-heading"
             >
                 Scalar Multiplication
             </EditableH2>
@@ -151,10 +151,10 @@ export const matrixDemoBlocks: ReactElement[] = [
 
     <SplitLayout key="layout-matrix-scalar" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-matrix-scalar-text" padding="sm">
+            <Block id="matrix-scalar-text" padding="sm">
                 <EditableParagraph
                     id="para-matrix-scalar"
-                    blockId="block-matrix-scalar-text"
+                    blockId="matrix-scalar-text"
                 >
                     Scalar multiplication takes a single number (the scalar) and multiplies it with every entry in the matrix. If we denote our scalar as{" "}
                     <InlineFormula
@@ -179,10 +179,10 @@ export const matrixDemoBlocks: ReactElement[] = [
                     Use the slider to change the scalar and watch how every value in the matrix transforms proportionally.
                 </EditableParagraph>
             </Block>
-            <Block id="block-matrix-scalar-actions" padding="sm">
+            <Block id="matrix-scalar-actions" padding="sm">
                 <EditableParagraph
                     id="para-matrix-scalar-actions"
-                    blockId="block-matrix-scalar-actions"
+                    blockId="matrix-scalar-actions"
                 >
                     Try{" "}
                     <InlineTrigger varName="matrixScale" value={1} icon="refresh">
@@ -199,10 +199,10 @@ export const matrixDemoBlocks: ReactElement[] = [
                     .
                 </EditableParagraph>
             </Block>
-            <Block id="block-matrix-scalar-color" padding="sm">
+            <Block id="matrix-scalar-color" padding="sm">
                 <EditableParagraph
                     id="para-matrix-scalar-color"
-                    blockId="block-matrix-scalar-color"
+                    blockId="matrix-scalar-color"
                 >
                     Color scheme:{" "}
                     <InlineToggle
@@ -215,17 +215,17 @@ export const matrixDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-matrix-scalar-viz" padding="sm" hasVisualization>
+        <Block id="matrix-scalar-viz" padding="sm" hasVisualization>
             <ScaledMatrixViz />
         </Block>
     </SplitLayout>,
 
     // ── Section 2: Dynamic Resizing ───────────────────
     <StackLayout key="layout-matrix-resize-heading" maxWidth="xl">
-        <Block id="block-matrix-resize-heading" padding="sm">
+        <Block id="matrix-resize-heading" padding="sm">
             <EditableH2
                 id="h2-resize-heading"
-                blockId="block-matrix-resize-heading"
+                blockId="matrix-resize-heading"
             >
                 Dynamic Resizing
             </EditableH2>
@@ -233,10 +233,10 @@ export const matrixDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <SplitLayout key="layout-matrix-resize" ratio="1:1" gap="lg">
-        <Block id="block-matrix-resize-text" padding="sm">
+        <Block id="matrix-resize-text" padding="sm">
             <EditableParagraph
                 id="para-matrix-resize"
-                blockId="block-matrix-resize-text"
+                blockId="matrix-resize-text"
             >
                 The shape of a matrix is defined by its dimensions: the number of rows and columns it contains. An m×n matrix has m rows and n columns, giving it m·n total entries. In this example, each entry equals the sum of its row and column indices:{" "}
                 <InlineFormula
@@ -246,17 +246,17 @@ export const matrixDemoBlocks: ReactElement[] = [
                 . Use the controls to resize the matrix and observe how the grid structure changes.
             </EditableParagraph>
         </Block>
-        <Block id="block-matrix-resize-viz" padding="sm" hasVisualization>
+        <Block id="matrix-resize-viz" padding="sm" hasVisualization>
             <DynamicSizeMatrix />
         </Block>
     </SplitLayout>,
 
     // ── Section 3: Row / Column Highlighting ──────────
     <StackLayout key="layout-matrix-highlight-heading" maxWidth="xl">
-        <Block id="block-matrix-highlight-heading" padding="sm">
+        <Block id="matrix-highlight-heading" padding="sm">
             <EditableH2
                 id="h2-highlight-heading"
-                blockId="block-matrix-highlight-heading"
+                blockId="matrix-highlight-heading"
             >
                 Row &amp; Column Highlighting
             </EditableH2>
@@ -265,18 +265,18 @@ export const matrixDemoBlocks: ReactElement[] = [
 
     <SplitLayout key="layout-matrix-highlight" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-matrix-highlight-text" padding="sm">
+            <Block id="matrix-highlight-text" padding="sm">
                 <EditableParagraph
                     id="para-matrix-highlight"
-                    blockId="block-matrix-highlight-text"
+                    blockId="matrix-highlight-text"
                 >
                     A magic square is a special grid where every row, column, and diagonal sums to the same value, called the magic constant. This 3×3 magic square has a magic constant of 15. Click on any row or column in the visualization to highlight it and verify that each line indeed sums to 15.
                 </EditableParagraph>
             </Block>
-            <Block id="block-matrix-highlight-triggers" padding="sm">
+            <Block id="matrix-highlight-triggers" padding="sm">
                 <EditableParagraph
                     id="para-highlight-triggers"
-                    blockId="block-matrix-highlight-triggers"
+                    blockId="matrix-highlight-triggers"
                 >
                     Quick presets:{" "}
                     <InlineTrigger varName="matrixHighlightRow" value={0}>
@@ -305,17 +305,17 @@ export const matrixDemoBlocks: ReactElement[] = [
                 </EditableParagraph>
             </Block>
         </div>
-        <Block id="block-matrix-highlight-viz" padding="sm" hasVisualization>
+        <Block id="matrix-highlight-viz" padding="sm" hasVisualization>
             <HighlightableMatrix />
         </Block>
     </SplitLayout>,
 
     // ── Section 4: Color Schemes Gallery ──────────────
     <StackLayout key="layout-matrix-gallery-heading" maxWidth="xl">
-        <Block id="block-matrix-gallery-heading" padding="sm">
+        <Block id="matrix-gallery-heading" padding="sm">
             <EditableH2
                 id="h2-gallery-heading"
-                blockId="block-matrix-gallery-heading"
+                blockId="matrix-gallery-heading"
             >
                 Color Scheme Gallery
             </EditableH2>
@@ -323,7 +323,7 @@ export const matrixDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <GridLayout key="layout-matrix-gallery" columns={4} gap="md">
-        <Block id="block-matrix-none" padding="sm" hasVisualization>
+        <Block id="matrix-none" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 0],
@@ -335,7 +335,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 showBrackets
             />
         </Block>
-        <Block id="block-matrix-heatmap" padding="sm" hasVisualization>
+        <Block id="matrix-heatmap" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 4],
@@ -347,7 +347,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 showBrackets
             />
         </Block>
-        <Block id="block-matrix-diverging" padding="sm" hasVisualization>
+        <Block id="matrix-diverging" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [-3, 2],
@@ -359,7 +359,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 showBrackets
             />
         </Block>
-        <Block id="block-matrix-categorical" padding="sm" hasVisualization>
+        <Block id="matrix-categorical" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [0, 1],
@@ -375,10 +375,10 @@ export const matrixDemoBlocks: ReactElement[] = [
 
     // ── Section 5: Determinant Question ───────────────
     <StackLayout key="layout-matrix-det-heading" maxWidth="xl">
-        <Block id="block-matrix-det-heading" padding="sm">
+        <Block id="matrix-det-heading" padding="sm">
             <EditableH2
                 id="h2-det-heading"
-                blockId="block-matrix-det-heading"
+                blockId="matrix-det-heading"
             >
                 Determinant Challenge
             </EditableH2>
@@ -387,10 +387,10 @@ export const matrixDemoBlocks: ReactElement[] = [
 
     <SplitLayout key="layout-matrix-det" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-matrix-det-text" padding="sm">
+            <Block id="matrix-det-text" padding="sm">
                 <EditableParagraph
                     id="para-matrix-det"
-                    blockId="block-matrix-det-text"
+                    blockId="matrix-det-text"
                 >
                     For the 2×2 matrix shown on the right, the{" "}
                     <InlineTooltip tooltip="det(A) = ad − bc for a 2×2 matrix [[a,b],[c,d]].">
@@ -409,7 +409,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                     .
                 </EditableParagraph>
             </Block>
-            <Block id="block-matrix-det-equation" padding="sm">
+            <Block id="matrix-det-equation" padding="sm">
                 <FormulaBlock
                     latex="\det\begin{pmatrix} 1 & 3 \\ 2 & 4 \end{pmatrix} = (1)(4) - (3)(2) = \cloze{matrixDeterminantAnswer}"
                     clozeInputs={{
@@ -422,7 +422,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 />
             </Block>
         </div>
-        <Block id="block-matrix-det-viz" padding="sm" hasVisualization>
+        <Block id="matrix-det-viz" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 3],
@@ -444,10 +444,10 @@ export const matrixDemoBlocks: ReactElement[] = [
 
     // ── Section 6: Identity Matrix ────────────────────
     <StackLayout key="layout-matrix-identity-heading" maxWidth="xl">
-        <Block id="block-matrix-identity-heading" padding="sm">
+        <Block id="matrix-identity-heading" padding="sm">
             <EditableH2
                 id="h2-identity-heading"
-                blockId="block-matrix-identity-heading"
+                blockId="matrix-identity-heading"
             >
                 The Identity Matrix
             </EditableH2>
@@ -455,10 +455,10 @@ export const matrixDemoBlocks: ReactElement[] = [
     </StackLayout>,
 
     <SplitLayout key="layout-matrix-identity" ratio="1:1" gap="lg">
-        <Block id="block-matrix-identity-text" padding="sm">
+        <Block id="matrix-identity-text" padding="sm">
             <EditableParagraph
                 id="para-matrix-identity"
-                blockId="block-matrix-identity-text"
+                blockId="matrix-identity-text"
             >
                 The{" "}
                 <InlineTooltip tooltip="The identity matrix I has 1s on the main diagonal and 0s elsewhere. Multiplying any matrix by I leaves it unchanged.">
@@ -474,7 +474,7 @@ export const matrixDemoBlocks: ReactElement[] = [
                 everything else is 0.
             </EditableParagraph>
         </Block>
-        <Block id="block-matrix-identity-viz" padding="sm" hasVisualization>
+        <Block id="matrix-identity-viz" padding="sm" hasVisualization>
             <MatrixVisualization
                 data={[
                     [1, 0, 0, 0],

@@ -96,33 +96,33 @@ function ReactiveCircleAnatomy() {
 
 export const circleAnatomyDemo: ReactElement[] = [
     // ── Title ─────────────────────────────────────────────────────────────
-    <StackLayout key="layout-ca-title" maxWidth="xl">
-        <Block id="block-ca-title" padding="sm">
-            <EditableH2 id="h2-ca-title" blockId="block-ca-title">
+    <StackLayout key="layout-circle-anatomy-title" maxWidth="xl">
+        <Block id="circle-anatomy-title" padding="sm">
+            <EditableH2 id="h2-circle-anatomy-title" blockId="circle-anatomy-title">
                 Circle Anatomy — Linked Highlights on a 2D Graph
             </EditableH2>
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-ca-intro" maxWidth="xl">
-        <Block id="block-ca-intro" padding="sm">
-            <EditableParagraph id="para-ca-intro" blockId="block-ca-intro">
+    <StackLayout key="layout-circle-anatomy-intro" maxWidth="xl">
+        <Block id="circle-anatomy-intro" padding="sm">
+            <EditableParagraph id="para-circle-anatomy-intro" blockId="circle-anatomy-intro">
                 A circle is defined entirely by its center point and radius. From these two simple ingredients emerge all the other properties: diameter, circumference, and area. Understanding how these parts relate helps build intuition for circular geometry.
             </EditableParagraph>
         </Block>
     </StackLayout>,
 
     // ── Split: text (left) + Cartesian graph (right) ─────────────────────
-    <SplitLayout key="layout-ca-split" ratio="1:1" gap="lg">
+    <SplitLayout key="layout-circle-anatomy-split" ratio="1:1" gap="lg">
         <div className="space-y-4">
-            <Block id="block-ca-description" padding="sm">
-                <EditableParagraph id="para-ca-description" blockId="block-ca-description">
+            <Block id="circle-anatomy-description" padding="sm">
+                <EditableParagraph id="para-circle-anatomy-description" blockId="circle-anatomy-description">
                     Every circle can be placed on a coordinate plane, making its geometry precise and measurable. The visualization shows a circle centered at the origin, with its key parts highlighted as you interact with the text.
                 </EditableParagraph>
             </Block>
 
-            <Block id="block-ca-parts" padding="sm">
-                <EditableParagraph id="para-ca-parts" blockId="block-ca-parts">
+            <Block id="circle-anatomy-parts" padding="sm">
+                <EditableParagraph id="para-circle-anatomy-parts" blockId="circle-anatomy-parts">
                     The{" "}
                     <InlineLinkedHighlight
                         varName="circleHighlight"
@@ -162,8 +162,8 @@ export const circleAnatomyDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
 
-            <Block id="block-ca-measures" padding="sm">
-                <EditableParagraph id="para-ca-measures" blockId="block-ca-measures">
+            <Block id="circle-anatomy-measures" padding="sm">
+                <EditableParagraph id="para-circle-anatomy-measures" blockId="circle-anatomy-measures">
                     The{" "}
                     <InlineLinkedHighlight
                         varName="circleHighlight"
@@ -198,8 +198,8 @@ export const circleAnatomyDemo: ReactElement[] = [
                 </EditableParagraph>
             </Block>
 
-            <Block id="block-ca-hint" padding="sm">
-                <EditableParagraph id="para-ca-hint" blockId="block-ca-hint">
+            <Block id="circle-anatomy-hint" padding="sm">
+                <EditableParagraph id="para-circle-anatomy-hint" blockId="circle-anatomy-hint">
                     💡 Hover the coloured terms to highlight parts on the plot, or hover
                     elements on the plot to highlight the matching term in the text.
                     Drag the radius value to resize the circle interactively.
@@ -207,7 +207,7 @@ export const circleAnatomyDemo: ReactElement[] = [
             </Block>
         </div>
 
-        <Block id="block-ca-viz" padding="sm" hasVisualization>
+        <Block id="circle-anatomy-viz" padding="sm" hasVisualization>
             <ReactiveCircleAnatomy />
         </Block>
     </SplitLayout>,

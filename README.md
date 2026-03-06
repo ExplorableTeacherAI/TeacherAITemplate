@@ -24,12 +24,12 @@ Every block follows the pattern: **Layout > Block > Component**.
 
 ```tsx
 // Text block — no hasVisualization
-<Block id="block-text" padding="sm">
-    <EditableParagraph id="para-text" blockId="block-text">Content</EditableParagraph>
+<Block id="intro-paragraph" padding="sm">
+    <EditableParagraph id="para-text" blockId="intro-paragraph">Content</EditableParagraph>
 </Block>
 
 // Visualization block — with hasVisualization
-<Block id="block-viz" padding="sm" hasVisualization>
+<Block id="data-chart" padding="sm" hasVisualization>
     <Cartesian2D plots={[...]} />
 </Block>
 ```
@@ -110,16 +110,16 @@ Each section exports a **flat array** of `Layout > Block` elements.
 // src/data/sections/Introduction.tsx
 export const introBlocks: ReactElement[] = [
     <StackLayout key="layout-intro-title" maxWidth="xl">
-        <Block id="block-intro-title" padding="md">
-            <EditableH1 id="h1-intro-title" blockId="block-intro-title">
+        <Block id="intro-title" padding="md">
+            <EditableH1 id="h1-intro-title" blockId="intro-title">
                 Understanding Waves
             </EditableH1>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-intro-text" maxWidth="xl">
-        <Block id="block-intro-text" padding="sm">
-            <EditableParagraph id="para-intro-text" blockId="block-intro-text">
+        <Block id="intro-text" padding="sm">
+            <EditableParagraph id="para-intro-text" blockId="intro-text">
                 A wave with amplitude{" "}
                 <InlineScrubbleNumber
                     varName="amplitude"
@@ -148,20 +148,23 @@ Sections MUST export a **flat array** — never a wrapper component. Each elemen
 
 Every block, layout, and component MUST have a **unique, descriptive, hierarchical ID** that reflects the content hierarchy. Well-structured IDs make it easy to find, edit, and understand the lesson structure.
 
+**Stricter ID Format Rules:**
+- **No generic wrappers**: NEVER use the words "block", "container", "item", or similar generic terms in IDs. (e.g., `intro-title` instead of `block-intro-title`).
+- **No arbitrary numbers**: NEVER use arbitrary numbering like `-01`, `-02`, `-03`. IDs must be contextually meaningful based on their content (e.g., `paragraph-cloze-angle` instead of `paragraph-cloze-01`).
+- **No abbreviations**: NEVER use short obscure abbreviations. Use full words (e.g., `cartesian-2d-` instead of `c2d-`, `math-tree-` instead of `mt-`, `video-` instead of `vid-`).
+
 | Element | Pattern | Example |
 |---------|---------|---------|
-| Layout keys | `layout-<section>-<purpose>` | `layout-intro-title`, `layout-waves-viz` |
-| Block IDs | `block-<section>-<purpose>` | `block-intro-title`, `block-waves-chart` |
+| Layout keys | `layout-<section>-<purpose>` | `layout-intro-title`, `layout-waves-chart` |
+| Block IDs | `<section>-<purpose>` | `intro-title`, `waves-chart` |
 | Heading IDs | `h1/h2/h3-<section>-<purpose>` | `h1-intro-title`, `h2-waves-heading` |
 | Paragraph IDs | `para-<section>-<purpose>` | `para-intro-description`, `para-waves-explanation` |
-| Visual IDs | Use block ID hierarchy | `block-waves-sine-chart` |
+| Visual IDs | Use block ID hierarchy | `waves-sine-chart` |
 | `blockId` prop | Must match parent Block's `id` | |
 
 **Rules:**
 - IDs must be **unique across the entire lesson** — never reuse an ID
 - IDs should be **descriptive and readable** — a developer should understand what the block contains from its ID alone
-- IDs must include the **section name** to show hierarchy (e.g., `block-intro-title` not just `block-title`)
-- Avoid generic numbered IDs like `block-1`, `block-2` — use meaningful names
 
 ---
 
@@ -226,7 +229,7 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 - **Animated** — smooth fade-in/out transitions with Framer Motion
 
 ```tsx
-<EditableParagraph id="para-q1" blockId="block-q1">
+<EditableParagraph id="para-question-radius" blockId="question-radius">
     A circle with diameter 10 has radius{" "}
     <InlineFeedback
         varName="answer_radius"
@@ -234,7 +237,7 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
         successMessage="Well done! The radius is half the diameter, so 10 ÷ 2 = 5"
         failureMessage="Not quite — remember, the radius is always half the diameter"
         hint="If the diameter is 10, what is 10 ÷ 2?"
-        reviewBlockId="block-circles-intro"
+        reviewBlockId="circles-introduction"
         reviewLabel="Review radius and diameter"
     >
         <InlineClozeInput
@@ -282,8 +285,8 @@ import { StepLayout, Step } from "@/components/layouts";
 <StepLayout varName="stepProgress" showProgress={false}>
     {/* Question step — auto-advances on correct answer */}
     <Step completionVarName="myAnswer" autoAdvance>
-        <Block id="block-q" padding="sm">
-            <EditableParagraph id="para-q" blockId="block-q">
+        <Block id="intro-question" padding="sm">
+            <EditableParagraph id="para-intro-question" blockId="intro-question">
                 What is 2 + 2?{" "}
                 <InlineClozeInput varName="myAnswer" correctAnswer="4" ... />
             </EditableParagraph>
@@ -292,8 +295,8 @@ import { StepLayout, Step } from "@/components/layouts";
 
     {/* Normal step */}
     <Step>
-        <Block id="block-1" padding="sm">
-            <EditableParagraph id="para-1" blockId="block-1">
+        <Block id="intro-success" padding="sm">
+            <EditableParagraph id="para-intro-success" blockId="intro-success">
                 Correct! Press Continue to proceed.
             </EditableParagraph>
         </Block>
@@ -316,8 +319,8 @@ import { StepLayout, Step } from "@/components/layouts";
 <SplitLayout key="layout-example-split" ratio="1:1" gap="lg">
     {/* Left side: multiple blocks wrapped in a div */}
     <div className="space-y-4">
-        <Block id="block-left-desc" padding="sm">
-            <EditableParagraph id="para-left-desc" blockId="block-left-desc">
+        <Block id="left-description" padding="sm">
+            <EditableParagraph id="para-left-desc" blockId="left-description">
                 Description text with an interactive value of{" "}
                 <InlineScrubbleNumber
                     varName="myVar"
@@ -325,17 +328,17 @@ import { StepLayout, Step } from "@/components/layouts";
                 />{" "}units.
             </EditableParagraph>
         </Block>
-        <Block id="block-left-equation" padding="sm">
+        <Block id="left-formula" padding="sm">
             <FormulaBlock latex="y = mx + b" />
         </Block>
-        <Block id="block-left-hint" padding="sm">
-            <EditableParagraph id="para-left-hint" blockId="block-left-hint">
+        <Block id="left-drag-hint" padding="sm">
+            <EditableParagraph id="para-left-hint" blockId="left-drag-hint">
                 Drag the number above to see the visualization update.
             </EditableParagraph>
         </Block>
     </div>
     {/* Right side: single block (no wrapper needed) */}
-    <Block id="block-right-viz" padding="sm">
+    <Block id="right-chart" padding="sm">
         <ReactiveVisualization />
     </Block>
 </SplitLayout>
@@ -384,7 +387,7 @@ The table reads its accent colour from the global variable store (via `varName`)
 
 ```tsx
 <StackLayout key="layout-table" maxWidth="xl">
-    <Block id="block-table" padding="sm">
+    <Block id="table" padding="sm">
         <Table
             columns={[
                 { header: 'Parameter', align: 'left' },
