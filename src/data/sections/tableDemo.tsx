@@ -28,6 +28,8 @@ import {
     InlineFormula,
     InlineLinkedHighlight,
     InlineSpotColor,
+    EditableH3,
+    EditableH4,
 } from "@/components/atoms";
 import {
     getExampleVariableInfo as getVariableInfo,
@@ -64,9 +66,9 @@ export const tableDemoBlocks: ReactElement[] = [
     // ── Title ──────────────────────────────────────────
     <StackLayout key="layout-table-title" maxWidth="xl">
         <Block id="table-title" padding="md">
-            <EditableH1 id="h1-table-title" blockId="table-title">
+            <EditableH3 id="h3-table-title" blockId="table-title">
                 Interactive Tables
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -83,9 +85,9 @@ export const tableDemoBlocks: ReactElement[] = [
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-basic-heading" maxWidth="xl">
         <Block id="table-basic-heading" padding="sm">
-            <EditableH2 id="h2-table-basic-heading" blockId="table-basic-heading">
+            <EditableH4 id="h4-table-basic-heading" blockId="table-basic-heading">
                 Basic Table
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -146,9 +148,9 @@ export const tableDemoBlocks: ReactElement[] = [
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-scrubble-heading" maxWidth="xl">
         <Block id="table-scrubble-heading" padding="sm">
-            <EditableH2 id="h2-table-scrubble-heading" blockId="table-scrubble-heading">
+            <EditableH4 id="h4-table-scrubble-heading" blockId="table-scrubble-heading">
                 Scrubble Numbers in Tables
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -236,9 +238,9 @@ export const tableDemoBlocks: ReactElement[] = [
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-mixed-heading" maxWidth="xl">
         <Block id="table-mixed-heading" padding="sm">
-            <EditableH2 id="h2-table-mixed-heading" blockId="table-mixed-heading">
+            <EditableH4 id="h4-table-mixed-heading" blockId="table-mixed-heading">
                 Mixed Inline Components
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -384,9 +386,9 @@ export const tableDemoBlocks: ReactElement[] = [
     // ══════════════════════════════════════════════════
     <StackLayout key="layout-table-variants-heading" maxWidth="xl">
         <Block id="table-variants-heading" padding="sm">
-            <EditableH2 id="h2-table-variants-heading" blockId="table-variants-heading">
+            <EditableH4 id="h4-table-variants-heading" blockId="table-variants-heading">
                 Table Variants
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 

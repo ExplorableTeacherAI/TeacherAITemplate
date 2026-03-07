@@ -106,9 +106,9 @@ export interface MovablePointConfig {
      * `(point) => [snappedX, snappedY]`.
      */
     constrain?:
-        | "horizontal"
-        | "vertical"
-        | ((point: [number, number]) => [number, number]);
+    | "horizontal"
+    | "vertical"
+    | ((point: [number, number]) => [number, number]);
     /** Called on every frame the point moves */
     onChange?: (point: [number, number]) => void;
 }

@@ -3,8 +3,8 @@ import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian2D,
-    EditableH1,
     EditableH2,
+    EditableH4,
     EditableParagraph,
     InlineScrubbleNumber,
     InlineSpotColor,
@@ -262,8 +262,7 @@ function FunctionSymmetryViz() {
     const fn = fnMap[fnType] ?? ((x: number) => x * x);
     const yValue = fn(xProbe);
     const yNeg = fn(-xProbe);
-    const isEven = Math.abs(yValue - yNeg) < 0.001;
-    const isOdd = Math.abs(yValue + yNeg) < 0.001;
+
 
     return (
         <Cartesian2D
@@ -367,8 +366,8 @@ function SymmetryStatus() {
                 {isEven
                     ? "✓ Even symmetry: f(x) = f(−x)"
                     : isOdd
-                    ? "✓ Odd symmetry: f(x) = −f(−x)"
-                    : "✗ No simple symmetry"}
+                        ? "✓ Odd symmetry: f(x) = −f(−x)"
+                        : "✗ No simple symmetry"}
             </span>
         </div>
     );
@@ -380,9 +379,9 @@ export const symmetryDrawingDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
     <StackLayout key="layout-symmetry-header-title" maxWidth="xl">
         <Block id="symmetry-header-title" padding="sm">
-            <EditableH1 id="h1-symmetry-title" blockId="symmetry-header-title">
+            <EditableH4 id="h4-symmetry-title" blockId="symmetry-header-title">
                 Drawing Symmetry
-            </EditableH1>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -394,15 +393,6 @@ export const symmetryDrawingDemo: ReactElement[] = [
                 reflected across a line. Drag the vertices below to build any
                 triangle and watch its mirror image appear in real time.
             </EditableParagraph>
-        </Block>
-    </StackLayout>,
-
-    // ── Demo 1: Line of Symmetry ─────────────────────────────────────────────
-    <StackLayout key="layout-symmetry-line-title" maxWidth="xl">
-        <Block id="symmetry-line-title" padding="sm">
-            <EditableH2 id="h2-symmetry-line" blockId="symmetry-line-title">
-                Reflecting a Triangle
-            </EditableH2>
         </Block>
     </StackLayout>,
 
@@ -494,7 +484,7 @@ export const symmetryDrawingDemo: ReactElement[] = [
                         )}
                         formatValue={(v) => v.toFixed(1)}
                     />
-                    . These controls only apply when the line type is set to "custom".
+                    . These controls only apply when the line type is "custom".
                 </EditableParagraph>
             </Block>
             <Block id="symmetry-line-equation" padding="sm">
@@ -526,9 +516,9 @@ export const symmetryDrawingDemo: ReactElement[] = [
     // ── Demo 2: Function Symmetry (Even / Odd) ──────────────────────────────
     <StackLayout key="layout-symmetry-fn-title" maxWidth="xl">
         <Block id="symmetry-fn-title" padding="sm">
-            <EditableH2 id="h2-symmetry-fn" blockId="symmetry-fn-title">
+            <EditableH4 id="h4-symmetry-fn" blockId="symmetry-fn-title">
                 Even &amp; Odd Function Symmetry
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 

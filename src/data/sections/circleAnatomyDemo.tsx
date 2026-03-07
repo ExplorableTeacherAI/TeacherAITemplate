@@ -3,7 +3,7 @@ import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian2D,
-    EditableH2,
+    EditableH4,
     EditableParagraph,
     InlineLinkedHighlight,
     InlineFormula,
@@ -61,7 +61,7 @@ function ReactiveCircleAnatomy() {
                 },
                 // Diameter end-points
                 { type: "point", x: -r, y: 0, color: "#f97316", highlightId: "diameter" },
-                { type: "point", x: r,  y: 0, color: "#f97316", highlightId: "diameter" },
+                { type: "point", x: r, y: 0, color: "#f97316", highlightId: "diameter" },
 
                 // ── Radius segment (from centre to point on circle) ──
                 {
@@ -98,9 +98,9 @@ export const circleAnatomyDemo: ReactElement[] = [
     // ── Title ─────────────────────────────────────────────────────────────
     <StackLayout key="layout-circle-anatomy-title" maxWidth="xl">
         <Block id="circle-anatomy-title" padding="sm">
-            <EditableH2 id="h2-circle-anatomy-title" blockId="circle-anatomy-title">
+            <EditableH4 id="h4-circle-anatomy-title" blockId="circle-anatomy-title">
                 Circle Anatomy — Linked Highlights on a 2D Graph
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 

@@ -7,6 +7,7 @@ import {
     EditableParagraph,
     InlineLinkedHighlight,
     GeometricDiagram,
+    EditableH4,
 } from "@/components/atoms";
 import {
     getExampleVariableInfo,
@@ -35,9 +36,9 @@ function ReactiveGeometricDiagram() {
 export const geometricDiagramDemo: ReactElement[] = [
     <StackLayout key="layout-geometric-diagram-title" maxWidth="xl">
         <Block id="geometric-diagram-title" padding="md">
-            <EditableH2 id="h2-geometric-diagram-title" blockId="geometric-diagram-title">
+            <EditableH3 id="h3-geometric-diagram-title" blockId="geometric-diagram-title">
                 Geometric Diagram (SVG)
-            </EditableH2>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -53,9 +54,9 @@ export const geometricDiagramDemo: ReactElement[] = [
 
     <StackLayout key="layout-geometric-diagram-demo1-title" maxWidth="xl">
         <Block id="geometric-diagram-demo1-title" padding="sm">
-            <EditableH3 id="h3-geometric-diagram-demo1-title" blockId="geometric-diagram-demo1-title">
-                1. Reactive Shape Controls
-            </EditableH3>
+            <EditableH4 id="h4-geometric-diagram-demo1-title" blockId="geometric-diagram-demo1-title">
+                Reactive Shape Controls
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -72,9 +73,9 @@ export const geometricDiagramDemo: ReactElement[] = [
 
     <StackLayout key="layout-geometric-diagram-demo2-title" maxWidth="xl">
         <Block id="geometric-diagram-demo2-title" padding="sm">
-            <EditableH3 id="h3-geometric-diagram-demo2-title" blockId="geometric-diagram-demo2-title">
-                2. Linked-Highlight Geometry Vocabulary
-            </EditableH3>
+            <EditableH4 id="h4-geometric-diagram-demo2-title" blockId="geometric-diagram-demo2-title">
+                Linked-Highlight Geometry Vocabulary
+            </EditableH4>
         </Block>
     </StackLayout>,
 

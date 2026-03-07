@@ -4,6 +4,7 @@ import { Block } from "@/components/templates";
 import {
     EditableH2,
     EditableH3,
+    EditableH4,
     EditableParagraph,
     InlineLinkedHighlight,
     NodeLinkDiagram,
@@ -100,9 +101,9 @@ export const nodeLinkDemo: ReactElement[] = [
     // Title
     <StackLayout key="layout-node-link-title" maxWidth="xl">
         <Block id="node-link-title" padding="md">
-            <EditableH2 id="h2-node-link-title" blockId="node-link-title">
+            <EditableH3 id="h3-node-link-title" blockId="node-link-title">
                 Node-Link Diagram (Force-Directed Graph)
-            </EditableH2>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -110,9 +111,9 @@ export const nodeLinkDemo: ReactElement[] = [
 
     <StackLayout key="layout-node-link-social-title" maxWidth="xl">
         <Block id="node-link-social-title" padding="sm">
-            <EditableH3 id="h3-node-link-social-title" blockId="node-link-social-title">
-                1. Social Network
-            </EditableH3>
+            <EditableH4 id="h4-node-link-social-title" blockId="node-link-social-title">
+                Social Network
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -139,9 +140,9 @@ export const nodeLinkDemo: ReactElement[] = [
 
     <StackLayout key="layout-node-link-dep-title" maxWidth="xl">
         <Block id="node-link-dep-title" padding="sm">
-            <EditableH3 id="h3-node-link-dep-title" blockId="node-link-dep-title">
-                2. Directed Dependency Graph
-            </EditableH3>
+            <EditableH4 id="h4-node-link-dep-title" blockId="node-link-dep-title">
+                Directed Dependency Graph
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -168,9 +169,9 @@ export const nodeLinkDemo: ReactElement[] = [
 
     <StackLayout key="layout-node-link-reactive-title" maxWidth="xl">
         <Block id="node-link-reactive-title" padding="sm">
-            <EditableH3 id="h3-node-link-reactive-title" blockId="node-link-reactive-title">
-                3. Reactive Force Parameters
-            </EditableH3>
+            <EditableH4 id="h4-node-link-reactive-title" blockId="node-link-reactive-title">
+                Reactive Force Parameters
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -191,9 +192,9 @@ export const nodeLinkDemo: ReactElement[] = [
 
     <StackLayout key="layout-node-link-highlight-title" maxWidth="xl">
         <Block id="node-link-highlight-title" padding="sm">
-            <EditableH3 id="h3-node-link-highlight-title" blockId="node-link-highlight-title">
-                4. Linked-Highlight Integration
-            </EditableH3>
+            <EditableH4 id="h4-node-link-highlight-title" blockId="node-link-highlight-title">
+                Linked-Highlight Integration
+            </EditableH4>
         </Block>
     </StackLayout>,
 

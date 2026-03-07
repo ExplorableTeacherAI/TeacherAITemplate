@@ -125,12 +125,14 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     // Local state for component without varName
     const [localValue, setLocalValue] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
-    const [isCorrect, setIsCorrect] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
     // Determine which value to use
-    const usesVarStore = effectiveVarName !== undefined;
-    const selectedValue = usesVarStore ? (storeValue as string || null) : localValue;
+    const usesVarStore = !!effectiveVarName;
+    const rawSelectedValue = usesVarStore ? storeValue : localValue;
+    const selectedValue = typeof rawSelectedValue === 'string' && rawSelectedValue !== '' ? rawSelectedValue : null;
+
+    const isCorrect = selectedValue === effectiveCorrectAnswer;
 
     const setSelectedValue = useCallback((val: string | null) => {
         if (usesVarStore && effectiveVarName) {
@@ -208,14 +210,16 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     const handleSelect = (option: string) => {
         const correct = option === effectiveCorrectAnswer;
         setSelectedValue(option);
-        setIsCorrect(correct);
         setIsOpen(false);
         onChange?.(option, correct);
     };
 
-    const handleClear = () => {
+    const handleClear = (e?: React.MouseEvent) => {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
         setSelectedValue(null);
-        setIsCorrect(false);
     };
 
     // Wrapper props for round-trip extraction
@@ -294,25 +298,77 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     if (selectedValue && !isCorrect) {
         return (
             <span ref={containerRef} {...wrapperProps}>
-                <span
-                    className="inline-flex items-center font-medium"
-                    style={{
-                        color: effectiveColor,
-                        borderBottom: `2px solid #EF4444`,
-                        paddingBottom: '1px',
-                    }}
-                >
-                    <span style={{ color: effectiveColor }}>
-                        {selectedValue}
-                    </span>
-                    <button
-                        onClick={handleClear}
-                        className="inline-flex items-center justify-center ml-0.5 transition-all hover:scale-110"
-                        style={{ color: '#EF4444' }}
-                        aria-label="Clear selection"
+                <span className="inline-block relative" ref={dropdownRef}>
+                    <span
+                        onClick={() => !isEditing && setIsOpen(!isOpen)}
+                        className="inline-flex items-center font-medium cursor-pointer"
+                        style={{
+                            color: effectiveColor,
+                            borderBottom: `2px solid #EF4444`,
+                            paddingBottom: '1px',
+                        }}
                     >
-                        <X className="w-3 h-3" />
-                    </button>
+                        <span style={{ color: effectiveColor }}>
+                            {selectedValue}
+                        </span>
+                        <button
+                            onClick={handleClear}
+                            className="inline-flex items-center justify-center ml-0.5 transition-all hover:scale-110"
+                            style={{ color: '#EF4444' }}
+                            aria-label="Clear selection"
+                        >
+                            <X className="w-3 h-3" />
+                        </button>
+                    </span>
+
+                    <AnimatePresence>
+                        {isOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -4, scale: 0.97 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                                transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
+                                className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 min-w-[100px]"
+                                style={{
+                                    background: 'white',
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
+                                }}
+                            >
+                                {effectiveOptions.map((option) => {
+                                    const isSelected = option === selectedValue;
+                                    return (
+                                        <button
+                                            key={option}
+                                            onClick={() => handleSelect(option)}
+                                            style={{
+                                                display: 'block',
+                                                width: '100%',
+                                                padding: '6px 12px',
+                                                border: 'none',
+                                                background: isSelected ? `${effectiveColor}15` : 'transparent',
+                                                color: isSelected ? effectiveColor : '#374151',
+                                                cursor: 'pointer',
+                                                fontSize: '14px',
+                                                textAlign: 'left' as const,
+                                                borderRadius: '4px',
+                                                fontWeight: isSelected ? 600 : 400,
+                                                fontFamily: 'inherit',
+                                                transition: 'background 0.1s',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = `${effectiveColor}15`;
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = isSelected ? `${effectiveColor}15` : 'transparent';
+                                            }}
+                                        >
+                                            {option}
+                                        </button>
+                                    );
+                                })}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </span>
             </span>
         );

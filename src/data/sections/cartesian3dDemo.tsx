@@ -3,8 +3,9 @@ import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian3D,
-    EditableH1,
+    EditableH4,
     EditableH2,
+    EditableH3,
     EditableParagraph,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
@@ -470,9 +471,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
     <StackLayout key="layout-cartesian-3d-header-title" maxWidth="xl">
         <Block id="cartesian-3d-header-title" padding="sm">
-            <EditableH1 id="h1-cartesian-3d-title" blockId="cartesian-3d-header-title">
+            <EditableH3 id="h3-cartesian-3d-title" blockId="cartesian-3d-header-title">
                 3D Cartesian Visualizations
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -490,9 +491,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Demo 1: Vectors & Points ─────────────────────────────────────────────
     <StackLayout key="layout-cartesian-3d-vectors-title" maxWidth="xl">
         <Block id="cartesian-3d-vectors-title" padding="sm">
-            <EditableH2 id="h2-cartesian-3d-vectors" blockId="cartesian-3d-vectors-title">
+            <EditableH4 id="h4-cartesian-3d-vectors" blockId="cartesian-3d-vectors-title">
                 3D Vectors
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -559,9 +560,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Demo 2: Parametric Helix ─────────────────────────────────────────────
     <StackLayout key="layout-cartesian-3d-helix-title" maxWidth="xl">
         <Block id="cartesian-3d-helix-title" padding="sm">
-            <EditableH2 id="h2-cartesian-3d-helix" blockId="cartesian-3d-helix-title">
+            <EditableH4 id="h4-cartesian-3d-helix" blockId="cartesian-3d-helix-title">
                 Parametric Helix
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -613,7 +614,7 @@ export const cartesian3dDemo: ReactElement[] = [
                 >
                     You can{" "}
                     <InlineTrigger varName="helixTurns" value={1}>
-                        set 1 turn
+                        snap to 1 turn
                     </InlineTrigger>{" "}
                     or{" "}
                     <InlineTrigger varName="helixTurns" value={6} icon="zap">
@@ -631,9 +632,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Demo 3: Reactive Surface Plot ────────────────────────────────────────
     <StackLayout key="layout-cartesian-3d-surface-title" maxWidth="xl">
         <Block id="cartesian-3d-surface-title" padding="sm">
-            <EditableH2 id="h2-cartesian-3d-surface" blockId="cartesian-3d-surface-title">
+            <EditableH4 id="h4-cartesian-3d-surface" blockId="cartesian-3d-surface-title">
                 Surface Plot
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -729,9 +730,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Demo 4: Sphere & Plane ───────────────────────────────────────────────
     <StackLayout key="layout-cartesian-3d-sphere-title" maxWidth="xl">
         <Block id="cartesian-3d-sphere-title" padding="sm">
-            <EditableH2 id="h2-cartesian-3d-sphere" blockId="cartesian-3d-sphere-title">
+            <EditableH4 id="h4-cartesian-3d-sphere" blockId="cartesian-3d-sphere-title">
                 Sphere & Plane Intersection
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -765,9 +766,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Demo 5: Parametric Surface — Torus ───────────────────────────────────
     <StackLayout key="layout-cartesian-3d-torus-title" maxWidth="xl">
         <Block id="cartesian-3d-torus-title" padding="sm">
-            <EditableH2 id="h2-cartesian-3d-torus" blockId="cartesian-3d-torus-title">
+            <EditableH4 id="h4-cartesian-3d-torus" blockId="cartesian-3d-torus-title">
                 Parametric Surface — Torus
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -854,9 +855,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Demo 6: 3D Draggable Point Explorer ──────────────────────────────────
     <StackLayout key="layout-cartesian-3d-drag-title" maxWidth="xl">
         <Block id="cartesian-3d-drag-title" padding="sm">
-            <EditableH2 id="h2-cartesian-3d-drag" blockId="cartesian-3d-drag-title">
+            <EditableH4 id="h4-cartesian-3d-drag" blockId="cartesian-3d-drag-title">
                 Draggable Point Explorer
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -925,9 +926,9 @@ export const cartesian3dDemo: ReactElement[] = [
     // ── Demo 7: 3D Lissajous Curve ───────────────────────────────────────────
     <StackLayout key="layout-cartesian-3d-lissajous-title" maxWidth="xl">
         <Block id="cartesian-3d-lissajous-title" padding="sm">
-            <EditableH2 id="h2-cartesian-3d-lissajous" blockId="cartesian-3d-lissajous-title">
+            <EditableH4 id="h4-cartesian-3d-lissajous" blockId="cartesian-3d-lissajous-title">
                 3D Lissajous Curve
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -993,7 +994,7 @@ export const cartesian3dDemo: ReactElement[] = [
                     <InlineTrigger varName="lissFreqA" value={3}>
                         a = 3
                     </InlineTrigger>{" "}
-                    for a trefoil-like path, or set all equal with{" "}
+                    for a trefoil-like path, or make them all equal using{" "}
                     <InlineTrigger varName="lissFreqA" value={1}>
                         a = 1
                     </InlineTrigger>

@@ -4,6 +4,8 @@ import { StackLayout } from "@/components/layouts";
 import {
     EditableH1,
     EditableH2,
+    EditableH3,
+    EditableH4,
     EditableParagraph,
     InlineFormula,
     SimulationPanel,
@@ -150,39 +152,6 @@ function TrigTransformViz() {
     );
 }
 
-function LissajousViz() {
-    const ax = useVar("lissA", 3) as number;
-    const by = useVar("lissB", 2) as number;
-    const deltaDeg = useVar("lissDelta", 90) as number;
-    const running = useVar("lissRunning", false) as boolean;
-    const time = useAnimatedTime(running, 0.9);
-    const delta = (deltaDeg * Math.PI) / 180 + time;
-
-    const width = 720;
-    const height = 300;
-    const cx = width / 2;
-    const cy = height / 2;
-
-    const points: string[] = [];
-    const steps = 700;
-    for (let i = 0; i <= steps; i++) {
-        const t = (i / steps) * Math.PI * 2;
-        const x = cx + 120 * Math.sin(ax * t + delta);
-        const y = cy - 100 * Math.sin(by * t);
-        points.push(`${x},${y}`);
-    }
-
-    return (
-        <div className="w-full h-full p-3 bg-background">
-            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full rounded-md bg-card border border-border/50">
-                <line x1={0} y1={cy} x2={width} y2={cy} stroke="#64748b" strokeWidth="1" strokeDasharray="4 4" />
-                <line x1={cx} y1={0} x2={cx} y2={height} stroke="#64748b" strokeWidth="1" strokeDasharray="4 4" />
-                <polyline points={points.join(" ")} fill="none" stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
-            </svg>
-        </div>
-    );
-}
-
 const waveAmp1 = numDef("waveAmplitude1");
 const waveFreq1 = numDef("waveFrequency1");
 const waveAmp2 = numDef("waveAmplitude2");
@@ -192,16 +161,12 @@ const trigAmp = numDef("trigAmplitude");
 const trigFreq = numDef("trigFrequency");
 const trigPhase = numDef("trigPhase");
 
-const lissA = numDef("lissA");
-const lissB = numDef("lissB");
-const lissDelta = numDef("lissDelta");
-
 export const simulationDemoBlocks: ReactElement[] = [
     <StackLayout key="layout-simulation-title" maxWidth="xl">
         <Block id="simulation-title" padding="md">
-            <EditableH1 id="h1-simulation-title" blockId="simulation-title">
+            <EditableH3 id="h3-simulation-title" blockId="simulation-title">
                 Interactive Mathematics Simulations
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -215,9 +180,9 @@ export const simulationDemoBlocks: ReactElement[] = [
 
     <StackLayout key="layout-simulation-wave-h2" maxWidth="xl">
         <Block id="simulation-wave-h2" padding="sm">
-            <EditableH2 id="h2-simulation-wave" blockId="simulation-wave-h2">
-                1) Wave Superposition
-            </EditableH2>
+            <EditableH4 id="h4-simulation-wave" blockId="simulation-wave-h2">
+                Wave Superposition
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -291,9 +256,9 @@ export const simulationDemoBlocks: ReactElement[] = [
 
     <StackLayout key="layout-simulation-trig-h2" maxWidth="xl">
         <Block id="simulation-trig-h2" padding="sm">
-            <EditableH2 id="h2-simulation-trig" blockId="simulation-trig-h2">
-                2) Trigonometric Transformations
-            </EditableH2>
+            <EditableH4 id="h4-simulation-trig" blockId="simulation-trig-h2">
+                Trigonometric Transformations
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -355,64 +320,5 @@ export const simulationDemoBlocks: ReactElement[] = [
         </Block>
     </StackLayout>,
 
-    <StackLayout key="layout-simulation-liss-h2" maxWidth="xl">
-        <Block id="simulation-liss-h2" padding="sm">
-            <EditableH2 id="h2-simulation-liss" blockId="simulation-liss-h2">
-                3) Lissajous Curves
-            </EditableH2>
-        </Block>
-    </StackLayout>,
 
-    <StackLayout key="layout-simulation-liss" maxWidth="xl">
-        <Block id="simulation-liss" padding="sm" hasVisualization>
-            <SimulationPanel
-                title="Controls"
-                controlsPosition="right"
-                controlsWidth="sm"
-                height={300}
-                controls={[
-                    {
-                        type: "slider",
-                        varName: "lissA",
-                        label: lissA.label,
-                        min: lissA.min,
-                        max: lissA.max,
-                        step: lissA.step,
-                        unit: lissA.unit,
-                        color: lissA.color,
-                    },
-                    {
-                        type: "slider",
-                        varName: "lissB",
-                        label: lissB.label,
-                        min: lissB.min,
-                        max: lissB.max,
-                        step: lissB.step,
-                        unit: lissB.unit,
-                        color: lissB.color,
-                    },
-                    {
-                        type: "slider",
-                        varName: "lissDelta",
-                        label: lissDelta.label,
-                        min: lissDelta.min,
-                        max: lissDelta.max,
-                        step: lissDelta.step,
-                        unit: lissDelta.unit,
-                        color: lissDelta.color,
-                    },
-                    {
-                        type: "button-group",
-                        label: "Animation",
-                        buttons: [
-                            { type: "button", varName: "lissRunning", value: true, label: "Play", icon: "play" },
-                            { type: "button", varName: "lissRunning", value: false, label: "Stop", icon: "pause" },
-                        ],
-                    },
-                ]}
-            >
-                <LissajousViz />
-            </SimulationPanel>
-        </Block>
-    </StackLayout>,
 ];

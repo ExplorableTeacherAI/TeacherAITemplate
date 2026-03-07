@@ -259,6 +259,24 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         description: 'Color for the sine (vertical) projection in the unit circle explorer',
         color: '#22c55e',
     },
+    ucCosineVal: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Cosine Value',
+        description: 'The current cosine value measured from the unit circle',
+        min: -1,
+        max: 1,
+        step: 0.01,
+    },
+    ucSineVal: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Sine Value',
+        description: 'The current sine value measured from the unit circle',
+        min: -1,
+        max: 1,
+        step: 0.01,
+    },
     fpSin: {
         defaultValue: 'sin',
         type: 'spotColor',
@@ -280,20 +298,7 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         description: 'Color for −sin(x) in the function plots demo',
         color: '#ef4444',
     },
-    pcLissajous: {
-        defaultValue: 'lissajous',
-        type: 'spotColor',
-        label: 'Lissajous',
-        description: 'Color for the Lissajous curve in the parametric curves demo',
-        color: '#8b5cf6',
-    },
-    pcEpitrochoid: {
-        defaultValue: 'epitrochoid',
-        type: 'spotColor',
-        label: 'Epitrochoid',
-        description: 'Color for the epitrochoid curve in the parametric curves demo',
-        color: '#f97316',
-    },
+
     swReference: {
         defaultValue: 'reference',
         type: 'spotColor',
@@ -602,6 +607,37 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         label: 'Animating',
         description: 'Whether an animation is currently running',
     },
+    base: {
+        defaultValue: 3,
+        type: 'number',
+        label: 'Base',
+        description: 'Base of a triangle or rectangle',
+        min: 1,
+        max: 20,
+        step: 0.5,
+        color: '#a855f7',
+    },
+    height: {
+        defaultValue: 4,
+        type: 'number',
+        label: 'Height',
+        description: 'Height of a triangle or rectangle',
+        min: 1,
+        max: 20,
+        step: 0.5,
+        color: '#f97316',
+    },
+    area: {
+        defaultValue: 6,
+        type: 'number',
+        label: 'Area',
+        description: 'Total area',
+        min: 0.5,
+        max: 200,
+        step: 0.5,
+        color: '#06b6d4',
+    },
+
 
     // ─────────────────────────────────────────
     // NUMBER (continued) - radius, temperature, count, angle

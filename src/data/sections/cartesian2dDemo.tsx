@@ -3,19 +3,20 @@ import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian2D,
-    EditableH1,
     EditableH2,
+    EditableH4,
     EditableParagraph,
-    InlineToggle,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
     InlineSpotColor,
+    EditableH3,
+    InlineHyperlink,
 } from "@/components/atoms";
 import type { PlotItem } from "@/components/atoms";
 import { Mafs, Coordinates, Plot, useMovablePoint } from "mafs";
 import { FormulaBlock } from "@/components/molecules";
 import { useVar, useSetVar } from "@/stores";
-import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightPropsFromDefinition, spotColorPropsFromDefinition, togglePropsFromDefinition } from "../exampleVariables";
+import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightPropsFromDefinition, spotColorPropsFromDefinition } from "../exampleVariables";
 
 
 // ── Demo 1: Static Function Plots ────────────────────────────────────────────
@@ -24,28 +25,46 @@ function BasicFunctionsViz() {
     return (
         <Cartesian2D
             viewBox={{ x: [-5, 5], y: [-2.5, 2.5] }}
-            plots={[
-                { type: "function", fn: Math.sin, color: "#3b82f6", weight: 3 },
-                { type: "function", fn: Math.cos, color: "#f59e0b", weight: 3 },
+            movablePoints={[
                 {
-                    type: "function",
-                    fn: (x) => -Math.sin(x),
-                    color: "#ef4444",
-                    weight: 2,
-                    domain: [-Math.PI, Math.PI],
-                },
-                // Mark the key points: sin(π/2) = 1, cos(0) = 1
-                { type: "point", x: Math.PI / 2, y: 1, color: "#3b82f6" },
-                { type: "point", x: 0, y: 1, color: "#f59e0b" },
-                {
-                    type: "segment",
-                    point1: [Math.PI / 2, 0],
-                    point2: [Math.PI / 2, 1],
+                    initial: [Math.PI / 2, 0],
                     color: "#3b82f6",
-                    style: "dashed",
-                    weight: 1,
-                },
+                    constrain: "horizontal"
+                }
             ]}
+            dynamicPlots={([p]) => {
+                const px = p[0];
+                return [
+                    { type: "function", fn: Math.sin, color: "#3b82f6", weight: 3 },
+                    { type: "function", fn: Math.cos, color: "#f59e0b", weight: 3 },
+                    {
+                        type: "function",
+                        fn: (x) => -Math.sin(x),
+                        color: "#ef4444",
+                        weight: 2,
+                        domain: [-Math.PI, Math.PI],
+                    },
+                    // Mark the key points evaluated exactly at the dragged x-coordinate
+                    { type: "point", x: px, y: Math.sin(px), color: "#3b82f6" },
+                    { type: "point", x: px, y: Math.cos(px), color: "#f59e0b" },
+                    {
+                        type: "segment",
+                        point1: [px, 0],
+                        point2: [px, Math.sin(px)],
+                        color: "#3b82f6",
+                        style: "dashed",
+                        weight: 1,
+                    },
+                    {
+                        type: "segment",
+                        point1: [px, 0],
+                        point2: [px, Math.cos(px)],
+                        color: "#f59e0b",
+                        style: "dashed",
+                        weight: 1,
+                    },
+                ];
+            }}
         />
     );
 }
@@ -53,6 +72,7 @@ function BasicFunctionsViz() {
 // ── Demo 2: Unit Circle Explorer ─────────────────────────────────────────────
 
 function UnitCircleExplorer() {
+    const setVar = useSetVar();
     return (
         <Cartesian2D
             viewBox={{ x: [-2, 2], y: [-2, 2] }}
@@ -65,6 +85,10 @@ function UnitCircleExplorer() {
                         const angle = Math.atan2(py, px);
                         return [Math.cos(angle), Math.sin(angle)];
                     },
+                    onChange: ([px, py]) => {
+                        setVar('ucCosineVal', px);
+                        setVar('ucSineVal', py);
+                    }
                 },
             ]}
             plots={[
@@ -111,38 +135,9 @@ function UnitCircleExplorer() {
     );
 }
 
-// ── Demo 3: Parametric Curves ─────────────────────────────────────────────────
 
-function ParametricCurvesViz() {
-    return (
-        <Cartesian2D
-            viewBox={{ x: [-3, 3], y: [-3, 3] }}
-            plots={[
-                // Lissajous figure: a=2, b=3
-                {
-                    type: "parametric",
-                    xy: (t) => [2 * Math.sin(2 * t), 2 * Math.sin(3 * t)],
-                    tRange: [0, 2 * Math.PI],
-                    color: "#8b5cf6",
-                    weight: 2.5,
-                },
-                // Epicycloid: small circle rolling on bigger
-                {
-                    type: "parametric",
-                    xy: (t) => [
-                        1.5 * Math.cos(t) - 0.6 * Math.cos(2.5 * t),
-                        1.5 * Math.sin(t) - 0.6 * Math.sin(2.5 * t),
-                    ],
-                    tRange: [0, 4 * Math.PI],
-                    color: "#f97316",
-                    weight: 2,
-                },
-            ]}
-        />
-    );
-}
 
-// ── Demo 4: Reactive Sine Wave Visualization ─────────────────────────────────
+// ── Demo 3: Reactive Sine Wave Visualization ─────────────────────────────────
 
 /**
  * Reactive wrapper that reads sine wave parameters from the global variable store
@@ -214,7 +209,7 @@ function ReactiveSineWaveViz() {
 
 // SineWaveLegend removed — colors are now shown inline via InlineSpotColor
 
-// ── Demo 5: Scatter Plot with Trend Line ──────────────────────────────────────
+// ── Demo 4: Scatter Plot with Trend Line ──────────────────────────────────────
 
 // Group A data — positive correlation (e.g. study hours vs score)
 const groupAPoints: [number, number][] = [
@@ -364,7 +359,7 @@ function LiveRegressionEquation() {
     );
 }
 
-// ── Demo 6: Line Drawing Playground ─────────────────────────────────────────
+// ── Demo 5: Line Drawing Playground ─────────────────────────────────────────
 
 function LineDrawingViz() {
     const snapToGrid = useVar('ldSnapToGrid', 'on') as string;
@@ -498,16 +493,16 @@ export const cartesian2dDemo: ReactElement[] = [
     // ── Header ──────────────────────────────────────────────────────────────
     <StackLayout key="layout-cartesian-2d-header-title" maxWidth="xl">
         <Block id="cartesian-2d-header-title" padding="sm">
-            <EditableH1 id="h1-cartesian-2d-title" blockId="cartesian-2d-header-title">
+            <EditableH3 id="h3-cartesian-2d-title" blockId="cartesian-2d-header-title">
                 2D Cartesian Visualizations
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-cartesian-2d-header-desc" maxWidth="xl">
         <Block id="cartesian-2d-header-desc" padding="sm">
             <EditableParagraph id="para-cartesian-2d-desc" blockId="cartesian-2d-header-desc">
-                The Cartesian coordinate system, named after mathematician René Descartes, provides a framework for visualizing mathematical relationships in two dimensions. Points, lines, curves, and shapes can all be precisely described using x and y coordinates, making abstract equations tangible and explorable.
+                The Cartesian coordinate system provides a framework for visualizing mathematical relationships in two dimensions. MathVibe tightly incorporates the incredibly fast and powerful <InlineHyperlink id="link-mafs" href="https://mafs.dev" targetBlockId="">Mafs library</InlineHyperlink> (a declarative React geometry framework built on top of D3) directly inside our plotting blocks, allowing you to instantly build highly interactive, performant 2D canvas plots seamlessly right out of the box.
             </EditableParagraph>
         </Block>
     </StackLayout>,
@@ -515,9 +510,9 @@ export const cartesian2dDemo: ReactElement[] = [
     // ── Demo 1: Basic Function Plots ─────────────────────────────────────────
     <StackLayout key="layout-cartesian-2d-basic-title" maxWidth="xl">
         <Block id="cartesian-2d-basic-title" padding="sm">
-            <EditableH2 id="h2-cartesian-2d-basic" blockId="cartesian-2d-basic-title">
+            <EditableH4 id="h4-cartesian-2d-basic" blockId="cartesian-2d-basic-title">
                 Function Plots
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -543,8 +538,7 @@ export const cartesian2dDemo: ReactElement[] = [
                 >
                     −sin(x)
                 </InlineSpotColor>
-                {" "}(restricted domain). The dot marks the maximum of sin(x) at
-                x = π/2, and the dashed vertical line shows the drop to the x-axis.
+                {" "}(restricted domain). Try dragging the blue point along the x-axis to instantly evaluate the sine and cosine functions simultaneously exactly at that x-coordinate! The tracking dashed drop-lines recalculate synchronously as you drag.
             </EditableParagraph>
         </Block>
         <Block id="cartesian-2d-basic-viz" padding="sm" hasVisualization>
@@ -555,34 +549,29 @@ export const cartesian2dDemo: ReactElement[] = [
     // ── Demo 2: Unit Circle Explorer ─────────────────────────────────────────
     <StackLayout key="layout-cartesian-2d-unit-title" maxWidth="xl">
         <Block id="cartesian-2d-unit-title" padding="sm">
-            <EditableH2 id="h2-cartesian-2d-unit" blockId="cartesian-2d-unit-title">
+            <EditableH4 id="h4-cartesian-2d-unit" blockId="cartesian-2d-unit-title">
                 Unit Circle Explorer
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
     <SplitLayout key="layout-cartesian-2d-unit-split" ratio="1:1" gap="lg">
         <Block id="cartesian-2d-unit-desc" padding="sm">
             <EditableParagraph id="para-cartesian-2d-unit-desc" blockId="cartesian-2d-unit-desc">
-                A movable point is constrained to the unit circle. Drag the{" "}
-                <InlineSpotColor varName="ucRadius"
-                    {...spotColorPropsFromDefinition(getExampleVariableInfo('ucRadius'))}
-                >
+                <strong>Learning Goal:</strong> Understand the relationship between circular motion and trigonometric functions. <br /><br />
+                By constraining a movable point to a circle of radius 1, we can dynamically visualize the fundamental definitions of sine and cosine. Try dragging the red{" "}
+                <InlineSpotColor varName="ucRadius" color="#ef4444">
                     radius vector
                 </InlineSpotColor>
-                {" "}around the circle and watch how the{" "}
-                <InlineSpotColor varName="ucCosine"
-                    {...spotColorPropsFromDefinition(getExampleVariableInfo('ucCosine'))}
-                >
+                {" "}around the unit circle. You'll immediately notice that the point's horizontal position maps precisely to its{" "}
+                <InlineSpotColor varName="ucCosine" color="#3b82f6">
                     cos(θ) projection
                 </InlineSpotColor>
-                {" "}(horizontal) and{" "}
-                <InlineSpotColor varName="ucSine"
-                    {...spotColorPropsFromDefinition(getExampleVariableInfo('ucSine'))}
-                >
+                {" "}(<InlineScrubbleNumber varName="ucCosineVal" {...numberPropsFromDefinition(getExampleVariableInfo('ucCosineVal'))} color="#3b82f6" formatValue={(v) => v.toFixed(2)} />), and its vertical position corresponds exactly to its{" "}
+                <InlineSpotColor varName="ucSine" color="#22c55e">
                     sin(θ) projection
                 </InlineSpotColor>
-                {" "}(vertical) change in real time.
+                {" "}(<InlineScrubbleNumber varName="ucSineVal" {...numberPropsFromDefinition(getExampleVariableInfo('ucSineVal'))} color="#22c55e" formatValue={(v) => v.toFixed(2)} />). Visualizing how these projections grow, shrink, and oscillate interactively builds a much deeper intuition than memorizing a formula!
             </EditableParagraph>
         </Block>
         <Block id="cartesian-2d-unit-viz" padding="sm" hasVisualization>
@@ -590,45 +579,12 @@ export const cartesian2dDemo: ReactElement[] = [
         </Block>
     </SplitLayout>,
 
-    // ── Demo 3: Parametric Curves ─────────────────────────────────────────────
-    <StackLayout key="layout-cartesian-2d-parametric-title" maxWidth="xl">
-        <Block id="cartesian-2d-parametric-title" padding="sm">
-            <EditableH2 id="h2-cartesian-2d-parametric" blockId="cartesian-2d-parametric-title">
-                Parametric Curves
-            </EditableH2>
-        </Block>
-    </StackLayout>,
-
-    <SplitLayout key="layout-cartesian-2d-parametric-split" ratio="1:1" gap="lg">
-        <Block id="cartesian-2d-parametric-desc" padding="sm">
-            <EditableParagraph id="para-cartesian-2d-parametric-desc" blockId="cartesian-2d-parametric-desc">
-                Parametric plot types draw curves that can’t be expressed as
-                simple functions of x. Two curves are shown:{" "}
-                <InlineSpotColor varName="pcLissajous"
-                    {...spotColorPropsFromDefinition(getExampleVariableInfo('pcLissajous'))}
-                >
-                    Lissajous (a=2, b=3)
-                </InlineSpotColor>
-                {" "}and{" "}
-                <InlineSpotColor varName="pcEpitrochoid"
-                    {...spotColorPropsFromDefinition(getExampleVariableInfo('pcEpitrochoid'))}
-                >
-                    Epitrochoid
-                </InlineSpotColor>
-                , both looping over a full period.
-            </EditableParagraph>
-        </Block>
-        <Block id="cartesian-2d-parametric-viz" padding="sm" hasVisualization>
-            <ParametricCurvesViz />
-        </Block>
-    </SplitLayout>,
-
-    // ── Demo 4: Sine Wave Explorer (InlineLinkedHighlight + Store) ─────────────
+    // ── Demo 3: Sine Wave Explorer (InlineLinkedHighlight + Store) ─────────────
     <StackLayout key="layout-cartesian-2d-explorer-title" maxWidth="xl">
         <Block id="cartesian-2d-explorer-title" padding="sm">
-            <EditableH2 id="h2-cartesian-2d-explorer" blockId="cartesian-2d-explorer-title">
+            <EditableH4 id="h4-cartesian-2d-explorer" blockId="cartesian-2d-explorer-title">
                 Sine Wave Explorer
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -737,12 +693,12 @@ export const cartesian2dDemo: ReactElement[] = [
         </Block>
     </SplitLayout>,
 
-    // ── Demo 5: Scatter Plot ──────────────────────────────────────────────────
+    // ── Demo 4: Scatter Plot ──────────────────────────────────────────────────
     <StackLayout key="layout-cartesian-2d-scatter-title" maxWidth="xl">
         <Block id="cartesian-2d-scatter-title" padding="sm">
-            <EditableH2 id="h2-cartesian-2d-scatter" blockId="cartesian-2d-scatter-title">
+            <EditableH4 id="h4-cartesian-2d-scatter" blockId="cartesian-2d-scatter-title">
                 Scatter Plot
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -762,12 +718,12 @@ export const cartesian2dDemo: ReactElement[] = [
         </Block>
     </SplitLayout>,
 
-    // ── Demo 6: Line Drawing Playground ─────────────────────────────────────
+    // ── Demo 5: Line Drawing Playground ─────────────────────────────────────
     <StackLayout key="layout-cartesian-2d-drawing-title" maxWidth="xl">
         <Block id="cartesian-2d-drawing-title" padding="sm">
-            <EditableH2 id="h2-cartesian-2d-drawing" blockId="cartesian-2d-drawing-title">
-                Line Drawing Playground
-            </EditableH2>
+            <EditableH4 id="h4-cartesian-2d-drawing" blockId="cartesian-2d-drawing-title">
+                Line Drawing
+            </EditableH4>
         </Block>
     </StackLayout>,
 

@@ -166,6 +166,22 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 - IDs must be **unique across the entire lesson** — never reuse an ID
 - IDs should be **descriptive and readable** — a developer should understand what the block contains from its ID alone
 
+### Descriptive Phrasing for Interactions
+
+**NEVER use command-style phrasing like "set to", "increase to", or "change to" when referencing inline interactive components.**
+
+Because inline components (e.g., `InlineScrubbleNumber`) display real-time reactive values, instructions like "increase the amplitude to 2" will not make sense if the user has already changed the value to 3.
+
+**Use exploratory, state-based, or descriptive language instead:**
+- **WRONG**: "Set the amplitude to 3 to see what happens."
+- **CORRECT**: "If the amplitude is 3, what happens?"
+- **WRONG**: "Increase the frequency to 5."
+- **CORRECT**: "Explore what happens when the frequency is 5."
+- **WRONG**: "Change the mode to custom."
+- **CORRECT**: "This applies when the mode is custom."
+
+For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to", "reset", or state the action contextually.
+
 ---
 
 ## Component Reference
@@ -181,10 +197,10 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 | `InlineClozeChoice` | Dropdown choice with answer validation |
 | `InlineToggle` | Click to cycle through options |
 | `InlineTooltip` | Shows tooltip/definition on hover (no variable store) |
-| `InlineTrigger` | Click to set a variable to a value (emerald) |
+| `InlineTrigger` | Click to snap a variable to a value (emerald) |
 | `InlineHyperlink` | Click to open URL or scroll to block (emerald) |
 | `InlineFormula` | Inline KaTeX formula with colored terms (use single `\` for LaTeX commands) |
-| `InlineSpotColor` | Colored text highlight |
+| `InlineSpotColor` | Highlights text with a global variable's color |
 | `InlineLinkedHighlight` | Bidirectional highlighting |
 
 ### Formula Components (`@/components/molecules`)
@@ -230,20 +246,20 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 
 ```tsx
 <EditableParagraph id="para-question-radius" blockId="question-radius">
-    A circle with diameter 10 has radius{" "}
+    Because a circle's diameter is defined as passing straight across the center, a circle with a radius of 3 must have a diameter exactly equal to{" "}
     <InlineFeedback
-        varName="answer_radius"
-        correctValue="5"
-        successMessage="Well done! The radius is half the diameter, so 10 ÷ 2 = 5"
-        failureMessage="Not quite — remember, the radius is always half the diameter"
-        hint="If the diameter is 10, what is 10 ÷ 2?"
+        varName="fbCircleDiameter"
+        correctValue="6"
+        successMessage="Brilliant! You nailed it, since the diameter is always twice the radius, so 2 × 3 = 6"
+        failureMessage="Almost there!"
+        hint="The diameter stretches all the way across the circle through its centre, which means it is exactly twice the radius. Try calculating 2 × 3"
         reviewBlockId="circles-introduction"
         reviewLabel="Review radius and diameter"
     >
         <InlineClozeInput
-            varName="answer_radius"
-            correctAnswer="5"
-            {...clozePropsFromDefinition(getVariableInfo('answer_radius'))}
+            varName="fbCircleDiameter"
+            correctAnswer="6"
+            {...clozePropsFromDefinition(getVariableInfo('fbCircleDiameter'))}
         />
     </InlineFeedback>.
 </EditableParagraph>
@@ -287,8 +303,9 @@ import { StepLayout, Step } from "@/components/layouts";
     <Step completionVarName="myAnswer" autoAdvance>
         <Block id="intro-question" padding="sm">
             <EditableParagraph id="para-intro-question" blockId="intro-question">
-                What is 2 + 2?{" "}
+                If you have two apples and someone gives you two more, you now have a total of{" "}
                 <InlineClozeInput varName="myAnswer" correctAnswer="4" ... />
+                {" "}apples.
             </EditableParagraph>
         </Block>
     </Step>
@@ -462,6 +479,13 @@ The table reads its accent colour from the global variable store (via `varName`)
 - Use muted, desaturated colors (HSL saturation < 70%)
 - **Good:** `#6366f1` (soft indigo), `#3cc499` (muted teal), `#f59e0b` (warm amber), `#8b5cf6` (soft violet)
 - **Avoid:** `#FF0000`, `#00FF00`, `#0000FF`, neon colors, pure saturated primaries
+
+### Safe SVG Dimensions and Anti-Clipping
+
+When manually writing custom `<svg>` visual components, **always establish a safe `viewBox` width and height** that securely encompasses all shapes, texts, and potential transforms. Give a margin of 20px-40px.
+
+- **Bad**: `viewBox="0 0 300 200"` while placing text at `x={290}` (gets cut off right off the edge).
+- **Good**: Expand `viewBox="0 0 340 200"` and `width={340}` to safely pad the drawing area preventing crop-offs.
 
 ---
 

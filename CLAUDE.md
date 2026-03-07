@@ -204,11 +204,25 @@ currentShape: {
 ```tsx
 import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 
-<InlineToggle
-    varName="currentShape"
-    options={["triangle", "square", "pentagon", "hexagon"]}
-    {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
-/>
+// Reactive text component returning different strings based on the toggle value
+function ReactiveToggleShapeText() {
+    const shape = useVar('currentShape', 'triangle') as string;
+    if (shape === 'square') return <span>has 4 equal sides and interior angles of 90°</span>;
+    if (shape === 'pentagon') return <span>has 5 equal sides and interior angles of 108°</span>;
+    if (shape === 'hexagon') return <span>has 6 equal sides and interior angles of 120°</span>;
+    return <span>has 3 equal sides and interior angles of 60°</span>;
+}
+
+<EditableParagraph id="para-toggle-shapes" blockId="paragraph-toggle-shapes">
+    By changing the number of sides, we can define different regular polygons. For example, a regular{" "}
+    <InlineToggle
+        id="toggle-current-shape"
+        varName="currentShape"
+        options={["triangle", "square", "pentagon", "hexagon"]}
+        {...togglePropsFromDefinition(getVariableInfo('currentShape'))}
+    />
+    {" "}<ReactiveToggleShapeText />. Click the shape name to cycle through other options and see its properties change.
+</EditableParagraph>
 ```
 
 ## InlineTooltip (Hover Tooltip)
@@ -216,12 +230,16 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 `InlineTooltip` shows a tooltip/definition on hover. Does **NOT** use the variable store — purely informational. No `varName` prop needed.
 
 ```tsx
-<EditableParagraph id="para-example" blockId="circle-definition">
-    Every point on a{" "}
-    <InlineTooltip tooltip="A shape where all points are equidistant from the center.">
+<EditableParagraph id="para-tooltip-circle" blockId="paragraph-tooltip-circle">
+    In geometry, measuring a{" "}
+    <InlineTooltip id="tooltip-circle-def" tooltip="A perfect 2D shape where every point on the boundary is identically distanced from the center.">
         circle
-    </InlineTooltip>{" "}
-    has the same distance from its center.
+    </InlineTooltip>
+    {" "}requires understanding its core properties. The most fundamental of these is the{" "}
+    <InlineTooltip id="tooltip-radius-def" tooltip="The straight-line distance from the exact center of a circle to any point on its boundary.">
+        radius
+    </InlineTooltip>
+    , which acts as the building block for all other circular formulas.
 </EditableParagraph>
 ```
 
@@ -239,13 +257,13 @@ import { getVariableInfo, togglePropsFromDefinition } from "./variables";
 `InlineFormula` renders a KaTeX math formula inline within paragraph text, with optional colored variables using `\clr{name}{content}` syntax. Does **NOT** use the variable store.
 
 ```tsx
-<EditableParagraph id="para-example" blockId="circle-definition">
-    The area of a circle is{" "}
+<EditableParagraph id="para-formula-area" blockId="formula-circle-area">
+    For example, the total 2D space encapsulated by a boundary is measured as the{" "}
     <InlineFormula
         latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
         colorMap={{ area: '#ef4444', pi: '#3b82f6', radius: '#3cc499' }}
-    />{" "}
-    where r is the radius.
+    />
+    . Here, the term <InlineFormula latex="\clr{radius}{r}" colorMap={{radius: '#3cc499'}} /> explicitly represents the radius.
 </EditableParagraph>
 ```
 
@@ -278,29 +296,31 @@ This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`,
 <FormulaBlock latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}" ... />
 ```
 
-## InlineTrigger (Click to Set Variable)
+## InlineTrigger (Click to Snap Value)
 
-`InlineTrigger` is a clickable inline element that **sets a global variable to a specific value** on click. Belongs to the connective category (emerald `#10B981`).
+`InlineTrigger` is a clickable inline element that **snaps a global variable to a specific value** on click. Belongs to the connective category (emerald `#10B981`).
 
 ```tsx
-<EditableParagraph id="para-example" blockId="circle-definition">
-    The speed is <InlineScrubbleNumber varName="speed" ... />.
-    You can{" "}
+<EditableParagraph id="para-trigger-example" blockId="trigger-example">
+    Try dragging the simulation speed to a custom value:{" "}
+    <InlineScrubbleNumber varName="speed" ... />.
+    Once you lose track of the original pace, you can easily{" "}
     <InlineTrigger varName="speed" value={1} icon="refresh">
-        reset it to 1
+        restore the default speed
     </InlineTrigger>{" "}
-    or{" "}
+    or instantly{" "}
     <InlineTrigger varName="speed" value={5} icon="zap">
-        max it out
-    </InlineTrigger>.
+        maximize the velocity
+    </InlineTrigger>{" "}
+    with a single click.
 </EditableParagraph>
 ```
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|---------|
 | `children` | `ReactNode` | *(required)* | The clickable text displayed inline |
-| `varName` | `string` | `undefined` | Variable to set on click |
-| `value` | `string \| number \| boolean` | `undefined` | Value to set the variable to |
+| `varName` | `string` | `undefined` | Variable to snap on click |
+| `value` | `string \| number \| boolean` | `undefined` | Value to snap the variable to |
 | `color` | `string` | `#10B981` | Text color (emerald) |
 | `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
 | `icon` | `string` | `undefined` | Icon after text: `'play'`, `'refresh'`, `'zap'`, `'none'` |
@@ -313,16 +333,16 @@ This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`,
 `InlineHyperlink` is a clickable inline element that either **opens an external URL** in a new tab or **smooth-scrolls to a block** on the page. Does **NOT** use the variable store.
 
 ```tsx
-<EditableParagraph id="para-example" blockId="circle-definition">
-    Read the{" "}
+<EditableParagraph id="para-hyperlink-examples" blockId="hyperlink-examples">
+    For a comprehensive mathematical breakdown, you can dive into the{" "}
     <InlineHyperlink href="https://en.wikipedia.org/wiki/Circle">
         Wikipedia article on circles
-    </InlineHyperlink>{" "}
-    for more background, or{" "}
-    <InlineHyperlink targetBlockId="intro">
-        jump to the intro
-    </InlineHyperlink>{" "}
-    to start over.
+    </InlineHyperlink>
+    . Alternatively, if you want to review how interactive buttons function, you can easily{" "}
+    <InlineHyperlink targetBlockId="heading-trigger">
+        scroll back up to the Triggers section
+    </InlineHyperlink>
+    .
 </EditableParagraph>
 ```
 
@@ -335,6 +355,34 @@ This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`,
 | `bgColor` | `string` | `rgba(16, 185, 129, 0.15)` | Background color on hover |
 
 **Click behavior:** `href` → opens URL in new tab; `targetBlockId` → smooth scrolls; both set → `href` takes priority.
+
+## InlineSpotColor (Color-Coded Variables)
+
+`InlineSpotColor` highlights a word with the exact same color defined for a variable. When that identical variable appears in a mathematical formula, the colors align completely — establishing a powerful, subconscious visual link between prose and math.
+
+```tsx
+<EditableParagraph id="para-spotcolor" blockId="spotcolor">
+    For instance, by multiplying the{" "}
+    <InlineSpotColor varName="base" color="#a855f7">
+        base
+    </InlineSpotColor>
+    {" "}of a triangle by its perpendicular{" "}
+    <InlineSpotColor varName="height" color="#f97316">
+        height
+    </InlineSpotColor>
+    , you can easily compute its total geometric area:{" "}
+    <InlineFormula
+        latex="Area = \frac{1}{2} \clr{base}{b} \clr{height}{h}"
+        colorMap={{ base: '#a855f7', height: '#f97316' }}
+    />.
+</EditableParagraph>
+```
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `children` | `ReactNode` | *(required)* | Text content to color |
+| `varName` | `string` | *(required)* | Variable key to lookup the color for |
+| `color` | `string` | *(required)* | The hex color for this variable (usually via store) |
 
 ## Variable Types
 
@@ -462,6 +510,20 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 </StackLayout>
 ```
 
+### Critical Rule: Descriptive Phrasing for Interactions
+
+**NEVER use command-style phrasing like "set to", "increase to", or "change to" when referencing inline interactive components.**
+
+Because inline components (e.g., `InlineScrubbleNumber`) display real-time reactive values, instructions like "increase the amplitude to 2" will not make sense since the user has already changed the value to 2.
+
+**Use exploratory, state-based, or descriptive language instead:**
+- **WRONG**: "Set the amplitude to 3 to see what happens."
+- **CORRECT**: "If the amplitude is 3, what happens?"
+- **WRONG**: "Increase the frequency to 5."
+- **CORRECT**: "When the frequency is 5, the graph changes in this way..."
+
+For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to", "reset", or state the action contextually.
+
 ### Critical Rule: `hasVisualization` Prop
 
 When a `<Block>` contains a **visual component** (chart, diagram, interactive visualization), you **MUST** set `hasVisualization={true}`. This enables a magic wand icon (✨) on hover that lets the teacher request AI-generated alternative visualizations.
@@ -580,6 +642,31 @@ const CHART_COLORS = [
 ];
 ```
 
+### Critical Rule: Safe SVG Dimensions and Anti-Clipping
+
+**When creating custom `<svg>` visual components, ALWAYS establish a safe `viewBox` and width/height that securely encompasses all shapes, texts, and potential animations/transforms.**
+
+This ensures:
+- Labels and texts appearing near the edges do not get cropped abruptly.
+- Drop shadows or glow effects (`filter`) do not clip at bounding box borders.
+- Bounding box limits accurately describe the artwork, enabling responsive scaling.
+
+**Rules:**
+1. Leave plenty of padded space or margin (at least `20px` to `40px`) around the perimeter of visual items.
+2. If text may change or grow (e.g. reactive variables or bold interactive states), ensure the `viewBox` bounds can accommodate the maximum possible width of that text.
+
+```tsx
+// WRONG — text at X=290 will be clipped by the strict width=300 boundary
+<svg width={300} height={200} viewBox="0 0 300 200">
+    <text x={290} y={100}>Hypotenuse</text>
+</svg>
+
+// CORRECT — width/viewBox gives 40px padding for the text to breathe safely
+<svg width={340} height={200} viewBox="0 0 340 200">
+    <text x={290} y={100}>Hypotenuse</text>
+</svg>
+```
+
 ## Available Layouts
 
 Import from `@/components/layouts`.
@@ -612,12 +699,13 @@ Import from `@/components/layouts`.
     <Step completionVarName="myAnswer" autoAdvance>
         <Block id="step-question" padding="sm">
             <EditableParagraph id="para-step-question" blockId="step-question">
-                What is 2 + 2?{" "}
+                If you have two apples and someone gives you two more, you now have a total of{" "}
                 <InlineClozeInput
                     varName="myAnswer"
                     correctAnswer="4"
                     {...clozePropsFromDefinition(getVariableInfo('myAnswer'))}
                 />
+                {" "}apples.
             </EditableParagraph>
         </Block>
     </Step>
@@ -702,7 +790,7 @@ Import from `@/components/layouts`.
 - `InlineClozeChoice` — dropdown choice with answer validation, bound to global variable
 - `InlineToggle` — click to cycle through options, bound to global variable
 - `InlineTooltip` — hover to show tooltip/definition (no variable store)
-- `InlineTrigger` — click to set a variable to a specific value (connective, emerald)
+- `InlineTrigger` — click to snap a variable to a specific value (connective, emerald)
 - `InlineHyperlink` — click to open external URL or scroll to a block on page (connective, emerald)
 - `InlineSpotColor` — colored text highlight
 - `InlineLinkedHighlight` — bidirectional highlighting
@@ -804,46 +892,46 @@ Import from `@/components/layouts`.
 import { InlineFeedback, InlineClozeInput, InlineClozeChoice } from "@/components/atoms";
 
 // In variables.ts:
-// answer_radius: { defaultValue: '', type: 'text', correctAnswer: '5', placeholder: '???', color: '#6366f1' }
-// answer_shape: { defaultValue: '', type: 'select', correctAnswer: 'circle', options: ['square', 'circle', 'triangle'], placeholder: '???', color: '#6366f1' }
+// fbCircleDiameter: { defaultValue: '', type: 'text', correctAnswer: '6', placeholder: '???', color: '#6366f1' }
+// fbAreaFormula: { defaultValue: '', type: 'select', correctAnswer: 'πr²', options: ['2πr', 'πr²', 'πd', 'r²'], placeholder: '???', color: '#6366f1' }
 
-<StackLayout key="layout-circles-q1" maxWidth="xl">
-    <Block id="circles-question-radius" padding="md">
-        <EditableParagraph id="para-question-radius" blockId="circles-question-radius">
-            If a circle has diameter 10, its radius is{" "}
+<StackLayout key="layout-inline-feedback-q1" maxWidth="xl">
+    <Block id="inline-feedback-q1" padding="md">
+        <EditableParagraph id="para-inline-feedback-q1" blockId="inline-feedback-q1">
+            Because a circle's diameter is defined as passing straight across the center, a circle with a radius of 3 must have a diameter exactly equal to{" "}
             <InlineFeedback
-                varName="answer_radius"
-                correctValue="5"
-                successMessage="Brilliant! The radius is always half the diameter, so 10 ÷ 2 = 5"
+                varName="fbCircleDiameter"
+                correctValue="6"
+                successMessage="Brilliant! You nailed it, since the diameter is always twice the radius, so 2 × 3 = 6"
                 failureMessage="Almost there!"
-                hint="The radius is half the diameter — what is 10 ÷ 2?"
+                hint="The diameter stretches all the way across the circle through its centre, which means it is exactly twice the radius. Try calculating 2 × 3"
             >
                 <InlineClozeInput
-                    varName="answer_radius"
-                    correctAnswer="5"
-                    {...clozePropsFromDefinition(getVariableInfo('answer_radius'))}
+                    varName="fbCircleDiameter"
+                    correctAnswer="6"
+                    {...clozePropsFromDefinition(getVariableInfo('fbCircleDiameter'))}
                 />
             </InlineFeedback>.
         </EditableParagraph>
     </Block>
 </StackLayout>
 
-<StackLayout key="layout-circles-q2" maxWidth="xl">
-    <Block id="circles-question-diameter" padding="md">
-        <EditableParagraph id="para-q2" blockId="circles-question-diameter">
-            A shape where every point is the same distance from the center is a{" "}
+<StackLayout key="layout-inline-feedback-q2" maxWidth="xl">
+    <Block id="inline-feedback-q2" padding="md">
+        <EditableParagraph id="para-inline-feedback-q2" blockId="inline-feedback-q2">
+            Since we compute the distance around a circle with 2πr, we compute the space inside the circle by equating its area to{" "}
             <InlineFeedback
-                varName="answer_shape"
-                correctValue="circle"
-                successMessage="Excellent! Every point equidistant from the center defines a circle"
-                failureMessage="Good thinking, but not quite!"
-                hint="Squares and triangles have corners at different distances from the center"
+                varName="fbAreaFormula"
+                correctValue="πr²"
+                successMessage="Perfect! Area = πr² is one of the most beautiful formulas in mathematics. The radius gets squared because area measures two-dimensional space"
+                failureMessage="Close, but let's think about this differently:"
+                hint="Circumference (2πr) measures the distance around, but area measures the space inside, so we need to square the radius"
             >
                 <InlineClozeChoice
-                    varName="answer_shape"
-                    correctAnswer="circle"
-                    options={["square", "circle", "triangle"]}
-                    {...choicePropsFromDefinition(getVariableInfo('answer_shape'))}
+                    varName="fbAreaFormula"
+                    correctAnswer="πr²"
+                    options={["2πr", "πr²", "πd", "r²"]}
+                    {...choicePropsFromDefinition(getVariableInfo('fbAreaFormula'))}
                 />
             </InlineFeedback>.
         </EditableParagraph>

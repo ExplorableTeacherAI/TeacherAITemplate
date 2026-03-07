@@ -2,8 +2,9 @@ import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { StackLayout, SplitLayout } from "@/components/layouts";
 import {
-    EditableH1,
     EditableH2,
+    EditableH3,
+    EditableH4,
     EditableParagraph,
     InlineScrubbleNumber,
     InlineTooltip,
@@ -18,9 +19,9 @@ export const desmosDemoBlocks: ReactElement[] = [
     // ── Title ────────────────────────────────────────────────────────────────
     <StackLayout key="layout-desmos-title" maxWidth="xl">
         <Block id="desmos-title" padding="md">
-            <EditableH1 id="h1-desmos-title" blockId="desmos-title">
+            <EditableH3 id="h3-desmos-title" blockId="desmos-title">
                 Desmos Graphing Component
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -45,9 +46,9 @@ export const desmosDemoBlocks: ReactElement[] = [
     // ── Reactive Desmos Example ───────────────────────────────────────────
     <StackLayout key="layout-desmos-reactive-h2" maxWidth="xl">
         <Block id="desmos-reactive-h2" padding="sm">
-            <EditableH2 id="h2-desmos-reactive" blockId="desmos-reactive-h2">
+            <EditableH4 id="h4-desmos-reactive" blockId="desmos-reactive-h2">
                 Realtime Reactive Graph
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 

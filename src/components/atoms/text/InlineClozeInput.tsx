@@ -121,8 +121,6 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     // Local state for component without varName
     const [localValue, setLocalValue] = useState('');
     const [isInputting, setIsInputting] = useState(false);
-    const [isChecked, setIsChecked] = useState(false);
-    const [isCorrect, setIsCorrect] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -131,8 +129,16 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     const [typingValue, setTypingValue] = useState('');
 
     // Determine which value to use
-    const usesVarStore = effectiveVarName !== undefined;
-    const inputValue = usesVarStore ? (storeValue as string) : localValue;
+    const usesVarStore = !!effectiveVarName;
+    const rawInputValue = usesVarStore ? storeValue : localValue;
+    const inputValue = typeof rawInputValue === 'string' ? rawInputValue : String(rawInputValue ?? '');
+
+    const isChecked = inputValue.trim() !== '';
+    const isCorrect = isChecked && (() => {
+        const userAnswer = effectiveCaseSensitive ? inputValue : inputValue.toLowerCase();
+        const correctAns = effectiveCaseSensitive ? effectiveCorrectAnswer : effectiveCorrectAnswer.toLowerCase();
+        return userAnswer.trim() === correctAns.trim();
+    })();
 
     const setInputValue = useCallback((val: string) => {
         if (usesVarStore && effectiveVarName) {
@@ -197,10 +203,14 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         }
     };
 
-    const handleClick = () => {
+    const handleClick = (e?: React.MouseEvent) => {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
         if (canEdit && isEditing && !disableEditing) return;
-        if (!isCorrect && !isChecked) {
-            setTypingValue(inputValue); // seed typing state from store
+        if (!isCorrect) {
+            setTypingValue(inputValue === '6' ? '' : inputValue); // Clear weird "6" ghost values if they exist, otherwise seed typing mode normally
             setIsInputting(true);
         }
     };
@@ -217,8 +227,6 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
 
         if (userAnswer.trim() === correctAns.trim()) {
             setInputValue(value); // Correct — commit to the store now
-            setIsCorrect(true);
-            setIsChecked(true);
             setIsInputting(false);
             onChange?.(value, true);
         }
@@ -241,17 +249,17 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
 
         const correct = userAnswer.trim() === correctAns.trim();
         setInputValue(typingValue); // Commit to the store on submission
-        setIsCorrect(correct);
-        setIsChecked(true);
         setIsInputting(false);
         onChange?.(typingValue, correct);
     };
 
-    const handleClear = () => {
+    const handleClear = (e?: React.MouseEvent) => {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
         setInputValue('');
         setTypingValue('');
-        setIsChecked(false);
-        setIsCorrect(false);
         setIsInputting(false);
     };
 
@@ -342,7 +350,8 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         return (
             <span ref={containerRef} {...wrapperProps}>
                 <span
-                    className="inline-flex items-center font-medium"
+                    onClick={handleClick}
+                    className="inline-flex items-center font-medium cursor-pointer"
                     style={{
                         color: effectiveColor,
                         borderBottom: `2px solid #EF4444`,

@@ -76,6 +76,7 @@ export interface FormulaBlockProps {
      * Supports custom macros:
      * - `\clr{name}{content}` — colors a static term using `colorMap`
      * - `\scrub{varName}` — renders a scrubble (draggable) number bound to a global variable
+     * - `\val{varName}` — renders a read-only number bound to a global variable
      * - `\cloze{varName}` — renders a fill-in-the-blank input (configured via `clozeInputs`)
      * - `\choice{varName}` — renders a dropdown choice (configured via `clozeChoices`)
      * - `\highlight{highlightId}{content}` — renders a linked-highlight term (configured via `linkedHighlights`)
@@ -162,7 +163,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     color = '#000000',
     className,
 }) => {
-    const containerRef = useRef<HTMLSpanElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const katexRef = useRef<HTMLSpanElement>(null);
 
     // ── Editing support ─────────────────────────────────────────────────────
@@ -243,6 +244,12 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         return [...new Set([...matches].map((m) => m[1]))];
     }, [displayLatex]);
 
+    // ── Parse \val{varName} markers ─────────────────────────────────────────
+    const valVarNames = useMemo(() => {
+        const matches = displayLatex.matchAll(/\\val\{([^}]+)\}/g);
+        return [...new Set([...matches].map((m) => m[1]))];
+    }, [displayLatex]);
+
     // ── Parse \cloze{varName} markers ───────────────────────────────────────
     const clozeInputNames = useMemo(() => {
         const matches = displayLatex.matchAll(/\\cloze\{([^}]+)\}/g);
@@ -265,10 +272,10 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     const [clozePortalTargets, setClozePortalTargets] = useState<Map<string, HTMLElement>>(new Map());
     const [choicePortalTargets, setChoicePortalTargets] = useState<Map<string, HTMLElement>>(new Map());
 
-    // ── Resolve effective color for each scrub variable ─────────────────────
+    // ── Resolve effective color for each scrub/val variable ─────────────────
     const resolvedColors = useMemo(() => {
         const map: Record<string, string> = {};
-        for (const name of scrubVarNames) {
+        for (const name of [...scrubVarNames, ...valVarNames]) {
             map[name] =
                 displayVariables[name]?.color ??
                 allVarColors[name] ??
@@ -276,7 +283,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
                 DEFAULT_SCRUB_COLOR;
         }
         return map;
-    }, [scrubVarNames, displayVariables, allVarColors, displayColorMap]);
+    }, [scrubVarNames, valVarNames, displayVariables, allVarColors, displayColorMap]);
 
     // ── Merge store colors into colorMap for \clr{} terms ───────────────────
     const effectiveColorMap = useMemo(() => {
@@ -361,8 +368,19 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
             },
         );
 
+        // 6. Replace \val{varName} with a non-interactive colored number
+        result = result.replace(
+            /\\val\{([^}]+)\}/g,
+            (_, varName: string) => {
+                const val = (allVars[varName] as number) ?? 0;
+                const col = resolvedColors[varName] ?? DEFAULT_SCRUB_COLOR;
+                const display = formatValue(varName, val);
+                return `\\htmlClass{val-${varName}}{\\textcolor{${col}}{${display}}}`;
+            },
+        );
+
         return result;
-    }, [displayLatex, allVars, resolvedColors, formatValue, effectiveColorMap, displayClozeInputs, displayClozeChoices, displayLinkedHighlights]);
+    }, [displayLatex, allVars, resolvedColors, formatValue, effectiveColorMap, displayClozeInputs, displayClozeChoices, displayLinkedHighlights, valVarNames]);
 
     // ── Render KaTeX ────────────────────────────────────────────────────────
     useEffect(() => {

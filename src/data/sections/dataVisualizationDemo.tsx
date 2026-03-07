@@ -7,6 +7,8 @@ import {
     EditableParagraph,
     DataVisualization,
     SimulationPanel,
+    EditableH3,
+    EditableH4,
 } from "@/components/atoms";
 import type { ChartType, ChartDataPoint, ScatterDataPoint } from "@/components/atoms";
 import { useVar } from "@/stores";
@@ -278,9 +280,9 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     // ── Title ────────────────────────────────────────────────────────────────
     <StackLayout key="layout-data-visualization-title" maxWidth="xl">
         <Block id="data-visualization-title" padding="md">
-            <EditableH1 id="h1-data-visualization-title" blockId="data-visualization-title">
+            <EditableH3 id="h3-data-visualization-title" blockId="data-visualization-title">
                 Data Visualization
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -295,9 +297,9 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     // ── Interactive Multi-Type Explorer (SimulationPanel) ─────────────────────
     <StackLayout key="layout-data-visualization-multi-h2" maxWidth="xl">
         <Block id="data-visualization-multi-h2" padding="sm">
-            <EditableH2 id="h2-data-visualization-multi" blockId="data-visualization-multi-h2">
-                1) Interactive Chart Explorer
-            </EditableH2>
+            <EditableH4 id="h4-data-visualization-multi" blockId="data-visualization-multi-h2">
+                Interactive Chart Explorer
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -399,9 +401,9 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     // ── Bar Chart Example ────────────────────────────────────────────────────
     <StackLayout key="layout-data-visualization-bar-h2" maxWidth="xl">
         <Block id="data-visualization-bar-h2" padding="sm">
-            <EditableH2 id="h2-data-visualization-bar" blockId="data-visualization-bar-h2">
-                2) Bar Chart
-            </EditableH2>
+            <EditableH4 id="h4-data-visualization-bar" blockId="data-visualization-bar-h2">
+                Bar Chart
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -421,9 +423,9 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     // ── Line Chart Example ───────────────────────────────────────────────────
     <StackLayout key="layout-data-visualization-line-h2" maxWidth="xl">
         <Block id="data-visualization-line-h2" padding="sm">
-            <EditableH2 id="h2-data-visualization-line" blockId="data-visualization-line-h2">
-                3) Line Chart
-            </EditableH2>
+            <EditableH4 id="h4-data-visualization-line" blockId="data-visualization-line-h2">
+                Line Chart
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -443,9 +445,9 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     // ── Area Chart Example ───────────────────────────────────────────────────
     <StackLayout key="layout-data-visualization-area-h2" maxWidth="xl">
         <Block id="data-visualization-area-h2" padding="sm">
-            <EditableH2 id="h2-data-visualization-area" blockId="data-visualization-area-h2">
-                4) Area Chart
-            </EditableH2>
+            <EditableH4 id="h4-data-visualization-area" blockId="data-visualization-area-h2">
+                Area Chart
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -458,9 +460,9 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     // ── Pie & Donut Charts ───────────────────────────────────────────────────
     <StackLayout key="layout-data-visualization-pie-h2" maxWidth="xl">
         <Block id="data-visualization-pie-h2" padding="sm">
-            <EditableH2 id="h2-data-visualization-pie" blockId="data-visualization-pie-h2">
-                5) Pie &amp; Donut Charts
-            </EditableH2>
+            <EditableH4 id="h4-data-visualization-pie" blockId="data-visualization-pie-h2">
+                Pie &amp; Donut Charts
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -476,9 +478,9 @@ export const dataVisualizationDemoBlocks: ReactElement[] = [
     // ── Scatter Chart Example ────────────────────────────────────────────────
     <StackLayout key="layout-data-visualization-scatter-h2" maxWidth="xl">
         <Block id="data-visualization-scatter-h2" padding="sm">
-            <EditableH2 id="h2-data-visualization-scatter" blockId="data-visualization-scatter-h2">
-                6) Scatter Plot
-            </EditableH2>
+            <EditableH4 id="h4-data-visualization-scatter" blockId="data-visualization-scatter-h2">
+                Scatter Plot
+            </EditableH4>
         </Block>
     </StackLayout>,
 

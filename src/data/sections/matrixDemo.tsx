@@ -21,6 +21,8 @@ import {
     InlineTrigger,
     InlineFormula,
     MatrixVisualization,
+    EditableH3,
+    EditableH4,
 } from "@/components/atoms";
 import { FormulaBlock } from "@/components/molecules";
 import {
@@ -123,9 +125,9 @@ export const matrixDemoBlocks: ReactElement[] = [
     // ── Title ──────────────────────────────────────────
     <StackLayout key="layout-matrix-title" maxWidth="xl">
         <Block id="matrix-title" padding="md">
-            <EditableH1 id="h1-matrix-title" blockId="matrix-title">
+            <EditableH3 id="h3-matrix-title" blockId="matrix-title">
                 Matrix Visualization
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -140,12 +142,12 @@ export const matrixDemoBlocks: ReactElement[] = [
     // ── Section 1: Scalar Multiplication ──────────────
     <StackLayout key="layout-matrix-scalar-heading" maxWidth="xl">
         <Block id="matrix-scalar-heading" padding="sm">
-            <EditableH2
-                id="h2-scalar-heading"
+            <EditableH4
+                id="h4-scalar-heading"
                 blockId="matrix-scalar-heading"
             >
                 Scalar Multiplication
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -223,12 +225,12 @@ export const matrixDemoBlocks: ReactElement[] = [
     // ── Section 2: Dynamic Resizing ───────────────────
     <StackLayout key="layout-matrix-resize-heading" maxWidth="xl">
         <Block id="matrix-resize-heading" padding="sm">
-            <EditableH2
-                id="h2-resize-heading"
+            <EditableH4
+                id="h4-resize-heading"
                 blockId="matrix-resize-heading"
             >
                 Dynamic Resizing
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -254,12 +256,12 @@ export const matrixDemoBlocks: ReactElement[] = [
     // ── Section 3: Row / Column Highlighting ──────────
     <StackLayout key="layout-matrix-highlight-heading" maxWidth="xl">
         <Block id="matrix-highlight-heading" padding="sm">
-            <EditableH2
-                id="h2-highlight-heading"
+            <EditableH4
+                id="h4-highlight-heading"
                 blockId="matrix-highlight-heading"
             >
                 Row &amp; Column Highlighting
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -313,12 +315,12 @@ export const matrixDemoBlocks: ReactElement[] = [
     // ── Section 4: Color Schemes Gallery ──────────────
     <StackLayout key="layout-matrix-gallery-heading" maxWidth="xl">
         <Block id="matrix-gallery-heading" padding="sm">
-            <EditableH2
-                id="h2-gallery-heading"
+            <EditableH4
+                id="h4-gallery-heading"
                 blockId="matrix-gallery-heading"
             >
                 Color Scheme Gallery
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -376,12 +378,12 @@ export const matrixDemoBlocks: ReactElement[] = [
     // ── Section 5: Determinant Question ───────────────
     <StackLayout key="layout-matrix-det-heading" maxWidth="xl">
         <Block id="matrix-det-heading" padding="sm">
-            <EditableH2
-                id="h2-det-heading"
+            <EditableH4
+                id="h4-det-heading"
                 blockId="matrix-det-heading"
             >
                 Determinant Challenge
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -445,12 +447,12 @@ export const matrixDemoBlocks: ReactElement[] = [
     // ── Section 6: Identity Matrix ────────────────────
     <StackLayout key="layout-matrix-identity-heading" maxWidth="xl">
         <Block id="matrix-identity-heading" padding="sm">
-            <EditableH2
-                id="h2-identity-heading"
+            <EditableH4
+                id="h4-identity-heading"
                 blockId="matrix-identity-heading"
             >
                 The Identity Matrix
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 

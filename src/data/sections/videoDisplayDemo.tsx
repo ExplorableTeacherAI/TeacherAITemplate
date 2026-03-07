@@ -2,8 +2,8 @@ import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { StackLayout, SplitLayout } from "@/components/layouts";
 import {
-    EditableH1,
-    EditableH2,
+    EditableH3,
+    EditableH4,
     EditableParagraph,
     InlineTooltip,
     VideoDisplay,
@@ -15,9 +15,9 @@ export const videoDisplayDemoBlocks: ReactElement[] = [
     // ── Title ────────────────────────────────────────────────────────────────
     <StackLayout key="layout-video-title" maxWidth="xl">
         <Block id="video-title" padding="md">
-            <EditableH1 id="h1-video-title" blockId="video-title">
+            <EditableH3 id="h3-video-title" blockId="video-title">
                 Video Display
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -43,9 +43,9 @@ export const videoDisplayDemoBlocks: ReactElement[] = [
     // ── YouTube Embed — 3Blue1Brown ──────────────────────────────────────────
     <StackLayout key="layout-video-yt-h2" maxWidth="xl">
         <Block id="video-yt-h2" padding="sm">
-            <EditableH2 id="h2-video-yt" blockId="video-yt-h2">
+            <EditableH4 id="h4-video-yt" blockId="video-yt-h2">
                 1) YouTube Embed — Essence of Linear Algebra
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -77,9 +77,9 @@ export const videoDisplayDemoBlocks: ReactElement[] = [
     // ── Side-by-side YouTube embeds ──────────────────────────────────────────
     <StackLayout key="layout-video-split-h2" maxWidth="xl">
         <Block id="video-split-h2" padding="sm">
-            <EditableH2 id="h2-video-split" blockId="video-split-h2">
+            <EditableH4 id="h4-video-split" blockId="video-split-h2">
                 2) Side-by-Side — Calculus & Neural Networks
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -120,9 +120,9 @@ export const videoDisplayDemoBlocks: ReactElement[] = [
     // ── Bordered YouTube with custom colour ──────────────────────────────────
     <StackLayout key="layout-video-fourier-h2" maxWidth="xl">
         <Block id="video-fourier-h2" padding="sm">
-            <EditableH2 id="h2-video-fourier" blockId="video-fourier-h2">
+            <EditableH4 id="h4-video-fourier" blockId="video-fourier-h2">
                 3) Bordered &amp; Constrained — Fourier Transform
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -155,9 +155,9 @@ export const videoDisplayDemoBlocks: ReactElement[] = [
     // ── Size-constrained ─────────────────────────────────────────────────────
     <StackLayout key="layout-video-constrained-h2" maxWidth="xl">
         <Block id="video-constrained-h2" padding="sm">
-            <EditableH2 id="h2-video-constrained" blockId="video-constrained-h2">
+            <EditableH4 id="h4-video-constrained" blockId="video-constrained-h2">
                 4) Size-Constrained — Quaternions
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 

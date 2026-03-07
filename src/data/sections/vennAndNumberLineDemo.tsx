@@ -8,6 +8,7 @@ import {
     InlineLinkedHighlight,
     VennDiagram,
     NumberLine,
+    EditableH4,
 } from "@/components/atoms";
 import {
     getExampleVariableInfo,
@@ -59,17 +60,17 @@ function ReactiveNumberLine() {
 export const vennAndNumberLineDemo: ReactElement[] = [
     <StackLayout key="layout-venn-numberline-title" maxWidth="xl">
         <Block id="venn-numberline-title" padding="md">
-            <EditableH2 id="h2-venn-numberline-title" blockId="venn-numberline-title">
-                Venn Diagram and Number Line Examples
-            </EditableH2>
+            <EditableH3 id="h3-venn-numberline-title" blockId="venn-numberline-title">
+                Venn Diagram and Number Line
+            </EditableH3>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-venn-title" maxWidth="xl">
         <Block id="venn-title" padding="sm">
-            <EditableH3 id="h3-venn-title" blockId="venn-title">
-                1. Venn Diagram Example
-            </EditableH3>
+            <EditableH4 id="h4-venn-title" blockId="venn-title">
+                Venn Diagram Example
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -113,9 +114,9 @@ export const vennAndNumberLineDemo: ReactElement[] = [
 
     <StackLayout key="layout-numberline-title" maxWidth="xl">
         <Block id="numberline-title" padding="sm">
-            <EditableH3 id="h3-numberline-title" blockId="numberline-title">
-                2. Number Line Example
-            </EditableH3>
+            <EditableH4 id="h4-numberline-title" blockId="numberline-title">
+                Number Line Example
+            </EditableH4>
         </Block>
     </StackLayout>,
 

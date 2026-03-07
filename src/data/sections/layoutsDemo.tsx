@@ -24,6 +24,7 @@ import {
     InlineTrigger,
     InlineTooltip,
     InlineFormula,
+    EditableH4,
 } from "@/components/atoms";
 import { useVar, useSetVar } from "@/stores";
 import { getExampleVariableInfo, numberPropsFromDefinition, clozePropsFromDefinition } from "../exampleVariables";
@@ -154,9 +155,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
     // ── Section title ──────────────────────────────────────────────────────────
     <StackLayout key="layout-demo-title" maxWidth="xl">
         <Block id="demo-title" padding="md">
-            <EditableH1 id="h1-demo-title" blockId="demo-title">
-                Layout Showcase
-            </EditableH1>
+            <EditableH3 id="h3-demo-title" blockId="demo-title">
+                Layouts
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -174,9 +175,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
 
     <StackLayout key="layout-demo-full-width-heading" maxWidth="xl">
         <Block id="demo-full-width-heading" padding="md">
-            <EditableH2 id="h2-demo-fw" blockId="demo-full-width-heading">
-                1 · StackLayout
-            </EditableH2>
+            <EditableH4 id="h4-demo-fw" blockId="demo-full-width-heading">
+                StackLayout
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -206,9 +207,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
     // ── 2. SplitLayout ──────────────────────────────────────────────────────
     <StackLayout key="layout-demo-split-heading" maxWidth="xl">
         <Block id="demo-split-heading" padding="md">
-            <EditableH2 id="h2-demo-split" blockId="demo-split-heading">
-                2 · SplitLayout
-            </EditableH2>
+            <EditableH4 id="h4-demo-split" blockId="demo-split-heading">
+                SplitLayout
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -245,9 +246,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
     // ── 3. GridLayout ──────────────────────────────────────────────────────
     <StackLayout key="layout-demo-grid-heading" maxWidth="xl">
         <Block id="demo-grid-heading" padding="md">
-            <EditableH2 id="h2-demo-grid" blockId="demo-grid-heading">
-                3 · GridLayout
-            </EditableH2>
+            <EditableH4 id="h4-demo-grid" blockId="demo-grid-heading">
+                GridLayout
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -326,9 +327,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
     // ── 4. ScrollytellingLayout ────────────────────────────────────────────
     <StackLayout key="layout-demo-scroll-heading" maxWidth="xl">
         <Block id="demo-scroll-heading" padding="md">
-            <EditableH2 id="h2-demo-scroll" blockId="demo-scroll-heading">
-                4 · ScrollytellingLayout
-            </EditableH2>
+            <EditableH4 id="h4-demo-scroll" blockId="demo-scroll-heading">
+                ScrollytellingLayout
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -460,9 +461,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
     // ── 5. SlideLayout ─────────────────────────────────────────────────────
     <StackLayout key="layout-demo-slide-heading" maxWidth="xl">
         <Block id="demo-slide-heading" padding="md">
-            <EditableH2 id="h2-demo-slide" blockId="demo-slide-heading">
-                5 · SlideLayout
-            </EditableH2>
+            <EditableH4 id="h4-demo-slide" blockId="demo-slide-heading">
+                SlideLayout
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -645,9 +646,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
     // ── 6. StepLayout ──────────────────────────────────────────────────────────
     <StackLayout key="layout-demo-step-heading" maxWidth="xl">
         <Block id="demo-step-heading" padding="md">
-            <EditableH2 id="h2-demo-step" blockId="demo-step-heading">
-                6 · StepLayout
-            </EditableH2>
+            <EditableH4 id="h4-demo-step" blockId="demo-step-heading">
+                StepLayout
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -755,7 +756,7 @@ export const layoutsDemoBlocks: ReactElement[] = [
                                 </InlineTrigger>{" "}
                                 or{" "}
                                 <InlineTrigger varName="amplitude" value={3} icon="zap">
-                                    setting it to 3
+                                    snapping to 3
                                 </InlineTrigger>.
                                 Watch the graph update live on the right.
                             </EditableParagraph>
@@ -771,9 +772,9 @@ export const layoutsDemoBlocks: ReactElement[] = [
             <Step completionVarName="stepAmplitudeAnswer" correctAnswer="3" autoAdvance>
                 <Block id="step-amp-check" padding="none">
                     <EditableParagraph id="para-step-amp-check" blockId="step-amp-check">
-                        <strong>Quick check:</strong> If you set the amplitude{" "}
+                        <strong>Quick check:</strong> If the amplitude{" "}
                         <InlineFormula latex="\clr{A}{A}" colorMap={{ A: "#3B82F6" }} />{" "}
-                        to 3, how tall will the wave be at its peak?{" "}
+                        is 3, how tall will the wave be at its peak?{" "}
                         <InlineClozeInput
                             varName="stepAmplitudeAnswer"
                             correctAnswer="3"

@@ -2,8 +2,8 @@ import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { StackLayout, SplitLayout } from "@/components/layouts";
 import {
-    EditableH1,
-    EditableH2,
+    EditableH3,
+    EditableH4,
     EditableParagraph,
     ImageDisplay,
 } from "@/components/atoms";
@@ -14,9 +14,9 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     // ── Title ────────────────────────────────────────────────────────────────
     <StackLayout key="layout-image-title" maxWidth="xl">
         <Block id="image-title" padding="md">
-            <EditableH1 id="h1-image-title" blockId="image-title">
+            <EditableH3 id="h3-image-title" blockId="image-title">
                 Image Display
-            </EditableH1>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
@@ -31,9 +31,9 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     // ── Basic Image ──────────────────────────────────────────────────────────
     <StackLayout key="layout-image-basic-h2" maxWidth="xl">
         <Block id="image-basic-h2" padding="sm">
-            <EditableH2 id="h2-image-basic" blockId="image-basic-h2">
+            <EditableH4 id="h4-image-basic" blockId="image-basic-h2">
                 1) Basic Image with Caption
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -64,9 +64,9 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     // ── Bordered Image ───────────────────────────────────────────────────────
     <StackLayout key="layout-image-bordered-h2" maxWidth="xl">
         <Block id="image-bordered-h2" padding="sm">
-            <EditableH2 id="h2-image-bordered" blockId="image-bordered-h2">
+            <EditableH4 id="h4-image-bordered" blockId="image-bordered-h2">
                 2) Bordered Image
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -95,9 +95,9 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     // ── Object-fit Comparison ────────────────────────────────────────────────
     <StackLayout key="layout-image-fit-h2" maxWidth="xl">
         <Block id="image-fit-h2" padding="sm">
-            <EditableH2 id="h2-image-fit" blockId="image-fit-h2">
+            <EditableH4 id="h4-image-fit" blockId="image-fit-h2">
                 3) Object-Fit Modes
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -139,9 +139,9 @@ export const imageDisplayDemoBlocks: ReactElement[] = [
     // ── Max-width constrained ────────────────────────────────────────────────
     <StackLayout key="layout-image-constrained-h2" maxWidth="xl">
         <Block id="image-constrained-h2" padding="sm">
-            <EditableH2 id="h2-image-constrained" blockId="image-constrained-h2">
+            <EditableH4 id="h4-image-constrained" blockId="image-constrained-h2">
                 4) Size-Constrained Image
-            </EditableH2>
+            </EditableH4>
         </Block>
     </StackLayout>,
 

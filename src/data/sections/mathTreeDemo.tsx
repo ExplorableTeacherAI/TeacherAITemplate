@@ -4,6 +4,7 @@ import { Block } from "@/components/templates";
 import {
     EditableH2,
     EditableH3,
+    EditableH4,
     EditableParagraph,
     InlineScrubbleNumber,
     InlineToggle,
@@ -194,17 +195,17 @@ function ReactiveProbabilityTree() {
 export const mathTreeDemo: ReactElement[] = [
     <StackLayout key="layout-math-tree-title" maxWidth="xl">
         <Block id="math-tree-title" padding="md">
-            <EditableH2 id="h2-math-tree-title" blockId="math-tree-title">
+            <EditableH3 id="h3-math-tree-title" blockId="math-tree-title">
                 Math Tree Visualization with Step-by-Step Scaffolding
-            </EditableH2>
+            </EditableH3>
         </Block>
     </StackLayout>,
 
     <StackLayout key="layout-math-tree-factor-title" maxWidth="xl">
         <Block id="math-tree-factor-title" padding="sm">
-            <EditableH3 id="h3-math-tree-factor-title" blockId="math-tree-factor-title">
-                1. Prime Factorization Tree
-            </EditableH3>
+            <EditableH4 id="h4-math-tree-factor-title" blockId="math-tree-factor-title">
+                Prime Factorization Tree
+            </EditableH4>
         </Block>
     </StackLayout>,
 
@@ -262,9 +263,9 @@ export const mathTreeDemo: ReactElement[] = [
 
     <StackLayout key="layout-math-tree-prob-title" maxWidth="xl">
         <Block id="math-tree-prob-title" padding="sm">
-            <EditableH3 id="h3-math-tree-prob-title" blockId="math-tree-prob-title">
-                2. Probability Tree (Scaffolded)
-            </EditableH3>
+            <EditableH4 id="h4-math-tree-prob-title" blockId="math-tree-prob-title">
+                Probability Tree (Scaffolded)
+            </EditableH4>
         </Block>
     </StackLayout>,
 
