@@ -19,7 +19,6 @@ export const WelcomeScreen = () => {
                     alt="Math Vibe Logo"
                     className="w-[36rem] h-auto"
                     loading="eager"
-                    fetchpriority="high"
                 />
             </div>
 
