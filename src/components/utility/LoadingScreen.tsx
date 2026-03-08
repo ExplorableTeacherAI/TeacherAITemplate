@@ -20,6 +20,8 @@ export const LoadingScreen = () => {
                         src={`${import.meta.env.BASE_URL}logo-1.svg`}
                         alt="Loading"
                         className="loading-logo"
+                        loading="eager"
+                        fetchPriority="high"
                     />
                 </div>
             </div>
