@@ -2,7 +2,6 @@ import { type ReactElement } from "react";
 import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
-    EditableH2,
     EditableH3,
     EditableParagraph,
     InlineLinkedHighlight,
