@@ -21,7 +21,7 @@ export const LoadingScreen = () => {
                         alt="Loading"
                         className="loading-logo"
                         loading="eager"
-                        fetchPriority="high"
+                        fetchpriority="high"
                     />
                 </div>
             </div>
