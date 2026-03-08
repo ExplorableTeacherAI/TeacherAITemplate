@@ -462,6 +462,51 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
         return () => window.removeEventListener('block-inline-content-update', handler);
     }, [handleInlineContentUpdate]);
 
+    // Notify parent when all content (including images) is fully loaded
+    useEffect(() => {
+        if (loadingBlocks) return;
+
+        const notifyContentReady = () => {
+            window.parent.postMessage({ type: 'content-ready' }, '*');
+        };
+
+        // Wait for all images to load
+        const images = document.querySelectorAll('img');
+        if (images.length === 0) {
+            // No images, we're ready immediately
+            notifyContentReady();
+            return;
+        }
+
+        let loadedCount = 0;
+        const totalImages = images.length;
+
+        const checkAllLoaded = () => {
+            loadedCount++;
+            if (loadedCount >= totalImages) {
+                notifyContentReady();
+            }
+        };
+
+        images.forEach((img) => {
+            if (img.complete) {
+                checkAllLoaded();
+            } else {
+                img.addEventListener('load', checkAllLoaded, { once: true });
+                img.addEventListener('error', checkAllLoaded, { once: true }); // Count errors as "loaded" to not block forever
+            }
+        });
+
+        // Fallback: send ready after 5 seconds even if some images are slow
+        const fallbackTimeout = setTimeout(() => {
+            notifyContentReady();
+        }, 5000);
+
+        return () => {
+            clearTimeout(fallbackTimeout);
+        };
+    }, [loadingBlocks, initialBlocks]);
+
     /**
      * Extract the first block ID found in a top-level element.
      * Checks id, blockId props, and key as fallbacks.
