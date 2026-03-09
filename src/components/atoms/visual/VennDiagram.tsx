@@ -49,7 +49,7 @@ export const VennDiagram: React.FC<VennDiagramProps> = ({
     const cxLeft = width * 0.42;
     const cxRight = width * 0.58;
     const cy = height * 0.55;
-    const radius = Math.min(width, height) * 0.24;
+    const radius = Math.min(width, height) * 0.28;
 
     const setHighlight = (part: string) => {
         if (!highlightVarName) return;
@@ -110,22 +110,22 @@ export const VennDiagram: React.FC<VennDiagramProps> = ({
                     style={{ transition: "all 0.2s ease" }}
                 />
 
-                <text x={cxLeft - radius * 0.68} y={cy - radius - 14} fill={colors.leftStroke} fontSize={14} fontWeight={700}>
+                <text x={cxLeft - radius * 0.68} y={cy - radius - 14} fill={colors.leftStroke} fontSize={17} fontWeight={700}>
                     {leftLabel}
                 </text>
-                <text x={cxRight + radius * 0.28} y={cy - radius - 14} fill={colors.rightStroke} fontSize={14} fontWeight={700}>
+                <text x={cxRight + radius * 0.28} y={cy - radius - 14} fill={colors.rightStroke} fontSize={17} fontWeight={700}>
                     {rightLabel}
                 </text>
 
                 {showCounts && (
                     <>
-                        <text x={cxLeft - radius * 0.44} y={cy + 5} textAnchor="middle" fill={colors.text} fontSize={18} fontWeight={700}>
+                        <text x={cxLeft - radius * 0.44} y={cy + 5} textAnchor="middle" fill={colors.text} fontSize={22} fontWeight={700}>
                             {leftOnlyCount}
                         </text>
-                        <text x={(cxLeft + cxRight) / 2} y={cy + 5} textAnchor="middle" fill={colors.text} fontSize={18} fontWeight={700}>
+                        <text x={(cxLeft + cxRight) / 2} y={cy + 5} textAnchor="middle" fill={colors.text} fontSize={22} fontWeight={700}>
                             {overlapCount}
                         </text>
-                        <text x={cxRight + radius * 0.44} y={cy + 5} textAnchor="middle" fill={colors.text} fontSize={18} fontWeight={700}>
+                        <text x={cxRight + radius * 0.44} y={cy + 5} textAnchor="middle" fill={colors.text} fontSize={22} fontWeight={700}>
                             {rightOnlyCount}
                         </text>
 
@@ -136,7 +136,7 @@ export const VennDiagram: React.FC<VennDiagramProps> = ({
                                     y={cy + radius + 30}
                                     textAnchor="middle"
                                     fill={colors.text}
-                                    fontSize={18}
+                                    fontSize={22}
                                     fontWeight={700}
                                 >
                                     {outsideCount}
@@ -144,10 +144,10 @@ export const VennDiagram: React.FC<VennDiagramProps> = ({
                                 {outsideLabel && (
                                     <text
                                         x={(cxLeft + cxRight) / 2}
-                                        y={cy + radius + 48}
+                                        y={cy + radius + 50}
                                         textAnchor="middle"
                                         fill={colors.text}
-                                        fontSize={12}
+                                        fontSize={15}
                                         fontWeight={500}
                                     >
                                         {outsideLabel}

@@ -29,7 +29,7 @@ function ReactiveVennDiagram() {
             overlapCount={overlap}
             rightOnlyCount={rightOnly}
             outsideCount={outside}
-            height={300}
+            height={380}
             highlightVarName="vennHighlight"
             showContainerBorder={false}
         />

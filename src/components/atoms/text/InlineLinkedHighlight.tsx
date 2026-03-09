@@ -158,6 +158,54 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
         }
     }, [canEdit, isEditing, effectiveVarName, setVar]);
 
+    // Track if user is on touch device
+    const isTouchDevice = useRef(false);
+    const [isTapped, setIsTapped] = useState(false);
+
+    const handleTouchStart = useCallback(() => {
+        isTouchDevice.current = true;
+    }, []);
+
+    // Touch/click handler: toggle highlight on tap for mobile
+    const handleClick = useCallback((e: React.MouseEvent) => {
+        // If in editing mode, let the edit handler handle it
+        if (canEdit && isEditing) return;
+
+        // On touch devices, toggle the highlight
+        if (isTouchDevice.current) {
+            e.preventDefault();
+            e.stopPropagation();
+            const newTapped = !isTapped;
+            setIsTapped(newTapped);
+            
+            if (effectiveVarName && effectiveHighlightId) {
+                setVar(effectiveVarName, newTapped ? effectiveHighlightId : '');
+            }
+        }
+    }, [canEdit, isEditing, isTapped, effectiveVarName, effectiveHighlightId, setVar]);
+
+    // Close highlight when tapping outside (mobile)
+    useEffect(() => {
+        if (!isTapped) return;
+
+        const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setIsTapped(false);
+                if (effectiveVarName) {
+                    setVar(effectiveVarName, '');
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [isTapped, effectiveVarName, setVar]);
+
     // Edit click handler
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
@@ -251,7 +299,8 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
                 transition: 'all 0.2s ease',
             }}
             onMouseDown={handleMouseDown}
-            onClick={canEdit && isEditing ? (e) => { e.stopPropagation(); e.preventDefault(); } : undefined}
+            onClick={canEdit && isEditing ? (e) => { e.stopPropagation(); e.preventDefault(); } : handleClick}
+            onTouchStart={handleTouchStart}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >

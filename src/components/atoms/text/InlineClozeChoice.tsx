@@ -142,9 +142,9 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
         }
     }, [usesVarStore, effectiveVarName, setVar]);
 
-    // Close dropdown when clicking outside
+    // Close dropdown when clicking/tapping outside
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
@@ -152,10 +152,12 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
 
         if (isOpen) {
             document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
         };
     }, [isOpen]);
 
@@ -328,7 +330,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                                 transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-                                className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 min-w-[100px]"
+                                className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
                                 style={{
                                     background: 'white',
                                     boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
@@ -340,27 +342,18 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                                         <button
                                             key={option}
                                             onClick={() => handleSelect(option)}
+                                            className={cn(
+                                                "block w-full text-left px-3 py-1.5 text-sm rounded transition-colors duration-100",
+                                                "hover:bg-[var(--hover-bg)] active:bg-[var(--hover-bg)]",
+                                                isSelected && "font-semibold"
+                                            )}
                                             style={{
-                                                display: 'block',
-                                                width: '100%',
-                                                padding: '6px 12px',
-                                                border: 'none',
+                                                '--hover-bg': `${effectiveColor}15`,
                                                 background: isSelected ? `${effectiveColor}15` : 'transparent',
                                                 color: isSelected ? effectiveColor : '#374151',
-                                                cursor: 'pointer',
-                                                fontSize: '14px',
-                                                textAlign: 'left' as const,
-                                                borderRadius: '4px',
-                                                fontWeight: isSelected ? 600 : 400,
                                                 fontFamily: 'inherit',
-                                                transition: 'background 0.1s',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = `${effectiveColor}15`;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = isSelected ? `${effectiveColor}15` : 'transparent';
-                                            }}
+                                                whiteSpace: 'nowrap',
+                                            } as React.CSSProperties}
                                         >
                                             {option}
                                         </button>
@@ -404,7 +397,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -4, scale: 0.97 }}
                             transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-                            className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 min-w-[100px]"
+                            className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
                             style={{
                                 background: 'white',
                                 boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
@@ -416,27 +409,18 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                                     <button
                                         key={option}
                                         onClick={() => handleSelect(option)}
+                                        className={cn(
+                                            "block w-full text-left px-3 py-1.5 text-sm rounded transition-colors duration-100",
+                                            "hover:bg-[var(--hover-bg)] active:bg-[var(--hover-bg)]",
+                                            isSelected && "font-semibold"
+                                        )}
                                         style={{
-                                            display: 'block',
-                                            width: '100%',
-                                            padding: '6px 12px',
-                                            border: 'none',
+                                            '--hover-bg': `${effectiveColor}15`,
                                             background: isSelected ? `${effectiveColor}15` : 'transparent',
                                             color: isSelected ? effectiveColor : '#374151',
-                                            cursor: 'pointer',
-                                            fontSize: '14px',
-                                            textAlign: 'left' as const,
-                                            borderRadius: '4px',
-                                            fontWeight: isSelected ? 600 : 400,
                                             fontFamily: 'inherit',
-                                            transition: 'background 0.1s',
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = `${effectiveColor}15`;
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = isSelected ? `${effectiveColor}15` : 'transparent';
-                                        }}
+                                            whiteSpace: 'nowrap',
+                                        } as React.CSSProperties}
                                     >
                                         {option}
                                     </button>

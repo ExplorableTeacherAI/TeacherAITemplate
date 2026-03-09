@@ -218,19 +218,19 @@ export const GeometricDiagram: React.FC<GeometricDiagramProps> = ({
 
                 {showLabels && (
                     <>
-                        <text x={cx + 8} y={cy - 8} fill={baseTheme.text} fontSize={13}>
+                        <text x={cx + 8} y={cy - 8} fill={baseTheme.text} fontSize={16} fontWeight={600}>
                             O
                         </text>
-                        <text x={radiusEnd.x + 8} y={radiusEnd.y} fill={radiusStroke} fontSize={13}>
+                        <text x={radiusEnd.x + 8} y={radiusEnd.y} fill={radiusStroke} fontSize={16} fontWeight={600}>
                             r
                         </text>
                         {variant !== "polygon" && (
-                            <text x={cx + 38} y={cy - 8} fill={angleStroke} fontSize={13}>
+                            <text x={cx + 38} y={cy - 8} fill={angleStroke} fontSize={16} fontWeight={600}>
                                 θ = {Math.round(clampedAngle)}°
                             </text>
                         )}
                         {variant === "polygon" && (
-                            <text x={16} y={28} fill={baseTheme.text} fontSize={14}>
+                            <text x={16} y={28} fill={baseTheme.text} fontSize={17} fontWeight={600}>
                                 n = {safeSides} sides
                             </text>
                         )}

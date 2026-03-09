@@ -5,6 +5,61 @@
 Interactive explorable-explanation template built with React + TypeScript + Vite.
 Content is organized as **blocks** inside **layouts**, with shared state via a **global variable store** (Zustand).
 
+---
+
+## CRITICAL: EVERY VISUALIZATION MUST BE INTERACTIVE
+
+**This is an explorable explanation platform — NOT a textbook.** Static diagrams defeat the entire purpose. Every visualization MUST allow student manipulation.
+
+### The Non-Negotiable Interactivity Rules
+
+| Rule | Description | Bad Example | Good Example |
+|:---|:---|:---|:---|
+| **1. No static charts** | Every chart/graph must have at least one manipulable element | `<Cartesian2D plots={[...]} />` with no movable points | `<Cartesian2D ... movablePoints={[...]} />` with bound variables |
+| **2. Bi-directional binding** | Prose ↔ Formula ↔ Visual must ALL sync via shared variables | Scrubbing text doesn't update the chart | `varName="radius"` used in `InlineScrubbleNumber`, `FormulaBlock \scrub{}`, AND `Cartesian2D` |
+| **3. Linked highlights** | Hovering prose terms highlights visual elements and vice versa | No visual connection between explanation and diagram | `InlineLinkedHighlight` connects "radius" text to the radius line in the diagram |
+| **4. Observable change** | When user manipulates, they see real-time consequences | User drags a point but nothing else changes | Dragging the radius updates the area value in both formula and prose |
+
+### Before Creating Any Visualization, Ask:
+
+1. **What can the student drag, scrub, or click?** ← If nothing, STOP and redesign
+2. **What changes when they interact?** ← At least one derived value must update
+3. **Is the same variable used in prose, formula, AND visual?** ← If not, connect them
+4. **Can hovering prose highlight the visual element?** ← Add `InlineLinkedHighlight` if not
+
+### Quick Interactivity Checklist
+
+- [ ] `Cartesian2D` has `movablePoints` OR is bound to `InlineScrubbleNumber` variables
+- [ ] `DataVisualization` has interactive data series OR brush selection
+- [ ] `FormulaBlock` uses `\scrub{}` for key variables
+- [ ] Prose uses `InlineScrubbleNumber` for the SAME variables as the visual
+- [ ] At least one `InlineLinkedHighlight` connects prose to visual elements
+- [ ] Derived values (area, sum, etc.) display via `readonly` scrubble numbers
+
+### Use Soft, Muted Colors Only
+
+**Never use saturated primaries like `#FF0000`, `#00FF00`, `#0000FF`.** Always use the recommended palette:
+
+| Purpose | Color | Hex |
+|:---|:---|:---|
+| Primary variables | Soft Teal | `#62D0AD` |
+| Secondary variables | Soft Indigo | `#8E90F5` |
+| Highlights/Attention | Warm Amber | `#F7B23B` |
+| Tertiary variables | Soft Violet | `#AC8BF9` |
+| Emphasis | Soft Rose | `#F8A0CD` |
+| Alternative primary | Soft Sky | `#62CCF9` |
+| Warmth | Soft Coral | `#F4A89A` |
+| Natural concepts | Soft Sage | `#A8D5A2` |
+| Gentle highlights | Soft Peach | `#FFCBA4` |
+| Fresh/Clean | Soft Mint | `#7DD3C0` |
+| Subtle emphasis | Soft Lavender | `#C9B8E8` |
+| Success/Correct | Soft Green | `#22c55e` |
+| Error (use sparingly) | Soft Red | `#ef4444` |
+
+**For backgrounds:** Use RGBA with 15% opacity (e.g., `rgba(98, 208, 173, 0.15)` for teal highlight).
+
+---
+
 ## Files You MUST Edit (lesson content goes here)
 
 | File | Purpose |
@@ -460,7 +515,7 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 **New Stricter ID Format Rules:**
 - **No generic wrappers**: NEVER use the words "block", "container", "item", or similar generic terms in IDs. (e.g., `intro-title` instead of `block-intro-title`).
 - **No arbitrary numbers**: NEVER use arbitrary numbering like `-01`, `-02`, `-03`. IDs must be contextually meaningful based on their content (e.g., `paragraph-cloze-angle` instead of `paragraph-cloze-01`).
-- **No abbreviations**: NEVER use short obscure abbreviations. Use full words (e.g., `cartesian-2d-` instead of `c2d-`, `math-tree-` instead of `mt-`, `video-` instead of `vid-`).
+- **No abbreviations or short forms**: NEVER use cryptic abbreviations or short forms in any ID (block IDs, paragraph IDs, variable names, etc.). IDs must be immediately understandable. Examples of **bad** IDs: `bcircle`, `c2d`, `mt`, `vid`, `btn`, `para-qc`. Examples of **good** IDs: `block-circle`, `cartesian-2d`, `math-tree`, `video`, `button`, `para-quarter-circle`. If in doubt, spell it out.
 
 | Element | Pattern | Example |
 |---------|---------|---------|
@@ -526,7 +581,7 @@ For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to
 
 ### Critical Rule: `hasVisualization` Prop
 
-When a `<Block>` contains a **visual component** (chart, diagram, interactive visualization), you **MUST** set `hasVisualization={true}`. This enables a magic wand icon (✨) on hover that lets the teacher request AI-generated alternative visualizations.
+When a `<Block>` contains a **visual component** (chart, diagram, interactive visualization), you **MUST** set `hasVisualization={true}`. This enables a magic wand icon on hover that lets the teacher request AI-generated alternative visualizations.
 
 **Set `hasVisualization={true}` when the block contains:**
 - `Cartesian2D`, `DataVisualization`, `GeometricDiagram`, `MatrixVisualization`

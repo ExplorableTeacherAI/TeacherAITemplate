@@ -61,10 +61,53 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
     const isStandalone = typeof window !== 'undefined' && window.self === window.top;
     const canEdit = isEditor || isStandalone;
 
-    // Hover state
+    // Hover state (desktop) and tap-toggled state (mobile)
     const [isHovered, setIsHovered] = useState(false);
+    const [isTapped, setIsTapped] = useState(false);
     const [tooltipPosition, setTooltipPosition] = useState<'top' | 'bottom'>('bottom');
     const [tooltipCoords, setTooltipCoords] = useState({ top: 0, left: 0 });
+
+    // Track if user is on touch device
+    const isTouchDevice = useRef(false);
+
+    // Combined visibility: show tooltip on hover OR tap
+    const isTooltipVisible = isHovered || isTapped;
+
+    // Handle tap toggle for mobile
+    const handleTouchStart = useCallback(() => {
+        isTouchDevice.current = true;
+    }, []);
+
+    const handleClick = useCallback((e: React.MouseEvent) => {
+        // If in editing mode, don't toggle
+        if (canEdit && isEditing) return;
+        
+        // On touch devices, toggle the tooltip
+        if (isTouchDevice.current) {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsTapped(prev => !prev);
+        }
+    }, [canEdit, isEditing]);
+
+    // Close tooltip when tapping outside (mobile)
+    useEffect(() => {
+        if (!isTapped) return;
+
+        const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setIsTapped(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [isTapped]);
 
     // Extract text from children for identity (handles string, number, arrays)
     const childText = useMemo(() => {
@@ -143,9 +186,9 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
         try { return btoa(json); } catch { return ''; }
     }, [effectiveText, effectiveTooltip, effectiveColor, effectiveBgColor, effectivePosition, effectiveMaxWidth]);
 
-    // Calculate tooltip position on hover
+    // Calculate tooltip position when visible (hover or tap)
     useEffect(() => {
-        if (!containerRef.current || !isHovered) return;
+        if (!containerRef.current || !isTooltipVisible) return;
 
         const rect = containerRef.current.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
@@ -177,7 +220,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
             top: tooltipTop,
             left: tooltipLeft,
         });
-    }, [isHovered, effectivePosition, effectiveMaxWidth]);
+    }, [isTooltipVisible, effectivePosition, effectiveMaxWidth]);
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
@@ -266,7 +309,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
         );
     }
 
-    // Preview mode: hover to show tooltip
+    // Preview mode: hover or tap to show tooltip
     return (
         <>
             <span
@@ -274,17 +317,19 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
                 {...wrapperProps}
                 style={{
                     color: effectiveColor,
-                    textShadow: isHovered ? `0 0 8px ${effectiveColor}4D` : 'none',
-                    background: isHovered ? effectiveBgColor : 'transparent',
+                    textShadow: isTooltipVisible ? `0 0 8px ${effectiveColor}4D` : 'none',
+                    background: isTooltipVisible ? effectiveBgColor : 'transparent',
                     borderRadius: '2px',
-                    padding: isHovered ? '0 2px' : '0',
-                    margin: isHovered ? '0 -2px' : '0',
+                    padding: isTooltipVisible ? '0 2px' : '0',
+                    margin: isTooltipVisible ? '0 -2px' : '0',
                     cursor: 'help',
                     fontWeight: 500,
                     transition: 'all 0.2s ease',
                 }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
+                onTouchStart={handleTouchStart}
+                onClick={handleClick}
             >
                 {pendingEdit?.newProps.text ?? children}
             </span>
@@ -292,7 +337,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
             {/* Tooltip via Portal */}
             {typeof window !== 'undefined' && createPortal(
                 <AnimatePresence>
-                    {isHovered && (
+                    {isTooltipVisible && (
                         <motion.div
                             ref={tooltipRef}
                             initial={{ opacity: 0, y: tooltipPosition === 'bottom' ? -8 : 8, scale: 0.95 }}

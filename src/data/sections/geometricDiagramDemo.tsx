@@ -16,7 +16,7 @@ import {
 import { useVar } from "@/stores";
 
 function ReactiveGeometricDiagram() {
-    const radius = useVar("gdRadius", 90) as number;
+    const radius = useVar("gdRadius", 110) as number;
     const angle = useVar("gdAngle", 55) as number;
     const sides = useVar("gdSides", 6) as number;
     const variant = useVar("gdVariant", "circle") as "circle" | "triangle" | "polygon";
@@ -27,7 +27,7 @@ function ReactiveGeometricDiagram() {
             radius={radius}
             angleDegrees={angle}
             sides={sides}
-            height={340}
+            height={400}
             highlightVarName="gdHighlight"
         />
     );

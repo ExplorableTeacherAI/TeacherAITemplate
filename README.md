@@ -4,6 +4,49 @@ Interactive explorable-explanation template for creating mathematics lessons. Bu
 
 ---
 
+## CRITICAL: EVERY VISUALIZATION MUST BE INTERACTIVE
+
+**This is an explorable explanation platform — NOT a textbook.** Static diagrams defeat the entire purpose. Every visualization MUST allow student manipulation.
+
+### The Non-Negotiable Interactivity Rules
+
+1. **No static charts** — Every `Cartesian2D`, `DataVisualization`, `GeometricDiagram` must have at least one manipulable element (`movablePoints`, brush selection, or bound to `InlineScrubbleNumber`)
+
+2. **Bi-directional binding** — The same `varName` must connect:
+   - Prose (`InlineScrubbleNumber`)
+   - Formulas (`FormulaBlock` with `\scrub{}`)
+   - Visualizations (point positions, function parameters)
+   
+3. **Linked highlights** — Use `InlineLinkedHighlight` to connect prose terms to visual elements. When students hover "radius" in the text, the radius line in the diagram should highlight.
+
+4. **Observable change** — When students manipulate one element, they must see real-time changes in other elements. Dragging a point should update values in both formulas AND prose.
+
+### Before Creating Any Visualization, Ask:
+
+- **What can the student drag, scrub, or click?** ← If nothing, STOP and redesign
+- **What changes when they interact?** ← At least one derived value must update
+- **Is the same variable used in prose, formula, AND visual?** ← If not, connect them
+
+### Use Soft, Muted Colors
+
+**Never use saturated primaries (`#FF0000`, `#00FF00`, `#0000FF`).** Use the recommended soft palette:
+
+- `#62D0AD` (teal) — primary variables
+- `#8E90F5` (indigo) — secondary variables  
+- `#F7B23B` (amber) — highlights, attention
+- `#AC8BF9` (violet) — tertiary variables
+- `#F8A0CD` (rose) — emphasis
+- `#62CCF9` (sky) — alternative primary
+- `#F4A89A` (coral) — warmth
+- `#A8D5A2` (sage) — natural concepts
+- `#FFCBA4` (peach) — gentle highlights
+- `#7DD3C0` (mint) — fresh/clean
+- `#C9B8E8` (lavender) — subtle emphasis
+- `#22c55e` (green) — success/correct
+- `#ef4444` (red) — errors (use sparingly)
+
+---
+
 ## Core Concept: Everything Lives in a Block
 
 The **Block** is the fundamental unit of content. Every piece of a lesson — a paragraph, an equation, a chart, a visualization — must live inside a `<Block>`.

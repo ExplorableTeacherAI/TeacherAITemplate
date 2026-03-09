@@ -1120,12 +1120,12 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
 
     // ── Geometric Diagram Demo ───────────────────────────────────────────
     gdRadius: {
-        defaultValue: 90,
+        defaultValue: 110,
         type: 'number',
         label: 'Geometry Radius',
         description: 'Radius used by the geometric diagram component',
         min: 40,
-        max: 150,
+        max: 160,
         step: 2,
         color: '#EC4899',
     },

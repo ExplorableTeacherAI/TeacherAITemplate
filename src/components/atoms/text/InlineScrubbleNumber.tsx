@@ -263,6 +263,21 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         e.preventDefault();
     };
 
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (canEdit && isEditing) {
+            return;
+        }
+
+        const touch = e.touches[0];
+        if (!touch) return;
+
+        setIsDragging(true);
+        dragStartX.current = touch.clientX;
+        dragStartValue.current = value;
+        // Prevent scrolling while scrubbing
+        e.preventDefault();
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (canEdit && isEditing) return;
 
@@ -304,7 +319,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         );
     }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveDefaultValue, displayMin, displayMax, displayStep, effectiveColor, openScrubbleNumberEditor, varName, defaultValue]);
 
-    // Handle dragging with useEffect
+    // Handle dragging with useEffect (mouse and touch events)
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isDragging) return;
@@ -315,18 +330,43 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             updateValueRef.current(dragStartValue.current + deltaValue);
         };
 
+        const handleTouchMove = (e: TouchEvent) => {
+            if (!isDragging) return;
+
+            const touch = e.touches[0];
+            if (!touch) return;
+
+            const deltaX = touch.clientX - dragStartX.current;
+            const sensitivity = 2; // pixels per step
+            const deltaValue = Math.round(deltaX / sensitivity) * displayStep;
+            updateValueRef.current(dragStartValue.current + deltaValue);
+            
+            // Prevent scrolling while scrubbing
+            e.preventDefault();
+        };
+
         const handleMouseUp = () => {
+            setIsDragging(false);
+        };
+
+        const handleTouchEnd = () => {
             setIsDragging(false);
         };
 
         if (isDragging) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
+            window.addEventListener('touchmove', handleTouchMove, { passive: false });
+            window.addEventListener('touchend', handleTouchEnd);
+            window.addEventListener('touchcancel', handleTouchEnd);
         }
 
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('touchend', handleTouchEnd);
+            window.removeEventListener('touchcancel', handleTouchEnd);
         };
     }, [isDragging, displayStep]);
 
@@ -389,6 +429,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             {/* Number display with underline */}
             <span
                 onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
                 onClick={canEdit && isEditing ? (e) => { e.stopPropagation(); e.preventDefault(); } : undefined}
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
@@ -401,6 +442,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                     color: effectiveColor,
                     borderBottom: `2px solid ${effectiveColor}`,
                     paddingBottom: '1px',
+                    touchAction: 'none', // Prevent touch scrolling on this element
                 }}
             >
                 {formatValue ? formatValue(value) : Number(value.toFixed(2))}
