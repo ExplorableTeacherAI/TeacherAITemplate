@@ -129,9 +129,13 @@ export const HierarchyReporter = () => {
 
     // Auto-report on load and mutation
     useEffect(() => {
-        // Initial report
-        setTimeout(reportHierarchy, 500);
-        setTimeout(reportHierarchy, 1500); // Retry to catch async content
+        // Schedule multiple retries with increasing delays to catch async content
+        // This handles cases where blocks take time to load/render
+        const timeouts = [
+            setTimeout(reportHierarchy, 500),
+            setTimeout(reportHierarchy, 1500),
+            setTimeout(reportHierarchy, 3000),  // Additional retry for slow loads
+        ];
 
         // Observer for DOM changes
         const observer = new MutationObserver(() => {
@@ -145,7 +149,10 @@ export const HierarchyReporter = () => {
             subtree: true
         });
 
-        return () => observer.disconnect();
+        return () => {
+            timeouts.forEach(clearTimeout);
+            observer.disconnect();
+        };
     }, []);
 
     // Listen for requests from parent

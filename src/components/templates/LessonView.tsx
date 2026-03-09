@@ -466,38 +466,62 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     useEffect(() => {
         if (loadingBlocks) return;
 
+        let contentReadySent = false;
         const notifyContentReady = () => {
+            if (contentReadySent) return;
+            contentReadySent = true;
             window.parent.postMessage({ type: 'content-ready' }, '*');
         };
 
-        // Wait for all images to load
-        const images = document.querySelectorAll('img');
-        if (images.length === 0) {
-            // No images, we're ready immediately
-            notifyContentReady();
-            return;
-        }
+        // Wait for DOM to actually be painted before checking content
+        // Use requestAnimationFrame twice to ensure React has committed and painted
+        const waitForPaint = () => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    // Verify that content is actually rendered in DOM
+                    // Either blocks exist OR the welcome screen is shown
+                    const hasBlocks = document.querySelectorAll('section, [data-block-id]').length > 0;
+                    const hasWelcomeScreen = document.querySelector('.glass') !== null;
+                    
+                    if (!hasBlocks && !hasWelcomeScreen) {
+                        // Content not yet rendered, wait a bit and retry
+                        setTimeout(waitForPaint, 100);
+                        return;
+                    }
 
-        let loadedCount = 0;
-        const totalImages = images.length;
+                    // Now check for images
+                    const images = document.querySelectorAll('img');
+                    if (images.length === 0) {
+                        // No images, we're ready immediately
+                        notifyContentReady();
+                        return;
+                    }
 
-        const checkAllLoaded = () => {
-            loadedCount++;
-            if (loadedCount >= totalImages) {
-                notifyContentReady();
-            }
+                    let loadedCount = 0;
+                    const totalImages = images.length;
+
+                    const checkAllLoaded = () => {
+                        loadedCount++;
+                        if (loadedCount >= totalImages) {
+                            notifyContentReady();
+                        }
+                    };
+
+                    images.forEach((img) => {
+                        if (img.complete) {
+                            checkAllLoaded();
+                        } else {
+                            img.addEventListener('load', checkAllLoaded, { once: true });
+                            img.addEventListener('error', checkAllLoaded, { once: true });
+                        }
+                    });
+                });
+            });
         };
 
-        images.forEach((img) => {
-            if (img.complete) {
-                checkAllLoaded();
-            } else {
-                img.addEventListener('load', checkAllLoaded, { once: true });
-                img.addEventListener('error', checkAllLoaded, { once: true }); // Count errors as "loaded" to not block forever
-            }
-        });
+        waitForPaint();
 
-        // Fallback: send ready after 5 seconds even if some images are slow
+        // Fallback: send ready after 5 seconds even if something is slow
         const fallbackTimeout = setTimeout(() => {
             notifyContentReady();
         }, 5000);

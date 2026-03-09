@@ -46,7 +46,17 @@ async function loadBlocksFromModule(): Promise<ReactElement[]> {
         const blocks = module.blocks || [];
         return Array.isArray(blocks) ? blocks : [];
     } catch (err) {
-        console.warn("loadBlocksFromModule error:", err);
+        // Log the error with more detail
+        console.error("Failed to load blocks module:", err);
+        
+        // Notify parent window about the error (for debugging)
+        if (typeof window !== 'undefined' && window.parent !== window) {
+            window.parent.postMessage({ 
+                type: 'blocks-load-error',
+                error: err instanceof Error ? err.message : String(err)
+            }, '*');
+        }
+        
         return [];
     }
 }
