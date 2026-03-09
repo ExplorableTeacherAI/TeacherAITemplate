@@ -11,7 +11,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:editor": "VITE_APP_MODE=editor vite build",
-    "build:preview": "VITE_APP_MODE=preview VITE_SHOW_EXAMPLES=false vite build",
+    "build:preview": "VITE_APP_MODE=preview VITE_SHOW_EXAMPLES=true vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build:preview",
