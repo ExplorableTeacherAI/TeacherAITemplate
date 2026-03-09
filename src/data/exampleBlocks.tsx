@@ -63,6 +63,7 @@ import { imageDisplayDemoBlocks } from "./sections/imageDisplayDemo";
 import { videoDisplayDemoBlocks } from "./sections/videoDisplayDemo";
 import { desmosDemoBlocks } from "./sections/desmosDemo";
 import { inlineFeedbackDemoBlocks } from "./sections/inlineFeedbackDemo";
+import { visualAssessmentDemoBlocks } from "./sections/visualAssessmentDemo";
 
 /** SVG diagram with parts that react to the "activeHighlight" variable */
 function AreaCalculator() {
@@ -241,6 +242,7 @@ const exampleBlocks: ReactElement[] = [
                     { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-venn" targetBlockId="venn-numberline-title">Venn & Number Line</InlineHyperlink></div>, 'Diagrams for set theory and basic intervals.'] },
                     { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-sim" targetBlockId="simulation-title">Simulation Panel</InlineHyperlink></div>, 'Controls, sliders, and buttons for dynamic examples.'] },
                     { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-desmos" targetBlockId="desmos-title">Desmos Calculator</InlineHyperlink></div>, 'Embed fully interactive Desmos graphing calculators.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-visual-assessment" targetBlockId="visual-assessment-title">Tasks in Visualizations</InlineHyperlink></div>, 'Interactive tasks within visualizations.'] },
                     { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-media" targetBlockId="heading-media">Media Elements</InlineHyperlink></div>, 'Images and interactive video components.'] },
                     { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-img" targetBlockId="image-title">Images</InlineHyperlink></div>, 'Display images with various fit and border modes.'] },
                     { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-vid" targetBlockId="video-title">Video Display</InlineHyperlink></div>, 'Embed web videos interactively.'] },
@@ -1322,6 +1324,12 @@ const exampleBlocks: ReactElement[] = [
     // DESMOS DEMO
     // ========================================
     ...desmosDemoBlocks,
+
+    // ========================================
+    // VISUAL ASSESSMENT DEMO
+    // ========================================
+    ...visualAssessmentDemoBlocks,
+
 
     // ========================================
     // MEDIA DEMOS

@@ -952,6 +952,92 @@ import { InlineFeedback, InlineClozeInput, InlineClozeChoice } from "@/component
 - **NEVER use `--` (double hyphens) in any feedback or lesson text.** Use commas, em dashes (—), or restructure the sentence instead
 - **Feedback appears only after submission**: The cloze components write to the store only on submission, not during typing
 
+## Visual Assessment Tasks
+
+Beyond text-based questions (`InlineClozeInput`, `InlineClozeChoice`), you can create **interactive visual tasks** where students demonstrate understanding by manipulating elements in a visualization — drawing lines, positioning points, or constructing shapes.
+
+### Key Principles
+
+1. **Don't reveal the answer in instructions.** Say "Draw a radius" not "Draw a line from center to edge"
+2. **Use tolerance-based validation.** Students aren't precision instruments — accept answers within reasonable bounds (typically ±5-10%)
+3. **Provide immediate visual feedback.** Correct answers glow green; incorrect attempts show amber with hints
+4. **Allow multiple attempts.** Visual tasks should let students try again with progressive hints
+
+### Task Types
+
+| Type | Student Action | Validation Approach |
+|:---|:---|:---|
+| **Draw/Position** | Drag endpoint to location | `distance(point, target) < tolerance` |
+| **Construct** | Move multiple points | Validate geometric properties (area, angle, length) |
+| **Adjust to value** | Change parameter to hit target | Check final value within range |
+
+### Implementation Pattern
+
+Visual assessment tasks use `movablePoints` in `Cartesian2D` with an `onChange` callback that validates the position and updates a status variable:
+
+```tsx
+// 1. Define status variable in variables.ts
+radiusTaskStatus: {
+    defaultValue: 'pending',
+    type: 'text',
+    label: 'Radius Task Status',
+},
+
+// 2. Create validation function
+const validateRadius = useCallback((endpoint: [number, number]) => {
+    const distanceFromCenter = distance(endpoint, [0, 0]);
+    const isOnCircle = Math.abs(distanceFromCenter - circleRadius) < tolerance;
+    
+    if (isOnCircle) {
+        setVar("radiusTaskStatus", "correct");
+    } else if (distanceFromCenter < circleRadius) {
+        setVar("radiusTaskStatus", "inside");
+    } else {
+        setVar("radiusTaskStatus", "outside");
+    }
+}, [setVar, circleRadius, tolerance]);
+
+// 3. Visualization with movable point
+<Cartesian2D
+    height={350}
+    viewBox={{ x: [-5, 5], y: [-5, 5] }}
+    movablePoints={[{
+        initial: [1.5, 1.5],
+        color: lineColor,
+        onChange: (point) => validateRadius(point as [number, number]),
+    }]}
+    dynamicPlots={([endpoint]) => [
+        { type: "circle", center: [0, 0], radius: circleRadius, color: "#64748b" },
+        { type: "point", x: 0, y: 0, color: "#3b82f6" },
+        { type: "segment", point1: [0, 0], point2: endpoint, color: lineColor, weight: 3 },
+    ]}
+/>
+
+// 4. Reactive feedback component
+function RadiusTaskFeedback() {
+    const status = useVar("radiusTaskStatus", "pending") as string;
+    if (status === "correct") {
+        return <span className="text-green-600 font-medium">Excellent! That is a valid radius.</span>;
+    }
+    if (status === "inside") {
+        return <span className="text-amber-600">The endpoint is inside the circle. A radius must reach the edge.</span>;
+    }
+    if (status === "outside") {
+        return <span className="text-amber-600">The endpoint is outside the circle. Pull it back to touch the edge.</span>;
+    }
+    return <span className="text-slate-500">Drag the point to complete the radius.</span>;
+}
+```
+
+### Reference Demo
+
+See `src/data/sections/visualAssessmentDemo.tsx` for complete working examples:
+
+- **Draw a Radius** — drag endpoint to circle edge
+- **Find the Midpoint** — position a point at segment center
+- **Position the Vertex** — adjust triangle apex to achieve target area (9 sq units)
+- **Construct a Perpendicular** — create a 90° angle from a line
+
 ### Required Props for All Text Components
 
 Every `EditableParagraph` and `EditableH1/H2/H3` MUST have:

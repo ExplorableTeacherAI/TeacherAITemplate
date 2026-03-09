@@ -276,6 +276,53 @@ For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to
 | `reviewBlockId` | `string` | — | Block ID to scroll to for review |
 | `reviewLabel` | `string` | `"Review this concept"` | Review link text |
 
+### Visual Assessment Tasks
+
+Beyond text-based questions, you can create **interactive visual tasks** where students demonstrate understanding by manipulating elements in a visualization — drawing lines, positioning points, or constructing shapes.
+
+**Key principles:**
+- **Don't reveal the answer in instructions.** Say "Draw a radius" not "Draw a line from center to edge"
+- **Use tolerance-based validation.** Students aren't precision instruments — accept answers within reasonable bounds
+- **Provide visual feedback.** Correct answers glow green; incorrect attempts show amber with hints
+- **Allow multiple attempts.** Visual tasks should let students try again after hints
+
+**Example pattern — Drag to validate:**
+
+```tsx
+// Validation function checks if endpoint is on the circle
+const validateRadius = useCallback((endpoint: [number, number]) => {
+    const distanceFromCenter = distance(endpoint, [0, 0]);
+    const isOnCircle = Math.abs(distanceFromCenter - circleRadius) < tolerance;
+    setVar("taskStatus", isOnCircle ? "correct" : "incorrect");
+}, [setVar]);
+
+// Visualization with movable point
+<Cartesian2D
+    movablePoints={[{
+        initial: [1.5, 1.5],
+        color: lineColor,
+        onChange: (point) => validateRadius(point as [number, number]),
+    }]}
+    dynamicPlots={([endpoint]) => [
+        { type: "circle", center: [0, 0], radius: 3, color: "#64748b" },
+        { type: "segment", point1: [0, 0], point2: endpoint, color: lineColor },
+    ]}
+/>
+```
+
+**Task types:**
+| Type | Student Action | Validation Approach |
+|:---|:---|:---|
+| Draw/Position | Drag endpoint to location | Distance from target < tolerance |
+| Construct | Move multiple points | Validate geometric properties |
+| Adjust to value | Change parameter to hit target | Check final value within range |
+
+See `src/data/sections/visualAssessmentDemo.tsx` for complete working examples of:
+- **Draw a Radius** — drag endpoint to circle edge
+- **Find the Midpoint** — position a point at segment center  
+- **Position the Vertex** — adjust triangle apex to achieve target area
+- **Construct a Perpendicular** — create a 90° angle
+
 ---
 
 ## Layouts

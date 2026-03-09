@@ -1836,6 +1836,43 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         options: ['90°', '180°', '360°', '270°'],
         color: '#8b5cf6',
     },
+
+    // ─────────────────────────────────────────
+    // VISUAL ASSESSMENT DEMO — Interactive visual tasks
+    // ─────────────────────────────────────────
+    radiusTaskStatus: {
+        defaultValue: 'pending',
+        type: 'text',
+        label: 'Radius Task Status',
+        description: 'Status of the draw-a-radius visual task',
+    },
+    midpointTaskStatus: {
+        defaultValue: 'pending',
+        type: 'text',
+        label: 'Midpoint Task Status',
+        description: 'Status of the find-midpoint visual task',
+    },
+    vertexTaskStatus: {
+        defaultValue: 'pending',
+        type: 'text',
+        label: 'Vertex Task Status',
+        description: 'Status of the position-vertex visual task',
+    },
+    triangleArea: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Triangle Area',
+        description: 'Current area of the triangle in the vertex task',
+        min: 0,
+        max: 20,
+        step: 0.1,
+    },
+    perpTaskStatus: {
+        defaultValue: 'pending',
+        type: 'text',
+        label: 'Perpendicular Task Status',
+        description: 'Status of the construct-perpendicular visual task',
+    },
 };
 
 /**
