@@ -2,7 +2,7 @@
   "name": "mathvibe",
   "private": true,
   "version": "1.0.0",
-  "homepage": "https://mathvibe.space/",
+  "homepage": "https://wiki.mathvibe.space/",
   "type": "module",
   "scripts": {
     "dev": "vite",
