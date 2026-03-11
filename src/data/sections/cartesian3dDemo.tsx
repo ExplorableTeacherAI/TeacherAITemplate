@@ -4,13 +4,13 @@ import { Block } from "@/components/templates";
 import {
     Cartesian3D,
     EditableH4,
-    EditableH2,
     EditableH3,
     EditableParagraph,
     InlineLinkedHighlight,
     InlineScrubbleNumber,
     InlineSpotColor,
     InlineTrigger,
+    InteractionHintSequence,
 } from "@/components/atoms";
 import { FormulaBlock } from "@/components/molecules";
 import { useVar } from "@/stores";
@@ -25,58 +25,64 @@ import {
 
 function VectorsAndPointsViz() {
     return (
-        <Cartesian3D
-            height={420}
-            axisLength={4}
-            highlightVarName="c3dHighlight"
-            plots={[
-                // Two vectors from origin
-                {
-                    type: "vector",
-                    tip: [3, 1, 0],
-                    color: "#EF4444",
-                    highlightId: "vecA",
-                },
-                {
-                    type: "vector",
-                    tip: [0, 2, 3],
-                    color: "#3B82F6",
-                    highlightId: "vecB",
-                },
-                // Cross product: a × b = (1·3 − 0·2, 0·0 − 3·3, 3·2 − 1·0) = (3, −9, 6)
-                // Scaled down to fit nicely
-                {
-                    type: "vector",
-                    tip: [0.5, -1.5, 1],
-                    color: "#22C55E",
-                    highlightId: "vecCross",
-                },
-                // Static points at the tips
-                {
-                    type: "point",
-                    position: [3, 1, 0],
-                    color: "#EF4444",
-                    size: 0.12,
-                    highlightId: "vecA",
-                },
-                {
-                    type: "point",
-                    position: [0, 2, 3],
-                    color: "#3B82F6",
-                    size: 0.12,
-                    highlightId: "vecB",
-                },
-                // Dashed segment connecting the two tips
-                {
-                    type: "segment",
-                    point1: [3, 1, 0],
-                    point2: [0, 2, 3],
-                    color: "#9CA3AF",
-                    dashed: true,
-                    lineWidth: 1,
-                },
-            ]}
-        />
+        <div className="relative">
+            <Cartesian3D
+                height={420}
+                axisLength={4}
+                highlightVarName="c3dHighlight"
+                plots={[
+                    // Two vectors from origin
+                    {
+                        type: "vector",
+                        tip: [3, 1, 0],
+                        color: "#EF4444",
+                        highlightId: "vecA",
+                    },
+                    {
+                        type: "vector",
+                        tip: [0, 2, 3],
+                        color: "#3B82F6",
+                        highlightId: "vecB",
+                    },
+                    // Cross product: a × b = (1·3 − 0·2, 0·0 − 3·3, 3·2 − 1·0) = (3, −9, 6)
+                    // Scaled down to fit nicely
+                    {
+                        type: "vector",
+                        tip: [0.5, -1.5, 1],
+                        color: "#22C55E",
+                        highlightId: "vecCross",
+                    },
+                    // Static points at the tips
+                    {
+                        type: "point",
+                        position: [3, 1, 0],
+                        color: "#EF4444",
+                        size: 0.12,
+                        highlightId: "vecA",
+                    },
+                    {
+                        type: "point",
+                        position: [0, 2, 3],
+                        color: "#3B82F6",
+                        size: 0.12,
+                        highlightId: "vecB",
+                    },
+                    // Dashed segment connecting the two tips
+                    {
+                        type: "segment",
+                        point1: [3, 1, 0],
+                        point2: [0, 2, 3],
+                        color: "#9CA3AF",
+                        dashed: true,
+                        lineWidth: 1,
+                    },
+                ]}
+            />
+            <InteractionHintSequence
+                hintKey="3d-vectors-orbit"
+                steps={[{ gesture: "drag", label: "Drag to orbit the camera", position: { x: "50%", y: "50%" } }]}
+            />
+        </div>
     );
 }
 
@@ -308,101 +314,107 @@ function ReactiveTorusViz() {
 
 function DraggablePointExplorer() {
     return (
-        <Cartesian3D
-            height={420}
-            axisLength={4}
-            cameraPosition={[7, 5, 7]}
-            draggablePoints={[
-                {
-                    initial: [2, 1, 2],
-                    color: "#F59E0B",
-                    size: 0.18,
-                    constrain: "xy" as const,
-                },
-            ]}
-            dynamicPlots={(points) => {
-                const [px, py, pz] = points[0];
-                const dist = Math.sqrt(px * px + py * py + pz * pz);
-                return [
-                    // Vector from origin to point
+        <div className="relative">
+            <Cartesian3D
+                height={420}
+                axisLength={4}
+                cameraPosition={[7, 5, 7]}
+                draggablePoints={[
                     {
-                        type: "vector" as const,
-                        tip: [px, py, pz] as [number, number, number],
+                        initial: [2, 1, 2],
                         color: "#F59E0B",
+                        size: 0.18,
+                        constrain: "xy" as const,
                     },
-                    // X projection
-                    {
-                        type: "segment" as const,
-                        point1: [px, 0, 0] as [number, number, number],
-                        point2: [px, py, pz] as [number, number, number],
-                        color: "#EF4444",
-                        dashed: true,
-                        lineWidth: 1,
-                    },
-                    {
-                        type: "point" as const,
-                        position: [px, 0, 0] as [number, number, number],
-                        color: "#EF4444",
-                        size: 0.08,
-                    },
-                    // Y projection
-                    {
-                        type: "segment" as const,
-                        point1: [0, py, 0] as [number, number, number],
-                        point2: [px, py, pz] as [number, number, number],
-                        color: "#22C55E",
-                        dashed: true,
-                        lineWidth: 1,
-                    },
-                    {
-                        type: "point" as const,
-                        position: [0, py, 0] as [number, number, number],
-                        color: "#22C55E",
-                        size: 0.08,
-                    },
-                    // Z projection
-                    {
-                        type: "segment" as const,
-                        point1: [0, 0, pz] as [number, number, number],
-                        point2: [px, py, pz] as [number, number, number],
-                        color: "#3B82F6",
-                        dashed: true,
-                        lineWidth: 1,
-                    },
-                    {
-                        type: "point" as const,
-                        position: [0, 0, pz] as [number, number, number],
-                        color: "#3B82F6",
-                        size: 0.08,
-                    },
-                    // Shadow on XZ plane (y = 0)
-                    {
-                        type: "segment" as const,
-                        point1: [px, 0, pz] as [number, number, number],
-                        point2: [px, py, pz] as [number, number, number],
-                        color: "#94A3B8",
-                        dashed: true,
-                        lineWidth: 1,
-                    },
-                    {
-                        type: "point" as const,
-                        position: [px, 0, pz] as [number, number, number],
-                        color: "#94A3B8",
-                        size: 0.08,
-                    },
-                    // Distance sphere (wireframe, semi-transparent)
-                    {
-                        type: "sphere" as const,
-                        center: [0, 0, 0] as [number, number, number],
-                        radius: dist,
-                        color: "#F59E0B",
-                        opacity: 0.06,
-                        wireframe: true,
-                    },
-                ];
-            }}
-            plots={[]}
-        />
+                ]}
+                dynamicPlots={(points) => {
+                    const [px, py, pz] = points[0];
+                    const dist = Math.sqrt(px * px + py * py + pz * pz);
+                    return [
+                        // Vector from origin to point
+                        {
+                            type: "vector" as const,
+                            tip: [px, py, pz] as [number, number, number],
+                            color: "#F59E0B",
+                        },
+                        // X projection
+                        {
+                            type: "segment" as const,
+                            point1: [px, 0, 0] as [number, number, number],
+                            point2: [px, py, pz] as [number, number, number],
+                            color: "#EF4444",
+                            dashed: true,
+                            lineWidth: 1,
+                        },
+                        {
+                            type: "point" as const,
+                            position: [px, 0, 0] as [number, number, number],
+                            color: "#EF4444",
+                            size: 0.08,
+                        },
+                        // Y projection
+                        {
+                            type: "segment" as const,
+                            point1: [0, py, 0] as [number, number, number],
+                            point2: [px, py, pz] as [number, number, number],
+                            color: "#22C55E",
+                            dashed: true,
+                            lineWidth: 1,
+                        },
+                        {
+                            type: "point" as const,
+                            position: [0, py, 0] as [number, number, number],
+                            color: "#22C55E",
+                            size: 0.08,
+                        },
+                        // Z projection
+                        {
+                            type: "segment" as const,
+                            point1: [0, 0, pz] as [number, number, number],
+                            point2: [px, py, pz] as [number, number, number],
+                            color: "#3B82F6",
+                            dashed: true,
+                            lineWidth: 1,
+                        },
+                        {
+                            type: "point" as const,
+                            position: [0, 0, pz] as [number, number, number],
+                            color: "#3B82F6",
+                            size: 0.08,
+                        },
+                        // Shadow on XZ plane (y = 0)
+                        {
+                            type: "segment" as const,
+                            point1: [px, 0, pz] as [number, number, number],
+                            point2: [px, py, pz] as [number, number, number],
+                            color: "#94A3B8",
+                            dashed: true,
+                            lineWidth: 1,
+                        },
+                        {
+                            type: "point" as const,
+                            position: [px, 0, pz] as [number, number, number],
+                            color: "#94A3B8",
+                            size: 0.08,
+                        },
+                        // Distance sphere (wireframe, semi-transparent)
+                        {
+                            type: "sphere" as const,
+                            center: [0, 0, 0] as [number, number, number],
+                            radius: dist,
+                            color: "#F59E0B",
+                            opacity: 0.06,
+                            wireframe: true,
+                        },
+                    ];
+                }}
+                plots={[]}
+            />
+            <InteractionHintSequence
+                hintKey="3d-draggable-point"
+                steps={[{ gesture: "drag", label: "Drag the amber point", position: { x: "60%", y: "35%" } }]}
+            />
+        </div>
     );
 }
 

@@ -35,6 +35,7 @@ Content is organized as **blocks** inside **layouts**, with shared state via a *
 - [ ] Prose uses `InlineScrubbleNumber` for the SAME variables as the visual
 - [ ] At least one `InlineLinkedHighlight` connects prose to visual elements
 - [ ] Derived values (area, sum, etc.) display via `readonly` scrubble numbers
+- [ ] **Every visualization has an `InteractionHintSequence`** guiding the student on how to interact
 
 ### Use Soft, Muted Colors Only
 
@@ -614,6 +615,84 @@ When a `<Block>` contains a **visual component** (chart, diagram, interactive vi
     <ReactiveDataViz />
 </Block>
 ```
+
+### Critical Rule: `InteractionHintSequence` for Interactive Visualizations
+
+**Every interactive visualization MUST include an `InteractionHintSequence` overlay** to show students how to interact with it. The hint displays an animated hand gesture (drag, click, hover, scroll) that auto-dismisses when the user interacts with the visualization and remembers via sessionStorage so students only see it once per session.
+
+**This is NOT optional.** Visualizations without interaction hints are incomplete and fail to guide students on how to explore them.
+
+**Usage:** Wrap the visualization in a `<div className="relative">` and place `InteractionHintSequence` as a sibling:
+
+```tsx
+function MyInteractiveViz() {
+    return (
+        <div className="relative">
+            <Cartesian2D
+                movablePoints={[{ initial: [1, 0], color: "#ef4444" }]}
+                ...
+            />
+            <InteractionHintSequence
+                hintKey="my-viz-drag"
+                steps={[{ gesture: "drag", label: "Drag the red point", position: { x: "65%", y: "35%" } }]}
+            />
+        </div>
+    );
+}
+```
+
+**For multi-step tutorials** (e.g., line drawing canvas):
+
+```tsx
+<InteractionHintSequence
+    hintKey="line-drawing-tutorial"
+    currentStep={points.length >= 3 ? 3 : points.length}
+    steps={[
+        { gesture: "click", label: "Click to place a point", position: { x: "45%", y: "45%" } },
+        { gesture: "click", label: "Click again to draw a line", position: { x: "55%", y: "35%" } },
+        { gesture: "click", label: "Keep clicking to continue", position: { x: "35%", y: "55%" } },
+    ]}
+/>
+```
+
+**Props:**
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `hintKey` | `string` | *(required)* | Unique sessionStorage key — use `kebab-case` matching the viz purpose |
+| `steps` | `HintStep[]` | *(required)* | Array of hint steps, each with gesture, label, position, and optional color |
+| `currentStep` | `number` | auto | Controlled mode: parent tells which step to show |
+| `delay` | `number` | `800` | Delay in ms before the hint appears after mount |
+| `color` | `string` | `#62D0AD` | Default accent color for the hand icon |
+| `alwaysShow` | `boolean` | `false` | Ignores sessionStorage (for demos/documentation) |
+
+**HintStep properties:**
+
+| Property | Type | Purpose |
+|------|------|---------|
+| `gesture` | `GestureType` | Animation type: `"drag"`, `"drag-horizontal"`, `"drag-vertical"`, `"click"`, `"hover"`, `"scroll"` |
+| `label` | `string` | Short instruction text shown below the hand icon |
+| `position` | `{ x?: string; y?: string }` | Position relative to the parent container (CSS percentages) |
+| `color` | `string` | Optional accent color override for this step |
+
+**Gesture selection guide:**
+
+| Interaction | Gesture |
+|:---|:---|
+| Movable points, scatter data | `"drag"` |
+| Horizontal-only sliders/points | `"drag-horizontal"` |
+| Vertical-only sliders/points | `"drag-vertical"` |
+| Buttons, toggles, canvas placement | `"click"` |
+| Linked highlights, tooltip areas | `"hover"` |
+| Scrollable content, 3D zoom | `"scroll"` |
+
+**Rules:**
+1. `hintKey` must be **unique across the entire lesson** — never reuse a key
+2. Position the hint **near the interactive element**, not at the center of the viz
+3. For 3D visualizations, use `gesture="drag"` with label "Drag to orbit the camera"
+4. The label should be **descriptive and specific** — "Drag the red point" not just "Drag"
+5. **NEVER ship a visualization without an InteractionHintSequence** — this is a hard requirement
+
 
 ### Critical Rule: White Backgrounds for Visualizations
 

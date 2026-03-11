@@ -21,11 +21,14 @@ Interactive explorable-explanation template for creating mathematics lessons. Bu
 
 4. **Observable change** — When students manipulate one element, they must see real-time changes in other elements. Dragging a point should update values in both formulas AND prose.
 
+5. **Interaction hints** — Every visualization MUST include an `InteractionHintSequence` overlay showing students how to interact with it. The hint displays an animated hand gesture that auto-dismisses when the user interacts.
+
 ### Before Creating Any Visualization, Ask:
 
 - **What can the student drag, scrub, or click?** ← If nothing, STOP and redesign
 - **What changes when they interact?** ← At least one derived value must update
 - **Is the same variable used in prose, formula, AND visual?** ← If not, connect them
+- **Does it have an InteractionHintSequence?** ← If not, add one
 
 ### Use Soft, Muted Colors
 

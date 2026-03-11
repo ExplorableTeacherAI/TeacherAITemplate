@@ -181,3 +181,7 @@ export type { ImageDisplayProps, ImageFit } from "./visual/ImageDisplay";
 // Visual — Video Display
 export { VideoDisplay } from "./visual/VideoDisplay";
 export type { VideoDisplayProps, VideoFit } from "./visual/VideoDisplay";
+
+// Visual — Interaction Hint (animated gesture overlay for interactive visualizations)
+export { InteractionHintSequence } from "./visual/InteractionHint";
+export type { GestureType, HintStep, InteractionHintSequenceProps } from "./visual/InteractionHint";
