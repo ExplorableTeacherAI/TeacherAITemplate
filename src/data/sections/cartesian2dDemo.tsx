@@ -141,7 +141,17 @@ function UnitCircleExplorer() {
             />
             <InteractionHintSequence
                 hintKey="unit-circle-drag"
-                steps={[{ gesture: "drag", label: "Drag the red point around", position: { x: "72%", y: "28%" } }]}
+                steps={[{ 
+                    gesture: "drag-circular", 
+                    label: "Drag the point around the circle", 
+                    position: { x: "50%", y: "30%" },
+                    dragPath: { 
+                        type: "arc", 
+                        startAngle: 0,     // Start at right (3 o'clock)
+                        endAngle: -90,     // End at top (12 o'clock) - counterclockwise
+                        radius: 35 
+                    }
+                }]}
             />
         </div>
     );

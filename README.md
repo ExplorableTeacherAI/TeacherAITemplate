@@ -286,39 +286,54 @@ For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to
 
 - **Automatic** — feedback appears as soon as the student **submits** their answer; no "Check Answer" button
 - **Submission triggers** — for `InlineClozeInput`: Enter key, blur (clicking away), or auto-correct match while typing. For `InlineClozeChoice`: selecting an option. Feedback never appears while the student is still typing.
+- **Position-aware** — feedback adapts based on where it appears: terminal (end of sentence), mid-sentence, or standalone
 - **Inline flow** — feedback flows as part of the paragraph text, not as a separate block
 - **Subtle styling** — green text for correct, amber for incorrect — no icons, no backgrounds
 - **Animated** — smooth fade-in/out transitions with Framer Motion
 
+**Position-based defaults:**
+
+| Position | When to use | Success default | Failure default |
+|:---|:---|:---|:---|
+| `terminal` | Blank ends the sentence | `"— exactly right!"` | `"— not quite."` |
+| `mid` | Words follow the blank | `"✓"` | `"✗"` |
+| `standalone` | Question ends with ? then blank | `"That's right!"` | `"Not quite!"` |
+
+**Terminal position example (blank at end):**
 ```tsx
-<EditableParagraph id="para-question-radius" blockId="question-radius">
-    Because a circle's diameter is defined as passing straight across the center, a circle with a radius of 3 must have a diameter exactly equal to{" "}
+<EditableParagraph>
+    A circle with radius 3 has diameter{" "}
     <InlineFeedback
-        varName="fbCircleDiameter"
-        correctValue="6"
-        successMessage="Brilliant! You nailed it, since the diameter is always twice the radius, so 2 × 3 = 6"
-        failureMessage="Almost there!"
-        hint="The diameter stretches all the way across the circle through its centre, which means it is exactly twice the radius. Try calculating 2 × 3"
-        reviewBlockId="circles-introduction"
-        reviewLabel="Review radius and diameter"
+        varName="fbCircleDiameter" correctValue="6" position="terminal"
+        successMessage="— exactly! Diameter is always twice the radius"
+        failureMessage="— not quite." hint="Diameter = 2 × radius"
     >
-        <InlineClozeInput
-            varName="fbCircleDiameter"
-            correctAnswer="6"
-            {...clozePropsFromDefinition(getVariableInfo('fbCircleDiameter'))}
-        />
+        <InlineClozeInput varName="fbCircleDiameter" correctAnswer="6" ... />
     </InlineFeedback>.
 </EditableParagraph>
+```
+
+**Mid-sentence example (words follow blank):**
+```tsx
+<EditableParagraph>
+    An interior cell has exactly{" "}
+    <InlineFeedback varName="fbNeighbors" correctValue="4" position="mid">
+        <InlineClozeInput varName="fbNeighbors" correctAnswer="4" ... />
+    </InlineFeedback>{" "}
+    neighbors in each direction.
+</EditableParagraph>
+// Renders: "...has exactly 4 ✓ neighbors in each direction."
 ```
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|--------|
 | `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
 | `correctValue` | `string` | *(required)* | Expected correct value |
+| `position` | `'terminal' \| 'mid' \| 'standalone'` | `'terminal'` | Position of blank — affects default feedback style |
 | `caseSensitive` | `boolean` | `false` | Case-sensitive comparison |
-| `successMessage` | `ReactNode` | `"Well done! That's exactly right"` | Encouraging message for correct answers |
-| `failureMessage` | `ReactNode` | `"Good effort!"` | Supportive message for wrong answers |
-| `hint` | `ReactNode` | — | Additional guidance after failure message |
+| `successMessage` | `string` | *(varies by position)* | Encouraging message for correct answers |
+| `failureMessage` | `string` | *(varies by position)* | Supportive message for wrong answers |
+| `hint` | `string` | — | Additional guidance after failure message |
 | `reviewBlockId` | `string` | — | Block ID to scroll to for review |
 | `reviewLabel` | `string` | `"Review this concept"` | Review link text |
 
@@ -600,23 +615,6 @@ function ReactiveDataViz() {
 ```
 
 ---
-
-## Environment Variables
-
-| Variable | Values | Purpose |
-|----------|--------|---------|
-| `VITE_APP_MODE` | `editor` / `preview` | Editor enables editing UI; preview is read-only |
-| `VITE_SHOW_EXAMPLES` | `true` / `false` | Load example blocks+variables instead of lesson content |
-
-## NPM Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run dev:editor` | Start in editor mode |
-| `npm run dev:preview` | Start in preview mode |
-| `npm run build` | Production build |
-| `npm run lint` | Run ESLint |
 
 ## Tech Stack
 

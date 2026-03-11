@@ -463,10 +463,12 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         for (const { el, varName } of elements) {
             const col = resolvedColors[varName] ?? DEFAULT_SCRUB_COLOR;
 
-            // Visual cue: underline + pointer
+            // Visual cue: underline + pointer (use text-decoration to respect baseline with exponents)
             el.style.cursor = 'ew-resize';
-            el.style.borderBottom = `2px solid ${col}`;
-            el.style.paddingBottom = '1px';
+            el.style.textDecoration = 'underline';
+            el.style.textDecorationColor = col;
+            el.style.textDecorationThickness = '2px';
+            el.style.textUnderlineOffset = '2px';
             el.style.userSelect = 'none';
             el.style.transition = 'opacity 0.15s ease';
 
@@ -515,8 +517,10 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
             // Reset element styles that we may have set
             for (const { el } of elements) {
                 el.style.cursor = '';
-                el.style.borderBottom = '';
-                el.style.paddingBottom = '';
+                el.style.textDecoration = '';
+                el.style.textDecorationColor = '';
+                el.style.textDecorationThickness = '';
+                el.style.textUnderlineOffset = '';
                 el.style.userSelect = '';
             }
         };

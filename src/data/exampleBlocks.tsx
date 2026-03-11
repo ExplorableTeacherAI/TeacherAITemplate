@@ -427,6 +427,35 @@ const exampleBlocks: ReactElement[] = [
         </Block>
     </StackLayout>,
 
+    <StackLayout key="layout-paragraph-scrubble-exponent" maxWidth="xl">
+        <Block id="paragraph-scrubble-exponent" padding="sm">
+            <EditableParagraph id="para-exponent-example" blockId="paragraph-scrubble-exponent">
+                The power expression{" "}
+                <InlineScrubbleNumber
+                    id="scrubble-base"
+                    varName="base"
+                    defaultValue={5}
+                    min={1}
+                    max={10}
+                    step={1}
+                    color="#8E90F5"
+                />
+                <sup>
+                    <InlineScrubbleNumber
+                        id="scrubble-exponent"
+                        varName="exponent"
+                        defaultValue={2}
+                        min={1}
+                        max={5}
+                        step={1}
+                        color="#F7B23B"
+                    />
+                </sup>
+                {" "}demonstrates how scrubble numbers work with exponents. The underline stays at the text baseline.
+            </EditableParagraph>
+        </Block>
+    </StackLayout>,
+
     // ========================================
     // CLOZE INPUT (Fill-in-the-blank) DEMO
     // ========================================

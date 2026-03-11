@@ -450,8 +450,10 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                 )}
                 style={{
                     color: effectiveColor,
-                    borderBottom: `2px solid ${effectiveColor}`,
-                    paddingBottom: '1px',
+                    textDecoration: 'underline',
+                    textDecorationColor: effectiveColor,
+                    textDecorationThickness: '2px',
+                    textUnderlineOffset: '2px',
                     touchAction: 'none', // Prevent touch scrolling on this element
                 }}
             >

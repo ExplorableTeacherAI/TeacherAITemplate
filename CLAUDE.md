@@ -731,28 +731,148 @@ function MyInteractiveViz() {
 
 | Property | Type | Purpose |
 |------|------|---------|
-| `gesture` | `GestureType` | Animation type: `"drag"`, `"drag-horizontal"`, `"drag-vertical"`, `"click"`, `"hover"`, `"scroll"` |
-| `label` | `string` | Short instruction text shown below the hand icon |
+| `gesture` | `GestureType` | Animation type: `"drag"`, `"drag-horizontal"`, `"drag-vertical"`, `"drag-circular"`, `"click"`, `"hover"`, `"scroll"`, `"pinch"`, `"rotate"`, `"orbit-3d"` |
+| `label` | `string` | Short instruction text shown below the icon |
 | `position` | `{ x?: string; y?: string }` | Position relative to the parent container (CSS percentages) |
 | `color` | `string` | Optional accent color override for this step |
+| `dragPath` | `DragPathConfig` | **Custom drag path for intuitive animations** (see below) |
 
-**Gesture selection guide:**
+#### Custom Drag Path (`dragPath`) — Intuitive Hint Animations
 
-| Interaction | Gesture |
-|:---|:---|
-| Movable points, scatter data | `"drag"` |
-| Horizontal-only sliders/points | `"drag-horizontal"` |
-| Vertical-only sliders/points | `"drag-vertical"` |
-| Buttons, toggles, canvas placement | `"click"` |
-| Linked highlights, tooltip areas | `"hover"` |
-| Scrollable content, 3D zoom | `"scroll"` |
+**Use `dragPath` to make the hint animation follow the ACTUAL drag motion.** Without this, `drag-circular` just rotates in place. With `dragPath`, the hand icon traces the curved path the student should drag.
+
+**Path types:**
+
+| Type | Use When | Properties |
+|:---|:---|:---|
+| `"arc"` | Point on a circle, angle control | `startAngle`, `endAngle` (degrees), `radius` (px) |
+| `"line"` | Slider, straight drag | `startOffset: {x, y}`, `endOffset: {x, y}` (px) |
+| `"custom"` | Complex paths | `xKeyframes: number[]`, `yKeyframes: number[]` |
+
+**Arc path — for circular motion (COMMON):**
+```tsx
+// Unit circle: drag point from right (0°) upward to top (-90° / 270°)
+{ 
+  gesture: "drag-circular", 
+  label: "Drag around the circle",
+  dragPath: { type: "arc", startAngle: 0, endAngle: -90, radius: 40 }
+}
+
+// Angle control sweeping from 30° to 120°
+{ 
+  gesture: "drag-circular", 
+  label: "Adjust the angle",
+  dragPath: { type: "arc", startAngle: 30, endAngle: 120, radius: 35 }
+}
+```
+
+**Angle reference (screen coordinates):**
+- `0°` = right (3 o'clock position)
+- `90°` = down (6 o'clock)
+- `180°` = left (9 o'clock)
+- `270°` or `-90°` = up (12 o'clock)
+- Use **negative angles** for counterclockwise (e.g., 0 → -90 drags upward on the right)
+
+**Line path — for straight drags:**
+```tsx
+// Horizontal slider
+{ 
+  gesture: "drag-horizontal", 
+  label: "Drag left and right",
+  dragPath: { type: "line", startOffset: { x: -30, y: 0 }, endOffset: { x: 30, y: 0 } }
+}
+
+// Diagonal drag
+{ 
+  gesture: "drag", 
+  label: "Drag diagonally",
+  dragPath: { type: "line", startOffset: { x: -25, y: 15 }, endOffset: { x: 25, y: -15 } }
+}
+```
+
+**Gesture selection guide — CHOOSE THE CORRECT GESTURE:**
+
+| Use Case | Gesture | Icon | Description |
+|:---|:---|:---|:---|
+| Free-form point dragging | `"drag"` | Hand | General drag in any direction |
+| Horizontal slider/scrubbler | `"drag-horizontal"` | ↔ Arrows | Constrained left-right motion |
+| Vertical slider/adjuster | `"drag-vertical"` | ↕ Arrows | Constrained up-down motion |
+| Point on circle circumference | `"drag-circular"` | Circular arrow | Drag around a circular path |
+| Angle adjustment handles | `"drag-circular"` | Circular arrow | Rotate around a center point |
+| Click to place/toggle | `"click"` | Click pointer | Single tap/click interaction |
+| Hover to reveal tooltips | `"hover"` | Pointer | Mouse-over interaction |
+| Scroll through content | `"scroll"` | Up-down arrows | Scroll wheel interaction |
+| 3D camera orbit controls | `"orbit-3d"` | 3D cube | Drag to rotate 3D view |
+| Rotate an object | `"rotate"` | Rotate arrow | Rotation gestures |
+| Zoom in/out | `"pinch"` | Expand arrows | Pinch or zoom gestures |
+
+**Examples for common visualization types:**
+
+```tsx
+// Point on a circle (BEST: use dragPath for intuitive arc motion)
+{ 
+  gesture: "drag-circular", 
+  label: "Drag the point around the circle",
+  dragPath: { type: "arc", startAngle: 0, endAngle: 90, radius: 40 }
+}
+
+// Unit circle angle control (drag upward from right side)
+{
+  gesture: "drag-circular",
+  label: "Drag to change the angle",
+  position: { x: "80%", y: "50%" }, // Position near the point on the right
+  dragPath: { type: "arc", startAngle: 0, endAngle: -90, radius: 35 }
+}
+
+// Horizontal slider (e.g., time slider, x-axis value)
+{ gesture: "drag-horizontal", label: "Drag to change the value" }
+
+// 3D surface or model
+{ gesture: "orbit-3d", label: "Drag to rotate the view" }
+
+// Triangle vertex dragging
+{ gesture: "drag", label: "Drag any vertex to reshape" }
+
+// Click to place points
+{ gesture: "click", label: "Click to place a point" }
+
+// Angle rotation handle (with custom arc)
+{ 
+  gesture: "drag-circular", 
+  label: "Drag to adjust the angle",
+  dragPath: { type: "arc", startAngle: 30, endAngle: 150, radius: 30 }
+}
+```
 
 **Rules:**
 1. `hintKey` must be **unique across the entire lesson** — never reuse a key
 2. Position the hint **near the interactive element**, not at the center of the viz
-3. For 3D visualizations, use `gesture="drag"` with label "Drag to orbit the camera"
-4. The label should be **descriptive and specific** — "Drag the red point" not just "Drag"
-5. **NEVER ship a visualization without an InteractionHintSequence** — this is a hard requirement
+3. **Use `dragPath` for circular interactions** — it makes the hint follow the actual drag path
+4. For 3D visualizations, use `gesture="orbit-3d"` with label "Drag to rotate the view"
+5. The label should be **descriptive and specific** — "Drag the red point" not just "Drag"
+6. **NEVER ship a visualization without an InteractionHintSequence** — this is a hard requirement
+
+#### Positioning the Hint
+
+The `position` prop uses CSS percentages. The hint icon is **centered on the specified point**.
+
+For **centered math visualizations** (Mafs, etc. where origin is at center):
+- `x: "50%", y: "50%"` = center of visualization (corresponds to mathematical origin 0,0)
+- `x: "50%", y: "30%"` = same horizontal center, 20% above center (y-axis offset)
+- Think of `50%` as the center point, then offset from there
+
+For the CSS coordinate system:
+- `x: "0%"` = left edge, `x: "100%"` = right edge
+- `y: "0%"` = top edge, `y: "100%"` = bottom edge
+- The hint icon is centered on this point via `transform: translate(-50%, -50%)`
+
+**Best Practice:** Position hints by visual testing. Place the hint slightly above or beside the interactive element so it doesn't obscure the draggable point.
+
+**Common positions for centered visualizations:**
+- `{ x: "50%", y: "30%" }` — center horizontally, above center (good for unit circle point at angle ~0-90°)
+- `{ x: "50%", y: "50%" }` — exact center (default)
+- `{ x: "70%", y: "50%" }` — right of center
+- `{ x: "30%", y: "50%" }` — left of center
 
 
 ### Critical Rule: White Backgrounds for Visualizations
@@ -1074,78 +1194,121 @@ Import from `@/components/layouts`.
 |------|------|---------|--------|
 | `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
 | `correctValue` | `string` | *(required)* | Expected correct value |
+| `position` | `'terminal' \| 'mid' \| 'standalone'` | `'terminal'` | Position of blank in sentence — affects default feedback style |
 | `caseSensitive` | `boolean` | `false` | Whether comparison is case-sensitive |
-| `successMessage` | `string` | `"Well done! That's exactly right"` | Message shown on correct answer — celebrate and explain WHY (no trailing period) |
-| `failureMessage` | `string` | `"Good effort!"` | Message shown on wrong answer — be encouraging (no trailing period) |
+| `successMessage` | `string` | *(varies by position)* | Message shown on correct answer — celebrate and explain WHY (no trailing period) |
+| `failureMessage` | `string` | *(varies by position)* | Message shown on wrong answer — be encouraging (no trailing period) |
 | `hint` | `string` | — | Hint that flows after `failureMessage` — guide discovery (no trailing period) |
 | `reviewBlockId` | `string` | — | Block ID to scroll to for reviewing the concept |
 | `reviewLabel` | `string` | `"Review this concept"` | Label for the review link |
 
-**Example usage:**
+**Position determines feedback style:**
+
+| Position | When to use | Default success | Default failure |
+|:---|:---|:---|:---|
+| `terminal` | Blank ends the sentence | `"— exactly right!"` | `"— not quite."` |
+| `mid` | Words follow the blank | `"✓"` | `"✗"` |
+| `standalone` | Question ends with `?` then blank | `"That's right!"` | `"Not quite!"` |
+
+---
+
+### Feedback Position Examples
+
+**1. Terminal Position (blank at end) — PREFERRED:**
+
+Blank ends the sentence, so detailed feedback is natural. Period comes AFTER the InlineFeedback in JSX.
 
 ```tsx
-import { InlineFeedback, InlineClozeInput, InlineClozeChoice } from "@/components/atoms";
-
-// In variables.ts:
-// fbCircleDiameter: { defaultValue: '', type: 'text', correctAnswer: '6', placeholder: '???', color: '#6366f1' }
-// fbAreaFormula: { defaultValue: '', type: 'select', correctAnswer: 'πr²', options: ['2πr', 'πr²', 'πd', 'r²'], placeholder: '???', color: '#6366f1' }
-
-<StackLayout key="layout-inline-feedback-q1" maxWidth="xl">
-    <Block id="inline-feedback-q1" padding="md">
-        <EditableParagraph id="para-inline-feedback-q1" blockId="inline-feedback-q1">
-            Because a circle's diameter is defined as passing straight across the center, a circle with a radius of 3 must have a diameter exactly equal to{" "}
-            <InlineFeedback
-                varName="fbCircleDiameter"
-                correctValue="6"
-                successMessage="Brilliant! You nailed it, since the diameter is always twice the radius, so 2 × 3 = 6"
-                failureMessage="Almost there!"
-                hint="The diameter stretches all the way across the circle through its centre, which means it is exactly twice the radius. Try calculating 2 × 3"
-            >
-                <InlineClozeInput
-                    varName="fbCircleDiameter"
-                    correctAnswer="6"
-                    {...clozePropsFromDefinition(getVariableInfo('fbCircleDiameter'))}
-                />
-            </InlineFeedback>.
-        </EditableParagraph>
-    </Block>
-</StackLayout>
-
-<StackLayout key="layout-inline-feedback-q2" maxWidth="xl">
-    <Block id="inline-feedback-q2" padding="md">
-        <EditableParagraph id="para-inline-feedback-q2" blockId="inline-feedback-q2">
-            Since we compute the distance around a circle with 2πr, we compute the space inside the circle by equating its area to{" "}
-            <InlineFeedback
-                varName="fbAreaFormula"
-                correctValue="πr²"
-                successMessage="Perfect! Area = πr² is one of the most beautiful formulas in mathematics. The radius gets squared because area measures two-dimensional space"
-                failureMessage="Close, but let's think about this differently:"
-                hint="Circumference (2πr) measures the distance around, but area measures the space inside, so we need to square the radius"
-            >
-                <InlineClozeChoice
-                    varName="fbAreaFormula"
-                    correctAnswer="πr²"
-                    options={["2πr", "πr²", "πd", "r²"]}
-                    {...choicePropsFromDefinition(getVariableInfo('fbAreaFormula'))}
-                />
-            </InlineFeedback>.
-        </EditableParagraph>
-    </Block>
-</StackLayout>
+<EditableParagraph id="para-q1" blockId="q1">
+    Because the diameter passes through the center, a circle with radius 3 has diameter{" "}
+    <InlineFeedback
+        varName="fbCircleDiameter"
+        correctValue="6"
+        position="terminal"
+        successMessage="— exactly! The diameter is always twice the radius, so 2 × 3 = 6"
+        failureMessage="— not quite."
+        hint="The diameter stretches all the way across through the center"
+    >
+        <InlineClozeInput varName="fbCircleDiameter" correctAnswer="6"
+            {...clozePropsFromDefinition(getVariableInfo('fbCircleDiameter'))} />
+    </InlineFeedback>.
+</EditableParagraph>
+// Renders: "...has diameter 6 — exactly! The diameter is always twice the radius, so 2 × 3 = 6."
 ```
 
-**Key rules for InlineFeedback:**
-- The `varName` in `InlineFeedback` must match the `varName` used in the `InlineClozeInput`/`InlineClozeChoice` inside
-- The `correctValue` in `InlineFeedback` must match the `correctAnswer` of the inline component
-- The `InlineFeedback` wraps the cloze component directly — the feedback appears inline after the cloze
-- Define answer variables in `variables.ts` just like any other cloze variable
-- Works with `InlineClozeInput` (text fill-in) and `InlineClozeChoice` (dropdown)
-- **Avoid trailing periods** in messages since the paragraph usually ends with punctuation
-- **Success messages**: Celebrate with words like "Brilliant!", "Excellent!", "Perfect!" — explain WHY the answer is correct
-- **Failure messages**: Be encouraging ("Almost there!", "Good thinking!") — never discouraging
+**2. Mid-sentence Position (words after blank):**
+
+Feedback must be ULTRA-BRIEF to maintain sentence flow. Use symbols or very short phrases.
+
+```tsx
+<EditableParagraph id="para-q2" blockId="q2">
+    An interior cell has exactly{" "}
+    <InlineFeedback
+        varName="fbNeighbors"
+        correctValue="4"
+        position="mid"
+        hint="Count: up, down, left, right"
+    >
+        <InlineClozeInput varName="fbNeighbors" correctAnswer="4"
+            {...clozePropsFromDefinition(getVariableInfo('fbNeighbors'))} />
+    </InlineFeedback>{" "}
+    neighbors.
+</EditableParagraph>
+// Correct renders: "An interior cell has exactly 4 ✓ neighbors."
+// Wrong renders: "An interior cell has exactly 3 ✗ Count: up, down, left, right neighbors."
+```
+
+**3. Standalone Position (question then blank):**
+
+Question ends with `?`, so feedback is a natural conversational response.
+
+```tsx
+<EditableParagraph id="para-q3" blockId="q3">
+    How many neighbors does an interior cell have?{" "}
+    <InlineFeedback
+        varName="fbNeighborCount"
+        correctValue="4"
+        position="standalone"
+        successMessage="Correct! The four cardinal directions: up, down, left, and right"
+        failureMessage="Not quite!"
+        hint="Think about the directions you can move on a grid"
+    >
+        <InlineClozeInput varName="fbNeighborCount" correctAnswer="4"
+            {...clozePropsFromDefinition(getVariableInfo('fbNeighborCount'))} />
+    </InlineFeedback>
+</EditableParagraph>
+// Renders: "How many neighbors...? 4 Correct! The four cardinal directions..."
+```
+
+---
+
+### Key Rules for InlineFeedback:
+
+**Matching rules:**
+- The `varName` in `InlineFeedback` must match the `varName` in the cloze component inside
+- The `correctValue` in `InlineFeedback` must match the `correctAnswer` of the cloze component
+
+**Position rules:**
+- **Prefer terminal position** — restructure questions so the blank ends the sentence
+- **For mid-sentence**: Keep feedback ultra-short; consider omitting custom messages to use `✓`/`✗` defaults
+- **Read the full sentence aloud** — does it sound natural with feedback inserted?
+
+**Punctuation rules:**
+- Put the period AFTER `</InlineFeedback>` in JSX, not inside the message
+- **Never use trailing periods** in messages — the JSX template handles punctuation
+- Use em dashes (—) or commas to connect feedback naturally: `"— exactly because..."`
+- **NEVER use `--` (double hyphens)** — use `—` (em dash) instead
+
+**Feedback curating rules:**
+- **Success messages**: Start with celebration ("Exactly!", "That's right!"), then explain WHY
+- **Failure messages**: Be encouraging ("Not quite!", "Almost!") — never discouraging
 - **Hints**: Guide discovery with concrete scaffolding, not just restating the question
-- **NEVER use `--` (double hyphens) in any feedback or lesson text.** Use commas, em dashes (—), or restructure the sentence instead
-- **Feedback appears only after submission**: The cloze components write to the store only on submission, not during typing
+- **Avoid word duplication** — don't repeat words that appear after the blank
+
+**Technical rules:**
+- Works with `InlineClozeInput` (text fill-in) and `InlineClozeChoice` (dropdown)
+- Define answer variables in `variables.ts` just like any other cloze variable
+- Feedback appears only after submission — not during typing
 
 ## Visual Assessment Tasks
 

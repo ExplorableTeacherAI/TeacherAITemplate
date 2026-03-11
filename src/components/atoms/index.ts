@@ -50,7 +50,7 @@ export * from "./ui/use-toast";
 export { InlineClozeChoice } from "./text/InlineClozeChoice";
 export { InlineClozeInput } from "./text/InlineClozeInput";
 export { InlineFeedback } from "./text/InlineFeedback";
-export type { InlineFeedbackProps } from "./text/InlineFeedback";
+export type { InlineFeedbackProps, FeedbackPosition } from "./text/InlineFeedback";
 export { InlineToggle } from "./text/InlineToggle";
 export { InlineTooltip } from "./text/InlineTooltip";
 export { InlineTrigger } from "./text/InlineTrigger";
@@ -184,7 +184,7 @@ export type { VideoDisplayProps, VideoFit } from "./visual/VideoDisplay";
 
 // Visual — Interaction Hint (animated gesture overlay for interactive visualizations)
 export { InteractionHintSequence } from "./visual/InteractionHint";
-export type { GestureType, HintStep, InteractionHintSequenceProps } from "./visual/InteractionHint";
+export type { GestureType, HintStep, InteractionHintSequenceProps, DragPathConfig } from "./visual/InteractionHint";
 
 // Inline Interaction Hint (tooltip-style hints for inline components)
 export { InlineInteractionHint, useComponentHint, HintIcon } from "./text/InlineInteractionHint";

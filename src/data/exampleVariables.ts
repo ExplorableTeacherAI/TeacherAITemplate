@@ -1785,6 +1785,15 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: '6',
         color: '#6366f1',
     },
+    fbNeighbors: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Grid Neighbors Answer',
+        description: 'Student answer for the number of neighbors in a 4-way grid',
+        placeholder: '???',
+        correctAnswer: '4',
+        color: '#6366f1',
+    },
 
     // ─────────────────────────────────────────
     // SELECT (cloze choice) - InlineFeedback Demo — dropdown answers

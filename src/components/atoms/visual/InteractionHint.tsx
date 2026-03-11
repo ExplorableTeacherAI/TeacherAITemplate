@@ -7,12 +7,74 @@ import {
     MousePointerClick,
     Pointer,
     ArrowUpDown,
+    RotateCw,
+    Move3d,
+    Maximize2,
     type LucideProps,
 } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type GestureType = "drag" | "click" | "hover" | "scroll" | "drag-horizontal" | "drag-vertical";
+export type GestureType = 
+    | "drag" 
+    | "click" 
+    | "hover" 
+    | "scroll" 
+    | "drag-horizontal" 
+    | "drag-vertical"
+    | "drag-circular"
+    | "pinch"
+    | "rotate"
+    | "orbit-3d";
+
+/**
+ * Custom drag path configuration for intuitive hint animations.
+ * Use this to show exactly HOW to drag based on the actual interaction.
+ */
+export interface DragPathConfig {
+    /**
+     * Type of path for the drag animation.
+     * - "arc": Curved path along a circular arc (for points on circles, angles, etc.)
+     * - "line": Straight line from start to end position
+     * - "custom": Custom keyframe path with explicit x/y arrays
+     */
+    type: "arc" | "line" | "custom";
+    
+    /**
+     * For "arc" type: Starting angle in degrees (0 = right, 90 = down, 180 = left, 270 = up)
+     */
+    startAngle?: number;
+    
+    /**
+     * For "arc" type: Ending angle in degrees
+     */
+    endAngle?: number;
+    
+    /**
+     * For "arc" type: Radius of the arc in pixels. Default: 30
+     */
+    radius?: number;
+    
+    /**
+     * For "line" type: Starting offset from center {x, y} in pixels
+     */
+    startOffset?: { x: number; y: number };
+    
+    /**
+     * For "line" type: Ending offset from center {x, number} in pixels
+     */
+    endOffset?: { x: number; y: number };
+    
+    /**
+     * For "custom" type: Array of x values for keyframes
+     */
+    xKeyframes?: number[];
+    
+    /**
+     * For "custom" type: Array of y values for keyframes  
+     */
+    yKeyframes?: number[];
+}
 
 // ── Gesture Icons (Lucide) ────────────────────────────────────────────────────
 
@@ -22,22 +84,163 @@ function getGestureIcon(gesture: GestureType): React.ComponentType<LucideProps> 
         case "drag": return Hand;
         case "drag-horizontal": return MoveHorizontal;
         case "drag-vertical": return MoveVertical;
+        case "drag-circular": return Hand;
         case "click": return MousePointerClick;
         case "hover": return Pointer;
         case "scroll": return ArrowUpDown;
+        case "pinch": return Maximize2;
+        case "rotate": return RotateCw;
+        case "orbit-3d": return Move3d;
         default: return Hand;
     }
 }
 
 // ── Gesture Animations ────────────────────────────────────────────────────────
 
+/**
+ * Generate keyframe arrays from a DragPathConfig
+ * Returns { x: number[], y: number[] } for the animation keyframes
+ */
+function generatePathKeyframes(
+    dragPath: DragPathConfig
+): { x: number[]; y: number[] } {
+    switch (dragPath.type) {
+        case "arc": {
+            const startAngle = (dragPath.startAngle ?? 0) * (Math.PI / 180);
+            const endAngle = (dragPath.endAngle ?? 90) * (Math.PI / 180);
+            const radius = dragPath.radius ?? 30;
+            
+            // Generate points along the arc (8 points for smooth animation)
+            const numPoints = 8;
+            const x: number[] = [0]; // Start at center
+            const y: number[] = [0];
+            
+            for (let i = 0; i <= numPoints; i++) {
+                const t = i / numPoints;
+                const angle = startAngle + (endAngle - startAngle) * t;
+                // Calculate position relative to center
+                // Offset by the starting position to begin from center
+                x.push(Math.cos(angle) * radius - Math.cos(startAngle) * radius);
+                y.push(Math.sin(angle) * radius - Math.sin(startAngle) * radius);
+            }
+            
+            // Return to center
+            x.push(0);
+            y.push(0);
+            
+            return { x, y };
+        }
+        
+        case "line": {
+            const start = dragPath.startOffset ?? { x: 0, y: 0 };
+            const end = dragPath.endOffset ?? { x: 30, y: 0 };
+            
+            // Animate from start to end and back
+            return {
+                x: [0, start.x, end.x, end.x, start.x, 0],
+                y: [0, start.y, end.y, end.y, start.y, 0],
+            };
+        }
+        
+        case "custom": {
+            return {
+                x: dragPath.xKeyframes ?? [0],
+                y: dragPath.yKeyframes ?? [0],
+            };
+        }
+        
+        default:
+            return { x: [0], y: [0] };
+    }
+}
+
+/**
+ * Generate trail dot positions from a DragPathConfig
+ */
+function generatePathTrailDots(
+    dragPath: DragPathConfig
+): Array<{ x: number; y: number }> {
+    switch (dragPath.type) {
+        case "arc": {
+            const startAngle = (dragPath.startAngle ?? 0) * (Math.PI / 180);
+            const endAngle = (dragPath.endAngle ?? 90) * (Math.PI / 180);
+            const radius = dragPath.radius ?? 30;
+            
+            // Generate 6 dots along the arc
+            const dots: Array<{ x: number; y: number }> = [];
+            const numDots = 6;
+            
+            for (let i = 0; i <= numDots; i++) {
+                const t = i / numDots;
+                const angle = startAngle + (endAngle - startAngle) * t;
+                dots.push({
+                    x: Math.cos(angle) * radius - Math.cos(startAngle) * radius,
+                    y: Math.sin(angle) * radius - Math.sin(startAngle) * radius,
+                });
+            }
+            
+            return dots;
+        }
+        
+        case "line": {
+            const start = dragPath.startOffset ?? { x: 0, y: 0 };
+            const end = dragPath.endOffset ?? { x: 30, y: 0 };
+            
+            // Generate 4 dots along the line
+            const dots: Array<{ x: number; y: number }> = [];
+            for (let i = 0; i <= 3; i++) {
+                const t = i / 3;
+                dots.push({
+                    x: start.x + (end.x - start.x) * t,
+                    y: start.y + (end.y - start.y) * t,
+                });
+            }
+            return dots;
+        }
+        
+        case "custom": {
+            const xKeys = dragPath.xKeyframes ?? [0];
+            const yKeys = dragPath.yKeyframes ?? [0];
+            const len = Math.min(xKeys.length, yKeys.length);
+            const dots: Array<{ x: number; y: number }> = [];
+            
+            // Sample evenly from the keyframes
+            const step = Math.max(1, Math.floor(len / 6));
+            for (let i = 0; i < len; i += step) {
+                dots.push({ x: xKeys[i], y: yKeys[i] });
+            }
+            return dots;
+        }
+        
+        default:
+            return [];
+    }
+}
+
 /** Returns framer-motion props for the hand icon based on gesture type */
-function getGestureAnimation(gesture: GestureType, loopCount: number) {
+function getGestureAnimation(
+    gesture: GestureType, 
+    loopCount: number,
+    dragPath?: DragPathConfig
+) {
     const transition = {
         repeat: loopCount === Infinity ? Infinity : loopCount - 1,
         repeatType: "loop" as const,
         ease: "easeInOut" as const,
     };
+
+    // If custom dragPath is provided, use it for the animation
+    if (dragPath) {
+        const { x, y } = generatePathKeyframes(dragPath);
+        return {
+            animate: {
+                x,
+                y,
+                scale: [1, ...Array(x.length - 2).fill(0.92), 1],
+            },
+            transition: { ...transition, duration: 2.4 },
+        };
+    }
 
     switch (gesture) {
         case "drag":
@@ -80,9 +283,8 @@ function getGestureAnimation(gesture: GestureType, loopCount: number) {
         case "hover":
             return {
                 animate: {
-                    x: [0, 12, 12, -8, -8, 0],
-                    y: [0, -4, -4, 4, 4, 0],
-                    opacity: [0.7, 1, 1, 1, 1, 0.7],
+                    scale: [1, 1, 0.9, 1, 1],
+                    opacity: [0.7, 1, 1, 1, 0.7],
                 },
                 transition: { ...transition, duration: 2.2 },
             };
@@ -94,6 +296,40 @@ function getGestureAnimation(gesture: GestureType, loopCount: number) {
                     opacity: [1, 0.8, 1, 0.8, 1],
                 },
                 transition: { ...transition, duration: 2.0 },
+            };
+
+        case "drag-circular":
+            return {
+                animate: {
+                    rotate: [0, 360],
+                },
+                transition: { ...transition, duration: 2.5 },
+            };
+
+        case "pinch":
+            return {
+                animate: {
+                    scale: [1, 0.7, 1, 1.3, 1],
+                },
+                transition: { ...transition, duration: 2.0 },
+            };
+
+        case "rotate":
+            return {
+                animate: {
+                    rotate: [0, 45, 0, -45, 0],
+                },
+                transition: { ...transition, duration: 2.2 },
+            };
+
+        case "orbit-3d":
+            return {
+                animate: {
+                    x: [0, 25, 0, -25, 0],
+                    y: [0, -10, 0, -10, 0],
+                    rotateY: [0, 15, 0, -15, 0],
+                },
+                transition: { ...transition, duration: 2.8 },
             };
 
         default:
@@ -113,12 +349,20 @@ function getDefaultLabel(gesture: GestureType): string {
             return "Drag left & right";
         case "drag-vertical":
             return "Drag up & down";
+        case "drag-circular":
+            return "Drag around the circle";
         case "click":
             return "Click to interact";
         case "hover":
             return "Hover to discover";
         case "scroll":
             return "Scroll to explore";
+        case "pinch":
+            return "Pinch to zoom";
+        case "rotate":
+            return "Rotate to adjust";
+        case "orbit-3d":
+            return "Drag to orbit";
         default:
             return "Interact!";
     }
@@ -157,14 +401,29 @@ function ClickRipple({ color, gesture }: { color: string; gesture: GestureType }
 
 // ── Trail dots for drag gestures ──────────────────────────────────────────────
 
-function DragTrail({ color, gesture }: { color: string; gesture: GestureType }) {
-    if (!gesture.startsWith("drag")) return null;
+function DragTrail({ 
+    color, 
+    gesture,
+    dragPath 
+}: { 
+    color: string; 
+    gesture: GestureType;
+    dragPath?: DragPathConfig;
+}) {
+    if (!gesture.startsWith("drag") && gesture !== "orbit-3d") return null;
 
-    const dots = gesture === "drag-horizontal"
-        ? [{ x: -20, y: 0 }, { x: -10, y: 0 }, { x: 10, y: 0 }, { x: 20, y: 0 }]
-        : gesture === "drag-vertical"
-            ? [{ x: 0, y: -16 }, { x: 0, y: -8 }, { x: 0, y: 8 }, { x: 0, y: 16 }]
-            : [{ x: -14, y: 8 }, { x: -7, y: 4 }, { x: 7, y: -4 }, { x: 14, y: -8 }];
+    // Use custom dragPath dots if provided
+    const dots = dragPath 
+        ? generatePathTrailDots(dragPath)
+        : gesture === "drag-horizontal"
+            ? [{ x: -20, y: 0 }, { x: -10, y: 0 }, { x: 10, y: 0 }, { x: 20, y: 0 }]
+            : gesture === "drag-vertical"
+                ? [{ x: 0, y: -16 }, { x: 0, y: -8 }, { x: 0, y: 8 }, { x: 0, y: 16 }]
+                : gesture === "drag-circular"
+                    ? [{ x: 18, y: 0 }, { x: 12, y: 12 }, { x: 0, y: 18 }, { x: -12, y: 12 }, { x: -18, y: 0 }, { x: -12, y: -12 }, { x: 0, y: -18 }, { x: 12, y: -12 }]
+                    : gesture === "orbit-3d"
+                        ? [{ x: -20, y: -6 }, { x: 20, y: -6 }, { x: -16, y: 6 }, { x: 16, y: 6 }]
+                        : [{ x: -14, y: 8 }, { x: -7, y: 4 }, { x: 7, y: -4 }, { x: 14, y: -8 }];
 
     return (
         <>
@@ -210,6 +469,22 @@ export interface HintStep {
     position?: { x?: string; y?: string };
     /** Optional accent color override for this step */
     color?: string;
+    /**
+     * Custom drag path configuration for intuitive animations.
+     * When provided, overrides the default gesture animation to show
+     * the exact drag motion the user should perform.
+     * 
+     * @example Arc path for dragging a point along a circle:
+     * ```tsx
+     * dragPath: { type: "arc", startAngle: 0, endAngle: 90, radius: 40 }
+     * ```
+     * 
+     * @example Line path for dragging from one point to another:
+     * ```tsx
+     * dragPath: { type: "line", startOffset: { x: -30, y: 0 }, endOffset: { x: 30, y: 0 } }
+     * ```
+     */
+    dragPath?: DragPathConfig;
 }
 
 export interface InteractionHintSequenceProps {
@@ -431,7 +706,7 @@ export function InteractionHintSequence({
     // Current step data
     const step = steps[Math.min(activeStep, steps.length - 1)];
     const accentColor = step.color ?? color ?? "#62D0AD";
-    const gestureAnim = getGestureAnimation(step.gesture, Infinity);
+    const gestureAnim = getGestureAnimation(step.gesture, Infinity, step.dragPath);
     const displayLabel = step.label ?? getDefaultLabel(step.gesture);
     const posX = step.position?.x ?? "50%";
     const posY = step.position?.y ?? "50%";
@@ -459,7 +734,7 @@ export function InteractionHintSequence({
                     transition={{ duration: 0.4, ease: "easeOut" }}
                 >
                     {/* Trail dots for drag gestures */}
-                    <DragTrail color={accentColor} gesture={step.gesture} />
+                    <DragTrail color={accentColor} gesture={step.gesture} dragPath={step.dragPath} />
 
                     {/* Ripple for click gesture */}
                     <ClickRipple color={accentColor} gesture={step.gesture} />
