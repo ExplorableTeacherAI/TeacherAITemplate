@@ -209,50 +209,50 @@ const exampleBlocks: ReactElement[] = [
             <Table
                 columns={[{ header: 'Section', align: 'left', width: '30%' }, { header: 'Description', align: 'left' }]}
                 rows={[
-                    { cells: [<InlineHyperlink id="link-editable-headings" targetBlockId="editable-headings">Editable Headings</InlineHyperlink>, 'Headings that can be edited in-place.'] },
-                    { cells: [<InlineHyperlink id="link-editable-paragraphs" targetBlockId="editable-paragraphs-title">Editable Paragraphs</InlineHyperlink>, 'Paragraphs that can be edited in-place and allow to embed interactive elements within the text.'] },
-                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-inline" targetBlockId="heading-inline-components">Inline Components</InlineHyperlink></div>, 'Embed dynamic components directly inside paragraph text.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-scrubble" targetBlockId="heading-scrubble-number">Scrubble Numbers</InlineHyperlink></div>, 'Drag to change numeric values reactively.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-cloze" targetBlockId="heading-h2-cloze">Cloze Inputs</InlineHyperlink></div>, 'Fill-in-the-blank text fields.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-choice" targetBlockId="heading-h2-cloze-choice">Cloze Choices</InlineHyperlink></div>, 'Dropdown fill-in-the-blank selector.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-ifd" targetBlockId="inline-feedback-title">Inline Feedback</InlineHyperlink></div>, 'Show textual feedback after submission.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-toggle" targetBlockId="heading-h2-toggle">Toggles</InlineHyperlink></div>, 'Clickable words that cycle through options.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-tooltip" targetBlockId="heading-h2-tooltip">Tooltips / Contextual Help</InlineHyperlink></div>, 'Hoverable words that reveal definitions.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-trigger" targetBlockId="heading-trigger">Triggers</InlineHyperlink></div>, 'Click to execute actions or set variables.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-hyperlink" targetBlockId="heading-hyperlink">Hyperlinks</InlineHyperlink></div>, 'Navigate to URLs or scroll to blocks.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-spotcolor" targetBlockId="heading-spotcolor">Spot Color</InlineHyperlink></div>, 'Highlights text mapped to a variable color.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-linkedhighlight" targetBlockId="heading-linkedhighlight">Linked Highlight</InlineHyperlink></div>, 'Hover text to highlight diagram parts.'] },
-                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-formula-main" targetBlockId="heading-formula">Formula</InlineHyperlink></div>, 'Interactive KaTeX math expressions.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-colored" targetBlockId="heading-formula-colored">Formula Colored Variables</InlineHyperlink></div>, 'Consistent coloring between text and math formulas.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-scrubble" targetBlockId="heading-formula-scrubble">Formula Scrubble Variable</InlineHyperlink></div>, 'Draggable numbers inside math formulas.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-cloze" targetBlockId="heading-formula-cloze">Formula Cloze Input</InlineHyperlink></div>, 'Fill-in-the-blank inputs within math formulas.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-choice" targetBlockId="heading-formula-choice">Formula Cloze Choice</InlineHyperlink></div>, 'Dropdown selectors within math formulas.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-highlight" targetBlockId="heading-formula-highlight">Formula Linked Highlight</InlineHyperlink></div>, 'Hover-to-highlight interactions in math formulas.'] },
-                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-visualizations" targetBlockId="heading-visualizations">Visualizations</InlineHyperlink></div>, 'Interactive graphical components.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-cart2d" targetBlockId="cartesian-2d-header-title">2D Cartesian Graphing</InlineHyperlink></div>, 'Interactive 2D plots with coordinate logic.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-ca" targetBlockId="circle-anatomy-title">Circle Anatomy Diagram</InlineHyperlink></div>, 'Interactive SVG geometry basics.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-sym" targetBlockId="symmetry-header-title">Symmetry Drawing</InlineHyperlink></div>, 'Interactive symmetric drawing canvas.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-cart3d" targetBlockId="cartesian-3d-header-title">3D Cartesian Graphing</InlineHyperlink></div>, '3D math visualizations using Three.js.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-nl" targetBlockId="node-link-title">Node-Link Diagram</InlineHyperlink></div>, 'Force-directed graph visualizations.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-gd" targetBlockId="geometric-diagram-title">Geometric Diagram</InlineHyperlink></div>, 'Interactive generic geometric shapes.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-matrix" targetBlockId="matrix-title">Matrix Visualization</InlineHyperlink></div>, 'Interactive matrices and vectors.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-tables" targetBlockId="table-title">Data Tables</InlineHyperlink></div>, 'Render basic and interactive tables.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-dv" targetBlockId="data-visualization-title">Data Visualization</InlineHyperlink></div>, 'Bar charts, line charts, area charts, pies, and scatter plots.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-mt" targetBlockId="math-tree-title">Math Trees</InlineHyperlink></div>, 'AST and equation derivation trees.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-venn" targetBlockId="venn-numberline-title">Venn & Number Line</InlineHyperlink></div>, 'Diagrams for set theory and basic intervals.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-sim" targetBlockId="simulation-title">Simulation Panel</InlineHyperlink></div>, 'Controls, sliders, and buttons for dynamic examples.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-desmos" targetBlockId="desmos-title">Desmos Calculator</InlineHyperlink></div>, 'Embed fully interactive Desmos graphing calculators.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-visual-assessment" targetBlockId="visual-assessment-title">Tasks in Visualizations</InlineHyperlink></div>, 'Interactive tasks within visualizations.'] },
-                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-media" targetBlockId="heading-media">Media Elements</InlineHyperlink></div>, 'Images and interactive video components.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-img" targetBlockId="image-title">Images</InlineHyperlink></div>, 'Display images with various fit and border modes.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-vid" targetBlockId="video-title">Video Display</InlineHyperlink></div>, 'Embed web videos interactively.'] },
-                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-layouts" targetBlockId="demo-title">Layouts</InlineHyperlink></div>, 'Different layouting options available.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-stack" targetBlockId="demo-full-width-heading">StackLayout</InlineHyperlink></div>, 'Vertical stack with adjustable gaps.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-split" targetBlockId="demo-split-heading">SplitLayout</InlineHyperlink></div>, 'Side-by-side columns with configurable ratio.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-grid" targetBlockId="demo-grid-heading">GridLayout</InlineHyperlink></div>, 'Multi-column balanced flow layout.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-scroll" targetBlockId="demo-scroll-heading">ScrollytellingLayout</InlineHyperlink></div>, 'Scrollable text passing over a sticky visual.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-slide" targetBlockId="demo-slide-heading">SlideLayout</InlineHyperlink></div>, 'Horizontal swipeable presentation slides.'] },
-                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-step" targetBlockId="demo-step-heading">StepLayout</InlineHyperlink></div>, 'Vertical scrolling step-by-step disclosure.'] },
+                    { cells: [<InlineHyperlink id="link-editable-headings" showHint={false} targetBlockId="editable-headings">Editable Headings</InlineHyperlink>, 'Headings that can be edited in-place.'] },
+                    { cells: [<InlineHyperlink id="link-editable-paragraphs" showHint={false} targetBlockId="editable-paragraphs-title">Editable Paragraphs</InlineHyperlink>, 'Paragraphs that can be edited in-place and allow to embed interactive elements within the text.'] },
+                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-inline" showHint={false} targetBlockId="heading-inline-components">Inline Components</InlineHyperlink></div>, 'Embed dynamic components directly inside paragraph text.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-scrubble" showHint={false} targetBlockId="heading-scrubble-number">Scrubble Numbers</InlineHyperlink></div>, 'Drag to change numeric values reactively.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-cloze" showHint={false} targetBlockId="heading-h2-cloze">Cloze Inputs</InlineHyperlink></div>, 'Fill-in-the-blank text fields.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-choice" showHint={false} targetBlockId="heading-h2-cloze-choice">Cloze Choices</InlineHyperlink></div>, 'Dropdown fill-in-the-blank selector.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-ifd" showHint={false} targetBlockId="inline-feedback-title">Inline Feedback</InlineHyperlink></div>, 'Show textual feedback after submission.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-toggle" showHint={false} targetBlockId="heading-h2-toggle">Toggles</InlineHyperlink></div>, 'Clickable words that cycle through options.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-tooltip" showHint={false} targetBlockId="heading-h2-tooltip">Tooltips / Contextual Help</InlineHyperlink></div>, 'Hoverable words that reveal definitions.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-trigger" showHint={false} targetBlockId="heading-trigger">Triggers</InlineHyperlink></div>, 'Click to execute actions or set variables.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-hyperlink" showHint={false} targetBlockId="heading-hyperlink">Hyperlinks</InlineHyperlink></div>, 'Navigate to URLs or scroll to blocks.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-spotcolor" showHint={false} targetBlockId="heading-spotcolor">Spot Color</InlineHyperlink></div>, 'Highlights text mapped to a variable color.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-linkedhighlight" showHint={false} targetBlockId="heading-linkedhighlight">Linked Highlight</InlineHyperlink></div>, 'Hover text to highlight diagram parts.'] },
+                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-formula-main" showHint={false} targetBlockId="heading-formula">Formula</InlineHyperlink></div>, 'Interactive KaTeX math expressions.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-colored" showHint={false} targetBlockId="heading-formula-colored">Formula Colored Variables</InlineHyperlink></div>, 'Consistent coloring between text and math formulas.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-scrubble" showHint={false} targetBlockId="heading-formula-scrubble">Formula Scrubble Variable</InlineHyperlink></div>, 'Draggable numbers inside math formulas.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-cloze" showHint={false} targetBlockId="heading-formula-cloze">Formula Cloze Input</InlineHyperlink></div>, 'Fill-in-the-blank inputs within math formulas.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-choice" showHint={false} targetBlockId="heading-formula-choice">Formula Cloze Choice</InlineHyperlink></div>, 'Dropdown selectors within math formulas.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-formula-highlight" showHint={false} targetBlockId="heading-formula-highlight">Formula Linked Highlight</InlineHyperlink></div>, 'Hover-to-highlight interactions in math formulas.'] },
+                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-visualizations" showHint={false} targetBlockId="heading-visualizations">Visualizations</InlineHyperlink></div>, 'Interactive graphical components.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-cart2d" showHint={false} targetBlockId="cartesian-2d-header-title">2D Cartesian Graphing</InlineHyperlink></div>, 'Interactive 2D plots with coordinate logic.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-ca" showHint={false} targetBlockId="circle-anatomy-title">Circle Anatomy Diagram</InlineHyperlink></div>, 'Interactive SVG geometry basics.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-sym" showHint={false} targetBlockId="symmetry-header-title">Symmetry Drawing</InlineHyperlink></div>, 'Interactive symmetric drawing canvas.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-cart3d" showHint={false} targetBlockId="cartesian-3d-header-title">3D Cartesian Graphing</InlineHyperlink></div>, '3D math visualizations using Three.js.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-nl" showHint={false} targetBlockId="node-link-title">Node-Link Diagram</InlineHyperlink></div>, 'Force-directed graph visualizations.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-gd" showHint={false} targetBlockId="geometric-diagram-title">Geometric Diagram</InlineHyperlink></div>, 'Interactive generic geometric shapes.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-matrix" showHint={false} targetBlockId="matrix-title">Matrix Visualization</InlineHyperlink></div>, 'Interactive matrices and vectors.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-tables" showHint={false} targetBlockId="table-title">Data Tables</InlineHyperlink></div>, 'Render basic and interactive tables.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-dv" showHint={false} targetBlockId="data-visualization-title">Data Visualization</InlineHyperlink></div>, 'Bar charts, line charts, area charts, pies, and scatter plots.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-mt" showHint={false} targetBlockId="math-tree-title">Math Trees</InlineHyperlink></div>, 'AST and equation derivation trees.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-venn" showHint={false} targetBlockId="venn-numberline-title">Venn & Number Line</InlineHyperlink></div>, 'Diagrams for set theory and basic intervals.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-sim" showHint={false} targetBlockId="simulation-title">Simulation Panel</InlineHyperlink></div>, 'Controls, sliders, and buttons for dynamic examples.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-desmos" showHint={false} targetBlockId="desmos-title">Desmos Calculator</InlineHyperlink></div>, 'Embed fully interactive Desmos graphing calculators.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-visual-assessment" showHint={false} targetBlockId="visual-assessment-title">Tasks in Visualizations</InlineHyperlink></div>, 'Interactive tasks within visualizations.'] },
+                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-media" showHint={false} targetBlockId="heading-media">Media Elements</InlineHyperlink></div>, 'Images and interactive video components.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-img" showHint={false} targetBlockId="image-title">Images</InlineHyperlink></div>, 'Display images with various fit and border modes.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-vid" showHint={false} targetBlockId="video-title">Video Display</InlineHyperlink></div>, 'Embed web videos interactively.'] },
+                    { cells: [<div className="font-semibold"><InlineHyperlink id="link-toc-layouts" showHint={false} targetBlockId="demo-title">Layouts</InlineHyperlink></div>, 'Different layouting options available.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-stack" showHint={false} targetBlockId="demo-full-width-heading">StackLayout</InlineHyperlink></div>, 'Vertical stack with adjustable gaps.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-split" showHint={false} targetBlockId="demo-split-heading">SplitLayout</InlineHyperlink></div>, 'Side-by-side columns with configurable ratio.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-grid" showHint={false} targetBlockId="demo-grid-heading">GridLayout</InlineHyperlink></div>, 'Multi-column balanced flow layout.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-scroll" showHint={false} targetBlockId="demo-scroll-heading">ScrollytellingLayout</InlineHyperlink></div>, 'Scrollable text passing over a sticky visual.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-slide" showHint={false} targetBlockId="demo-slide-heading">SlideLayout</InlineHyperlink></div>, 'Horizontal swipeable presentation slides.'] },
+                    { cells: [<div className="ml-4 pl-4 border-l-2 border-gray-200"><InlineHyperlink id="link-toc-layout-step" showHint={false} targetBlockId="demo-step-heading">StepLayout</InlineHyperlink></div>, 'Vertical scrolling step-by-step disclosure.'] },
                 ]}
                 color="#6366f1"
                 striped={true}
@@ -989,6 +989,7 @@ const exampleBlocks: ReactElement[] = [
         <Block id="interactive-formula-demo" padding="lg">
             <AreaCalculator key="area-calculator" />
             <FormulaBlock
+                showHint={true}
                 latex="\clr{area}{A} = \frac{1}{2} \times \scrub{base} \times \scrub{height} = \clr{area}{\val{area}}"
                 colorMap={{ area: '#ef4444' }}
                 variables={{
@@ -1070,6 +1071,7 @@ const exampleBlocks: ReactElement[] = [
     <StackLayout key="layout-formula-cloze-demo" maxWidth="xl">
         <Block id="formula-cloze-demo" padding="lg">
             <FormulaBlock
+                showHint={true}
                 latex="\cloze{circleAreaAnswer} = \clr{pi}{\pi} \cdot \clr{radiusSquared}{r^2}"
                 colorMap={{ pi: '#3b82f6', radiusSquared: '#D81B60' }}
                 clozeInputs={{
@@ -1124,6 +1126,7 @@ const exampleBlocks: ReactElement[] = [
     <StackLayout key="layout-formula-choice-demo" maxWidth="xl">
         <Block id="formula-choice-demo" padding="lg">
             <FormulaBlock
+                showHint={true}
                 latex="\clr{x}{x} = \frac{-\clr{b}{b} \pm \sqrt{\clr{b}{b}^2 - 4\clr{a}{a}\clr{c}{c}}}{\choice{denominator}}"
                 colorMap={{ x: '#ef4444', a: '#3b82f6', b: '#22c55e', c: '#f59e0b' }}
                 clozeChoices={{
@@ -1176,6 +1179,7 @@ const exampleBlocks: ReactElement[] = [
     <SplitLayout key="layout-formula-highlight-demo" ratio="1:1" gap="lg">
         <Block id="formula-highlight-eq" padding="lg">
             <FormulaBlock
+                showHint={true}
                 latex="\highlight{fArea}{A} = \highlight{fPi}{\pi} \highlight{fRadius}{r}^{\highlight{fSquared}{2}}"
                 linkedHighlights={{
                     fArea: { varName: 'formulaHighlightGroup', color: '#ef4444' },

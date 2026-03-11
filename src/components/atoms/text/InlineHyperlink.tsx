@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineHyperlinkProps {
     /** Unique identifier for this component instance */
@@ -18,6 +19,8 @@ interface InlineHyperlinkProps {
     color?: string;
     /** Optional background color on hover */
     bgColor?: string;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
 }
 
 /**
@@ -47,8 +50,12 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
     targetBlockId,
     color = '#10B981',
     bgColor = 'rgba(16, 185, 129, 0.15)',
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('hyperlink', { enabled: showHint });
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -174,6 +181,7 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
     };
 
     const handleClick = () => {
+        dismissHint(); // Dismiss interaction hint on first click
         if (effectiveHref) {
             window.open(effectiveHref, '_blank', 'noopener,noreferrer');
         } else if (effectiveTargetBlockId) {
@@ -240,7 +248,7 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
 
     // Preview mode: clickable link
     return (
-        <span ref={containerRef} {...wrapperProps}>
+        <span ref={containerRef} {...wrapperProps} className="inline-flex items-center relative">
             <motion.span
                 onClick={handleClick}
                 onMouseDown={handleMouseDown}
@@ -264,6 +272,9 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
             >
                 {effectiveText ?? children}
             </motion.span>
+
+            {/* Interaction Hint - shows for first instance only */}
+            <HintIcon type="hyperlink" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

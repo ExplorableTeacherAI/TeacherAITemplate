@@ -702,6 +702,7 @@ export const cartesian2dDemo: ReactElement[] = [
 
             <Block id="cartesian-2d-explorer-equation" padding="sm">
                 <FormulaBlock
+                    showHint={true}
                     latex="\clr{result}{y} = \scrub{sineAmplitude} \cdot \sin\!\left( \scrub{sineOmega}\, x + \scrub{sinePhase} \right)"
                     colorMap={{ result: '#22c55e' }}
                     variables={{

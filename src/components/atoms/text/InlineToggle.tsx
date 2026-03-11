@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineToggleProps {
     /** Unique identifier for this component instance */
@@ -19,6 +20,8 @@ interface InlineToggleProps {
     bgColor?: string;
     /** Optional callback when value changes */
     onChange?: (value: string, index: number) => void;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
 }
 
 /**
@@ -54,8 +57,12 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
     color = '#D946EF',
     bgColor = 'rgba(217, 70, 239, 0.15)',
     onChange,
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('toggle', { enabled: showHint });
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -171,6 +178,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
 
     const handleClick = () => {
         if (canEdit && isEditing) return;
+        dismissHint(); // Dismiss interaction hint on first click
         const nextIndex = (currentIndex + 1) % effectiveOptions.length;
         const nextValue = effectiveOptions[nextIndex];
         setCurrentValue(nextValue);
@@ -230,7 +238,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
 
     // Preview mode: clickable toggle
     return (
-        <span ref={containerRef} {...wrapperProps}>
+        <span ref={containerRef} {...wrapperProps} className="inline-flex items-center relative">
             <span
                 onClick={handleClick}
                 onMouseDown={handleMouseDown}
@@ -260,6 +268,9 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
                     </motion.span>
                 </AnimatePresence>
             </span>
+
+            {/* Interaction Hint - shows for first instance only */}
+            <HintIcon type="toggle" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

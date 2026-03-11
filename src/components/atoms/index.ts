@@ -185,3 +185,7 @@ export type { VideoDisplayProps, VideoFit } from "./visual/VideoDisplay";
 // Visual — Interaction Hint (animated gesture overlay for interactive visualizations)
 export { InteractionHintSequence } from "./visual/InteractionHint";
 export type { GestureType, HintStep, InteractionHintSequenceProps } from "./visual/InteractionHint";
+
+// Inline Interaction Hint (tooltip-style hints for inline components)
+export { InlineInteractionHint, useComponentHint, HintIcon } from "./text/InlineInteractionHint";
+export type { InlineInteractionHintProps, UseComponentHintOptions } from "./text/InlineInteractionHint";

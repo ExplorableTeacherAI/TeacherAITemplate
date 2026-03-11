@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineClozeChoiceProps {
     /** Unique identifier for this component instance */
@@ -26,6 +27,8 @@ interface InlineClozeChoiceProps {
     onChange?: (value: string, isCorrect: boolean) => void;
     /** When true, skip editor-mode rendering (used inside FormulaBlock portals) */
     disableEditing?: boolean;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
 }
 
 /**
@@ -66,9 +69,13 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     bgColor = "rgba(59, 130, 246, 0.35)",
     onChange,
     disableEditing = false,
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('cloze-choice', { enabled: showHint });
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -369,10 +376,10 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
 
     // Preview mode: initial dropdown state
     return (
-        <span ref={containerRef} {...wrapperProps}>
+        <span ref={containerRef} {...wrapperProps} className="inline-flex items-center relative">
             <span className="inline-block relative" ref={dropdownRef}>
                 <span
-                    onClick={() => !isEditing && setIsOpen(!isOpen)}
+                    onClick={() => { dismissHint(); if (!isEditing) setIsOpen(!isOpen); }}
                     onMouseDown={handleMouseDown}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
@@ -430,6 +437,9 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                     )}
                 </AnimatePresence>
             </span>
+
+            {/* Interaction Hint - shows for first instance only */}
+            <HintIcon type="cloze-choice" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

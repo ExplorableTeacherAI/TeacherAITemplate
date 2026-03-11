@@ -412,6 +412,67 @@ This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`,
 
 **Click behavior:** `href` → opens URL in new tab; `targetBlockId` → smooth scrolls; both set → `href` takes priority.
 
+## Inline Interaction Hints (`showHint` prop)
+
+All interactive inline components (`InlineScrubbleNumber`, `InlineToggle`, `InlineTrigger`, `InlineHyperlink`, `InlineClozeInput`, `InlineClozeChoice`, `InlineLinkedHighlight`, `InlineTooltip`) support a **`showHint`** prop that displays an animated gesture icon below the component to teach students how to interact with it.
+
+**FormulaBlock** also supports interaction hints for all its interactive elements (`\scrub{}`, `\highlight{}`, `\cloze{}`, and `\choice{}`). Hints appear below **each** interactive element in the formula — not just one. Each hint auto-dismisses when the user interacts with the corresponding element (drag a scrubble, hover a highlight, focus a cloze input, or click a choice).
+
+Hints are automatically managed:
+- Only the **first instance** of each component type on the page shows a hint
+- The hint **auto-dismisses** when the user interacts with the component
+- Dismissal is remembered in **sessionStorage** for the session
+
+**Props:**
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|--------|
+| `showHint` | `boolean` | `true` | Enable/disable the interaction hint for this component |
+
+**Usage — Disable hints for navigation components:**
+
+```tsx
+// Table of contents links — hints disabled
+<InlineHyperlink id="link-toc-intro" showHint={false} targetBlockId="heading-intro">Introduction</InlineHyperlink>
+<InlineHyperlink id="link-toc-circles" showHint={false} targetBlockId="heading-circles">Circles</InlineHyperlink>
+
+// Content links — hints enabled (default)
+<InlineHyperlink id="link-wikipedia" href="https://en.wikipedia.org/wiki/Circle">Wikipedia article</InlineHyperlink>
+
+// FormulaBlock — hints enabled by default
+<FormulaBlock 
+    latex="\\scrub{mass} \\times \\scrub{acceleration}"
+    showHint={true}  // default
+/>
+```
+
+**When to disable hints:**
+- Table of contents / navigation links (use `showHint={false}`)
+- Repeated instances of the same component type
+- When hints would be redundant or distracting
+
+**For building custom components** — use the `useComponentHint` hook and `HintIcon` component:
+
+```tsx
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
+
+function MyInlineComponent({ showHint = true }) {
+    const { hintVisible, dismissHint } = useComponentHint('my-component-type', { enabled: showHint });
+
+    const handleClick = () => {
+        dismissHint(); // Dismiss hint on interaction
+        // ... rest of handler
+    };
+
+    return (
+        <span onClick={handleClick}>
+            Content
+            <HintIcon type="my-component-type" visible={hintVisible} isEditing={false} />
+        </span>
+    );
+}
+```
+
 ## InlineSpotColor (Color-Coded Variables)
 
 `InlineSpotColor` highlights a word with the exact same color defined for a variable. When that identical variable appears in a mathematical formula, the colors align completely — establishing a powerful, subconscious visual link between prose and math.

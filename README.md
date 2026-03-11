@@ -21,7 +21,7 @@ Interactive explorable-explanation template for creating mathematics lessons. Bu
 
 4. **Observable change** — When students manipulate one element, they must see real-time changes in other elements. Dragging a point should update values in both formulas AND prose.
 
-5. **Interaction hints** — Every visualization MUST include an `InteractionHintSequence` overlay showing students how to interact with it. The hint displays an animated hand gesture that auto-dismisses when the user interacts.
+5. **Interaction hints** — Every visualization MUST include an `InteractionHintSequence` overlay showing students how to interact with it. The hint displays an animated hand gesture that auto-dismisses when the user interacts. Inline components (`InlineScrubbleNumber`, `InlineToggle`, etc.) also auto-show interaction hints — use `showHint={false}` to disable for navigation/TOC links. **FormulaBlock** shows hints below **each** interactive element (`\scrub{}`, `\highlight{}`, `\cloze{}`, `\choice{}`) — not just one.
 
 ### Before Creating Any Visualization, Ask:
 

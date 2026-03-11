@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineTooltipProps {
     /** Unique identifier for this component instance */
@@ -21,6 +22,8 @@ interface InlineTooltipProps {
     position?: string;
     /** Maximum tooltip width */
     maxWidth?: number;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
 }
 
 /**
@@ -49,9 +52,13 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
     bgColor = 'rgba(245, 158, 11, 0.15)',
     position = 'auto',
     maxWidth = 400,
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('tooltip', { enabled: showHint });
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -315,6 +322,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
             <span
                 ref={containerRef}
                 {...wrapperProps}
+                className="inline-flex items-center relative"
                 style={{
                     color: effectiveColor,
                     textShadow: isTooltipVisible ? `0 0 8px ${effectiveColor}4D` : 'none',
@@ -326,12 +334,15 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
                     fontWeight: 500,
                     transition: 'all 0.2s ease',
                 }}
-                onMouseEnter={() => setIsHovered(true)}
+                onMouseEnter={() => { setIsHovered(true); dismissHint(); }}
                 onMouseLeave={() => setIsHovered(false)}
                 onTouchStart={handleTouchStart}
                 onClick={handleClick}
             >
                 {pendingEdit?.newProps.text ?? children}
+
+                {/* Interaction Hint - shows for first instance only */}
+                <HintIcon type="tooltip" visible={hintVisible} isEditing={isEditing} />
             </span>
 
             {/* Tooltip via Portal */}
