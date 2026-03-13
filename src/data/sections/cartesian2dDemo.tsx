@@ -141,15 +141,15 @@ function UnitCircleExplorer() {
             />
             <InteractionHintSequence
                 hintKey="unit-circle-drag"
-                steps={[{ 
-                    gesture: "drag-circular", 
-                    label: "Drag the point around the circle", 
+                steps={[{
+                    gesture: "drag-circular",
+                    label: "Drag the point around the circle",
                     position: { x: "50%", y: "30%" },
-                    dragPath: { 
-                        type: "arc", 
+                    dragPath: {
+                        type: "arc",
                         startAngle: 0,     // Start at right (3 o'clock)
                         endAngle: -90,     // End at top (12 o'clock) - counterclockwise
-                        radius: 35 
+                        radius: 35
                     }
                 }]}
             />
@@ -227,7 +227,7 @@ function ReactiveSineWaveViz() {
             />
             <InteractionHintSequence
                 hintKey="sine-wave-hover"
-                steps={[{ gesture: "hover", label: "Hover parameter names", position: { x: "65%", y: "35%" } }]}
+                steps={[{ gesture: "hover", label: "Hover the line", position: { x: "65%", y: "35%" } }]}
             />
         </div>
     );

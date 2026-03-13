@@ -522,6 +522,8 @@ export interface InteractionHintSequenceProps {
      * Default: "#62D0AD".
      */
     color?: string;
+    /** Called when the full sequence finishes or is externally dismissed. */
+    onSequenceComplete?: () => void;
 }
 
 /**
@@ -585,6 +587,7 @@ export function InteractionHintSequence({
     alwaysShow = false,
     delay = 800,
     color,
+    onSequenceComplete,
 }: InteractionHintSequenceProps) {
     const storageKey = `interaction-hint-seq::${hintKey}`;
     const isControlled = controlledStep !== undefined;
@@ -593,6 +596,7 @@ export function InteractionHintSequence({
     const [internalStep, setInternalStep] = useState(0);
     const [visible, setVisible] = useState(false);
     const [listenerReady, setListenerReady] = useState(false);
+    const [dismissed, setDismissed] = useState(false);
 
     // Ref to locate our own DOM node and find the parent container
     const hintRef = useRef<HTMLDivElement>(null);
@@ -600,6 +604,10 @@ export function InteractionHintSequence({
     // Determine the active step index
     const activeStep = isControlled ? controlledStep : internalStep;
     const isComplete = activeStep >= steps.length;
+
+    useEffect(() => {
+        setDismissed(false);
+    }, [hintKey]);
 
     // On mount: clear stale localStorage, check sessionStorage
     useEffect(() => {
@@ -631,6 +639,18 @@ export function InteractionHintSequence({
         return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [alwaysShow, delay, storageKey, steps.length]);
+
+    useEffect(() => {
+        const handleDismissAll = (e: Event) => {
+            const detail = (e as CustomEvent).detail;
+            if (detail?.exceptHintKey === hintKey) return;
+            setDismissed(true);
+            setVisible(false);
+        };
+
+        document.addEventListener('dismiss-interaction-hints', handleDismissAll);
+        return () => document.removeEventListener('dismiss-interaction-hints', handleDismissAll);
+    }, [hintKey]);
 
     // Delay attaching interaction listeners after hint becomes visible
     // to avoid programmatic events from Mafs/Three.js during initialization
@@ -678,7 +698,13 @@ export function InteractionHintSequence({
                 }
             }
         }
-    }, [activeStep, isControlled, onStepComplete, steps.length, alwaysShow, storageKey]);
+    }, [activeStep, isControlled, onStepComplete, steps.length, alwaysShow, storageKey, onSequenceComplete]);
+
+    useEffect(() => {
+        if (isComplete) {
+            onSequenceComplete?.();
+        }
+    }, [isComplete, onSequenceComplete]);
 
     // Listen for user interaction on the parent container
     useEffect(() => {
@@ -700,7 +726,8 @@ export function InteractionHintSequence({
     }, [listenerReady, isComplete, handleStepInteraction]);
 
     // Don't render if sequence is complete (and not alwaysShow)
-    if (isComplete && !alwaysShow) return null;
+    if (dismissed) return null;
+    if (isComplete) return null;
     if (!visible) return null;
 
     // Current step data

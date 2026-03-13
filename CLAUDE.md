@@ -35,7 +35,7 @@ Content is organized as **blocks** inside **layouts**, with shared state via a *
 - [ ] Prose uses `InlineScrubbleNumber` for the SAME variables as the visual
 - [ ] At least one `InlineLinkedHighlight` connects prose to visual elements
 - [ ] Derived values (area, sum, etc.) display via `readonly` scrubble numbers
-- [ ] **Every visualization has an `InteractionHintSequence`** guiding the student on how to interact
+- [ ] **Every visualization with actual in-viz interactivity has an `InteractionHintSequence`** — but NEVER add hints if the visualization isn't truly interactive
 
 ### Use Soft, Muted Colors Only
 
@@ -77,9 +77,57 @@ Content is organized as **blocks** inside **layouts**, with shared state via a *
 | `src/data/exampleVariables.ts` | **Reference only** — shows how to define every variable type. Copy structure into `variables.ts`. |
 | `src/stores/variableStore.ts` | Zustand store implementation (do not edit) |
 
+---
+
+## Standard Import Pattern for blocks.tsx
+
+Always start `blocks.tsx` with this import structure to access all helper functions:
+
+```tsx
+// Initialize variables and colors from the central variable definitions (single source of truth)
+import { useVariableStore, initializeVariableColors } from "@/stores";
+import {
+    variableDefinitions,
+    getDefaultValues,
+    getVariableInfo,
+    numberPropsFromDefinition,
+    clozePropsFromDefinition,
+    choicePropsFromDefinition,
+    togglePropsFromDefinition,
+    spotColorPropsFromDefinition,
+    linkedHighlightPropsFromDefinition,
+} from "./variables";
+useVariableStore.getState().initialize(getDefaultValues());
+initializeVariableColors(variableDefinitions);
+```
+
+---
+
+## Helper Functions Quick Reference
+
+| Component | Helper Function | Variable Type |
+|-----------|----------------|---------------|
+| `InlineScrubbleNumber` | `numberPropsFromDefinition(getVariableInfo('varName'))` | `number` |
+| `InlineClozeInput` | `clozePropsFromDefinition(getVariableInfo('varName'))` | `text` |
+| `InlineClozeChoice` | `choicePropsFromDefinition(getVariableInfo('varName'))` | `select` |
+| `InlineToggle` | `togglePropsFromDefinition(getVariableInfo('varName'))` | `select` |
+| `InlineSpotColor` | `spotColorPropsFromDefinition(getVariableInfo('varName'))` | any (uses `color`) |
+| `InlineLinkedHighlight` | `linkedHighlightPropsFromDefinition(getVariableInfo('varName'))` | any (uses `color`, `bgColor`) |
+
+**Usage pattern:**
+
+```tsx
+<ComponentName
+    varName="myVar"
+    {...helperFunction(getVariableInfo('myVar'))}
+/>
+```
+
+---
+
 ## Critical Rule: Global Variables
 
-**NEVER pass inline numeric props to `InlineScrubbleNumber`.** Always define variables in the central variables file first, then reference them.
+**NEVER pass inline numeric props to any interactive component (eg., `InlineScrubbleNumber`).** Always define variables in the central variables file first, then reference them. This way we can reuse the variables in any place easily. 
 
 ### Two-Step Workflow
 
@@ -106,8 +154,6 @@ export const variableDefinitions: Record<string, VariableDefinition> = {
 #### Step 2: Use the variable in `src/data/blocks.tsx`
 
 ```tsx
-import { getVariableInfo, numberPropsFromDefinition } from "./variables";
-
 <InlineScrubbleNumber
     varName="amplitude"
     {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
@@ -183,8 +229,6 @@ quarterCircleAngle: {
 #### Step 2: Use the variable in `src/data/blocks.tsx`
 
 ```tsx
-import { getVariableInfo, clozePropsFromDefinition } from "./variables";
-
 <InlineClozeInput
     varName="quarterCircleAngle"
     correctAnswer="90"
@@ -226,8 +270,6 @@ shapeAnswer: {
 #### Step 2: Use the variable in `src/data/blocks.tsx`
 
 ```tsx
-import { getVariableInfo, choicePropsFromDefinition } from "./variables";
-
 <InlineClozeChoice
     varName="shapeAnswer"
     correctAnswer="circle"
@@ -258,8 +300,6 @@ currentShape: {
 #### Step 2: Use the variable in `src/data/blocks.tsx`
 
 ```tsx
-import { getVariableInfo, togglePropsFromDefinition } from "./variables";
-
 // Reactive text component returning different strings based on the toggle value
 function ReactiveToggleShapeText() {
     const shape = useVar('currentShape', 'triangle') as string;
@@ -682,6 +722,8 @@ When a `<Block>` contains a **visual component** (chart, diagram, interactive vi
 **Every interactive visualization MUST include an `InteractionHintSequence` overlay** to show students how to interact with it. The hint displays an animated hand gesture (drag, click, hover, scroll) that auto-dismisses when the user interacts with the visualization and remembers via sessionStorage so students only see it once per session.
 
 **This is NOT optional.** Visualizations without interaction hints are incomplete and fail to guide students on how to explore them.
+
+**CRITICAL: Only add hints for ACTUAL interactivity.** Before adding an `InteractionHintSequence`, verify that the visualization has real, working interactive elements (movable points, draggable handles, clickable areas, etc.). **NEVER add interaction hints to a visualization that is not actually interactive.** Showing a "drag here" hint on a static visualization creates frustration and confusion. If your visualization has no interactive elements implemented, do NOT add any hints — instead, redesign the visualization to include actual interactivity first.
 
 **Usage:** Wrap the visualization in a `<div className="relative">` and place `InteractionHintSequence` as a sibling:
 
@@ -1670,24 +1712,3 @@ Then use it inside a `SplitLayout` with scrubble numbers and triggers in the tex
 
 Reactive wrappers are **inner** components used inside a `<Block>`, not top-level block wrappers. The flat array rule still applies.
 
-### Visual Component Quick Reference
-
-| Component | Import From | Controllable Props | Use Case |
-|-----------|------------|-------------------|----------|
-| `ImageDisplay` | `@/components/atoms` | `src`, `zoomable` | Static image rendering |
-| `VideoDisplay` | `@/components/atoms` | `src`, `controls` | Embedded video and YouTube |
-| `Cartesian2D` | `@/components/atoms` | `varName` | 2D coordinate geometry |
-| `DataVisualization` | `@/components/atoms` | `type`, `data`, `scatterData` | Multi-type charts |
-| `DesmosGraph` | `@/components/organisms` | `expressions` | Full graphing calculator |
-| `FlowDiagram` | `@/components/atoms` | `nodes`, `edges` | Process/relationship diagrams |
-| `FormulaBlock` | `@/components/molecules` | `latex`, `variables` | Block-level math with interactive elements |
-| `InteractionLegend` | `@/components/molecules` | _(none — auto-rendered)_ | Collapsible how-to-interact banner at top of article |
-| `MatrixVisualization` | `@/components/atoms` | `data`, `colorScheme`, `highlightRows` | Matrix display |
-| `Table` | `@/components/atoms` | `columns`, `rows`, `color`, `compact` | Table with inline components |
-
-## Environment Variables
-
-| Variable | Values | Purpose |
-|----------|--------|---------|
-| `VITE_APP_MODE` | `editor` / `preview` | Editor enables editing UI; preview is read-only |
-| `VITE_SHOW_EXAMPLES` | `true` / `false` | Load example blocks+variables instead of lesson content |
