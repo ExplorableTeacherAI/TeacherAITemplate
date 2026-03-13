@@ -344,27 +344,27 @@ function getGestureAnimation(
 function getDefaultLabel(gesture: GestureType): string {
     switch (gesture) {
         case "drag":
-            return "Drag to explore";
+            return "Click and drag to reposition elements";
         case "drag-horizontal":
-            return "Drag left & right";
+            return "Drag left and right to adjust the value";
         case "drag-vertical":
-            return "Drag up & down";
+            return "Drag up and down to adjust the value";
         case "drag-circular":
-            return "Drag around the circle";
+            return "Drag along the circular path to explore";
         case "click":
-            return "Click to interact";
+            return "Click to interact with this element";
         case "hover":
-            return "Hover to discover";
+            return "Hover over elements to reveal details";
         case "scroll":
-            return "Scroll to explore";
+            return "Scroll up and down to explore more";
         case "pinch":
-            return "Pinch to zoom";
+            return "Pinch to zoom in and out";
         case "rotate":
-            return "Rotate to adjust";
+            return "Rotate to adjust the angle";
         case "orbit-3d":
-            return "Drag to orbit";
+            return "Click and drag to orbit the 3D view";
         default:
-            return "Interact!";
+            return "Interact with this visualization";
     }
 }
 
@@ -746,97 +746,112 @@ export function InteractionHintSequence({
     return (
         <AnimatePresence mode="wait">
             {!isComplete && (
-                <motion.div
-                    key={`step-${activeStep}`}
-                    ref={hintRef}
-                    className="absolute z-50 pointer-events-none select-none"
-                    style={{
-                        left: posX,
-                        top: posY,
-                        transform: "translate(-50%, -50%)",
-                    }}
-                    initial={{ opacity: 0, scale: 0.7 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.7 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                >
-                    {/* Trail dots for drag gestures */}
-                    <DragTrail color={accentColor} gesture={step.gesture} dragPath={step.dragPath} />
-
-                    {/* Ripple for click gesture */}
-                    <ClickRipple color={accentColor} gesture={step.gesture} />
-
-                    {/* Animated gesture icon */}
+                <>
+                    {/* ── Icon overlay — positioned inside the visualization ── */}
                     <motion.div
-                        className="flex flex-col items-center gap-1.5"
-                        {...gestureAnim}
+                        key={`icon-${activeStep}`}
+                        ref={hintRef}
+                        className="absolute z-50 pointer-events-none select-none"
+                        style={{
+                            left: posX,
+                            top: posY,
+                            transform: "translate(-50%, -50%)",
+                        }}
+                        initial={{ opacity: 0, scale: 0.7 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.7 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
                     >
-                        <div
-                            className="rounded-full p-2"
-                            style={{
-                                background: `radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%)`,
-                                boxShadow: `0 4px 20px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)`,
-                            }}
-                        >
-                            <GestureIcon
-                                color={accentColor}
-                                size={32}
-                                strokeWidth={1.8}
-                                style={{ filter: `drop-shadow(0 2px 6px rgba(0,0,0,0.25))` }}
-                            />
-                        </div>
+                        {/* Trail dots for drag gestures */}
+                        <DragTrail color={accentColor} gesture={step.gesture} dragPath={step.dragPath} />
 
-                        {/* Label pill */}
-                        <div
-                            className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium"
-                            style={{
-                                background: `rgba(255,255,255,0.92)`,
-                                color: "#374151",
-                                boxShadow: `0 2px 8px rgba(0,0,0,0.1)`,
-                                backdropFilter: "blur(8px)",
-                                border: `1px solid rgba(0,0,0,0.06)`,
-                            }}
+                        {/* Ripple for click gesture */}
+                        <ClickRipple color={accentColor} gesture={step.gesture} />
+
+                        {/* Animated gesture icon — only the icon, no text */}
+                        <motion.div
+                            className="flex items-center justify-center"
+                            {...gestureAnim}
                         >
-                            {displayLabel}
-                        </div>
+                            <div
+                                className="rounded-full p-2"
+                                style={{
+                                    background: `radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 100%)`,
+                                    boxShadow: `0 4px 20px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)`,
+                                }}
+                            >
+                                <GestureIcon
+                                    color={accentColor}
+                                    size={32}
+                                    strokeWidth={1.8}
+                                    style={{ filter: `drop-shadow(0 2px 6px rgba(0,0,0,0.25))` }}
+                                />
+                            </div>
+                        </motion.div>
                     </motion.div>
 
-                    {/* Step indicator pill */}
-                    {totalSteps > 1 && (
+                    {/* ── Instruction bar — simple box along the bottom ── */}
+                    <motion.div
+                        key={`label-${activeStep}`}
+                        className="absolute z-50 pointer-events-none select-none"
+                        style={{
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                        }}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
+                    >
                         <div
-                            className="flex items-center justify-center gap-1.5 mt-2"
+                            className="flex items-center justify-center gap-2 px-4 py-2"
+                            style={{
+                                background: "rgba(249, 250, 251, 0.92)",
+                                borderTop: "1px solid rgba(0,0,0,0.06)",
+                            }}
                         >
-                            {/* Step dots */}
-                            <div className="flex items-center gap-1">
-                                {steps.map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className="rounded-full transition-all duration-300"
-                                        style={{
-                                            width: i === activeStep ? 16 : 6,
-                                            height: 6,
-                                            borderRadius: i === activeStep ? 3 : 3,
-                                            backgroundColor: i < activeStep
-                                                ? accentColor
-                                                : i === activeStep
+                            {/* Step dots (before text when multi-step) */}
+                            {totalSteps > 1 && (
+                                <div className="flex items-center gap-1 shrink-0">
+                                    {steps.map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className="rounded-full transition-all duration-300"
+                                            style={{
+                                                width: i === activeStep ? 14 : 5,
+                                                height: 5,
+                                                borderRadius: 3,
+                                                backgroundColor: i < activeStep
                                                     ? accentColor
-                                                    : "rgba(156, 163, 175, 0.4)",
-                                            opacity: i <= activeStep ? 1 : 0.5,
-                                        }}
-                                    />
-                                ))}
-                            </div>
+                                                    : i === activeStep
+                                                        ? accentColor
+                                                        : "rgba(156, 163, 175, 0.35)",
+                                                opacity: i <= activeStep ? 1 : 0.5,
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            )}
 
-                            {/* Step counter text */}
+                            {/* Instruction text */}
                             <span
-                                className="text-[10px] font-medium ml-1"
-                                style={{ color: "rgba(107, 114, 128, 0.8)" }}
+                                className="text-xs font-medium"
+                                style={{ color: "#6b7280" }}
                             >
-                                {stepNumber}/{totalSteps}
+                                {totalSteps > 1 && (
+                                    <span
+                                        className="font-semibold mr-1"
+                                        style={{ color: accentColor }}
+                                    >
+                                        Step {stepNumber}:
+                                    </span>
+                                )}
+                                {displayLabel}
                             </span>
                         </div>
-                    )}
-                </motion.div>
+                    </motion.div>
+                </>
             )}
         </AnimatePresence>
     );

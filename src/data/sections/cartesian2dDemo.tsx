@@ -69,7 +69,7 @@ function BasicFunctionsViz() {
             />
             <InteractionHintSequence
                 hintKey="basic-functions-drag"
-                steps={[{ gesture: "drag-horizontal", label: "Drag the blue point", position: { x: "60%", y: "50%" } }]}
+                steps={[{ gesture: "drag-horizontal", label: "Drag the blue point left and right to evaluate sin(x) and cos(x) at different positions", position: { x: "60%", y: "50%" } }]}
             />
         </div>
     );
@@ -141,17 +141,19 @@ function UnitCircleExplorer() {
             />
             <InteractionHintSequence
                 hintKey="unit-circle-drag"
-                steps={[{
-                    gesture: "drag-circular",
-                    label: "Drag the point around the circle",
-                    position: { x: "50%", y: "30%" },
-                    dragPath: {
-                        type: "arc",
-                        startAngle: 0,     // Start at right (3 o'clock)
-                        endAngle: -90,     // End at top (12 o'clock) - counterclockwise
-                        radius: 35
-                    }
-                }]}
+                steps={[
+                    {
+                        gesture: "drag-circular",
+                        label: "Drag the red point around the unit circle — watch how cos(θ) and sin(θ) projections change",
+                        position: { x: "50%", y: "30%" },
+                        dragPath: {
+                            type: "arc",
+                            startAngle: 0,
+                            endAngle: -90,
+                            radius: 35
+                        }
+                    },
+                ]}
             />
         </div>
     );
@@ -227,7 +229,7 @@ function ReactiveSineWaveViz() {
             />
             <InteractionHintSequence
                 hintKey="sine-wave-hover"
-                steps={[{ gesture: "hover", label: "Hover the line", position: { x: "65%", y: "35%" } }]}
+                steps={[{ gesture: "hover", label: "Hover over the highlighted text on the left, or drag the inline numbers to see each curve respond in real time", position: { x: "65%", y: "35%" } }]}
             />
         </div>
     );
@@ -368,7 +370,7 @@ function ScatterPlotViz() {
             </Mafs>
             <InteractionHintSequence
                 hintKey="scatter-plot-drag"
-                steps={[{ gesture: "drag", label: "Drag any data point", position: { x: "55%", y: "45%" } }]}
+                steps={[{ gesture: "drag", label: "Drag any data point to a new position and watch the trend line recalculate automatically", position: { x: "55%", y: "45%" } }]}
             />
         </div>
     );
@@ -510,9 +512,9 @@ function LineDrawingViz() {
                 hintKey="line-drawing-tutorial"
                 currentStep={points.length >= 3 ? 3 : points.length}
                 steps={[
-                    { gesture: "click", label: "Click to place a point", position: { x: "45%", y: "45%" } },
-                    { gesture: "click", label: "Click again to draw a line", position: { x: "55%", y: "35%" } },
-                    { gesture: "click", label: "Keep clicking to continue", position: { x: "35%", y: "55%" } },
+                    { gesture: "click", label: "Click anywhere on the grid to place your first point", position: { x: "45%", y: "45%" } },
+                    { gesture: "click", label: "Click a second spot — a line segment will connect them automatically", position: { x: "55%", y: "35%" } },
+                    { gesture: "click", label: "Add a third point to start building a shape — midpoints appear on each segment", position: { x: "35%", y: "55%" } },
                 ]}
             />
         </div>

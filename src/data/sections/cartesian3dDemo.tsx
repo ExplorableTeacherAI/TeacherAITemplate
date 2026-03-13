@@ -80,7 +80,7 @@ function VectorsAndPointsViz() {
             />
             <InteractionHintSequence
                 hintKey="3d-vectors-orbit"
-                steps={[{ gesture: "drag", label: "Drag to orbit the camera", position: { x: "50%", y: "50%" } }]}
+                steps={[{ gesture: "drag", label: "Click and drag to orbit the camera around the 3D scene — inspect vectors from every angle", position: { x: "50%", y: "50%" } }]}
             />
         </div>
     );
@@ -412,7 +412,7 @@ function DraggablePointExplorer() {
             />
             <InteractionHintSequence
                 hintKey="3d-draggable-point"
-                steps={[{ gesture: "drag", label: "Drag the amber point", position: { x: "60%", y: "35%" } }]}
+                steps={[{ gesture: "drag", label: "Drag the amber point through 3D space — watch x, y, z projections update in real time", position: { x: "60%", y: "35%" } }]}
             />
         </div>
     );

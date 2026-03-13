@@ -129,7 +129,7 @@ function UnitCircleExplorerViz() {
                 hintKey="fb-demo-unit-circle"
                 steps={[{
                     gesture: "drag-circular",
-                    label: "Drag the red point around",
+                    label: "Drag the red point around the unit circle to see how cos(θ) and sin(θ) change with the angle",
                     position: { x: "70%", y: "22%" },
                     dragPath: { type: "arc", startAngle: 0, endAngle: -90, radius: 35 }
                 }]}
@@ -189,7 +189,7 @@ function SineAmplitudeExplorerViz() {
                 hintKey="fb-demo-sine-amp"
                 steps={[{
                     gesture: "drag-vertical",
-                    label: "Drag the red point to change A",
+                    label: "Drag the red point up or down to change the amplitude (A) — notice only the wave height changes",
                     position: { x: "45%", y: "25%" },
                     dragPath: { type: "line", startOffset: { x: 0, y: -20 }, endOffset: { x: 0, y: 20 } }
                 }]}
@@ -284,18 +284,18 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
                             steps: [
                                 {
                                     gesture: "click",
-                                    label: "Notice: the point starts at the far right",
+                                    label: "Look at where the point is right now — it's at the far right of the circle, at position (1, 0)",
                                     position: { x: "75%", y: "50%" },
                                 },
                                 {
                                     gesture: "drag-circular",
-                                    label: "Now drag it upward — watch the blue line shrink!",
+                                    label: "Now drag upward toward the top — the blue horizontal line (cos) shrinks toward zero",
                                     position: { x: "55%", y: "25%" },
                                     dragPath: { type: "arc", startAngle: 0, endAngle: -90, radius: 40 },
                                 },
                                 {
                                     gesture: "drag-circular",
-                                    label: "Keep going left — the blue line goes negative!",
+                                    label: "Keep going to the left side — the blue line crosses zero and becomes negative!",
                                     position: { x: "25%", y: "50%" },
                                     dragPath: { type: "arc", startAngle: -90, endAngle: -180, radius: 40 },
                                 },
@@ -409,12 +409,12 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
                             steps: [
                                 {
                                     gesture: "drag-vertical",
-                                    label: "Drag the red point up or down. Only the red wave's height changes.",
+                                    label: "Drag the red point upward — the red wave stretches taller while the gray reference stays the same",
                                     position: { x: "50%", y: "20%" },
                                     dragPath: { type: "line", startOffset: { x: 0, y: 10 }, endOffset: { x: 0, y: -30 } },
                                 },
                             ],
-                            label: "Try it yourself",
+                            label: "reveal answer hints",
                             color: "#ef4444",
                             resetVars: { fbDemoAmplitude: 1.0 },
                         }}
