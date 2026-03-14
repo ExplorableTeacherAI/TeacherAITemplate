@@ -36,6 +36,8 @@ import {
     InlineSpotColor,
     InlineLinkedHighlight,
     Table,
+    Cartesian2D,
+    InteractionHintSequence,
 } from "@/components/atoms";
 
 // Import molecule components
@@ -65,7 +67,7 @@ import { desmosDemoBlocks } from "./sections/desmosDemo";
 import { inlineFeedbackDemoBlocks } from "./sections/inlineFeedbackDemo";
 import { visualAssessmentDemoBlocks } from "./sections/visualAssessmentDemo";
 
-/** SVG diagram with parts that react to the "activeHighlight" variable */
+/** Computes triangle area and writes it to the store */
 function AreaCalculator() {
     const base = useVar('base', 3) as number;
     const height = useVar('height', 4) as number;
@@ -78,59 +80,77 @@ function AreaCalculator() {
     return null;
 }
 
+/** Interactive right-triangle diagram — drag vertices to reshape, hover sides to highlight */
 function ReactiveHighlightDiagram() {
     const activeId = useVar('activeHighlight', '') as string;
 
-    const parts = [
-        { id: 'hypotenuse', label: 'Hypotenuse', color: '#ef4444' },
-        { id: 'opposite', label: 'Opposite', color: '#3b82f6' },
-        { id: 'adjacent', label: 'Adjacent', color: '#22c55e' },
-    ];
-
     return (
-        <div className="flex flex-col items-center gap-3 p-4 bg-card rounded-xl">
-            <svg width={340} height={200} viewBox="0 0 340 200">
-                {/* Right angle symbol */}
-                <rect x={230} y={150} width={20} height={20} fill="none" stroke="#64748b" strokeWidth={1.5} />
-
-                {/* Adjacent (bottom) */}
-                <line x1={50} y1={170} x2={250} y2={170}
-                    stroke={activeId === 'adjacent' ? '#22c55e' : '#cbd5e1'}
-                    strokeWidth={activeId === 'adjacent' ? 6 : 3}
-                    style={{ transition: 'all 0.2s ease' }} />
-
-                {/* Opposite (right) */}
-                <line x1={250} y1={170} x2={250} y2={30}
-                    stroke={activeId === 'opposite' ? '#3b82f6' : '#cbd5e1'}
-                    strokeWidth={activeId === 'opposite' ? 6 : 3}
-                    style={{ transition: 'all 0.2s ease' }} />
-
-                {/* Hypotenuse (diagonal) */}
-                <line x1={50} y1={170} x2={250} y2={30}
-                    stroke={activeId === 'hypotenuse' ? '#ef4444' : '#cbd5e1'}
-                    strokeWidth={activeId === 'hypotenuse' ? 6 : 3}
-                    style={{ transition: 'all 0.2s ease' }} />
-
-                {/* Labels */}
-                <text x={150} y={190} textAnchor="middle" fill={activeId === 'adjacent' ? '#22c55e' : '#64748b'} fontSize={14} fontWeight={activeId === 'adjacent' ? 700 : 500} style={{ transition: 'all 0.2s ease' }}>Adjacent</text>
-
-                <text x={260} y={105} textAnchor="start" fill={activeId === 'opposite' ? '#3b82f6' : '#64748b'} fontSize={14} fontWeight={activeId === 'opposite' ? 700 : 500} style={{ transition: 'all 0.2s ease' }}>Opposite</text>
-
-                <g transform="translate(130, 85) rotate(-35)">
-                    <text x={0} y={0} textAnchor="middle" fill={activeId === 'hypotenuse' ? '#ef4444' : '#64748b'} fontSize={14} fontWeight={activeId === 'hypotenuse' ? 700 : 500} style={{ transition: 'all 0.2s ease' }}>Hypotenuse</text>
-                </g>
-
-                {/* Angle arc */}
-                <path d="M 90 170 A 40 40 0 0 0 83 147" fill="none" stroke="#64748b" strokeWidth={1.5} />
-                <text x={95} y={160} fill="#64748b" fontSize={14} fontStyle="italic">θ</text>
-            </svg>
-            <div className="text-xs text-muted-foreground">
-                {activeId ? (
-                    <span>Highlighting: <strong style={{ color: parts.find(p => p.id === activeId)?.color }}>{parts.find(p => p.id === activeId)?.label}</strong></span>
-                ) : (
-                    <span>Hover over a term to see the corresponding side light up</span>
-                )}
-            </div>
+        <div className="relative">
+            <Cartesian2D
+                height={320}
+                viewBox={{ x: [-1, 7], y: [-1, 6] }}
+                highlightVarName="activeHighlight"
+                movablePoints={[
+                    {
+                        initial: [1, 1],
+                        color: "#64748b",
+                        constrain: ([px, py]) => [Math.max(0, Math.min(6, px)), Math.max(0, Math.min(5, py))],
+                    },
+                    {
+                        initial: [5, 1],
+                        color: "#64748b",
+                        constrain: ([px, py]) => [Math.max(0, Math.min(6, px)), Math.max(0, Math.min(5, py))],
+                    },
+                    {
+                        initial: [5, 4],
+                        color: "#64748b",
+                        constrain: ([px, py]) => [Math.max(0, Math.min(6, px)), Math.max(0, Math.min(5, py))],
+                    },
+                ]}
+                dynamicPlots={([pA, pB, pC]) => {
+                    return [
+                        // Adjacent (bottom) — from vertex A to vertex B
+                        {
+                            type: "segment" as const,
+                            point1: pA,
+                            point2: pB,
+                            color: activeId === "adjacent" ? "#22c55e" : "#94a3b8",
+                            weight: activeId === "adjacent" ? 5 : 2.5,
+                            highlightId: "adjacent",
+                        },
+                        // Opposite (right) — from vertex B to vertex C
+                        {
+                            type: "segment" as const,
+                            point1: pB,
+                            point2: pC,
+                            color: activeId === "opposite" ? "#3b82f6" : "#94a3b8",
+                            weight: activeId === "opposite" ? 5 : 2.5,
+                            highlightId: "opposite",
+                        },
+                        // Hypotenuse — from vertex A to vertex C
+                        {
+                            type: "segment" as const,
+                            point1: pA,
+                            point2: pC,
+                            color: activeId === "hypotenuse" ? "#ef4444" : "#94a3b8",
+                            weight: activeId === "hypotenuse" ? 5 : 2.5,
+                            highlightId: "hypotenuse",
+                        },
+                        // Vertex points
+                        { type: "point" as const, x: pA[0], y: pA[1], color: "#475569" },
+                        { type: "point" as const, x: pB[0], y: pB[1], color: "#475569" },
+                        { type: "point" as const, x: pC[0], y: pC[1], color: "#475569" },
+                    ];
+                }}
+            />
+            <InteractionHintSequence
+                hintKey="highlight-triangle-drag"
+                steps={[{
+                    gesture: "drag",
+                    label: "Drag any vertex to reshape the triangle — hover the labeled text to highlight each side",
+                    position: { x: "50%", y: "40%" },
+                }]}
+            />
         </div>
     );
 }

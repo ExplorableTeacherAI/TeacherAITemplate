@@ -7,8 +7,9 @@ import {
     EditableParagraph,
     InlineLinkedHighlight,
     InlineFormula,
+    InteractionHintSequence,
 } from "@/components/atoms";
-import { useVar } from "@/stores";
+import { useVar, useSetVar } from "@/stores";
 import {
     getExampleVariableInfo,
     linkedHighlightPropsFromDefinition,
@@ -22,11 +23,12 @@ import {
  * Each part carries a `highlightId` so hovering the corresponding
  * `InlineLinkedHighlight` in the text highlights it in the graph.
  *
- * The radius is read from the store (`circleRadius`) so it responds
- * to the `InlineScrubbleNumber` in the text.
+ * The radius is controllable BOTH from the text scrubble number AND by
+ * dragging the red point on the circle boundary directly.
  */
 function ReactiveCircleAnatomy() {
     const r = useVar("circleRadius", 2) as number;
+    const setVar = useSetVar();
 
     // Derived quantities for visual annotations
     const angle = Math.PI / 4; // 45° for radius line
@@ -34,61 +36,89 @@ function ReactiveCircleAnatomy() {
     const ry = r * Math.sin(angle);
 
     return (
-        <Cartesian2D
-            height={420}
-            viewBox={{ x: [-5, 5], y: [-5, 5] }}
-            highlightVarName="circleHighlight"
-            plots={[
-                // ── Circumference (outline) ──────────────────────────
-                {
-                    type: "circle",
-                    center: [0, 0],
-                    radius: r,
-                    color: "#8b5cf6",
-                    fillOpacity: 0.06,
-                    highlightId: "circumference",
-                },
+        <div className="relative">
+            <Cartesian2D
+                height={420}
+                viewBox={{ x: [-5, 5], y: [-5, 5] }}
+                highlightVarName="circleHighlight"
+                movablePoints={[
+                    {
+                        // Draggable radius point — constrained to radial direction at 45°
+                        initial: [rx, ry],
+                        position: [rx, ry],
+                        color: "#ef4444",
+                        constrain: ([px, py]) => {
+                            // Project onto the 45° line from origin, clamp radius
+                            const dist = Math.sqrt(px * px + py * py);
+                            const clampedR = Math.max(0.5, Math.min(4, dist));
+                            return [clampedR * Math.cos(angle), clampedR * Math.sin(angle)];
+                        },
+                        onChange: ([px, py]) => {
+                            const newR = Math.round(Math.sqrt(px * px + py * py) * 10) / 10;
+                            setVar("circleRadius", Math.max(0.5, Math.min(4, newR)));
+                        },
+                    },
+                ]}
+                plots={[
+                    // ── Circumference (outline) ──────────────────────────
+                    {
+                        type: "circle",
+                        center: [0, 0],
+                        radius: r,
+                        color: "#8b5cf6",
+                        fillOpacity: 0.06,
+                        highlightId: "circumference",
+                    },
 
-                // ── Diameter segment (horizontal, full) ──────────────
-                {
-                    type: "segment",
-                    point1: [-r, 0],
-                    point2: [r, 0],
-                    color: "#f97316",
-                    weight: 2.5,
-                    style: "dashed",
-                    highlightId: "diameter",
-                },
-                // Diameter end-points
-                { type: "point", x: -r, y: 0, color: "#f97316", highlightId: "diameter" },
-                { type: "point", x: r, y: 0, color: "#f97316", highlightId: "diameter" },
+                    // ── Diameter segment (horizontal, full) ──────────────
+                    {
+                        type: "segment",
+                        point1: [-r, 0],
+                        point2: [r, 0],
+                        color: "#f97316",
+                        weight: 2.5,
+                        style: "dashed",
+                        highlightId: "diameter",
+                    },
+                    // Diameter end-points
+                    { type: "point", x: -r, y: 0, color: "#f97316", highlightId: "diameter" },
+                    { type: "point", x: r, y: 0, color: "#f97316", highlightId: "diameter" },
 
-                // ── Radius segment (from centre to point on circle) ──
-                {
-                    type: "vector",
-                    tail: [0, 0],
-                    tip: [rx, ry],
-                    color: "#ef4444",
-                    weight: 2.5,
-                    highlightId: "radius",
-                },
+                    // ── Radius segment (from centre to point on circle) ──
+                    {
+                        type: "vector",
+                        tail: [0, 0],
+                        tip: [rx, ry],
+                        color: "#ef4444",
+                        weight: 2.5,
+                        highlightId: "radius",
+                    },
 
-                // ── Area fill ────────────────────────────────────────
-                // Show as a larger, more opaque circle behind the outline
-                {
-                    type: "circle",
-                    center: [0, 0],
-                    radius: r,
-                    color: "#22c55e",
-                    fillOpacity: 0.12,
-                    strokeStyle: "dashed",
-                    highlightId: "area",
-                },
+                    // ── Area fill ────────────────────────────────────────
+                    // Show as a larger, more opaque circle behind the outline
+                    {
+                        type: "circle",
+                        center: [0, 0],
+                        radius: r,
+                        color: "#22c55e",
+                        fillOpacity: 0.12,
+                        strokeStyle: "dashed",
+                        highlightId: "area",
+                    },
 
-                // ── Centre point (drawn last so it sits on top) ──────
-                { type: "point", x: 0, y: 0, color: "#3b82f6", highlightId: "center" },
-            ]}
-        />
+                    // ── Centre point (drawn last so it sits on top) ──────
+                    { type: "point", x: 0, y: 0, color: "#3b82f6", highlightId: "center" },
+                ]}
+            />
+            <InteractionHintSequence
+                hintKey="circle-anatomy-drag"
+                steps={[{
+                    gesture: "drag",
+                    label: "Drag the red point to resize the circle — hover the highlighted terms to identify each part",
+                    position: { x: "65%", y: "25%" },
+                }]}
+            />
+        </div>
     );
 }
 

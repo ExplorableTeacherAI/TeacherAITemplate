@@ -171,12 +171,31 @@ function ReactiveSineWaveViz() {
     const amplitude = useVar('sineAmplitude', 1.5) as number;
     const omega = useVar('sineOmega', 1) as number;
     const phase = useVar('sinePhase', 0) as number;
+    const setVar = useSetVar();
 
     return (
         <div className="relative">
             <Cartesian2D
                 viewBox={{ x: [-5, 5], y: [-3.5, 3.5] }}
                 highlightVarName="c2dHighlight"
+                movablePoints={[
+                    {
+                        // Amplitude control — drag vertically at the peak of the full wave
+                        initial: [Math.PI / (2 * omega) - phase / omega, amplitude],
+                        position: [Math.PI / (2 * omega) - phase / omega, amplitude],
+                        color: "#ef4444",
+                        constrain: ([, py]) => [Math.PI / (2 * omega) - phase / omega, Math.max(0.1, Math.min(3, py))],
+                        onChange: ([, py]) => setVar('sineAmplitude', Math.round(py * 10) / 10),
+                    },
+                    {
+                        // Phase control — drag horizontally to shift the wave
+                        initial: [-phase / omega, 0],
+                        position: [-phase / omega, 0],
+                        color: "#a855f7",
+                        constrain: ([px]) => [Math.max(-3, Math.min(3, px)), 0],
+                        onChange: ([px]) => setVar('sinePhase', Math.round(-px * omega * 20) / 20),
+                    },
+                ]}
                 plots={[
                     // Reference: y = sin(x) (unmodified)
                     {
@@ -208,18 +227,21 @@ function ReactiveSineWaveViz() {
                         color: "#22c55e",
                         weight: 3,
                     },
-                    // Phase indicator: mark where the full wave crosses zero
-                    {
-                        type: "point",
-                        x: -phase / omega,
-                        y: 0,
-                        color: "#a855f7",
-                        highlightId: "phase",
-                    },
+                    // Amplitude height indicator
                     {
                         type: "segment",
-                        point1: [-phase / omega, 0],
-                        point2: [-phase / omega, amplitude * Math.sin(omega * (-phase / omega) + phase)],
+                        point1: [Math.PI / (2 * omega) - phase / omega, 0],
+                        point2: [Math.PI / (2 * omega) - phase / omega, amplitude],
+                        color: "#ef4444",
+                        style: "dashed",
+                        weight: 1.5,
+                        highlightId: "amplitude",
+                    },
+                    // Phase indicator
+                    {
+                        type: "segment",
+                        point1: [0, 0],
+                        point2: [-phase / omega, 0],
                         color: "#a855f7",
                         style: "dashed",
                         weight: 1.5,
@@ -228,8 +250,11 @@ function ReactiveSineWaveViz() {
                 ]}
             />
             <InteractionHintSequence
-                hintKey="sine-wave-hover"
-                steps={[{ gesture: "hover", label: "Hover over the highlighted text on the left, or drag the inline numbers to see each curve respond in real time", position: { x: "65%", y: "35%" } }]}
+                hintKey="sine-wave-drag"
+                steps={[
+                    { gesture: "drag-vertical", label: "Drag the red point up or down to change the amplitude", position: { x: "60%", y: "25%" }, dragPath: { type: "line", startOffset: { x: 0, y: -15 }, endOffset: { x: 0, y: 15 } } },
+                    { gesture: "drag-horizontal", label: "Drag the purple point left or right to shift the phase", position: { x: "50%", y: "50%" } },
+                ]}
             />
         </div>
     );
