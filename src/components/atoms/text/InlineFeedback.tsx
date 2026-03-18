@@ -1,9 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useVar, useVariableStore } from '@/stores/variableStore';
 import { cn } from '@/lib/utils';
-import { Eye } from 'lucide-react';
-import { InlineHyperlink } from './InlineHyperlink';
+import { useAppMode } from '@/contexts/AppModeContext';
+import { useEditing } from '@/contexts/EditingContext';
 import type { HintStep } from '@/components/atoms/visual/InteractionHint';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -69,30 +68,12 @@ export interface InlineFeedbackProps {
     /**
      * Section links — clickable links to navigate to specific lesson sections.
      * Each link scrolls to the target block and highlights it briefly.
-     *
-     * @example
-     * ```tsx
-     * sectionLinks={[
-     *   { blockId: "radius-definition", label: "Review: Radius" },
-     *   { blockId: "diameter-formula", label: "Review: Diameter formula" },
-     * ]}
-     * ```
      */
     sectionLinks?: SectionLink[];
     /**
      * Visualization hint config — when a wrong answer is given, the student
      * can click a button to navigate to a visualization and see an animated
      * hint showing exactly how to explore the concept interactively.
-     *
-     * @example
-     * ```tsx
-     * visualizationHint={{
-     *   blockId: "cartesian-2d-unit-viz",
-     *   hintKey: "feedback-unit-circle",
-     *   steps: [{ gesture: "drag-circular", label: "Drag around the circle" }],
-     *   label: "See it in action",
-     * }}
-     * ```
      */
     visualizationHint?: VisualizationHintConfig;
     /** The inline content (e.g., "The diameter is {cloze}.") */
@@ -120,7 +101,6 @@ const scrollToBlock = (blockId: string) => {
 const scrollToVisualizationAndTriggerHint = (config: VisualizationHintConfig) => {
     document.dispatchEvent(new CustomEvent('dismiss-interaction-hints'));
 
-    // Reset variables to a known state before showing the hint
     if (config.resetVars) {
         const setVar = useVariableStore.getState().setVariable;
         for (const [name, value] of Object.entries(config.resetVars)) {
@@ -132,13 +112,11 @@ const scrollToVisualizationAndTriggerHint = (config: VisualizationHintConfig) =>
     if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Highlight the visualization block with a beautiful glow effect
-        el.classList.add('ring-2', 'ring-purple-400/60', 'ring-offset-2', 'ring-offset-purple-50/30');
+        el.classList.add('ring-2', 'ring-emerald-400/60', 'ring-offset-2', 'ring-offset-emerald-50/30');
         setTimeout(() => {
-            el.classList.remove('ring-2', 'ring-purple-400/60', 'ring-offset-2', 'ring-offset-purple-50/30');
+            el.classList.remove('ring-2', 'ring-emerald-400/60', 'ring-offset-2', 'ring-offset-emerald-50/30');
         }, 3500);
 
-        // After scroll completes, dispatch event to trigger the hint overlay
         setTimeout(() => {
             const event = new CustomEvent('trigger-viz-hint', {
                 detail: {
@@ -149,96 +127,130 @@ const scrollToVisualizationAndTriggerHint = (config: VisualizationHintConfig) =>
                 bubbles: true,
             });
             el.dispatchEvent(event);
-        }, 600); // Wait for scroll to settle
+        }, 600);
     }
 };
 
-/**
- * Get default messages based on position.
- * - Terminal/Standalone: More detailed defaults
- * - Mid: Ultra-brief defaults to maintain sentence flow
- */
 const getDefaultMessages = (position: FeedbackPosition) => {
     switch (position) {
         case 'mid':
-            return {
-                success: '✓',
-                failure: '✗',
-            };
+            return { success: '✓', failure: '✗' };
         case 'standalone':
-            return {
-                success: "That's right!",
-                failure: 'Not quite!',
-            };
+            return { success: "That's right!", failure: 'Not quite!' };
         case 'terminal':
         default:
-            return {
-                success: "— exactly right!",
-                failure: "— not quite.",
-            };
+            return { success: "— exactly right!", failure: "— not quite." };
     }
 };
 
-/**
- * InlineFeedback
- *
- * Shows instant feedback right next to the cloze input or choice as natural
- * flowing text. Blends seamlessly with the paragraph content. Designed to be
- * encouraging and educational — celebrating correct answers and guiding
- * students toward understanding when they need another try.
- *
- * **Position matters:**
- * - 'terminal': Blank ends the sentence → detailed feedback allowed
- * - 'mid': Blank mid-sentence → ultra-brief feedback (✓/✗ by default)
- * - 'standalone': Question ends with ? → conversational feedback
- *
- * **Section Links** (NEW):
- * - Add `sectionLinks` to show clickable navigation buttons to related content
- * - Each link scrolls smoothly and highlights the target block
- *
- * **Visualization Hints** (NEW):
- * - Add `visualizationHint` to show a "See it in action" button on wrong answers
- * - Scrolls to the visualization and triggers an animated interaction hint
- * - Uses the InteractionHintSequence system for beautiful animated overlays
- *
- * Note: Avoid trailing periods in messages since the paragraph usually ends with one.
- *
- * @example Terminal position with section links:
- * ```tsx
- * <InlineFeedback
- *   varName="answer_diameter"
- *   correctValue="6"
- *   position="terminal"
- *   successMessage="— exactly! Diameter is always twice the radius"
- *   failureMessage="— not quite."
- *   hint="Remember: diameter = 2 × radius"
- *   sectionLinks={[
- *     { blockId: "circle-radius-section", label: "Review: Radius" },
- *   ]}
- * >
- *   <InlineClozeInput varName="answer_diameter" correctAnswer="6" />
- * </InlineFeedback>
- * ```
- *
- * @example With visualization hint navigation:
- * ```tsx
- * <InlineFeedback
- *   varName="circleAnswer"
- *   correctValue="cos"
- *   position="standalone"
- *   failureMessage="Not quite!"
- *   hint="Try exploring the unit circle"
- *   visualizationHint={{
- *     blockId: "cartesian-2d-unit-viz",
- *     hintKey: "feedback-unit-circle",
- *     steps: [{ gesture: "drag-circular", label: "Drag around the circle to see cos and sin" }],
- *     label: "See it in action",
- *   }}
- * >
- *   <InlineClozeChoice varName="circleAnswer" options={["sin", "cos", "tan"]} />
- * </InlineFeedback>
- * ```
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// FeedbackSectionLink — clickable span that navigates to a lesson section.
+// Uses onMouseDown (not onClick) to work inside contentEditable regions.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FeedbackSectionLink: React.FC<{ link: SectionLink; isEditing: boolean }> = ({ link, isEditing }) => {
+    const [hovered, setHovered] = useState(false);
+
+    const handleInteraction = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        scrollToBlock(link.blockId);
+    }, [link.blockId]);
+
+    return (
+        <span
+            role="button"
+            tabIndex={0}
+            onMouseDown={handleInteraction}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') handleInteraction(e);
+            }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                display: 'inline',
+                color: '#2563eb',
+                fontWeight: 500,
+                cursor: 'pointer',
+                borderBottom: '2px solid #2563eb',
+                paddingBottom: '1px',
+                background: hovered ? 'rgba(37, 99, 235, 0.12)' : 'transparent',
+                borderRadius: hovered ? '3px 3px 0 0' : '0',
+                transition: 'background 0.15s ease',
+                userSelect: 'none',
+            }}
+        >
+            {link.label}
+        </span>
+    );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FeedbackVizHintButton — styled "button" that triggers the visualization hint.
+// Uses onMouseDown to work inside contentEditable regions.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FeedbackVizHintButton: React.FC<{
+    label: string;
+    triggered: boolean;
+    onClick: () => void;
+    isEditing: boolean;
+}> = ({ label, triggered, onClick, isEditing }) => {
+    const [hovered, setHovered] = useState(false);
+
+    const bgColor = triggered
+        ? '#f1f5f9'
+        : hovered
+            ? '#f5f5f5'
+            : '#ffffff';
+    const textColor = triggered ? '#94a3b8' : '#1f2937';
+    const borderColor = triggered ? '#e2e8f0' : hovered ? '#374151' : '#4b5563';
+
+    const handleInteraction = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!triggered) onClick();
+    }, [triggered, onClick]);
+
+    return (
+        <span
+            role="button"
+            tabIndex={0}
+            onMouseDown={handleInteraction}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') handleInteraction(e);
+            }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '4px 12px',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: 600,
+                lineHeight: '1.4',
+                cursor: triggered ? 'default' : 'pointer',
+                backgroundColor: bgColor,
+                color: textColor,
+                border: `1px solid ${borderColor}`,
+                boxShadow: triggered
+                    ? 'none'
+                    : '0 1px 2px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.15s ease',
+                userSelect: 'none',
+                verticalAlign: 'middle',
+            }}
+        >
+            <span>{triggered ? 'Showing hint…' : label}</span>
+        </span>
+    );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// InlineFeedback — main component
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     varName,
     correctValue,
@@ -257,8 +269,16 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     const storeValue = useVar(varName, '') as string;
     const defaults = getDefaultMessages(position);
     const [vizHintTriggered, setVizHintTriggered] = useState(false);
+    const feedbackRef = useRef<HTMLSpanElement>(null);
+    const [visible, setVisible] = useState(false);
 
-    // Use provided messages or position-appropriate defaults
+    // Detect edit mode
+    const { isEditor } = useAppMode();
+    const { isEditing } = useEditing();
+    const isStandalone = typeof window !== 'undefined' && window.self === window.top;
+    const canEdit = isEditor || isStandalone;
+    const inEditMode = canEdit && isEditing;
+
     const effectiveSuccessMessage = successMessage ?? defaults.success;
     const effectiveFailureMessage = failureMessage ?? defaults.failure;
 
@@ -269,137 +289,120 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
             ? storeValue.trim() === correctValue.trim()
             : storeValue.trim().toLowerCase() === correctValue.trim().toLowerCase());
 
-    // For mid-position, hints appear but are kept brief
-    // For terminal/standalone, hints can be more detailed
     const showHint = hint && !isCorrect && hasAnswer;
     const showReviewLink = reviewBlockId && !isCorrect && hasAnswer;
     const showSectionLinks = sectionLinks && sectionLinks.length > 0 && !isCorrect && hasAnswer;
     const showVizHint = visualizationHint && !isCorrect && hasAnswer;
 
-    // Determine if we should show detailed feedback or just symbols
     const isCompact = position === 'mid';
+
+    // Fade-in animation
+    useEffect(() => {
+        if (hasAnswer) {
+            const raf = requestAnimationFrame(() => setVisible(true));
+            return () => cancelAnimationFrame(raf);
+        }
+        setVisible(false);
+    }, [hasAnswer]);
 
     const handleVizHintClick = useCallback(() => {
         if (!visualizationHint) return;
         setVizHintTriggered(true);
         scrollToVisualizationAndTriggerHint(visualizationHint);
-        // Reset after a while so they can click again
         setTimeout(() => setVizHintTriggered(false), 5000);
     }, [visualizationHint]);
 
-    // Reset viz hint triggered when answer changes
-    React.useEffect(() => {
+    useEffect(() => {
         setVizHintTriggered(false);
     }, [storeValue]);
 
+    const handleReviewClick = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (reviewBlockId) scrollToBlock(reviewBlockId);
+    }, [reviewBlockId]);
+
     return (
-        <span className={cn("inline", className)}>
-            {/* The cloze component */}
+        <span
+            className={cn("inline", className)}
+            data-inline-component="inlineFeedback"
+        >
             {children}
 
-            {/* Inline feedback - appears right after the cloze component as flowing text */}
-            <AnimatePresence>
-                {hasAnswer && (
-                    <motion.span
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2, ease: 'easeOut' }}
-                    >
-                        {isCorrect ? (
-                            // Correct feedback — flows naturally as text
-                            <span className="text-green-700 dark:text-green-400">
-                                {" "}{effectiveSuccessMessage}
-                            </span>
-                        ) : (
-                            // Incorrect feedback — hint flows as text
-                            <span className="text-amber-700 dark:text-amber-400">
+            {hasAnswer && (
+                <span
+                    ref={feedbackRef}
+                    data-inline-component="inlineFeedbackResult"
+                    contentEditable={false}
+                    style={{
+                        opacity: visible ? 1 : 0,
+                        transition: 'opacity 0.2s ease-out',
+                        display: 'inline',
+                    }}
+                >
+                    {isCorrect ? (
+                        <span style={{ color: '#15803d' }}>
+                            {" "}{effectiveSuccessMessage}
+                        </span>
+                    ) : (
+                        <span style={{ display: 'inline' }}>
+                            {/* Failure message + hint text */}
+                            <span style={{ color: '#b45309' }}>
                                 {" "}{effectiveFailureMessage}
-                                {showHint && (
-                                    <span>
-                                        {isCompact ? ` ${hint}` : ` ${hint}`}
-                                    </span>
-                                )}
-
-                                {/* Section links — inline hyperlinks embedded with the text flow */}
-                                {showSectionLinks && !isCompact && (
-                                    <motion.span
-                                        className="ml-1"
-                                        initial={{ opacity: 0, y: 4 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.3, delay: 0.15, ease: 'easeOut' }}
-                                    >
-                                        {' '}
-                                        {sectionLinks!.map((link, idx) => (
-                                            <React.Fragment key={`${link.blockId}-${idx}`}>
-                                                {idx > 0 ? ' ' : ''}
-                                                <InlineHyperlink
-                                                    id={`feedback-link-${varName}-${idx}`}
-                                                    showHint={false}
-                                                    targetBlockId={link.blockId}
-                                                    color="#2563eb"
-                                                    bgColor="rgba(37, 99, 235, 0.12)"
-                                                >
-                                                    {link.label}
-                                                </InlineHyperlink>
-                                            </React.Fragment>
-                                        ))}
-                                    </motion.span>
-                                )}
-
-                                {/* Legacy review link (backwards compatible) */}
-                                {showReviewLink && !showSectionLinks && (
-                                    <button
-                                        onClick={() => scrollToBlock(reviewBlockId)}
-                                        className="ml-1 text-blue-600 dark:text-blue-400 hover:underline transition-colors"
-                                    >
-                                        {reviewLabel}
-                                    </button>
-                                )}
-
-                                {/* Visualization hint CTA */}
-                                {showVizHint && !isCompact && (
-                                    <motion.span
-                                        className="inline-block ml-1.5 align-middle"
-                                        initial={{ opacity: 0, scale: 0.85, y: 2 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        transition={{ duration: 0.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                                    >
-                                        <button
-                                            onClick={handleVizHintClick}
-                                            disabled={vizHintTriggered}
-                                            className={cn(
-                                                "group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
-                                                "text-xs font-semibold",
-                                                "transition-all duration-300 ease-out",
-                                                "cursor-pointer",
-                                                "active:scale-[0.96]",
-                                                vizHintTriggered
-                                                    ? "bg-white text-slate-400 border border-slate-200 shadow-sm"
-                                                    : cn(
-                                                        "bg-white text-slate-700 border border-slate-200",
-                                                        "shadow-sm",
-                                                        "hover:bg-slate-50 hover:border-slate-300 hover:shadow-md",
-                                                        "hover:-translate-y-[1px]",
-                                                    )
-                                            )}
-                                        >
-                                            {vizHintTriggered ? (
-                                                <>
-                                                    <Eye className="w-3 h-3" />
-                                                    <span>Showing hint…</span>
-                                                </>
-                                            ) : (
-                                                <span>{visualizationHint!.label ?? 'See it in action'}</span>
-                                            )}
-                                        </button>
-                                    </motion.span>
-                                )}
+                                {showHint && <span>{` ${hint}`}</span>}
                             </span>
-                        )}
-                    </motion.span>
-                )}
-            </AnimatePresence>
+
+                            {/* Section links */}
+                            {showSectionLinks && !isCompact && (
+                                <span style={{ display: 'inline' }}>
+                                    {' '}
+                                    {sectionLinks!.map((link, idx) => (
+                                        <React.Fragment key={`${link.blockId}-${idx}`}>
+                                            {idx > 0 ? ' ' : ''}
+                                            <FeedbackSectionLink link={link} isEditing={inEditMode} />
+                                        </React.Fragment>
+                                    ))}
+                                </span>
+                            )}
+
+                            {/* Legacy review link (backwards compatible) */}
+                            {showReviewLink && !showSectionLinks && (
+                                <span
+                                    role="button"
+                                    tabIndex={0}
+                                    onMouseDown={handleReviewClick}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') handleReviewClick(e);
+                                    }}
+                                    style={{
+                                        marginLeft: '4px',
+                                        color: '#2563eb',
+                                        cursor: 'pointer',
+                                        fontWeight: 500,
+                                        borderBottom: '2px solid #2563eb',
+                                        paddingBottom: '1px',
+                                        userSelect: 'none',
+                                    }}
+                                >
+                                    {reviewLabel}
+                                </span>
+                            )}
+
+                            {/* Visualization hint CTA */}
+                            {showVizHint && !isCompact && (
+                                <span style={{ marginLeft: '8px', display: 'inline' }}>
+                                    <FeedbackVizHintButton
+                                        label={visualizationHint!.label ?? 'See it in action'}
+                                        triggered={vizHintTriggered}
+                                        onClick={handleVizHintClick}
+                                        isEditing={inEditMode}
+                                    />
+                                </span>
+                            )}
+                        </span>
+                    )}
+                </span>
+            )}
         </span>
     );
 };

@@ -262,19 +262,19 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
         <div className="space-y-4">
             <Block id="inline-feedback-q-unit" padding="md">
                 <EditableParagraph id="para-inline-feedback-q-unit" blockId="inline-feedback-q-unit">
-                    A point starts at (1, 0) on the unit circle — the rightmost position. The{" "}
+                    A point on the unit circle moves around as the angle changes. The{" "}
                     <InlineSpotColor varName="ucCosine" color="#3b82f6">
                         blue projection
                     </InlineSpotColor>
-                    {" "}shows its horizontal distance from the center. What value
-                    does cos(0°) equal?{" "}
+                    {" "}shows its horizontal distance from the center. When the point is at the
+                    leftmost position (180°), what value does cos(180°) equal?{" "}
                     <InlineFeedback
                         varName="fbUnitCircleCos"
-                        correctValue="1"
+                        correctValue="-1"
                         position="standalone"
-                        successMessage="Yes! The point is at the rightmost edge — its horizontal distance from center is the full radius: 1"
+                        successMessage="Exactly! At 180° the point is at the far left — its horizontal position is -1"
                         failureMessage="Hmm, not quite."
-                        hint="Think about where the point is sitting at angle 0° — is it at the top? the center? or the far right of the circle?"
+                        hint="Think about where the point sits at 180° — the leftmost position on the circle. What's its x-coordinate?"
                         sectionLinks={[
                             { blockId: "inline-feedback-concept-cos", label: "Re-read: What is cosine?" },
                         ]}
@@ -283,30 +283,31 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
                             hintKey: "feedback-unit-circle-hint",
                             steps: [
                                 {
-                                    gesture: "click",
-                                    label: "Look at where the point is right now — it's at the far right of the circle, at position (1, 0)",
-                                    position: { x: "75%", y: "50%" },
-                                },
-                                {
                                     gesture: "drag-circular",
-                                    label: "Now drag upward toward the top — the blue horizontal line (cos) shrinks toward zero",
-                                    position: { x: "55%", y: "25%" },
+                                    label: "Drag the red point upward toward the top — watch the blue line (cos) shrink toward zero",
+                                    position: { x: "70%", y: "35%" },
                                     dragPath: { type: "arc", startAngle: 0, endAngle: -90, radius: 40 },
+                                    completionVar: "fbDemoTheta",
+                                    completionValue: 90,
+                                    completionTolerance: 15,
                                 },
                                 {
                                     gesture: "drag-circular",
-                                    label: "Keep going to the left side — the blue line crosses zero and becomes negative!",
-                                    position: { x: "25%", y: "50%" },
+                                    label: "Keep dragging to the left side — notice cos becomes negative when you pass the top!",
+                                    position: { x: "30%", y: "50%" },
                                     dragPath: { type: "arc", startAngle: -90, endAngle: -180, radius: 40 },
+                                    completionVar: "fbDemoTheta",
+                                    completionValue: 180,
+                                    completionTolerance: 20,
                                 },
                             ],
                             label: "Discover it yourself",
-                            color: "#3b82f6",
+                            resetVars: { fbDemoTheta: 0 },
                         }}
                     >
                         <InlineClozeChoice
                             varName="fbUnitCircleCos"
-                            correctAnswer="1"
+                            correctAnswer="-1"
                             options={["0", "1", "-1", "0.5"]}
                             {...choicePropsFromDefinition(getExampleVariableInfo("fbUnitCircleCos"))}
                         />
@@ -409,13 +410,24 @@ export const inlineFeedbackDemoBlocks: ReactElement[] = [
                             steps: [
                                 {
                                     gesture: "drag-vertical",
-                                    label: "Drag the red point upward — the red wave stretches taller while the gray reference stays the same",
-                                    position: { x: "50%", y: "20%" },
+                                    label: "Drag the red point upward to A = 2.5 — watch the red wave stretch taller while the gray stays the same",
+                                    position: { x: "55%", y: "25%" },
                                     dragPath: { type: "line", startOffset: { x: 0, y: 10 }, endOffset: { x: 0, y: -30 } },
+                                    completionVar: "fbDemoAmplitude",
+                                    completionValue: 2.5,
+                                    completionTolerance: 0.3,
+                                },
+                                {
+                                    gesture: "drag-vertical",
+                                    label: "Now drag it back down to A = 1.5 — notice the wave still crosses zero at the same places",
+                                    position: { x: "55%", y: "35%" },
+                                    dragPath: { type: "line", startOffset: { x: 0, y: -20 }, endOffset: { x: 0, y: 20 } },
+                                    completionVar: "fbDemoAmplitude",
+                                    completionValue: 1.5,
+                                    completionTolerance: 0.3,
                                 },
                             ],
-                            label: "reveal answer hints",
-                            color: "#ef4444",
+                            label: "Explore the visualization",
                             resetVars: { fbDemoAmplitude: 1.0 },
                         }}
                     >

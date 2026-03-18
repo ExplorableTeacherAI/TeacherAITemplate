@@ -336,6 +336,77 @@ For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to
 | `hint` | `string` | — | Additional guidance after failure message |
 | `reviewBlockId` | `string` | — | Block ID to scroll to for review |
 | `reviewLabel` | `string` | `"Review this concept"` | Review link text |
+| `visualizationHint` | `VisualizationHintConfig` | — | Configuration for guided visual discovery |
+
+### Visual Hints in Feedback (Guided Discovery)
+
+When a student answers incorrectly, you can guide them to **discover the answer themselves** through interactive visualization steps. The `visualizationHint` prop creates a "Discover it yourself" button that scrolls to a visualization and shows step-by-step interactive hints.
+
+**Example:**
+```tsx
+<InlineFeedback
+    varName="fbUnitCircleCos"
+    correctValue="-1"
+    failureMessage="Hmm, not quite."
+    hint="Think about where the point sits at 180°"
+    visualizationHint={{
+        blockId: "unit-circle-viz",
+        hintKey: "feedback-unit-circle-hint",
+        steps: [
+            {
+                gesture: "drag-circular",
+                label: "Drag the point upward — watch cos shrink toward zero",
+                completionVar: "theta",
+                completionValue: 90,
+                completionTolerance: 15,
+            },
+            {
+                gesture: "drag-circular",
+                label: "Keep dragging to the left — notice cos becomes -1!",
+                completionVar: "theta",
+                completionValue: 180,
+                completionTolerance: 20,
+            },
+        ],
+        label: "Discover it yourself",
+        resetVars: { theta: 0 },
+    }}
+>
+    <InlineClozeChoice varName="fbUnitCircleCos" correctAnswer="-1" options={["0", "1", "-1"]} />
+</InlineFeedback>
+```
+
+**Critical Rules for Visual Hints:**
+
+| Rule | Bad Example | Good Example |
+|:---|:---|:---|
+| **Question must match the visualization journey** — answer should be discoverable at the END of steps | Asking cos(0°) but guiding to 180° | Asking cos(180°) and guiding 0° → 90° → 180° |
+| **Always reset to starting position** — use `resetVars` | No resetVars | `resetVars: { theta: 0 }` |
+| **Steps must be actionable** — concrete actions, not observations | "Look at where the point is" | "Drag the point upward to the top" |
+| **Steps must be verifiable** — use `completionVar`, `completionValue`, `completionTolerance` | "Drag the point" | `completionVar: "theta", completionValue: 90` |
+| **Steps auto-advance on completion** — no manual buttons | Manual "Next" buttons | Auto-advance when variable reaches target |
+| **Clear, concise labels** — action + observation | Long paragraphs | "Drag upward — watch cos shrink" |
+
+**Step properties:**
+
+| Property | Type | Required | Purpose |
+|:---|:---|:---|:---|
+| `gesture` | `GestureType` | Yes | Animation: `"drag"`, `"drag-circular"`, `"click"`, etc. |
+| `label` | `string` | Yes | Short instruction: action + what to observe |
+| `position` | `{ x: string, y: string }` | No | Position of hint icon (percentage) |
+| `completionVar` | `string` | Yes* | Variable to watch for step completion |
+| `completionValue` | `number` | Yes* | Target value to reach |
+| `completionTolerance` | `number` | No | Acceptable range (default: 15) |
+
+**VisualizationHintConfig properties:**
+
+| Property | Type | Required | Purpose |
+|:---|:---|:---|:---|
+| `blockId` | `string` | Yes | Block ID of visualization to scroll to |
+| `hintKey` | `string` | Yes | Unique key for the hint sequence |
+| `steps` | `HintStep[]` | Yes | Array of guided steps |
+| `label` | `string` | No | Button label (default: "See it in action") |
+| `resetVars` | `Record<string, number \| string \| boolean>` | Yes* | Variables to reset when button clicked |
 
 ### Visual Assessment Tasks
 

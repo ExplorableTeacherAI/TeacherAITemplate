@@ -52,14 +52,13 @@ export interface TriggeredHintOverlayProps {
 export function TriggeredHintOverlay({
     hintKey,
     defaultSteps,
-    color = '#8B5CF6',
+    color = '#62D0AD',
 }: TriggeredHintOverlayProps) {
     const [triggered, setTriggered] = useState(false);
     const [activeSteps, setActiveSteps] = useState<HintStep[]>(defaultSteps ?? []);
     const [activeColor, setActiveColor] = useState(color);
     const [sequenceVersion, setSequenceVersion] = useState(0);
     const overlayRef = useRef<HTMLDivElement>(null);
-    const dismissTimerRef = useRef<number | null>(null);
 
     // Listen for the custom event on the parent (block) element
     useEffect(() => {
@@ -74,11 +73,15 @@ export function TriggeredHintOverlay({
             // Fallback: listen on the direct parent
             target = overlayEl?.parentElement ?? null;
         }
-        if (!target) return;
+        if (!target) {
+            return;
+        }
 
         const handler = (e: Event) => {
             const detail = (e as CustomEvent).detail;
-            if (detail?.hintKey !== hintKey) return;
+            if (detail?.hintKey !== hintKey) {
+                return;
+            }
 
             document.dispatchEvent(new CustomEvent('dismiss-interaction-hints', {
                 detail: { exceptHintKey: `triggered-${hintKey}` },
@@ -92,23 +95,14 @@ export function TriggeredHintOverlay({
                 setActiveColor(detail.color);
             }
 
-            // Show the hint
+            // Show the hint - no auto-dismiss, let user complete the steps
             setSequenceVersion((version) => version + 1);
             setTriggered(true);
-
-            // Auto-dismiss after some time if user doesn't interact
-            if (dismissTimerRef.current !== null) {
-                window.clearTimeout(dismissTimerRef.current);
-            }
-            dismissTimerRef.current = window.setTimeout(() => setTriggered(false), 12000);
         };
 
         target.addEventListener('trigger-viz-hint', handler);
         return () => {
             target?.removeEventListener('trigger-viz-hint', handler);
-            if (dismissTimerRef.current !== null) {
-                window.clearTimeout(dismissTimerRef.current);
-            }
         };
     }, [hintKey]);
 

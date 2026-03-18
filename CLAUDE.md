@@ -1352,6 +1352,125 @@ Question ends with `?`, so feedback is a natural conversational response.
 - Define answer variables in `variables.ts` just like any other cloze variable
 - Feedback appears only after submission — not during typing
 
+---
+
+### Visual Hints in Feedback (Guided Discovery)
+
+When a student answers incorrectly, you can guide them to **discover the answer themselves** through an interactive visualization. The `visualizationHint` prop on `InlineFeedback` creates a button that, when clicked, navigates to a visualization and shows step-by-step interactive hints.
+
+**InlineFeedback with visualizationHint example:**
+
+```tsx
+<InlineFeedback
+    varName="fbUnitCircleCos"
+    correctValue="-1"
+    position="standalone"
+    failureMessage="Hmm, not quite."
+    hint="Think about where the point sits at 180°"
+    visualizationHint={{
+        blockId: "unit-circle-viz",
+        hintKey: "feedback-unit-circle-hint",
+        steps: [
+            {
+                gesture: "drag-circular",
+                label: "Drag the red point upward toward the top — watch cos shrink toward zero",
+                position: { x: "70%", y: "35%" },
+                dragPath: { type: "arc", startAngle: 0, endAngle: -90, radius: 40 },
+                completionVar: "theta",
+                completionValue: 90,
+                completionTolerance: 15,
+            },
+            {
+                gesture: "drag-circular",
+                label: "Keep dragging to the left — notice cos becomes negative!",
+                position: { x: "30%", y: "50%" },
+                dragPath: { type: "arc", startAngle: -90, endAngle: -180, radius: 40 },
+                completionVar: "theta",
+                completionValue: 180,
+                completionTolerance: 20,
+            },
+        ],
+        label: "Discover it yourself",
+        resetVars: { theta: 0 },
+    }}
+>
+    <InlineClozeChoice varName="fbUnitCircleCos" correctAnswer="-1" options={["0", "1", "-1"]} />
+</InlineFeedback>
+```
+
+### Critical Rules for Visual Hints
+
+| Rule | Description | Bad Example | Good Example |
+|:---|:---|:---|:---|
+| **1. Question must match the visualization journey** | The question answer should be discoverable through the guided steps | Asking cos(0°) but guiding to 180° | Asking cos(180°) and guiding from 0° → 90° → 180° |
+| **2. Always reset to starting position** | Use `resetVars` to reset the visualization when button clicked | No resetVars (user may have moved things) | `resetVars: { theta: 0 }` |
+| **3. Steps must be actionable** | Every step must describe a concrete action the user performs | "Look at where the point is" | "Drag the point upward to the top" |
+| **4. Steps must be verifiable** | Each step needs `completionVar`, `completionValue`, and `completionTolerance` | "Drag the point" (no way to verify) | "Drag to 90°" with `completionVar: "theta", completionValue: 90` |
+| **5. Steps auto-advance on completion** | The hint watches the variable and advances when target is reached | Manual next buttons | Auto-advance when `theta` reaches 90° (±15°) |
+| **6. Clear, concise labels** | Step labels should be short and describe action + observation | Long explanations | "Drag upward — watch cos shrink toward zero" |
+
+### Step Properties for Visual Hints
+
+| Property | Type | Required | Purpose |
+|:---|:---|:---|:---|
+| `gesture` | `GestureType` | Yes | Animation type: `"drag"`, `"drag-circular"`, `"drag-vertical"`, `"click"`, etc. |
+| `label` | `string` | Yes | Short instruction: action + what to observe |
+| `position` | `{ x: string, y: string }` | No | Position of hint icon (percentage, e.g., `{ x: "70%", y: "35%" }`) |
+| `dragPath` | `DragPathConfig` | No | Animation path for the gesture hint |
+| `completionVar` | `string` | **Yes*** | Variable to watch for step completion |
+| `completionValue` | `number` | **Yes*** | Target value the variable should reach |
+| `completionTolerance` | `number` | No | Acceptable range (±tolerance), default: 15 |
+
+*Required for meaningful step progression. Steps without completion conditions advance on any interaction.
+
+### VisualizationHintConfig Properties
+
+| Property | Type | Required | Purpose |
+|:---|:---|:---|:---|
+| `blockId` | `string` | Yes | Block ID of the visualization to scroll to |
+| `hintKey` | `string` | Yes | Unique key for the hint sequence |
+| `steps` | `HintStep[]` | Yes | Array of guided steps |
+| `label` | `string` | No | Button label (default: "See it in action") |
+| `resetVars` | `Record<string, number \| string \| boolean>` | **Yes*** | Variables to reset when button clicked |
+
+*Always include `resetVars` to ensure the visualization starts in the correct state for the guided journey.
+
+### Design Workflow for Visual Hints
+
+1. **Design the question** — What concept are you testing? What answer should the student discover?
+2. **Plan the journey** — What interactive steps lead to discovering the answer?
+3. **Identify the variables** — Which variables change during the journey? What are the milestone values?
+4. **Write the steps** — Each step: action verb + target + observation
+5. **Set completion conditions** — `completionVar`, `completionValue`, `completionTolerance` for each step
+6. **Add resetVars** — Reset all relevant variables to the starting position
+
+### Example: Teaching cos(180°) through guided exploration
+
+**Question**: "What is cos(180°)?"
+**Answer**: -1
+
+**Journey**:
+1. Start at θ = 0° (rightmost point, cos = 1)
+2. Drag to θ = 90° (top, cos = 0) — student sees cos decrease
+3. Drag to θ = 180° (leftmost, cos = -1) — student discovers the answer
+
+**Steps**:
+```tsx
+steps: [
+    {
+        gesture: "drag-circular",
+        label: "Drag the red point upward toward the top — watch cos shrink toward zero",
+        completionVar: "theta", completionValue: 90, completionTolerance: 15,
+    },
+    {
+        gesture: "drag-circular",
+        label: "Keep dragging to the left — notice cos becomes -1 at 180°!",
+        completionVar: "theta", completionValue: 180, completionTolerance: 20,
+    },
+],
+resetVars: { theta: 0 },
+```
+
 ## Visual Assessment Tasks
 
 Beyond text-based questions (`InlineClozeInput`, `InlineClozeChoice`), you can create **interactive visual tasks** where students demonstrate understanding by manipulating elements in a visualization — drawing lines, positioning points, or constructing shapes.

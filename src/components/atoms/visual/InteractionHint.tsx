@@ -12,6 +12,7 @@ import {
     Maximize2,
     type LucideProps,
 } from "lucide-react";
+import { useVar } from "@/stores/variableStore";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -485,6 +486,26 @@ export interface HintStep {
      * ```
      */
     dragPath?: DragPathConfig;
+    
+    /**
+     * Variable name to watch for step completion.
+     * When specified, the step only completes when the variable reaches the target value.
+     * @example "fbDemoTheta" for watching the angle variable
+     */
+    completionVar?: string;
+    
+    /**
+     * Target value the variable should reach for step completion.
+     * @example 90 for when the angle should be at 90 degrees
+     */
+    completionValue?: number;
+    
+    /**
+     * Tolerance for completion check (±tolerance).
+     * @default 10
+     * @example 15 means the step completes when value is within ±15 of completionValue
+     */
+    completionTolerance?: number;
 }
 
 export interface InteractionHintSequenceProps {
@@ -604,6 +625,15 @@ export function InteractionHintSequence({
     // Determine the active step index
     const activeStep = isControlled ? controlledStep : internalStep;
     const isComplete = activeStep >= steps.length;
+    
+    // Get current step's completion condition
+    const currentStepData = steps[Math.min(activeStep, steps.length - 1)];
+    const completionVar = currentStepData?.completionVar;
+    const completionValue = currentStepData?.completionValue;
+    const completionTolerance = currentStepData?.completionTolerance ?? 15;
+    
+    // Watch the completion variable (if specified)
+    const watchedValue = useVar(completionVar ?? '', null) as number | null;
 
     useEffect(() => {
         setDismissed(false);
@@ -705,25 +735,67 @@ export function InteractionHintSequence({
             onSequenceComplete?.();
         }
     }, [isComplete, onSequenceComplete]);
-
-    // Listen for user interaction on the parent container
+    
+    // Watch for completion condition being met
     useEffect(() => {
+        if (!visible || isComplete || !listenerReady) return;
+        if (completionVar === undefined || completionValue === undefined) return;
+        if (watchedValue === null) return;
+        
+        // Check if the watched value is within tolerance of the completion value
+        const diff = Math.abs(watchedValue - completionValue);
+        if (diff <= completionTolerance) {
+            // Small delay to let the user see the result before advancing
+            const timer = setTimeout(() => {
+                handleStepInteraction();
+            }, 400);
+            return () => clearTimeout(timer);
+        }
+    }, [watchedValue, completionVar, completionValue, completionTolerance, visible, isComplete, listenerReady, handleStepInteraction]);
+
+    // Listen for user interaction on the visualization container (only for steps WITHOUT completion conditions)
+    useEffect(() => {
+        // Skip if the current step has a completion condition - it will auto-advance when condition is met
+        if (completionVar !== undefined && completionValue !== undefined) return;
+        
         if (!listenerReady || isComplete) return;
 
         const hintEl = hintRef.current;
-        const parent = hintEl?.parentElement;
-        if (!parent) return;
+        if (!hintEl) return;
+
+        // Walk up to find the actual visualization container
+        // Look for either position:relative container or data-block-id element
+        let container: HTMLElement | null = hintEl.parentElement;
+        while (container) {
+            const style = window.getComputedStyle(container);
+            const hasRelativePosition = style.position === 'relative';
+            const isBlockContainer = container.hasAttribute('data-block-id');
+            
+            // Stop at the first relative-positioned container that's not just a small wrapper
+            if (hasRelativePosition && container.offsetWidth > 100 && container.offsetHeight > 100) {
+                break;
+            }
+            if (isBlockContainer) {
+                break;
+            }
+            container = container.parentElement;
+        }
+
+        if (!container) {
+            container = hintEl.parentElement;
+        }
+        if (!container) return;
 
         const handleInteraction = () => handleStepInteraction();
 
         // Use capture phase to catch events before child elements (like Mafs canvas) can stop propagation
-        parent.addEventListener("pointerdown", handleInteraction, { once: true, capture: true });
-        parent.addEventListener("touchstart", handleInteraction, { once: true, capture: true });
+        container.addEventListener("pointerdown", handleInteraction, { once: true, capture: true });
+        container.addEventListener("touchstart", handleInteraction, { once: true, capture: true });
         return () => {
-            parent.removeEventListener("pointerdown", handleInteraction, { capture: true });
-            parent.removeEventListener("touchstart", handleInteraction, { capture: true });
+            container?.removeEventListener("pointerdown", handleInteraction, { capture: true });
+            container?.removeEventListener("touchstart", handleInteraction, { capture: true });
         };
-    }, [listenerReady, isComplete, handleStepInteraction]);
+    }, [listenerReady, isComplete, handleStepInteraction, completionVar, completionValue]);
 
     // Don't render if sequence is complete (and not alwaysShow)
     if (dismissed) return null;
