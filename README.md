@@ -21,14 +21,28 @@ Interactive explorable-explanation template for creating mathematics lessons. Bu
 
 4. **Observable change** — When students manipulate one element, they must see real-time changes in other elements. Dragging a point should update values in both formulas AND prose.
 
-5. **Interaction hints** — Every visualization with actual in-viz interactivity MUST include an `InteractionHintSequence` overlay showing students how to interact with it. The hint displays an animated hand gesture that auto-dismisses when the user interacts. **CRITICAL: NEVER add interaction hints to a visualization that is not actually interactive.** If there's no real draggable/clickable element, showing hints creates confusion. Inline components (`InlineScrubbleNumber`, `InlineToggle`, etc.) also auto-show interaction hints — use `showHint={false}` to disable for navigation/TOC links. **FormulaBlock** shows hints below **each** interactive element (`\scrub{}`, `\highlight{}`, `\cloze{}`, `\choice{}`) — not just one.
+5. **Interaction hints** — Every visualization with actual in-viz interactivity MUST include an `InteractionHintSequence` overlay showing students how to interact with it. The hint displays an animated hand gesture that auto-dismisses when the user interacts. Inline components (`InlineScrubbleNumber`, `InlineToggle`, etc.) have their own built-in hints — use `showHint={false}` to disable for navigation/TOC links. **FormulaBlock** shows hints below **each** interactive element (`\scrub{}`, `\highlight{}`, `\cloze{}`, `\choice{}`).
+
+**CRITICAL: Misleading hints are WORSE than no hints.** Before adding ANY hint:
+
+| ✓ | Verify |
+|:---|:---|
+| ☐ | Visualization has `movablePoints` or draggable elements INSIDE it |
+| ☐ | Hint label describes something that ACTUALLY EXISTS and IS DRAGGABLE |
+| ☐ | Hint describes IN-VISUALIZATION interaction (NOT "drag the number below") |
+| ☐ | Hint position is ON the interactive element (not at center if element is at edge) |
+
+**NEVER do these:**
+- ❌ "Drag the number below" — that's a text control, not the visualization
+- ❌ Hint on static diagram — no movablePoints = no hint
+- ❌ "Drag the point" when no movablePoint exists — hint is lying
 
 ### Before Creating Any Visualization, Ask:
 
 - **What can the student drag, scrub, or click?** ← If nothing, STOP and redesign
 - **What changes when they interact?** ← At least one derived value must update
 - **Is the same variable used in prose, formula, AND visual?** ← If not, connect them
-- **Does it have actual interactivity AND an InteractionHintSequence?** ← If interactive, add hints; if not interactive, NO hints
+- **Does it have actual in-viz interactivity (movablePoints)?** ← If YES, add hint; if NO, do NOT add hint
 
 ### Use Soft, Muted Colors
 

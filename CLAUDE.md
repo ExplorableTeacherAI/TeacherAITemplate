@@ -37,6 +37,40 @@ Content is organized as **blocks** inside **layouts**, with shared state via a *
 - [ ] Derived values (area, sum, etc.) display via `readonly` scrubble numbers
 - [ ] **Every visualization with actual in-viz interactivity has an `InteractionHintSequence`** — but NEVER add hints if the visualization isn't truly interactive
 
+### Visualization Validation Checklist (Do this for EVERY visualization)
+
+Before considering a visualization complete, walk through these checks:
+
+**A. Prose-Visual Alignment:**
+- [ ] Every element mentioned in prose (point, line, shape, label) EXISTS in the visualization
+- [ ] Colors in prose MATCH the visualization ("the red point" → there IS a red point)
+- [ ] Positions in prose MATCH the visualization ("at the top" → element IS at the top)
+- [ ] Interactive elements described in prose ARE actually interactive
+
+**B. Mathematical Accuracy:**
+- [ ] Visualization correctly represents the math concept (radius goes center→edge, area formula correct)
+- [ ] Scale and proportions are reasonable (radius 3 looks 3× larger than radius 1)
+- [ ] Labels show correct values with correct units
+- [ ] Derived values (area, sum) update correctly when inputs change
+
+**C. Visual Clarity:**
+- [ ] All text/labels are readable (not too small, not overlapping, not cut off)
+- [ ] Colors have sufficient contrast against white background
+- [ ] Interactive elements are visually distinct from static elements
+- [ ] No visual clutter — elements don't compete for attention
+
+**D. Interactivity Works:**
+- [ ] Every described interaction WORKS when tried
+- [ ] Feedback is immediate — visual response on interaction
+- [ ] Bounds are reasonable — can't drag off-screen or to invalid values
+- [ ] Interactions don't break the visualization (no NaN, no glitches)
+
+**E. Hint Accuracy (if InteractionHintSequence present):**
+- [ ] Hint describes an element that EXISTS
+- [ ] Hint describes IN-VISUALIZATION interaction (NOT "drag the number below")
+- [ ] Hint position matches where the element actually is
+- [ ] Hint gesture matches the interaction type
+
 ### Use Soft, Muted Colors Only
 
 **Never use saturated primaries like `#FF0000`, `#00FF00`, `#0000FF`.** Always use the recommended palette:
@@ -723,7 +757,25 @@ When a `<Block>` contains a **visual component** (chart, diagram, interactive vi
 
 **This is NOT optional.** Visualizations without interaction hints are incomplete and fail to guide students on how to explore them.
 
-**CRITICAL: Only add hints for ACTUAL interactivity.** Before adding an `InteractionHintSequence`, verify that the visualization has real, working interactive elements (movable points, draggable handles, clickable areas, etc.). **NEVER add interaction hints to a visualization that is not actually interactive.** Showing a "drag here" hint on a static visualization creates frustration and confusion. If your visualization has no interactive elements implemented, do NOT add any hints — instead, redesign the visualization to include actual interactivity first.
+**CRITICAL: Hints describe IN-VISUALIZATION interactions ONLY — misleading hints are WORSE than no hints.**
+
+Before adding ANY `InteractionHintSequence`, verify ALL of these:
+
+| ✓ | Check | If Fails |
+|:---|:---|:---|
+| ☐ | Visualization has `movablePoints` or draggable elements INSIDE it | Do NOT add hint — make viz interactive first |
+| ☐ | Hint label describes an element that ACTUALLY EXISTS and IS DRAGGABLE | Fix label to match real elements, or remove hint |
+| ☐ | Hint describes IN-VISUALIZATION interaction (NOT "drag the number below") | Remove hint — text controls have their own hints |
+| ☐ | Hint position is ON or NEAR the interactive element | Fix position to match where element actually is |
+
+**ANTI-PATTERNS — Never do these:**
+
+| ❌ Anti-Pattern | Why It's Wrong | What To Do |
+|:---|:---|:---|
+| "Drag the number below" | Describes text control outside viz, not in-viz interaction | Remove hint OR add actual movablePoint and fix label |
+| Hint on static diagram | No draggable elements — hint is lying | Remove hint, then make viz actually interactive |
+| "Drag the point" but no point exists | Visualization doesn't have `movablePoints` | Add `movablePoints` first, then add hint |
+| Hint at center when element is at edge | Wrong position — student won't find interaction | Position hint where the actual element is |
 
 **Usage:** Wrap the visualization in a `<div className="relative">` and place `InteractionHintSequence` as a sibling:
 
@@ -888,11 +940,13 @@ function MyInteractiveViz() {
 
 **Rules:**
 1. `hintKey` must be **unique across the entire lesson** — never reuse a key
-2. Position the hint **near the interactive element**, not at the center of the viz
+2. Position the hint **ON or NEAR the interactive element**, not at the center of the viz
 3. **Use `dragPath` for circular interactions** — it makes the hint follow the actual drag path
 4. For 3D visualizations, use `gesture="orbit-3d"` with label "Drag to rotate the view"
 5. The label should be **descriptive and specific** — "Drag the red point" not just "Drag"
-6. **NEVER ship a visualization without an InteractionHintSequence** — this is a hard requirement
+6. **NEVER use hints like "Drag the number below"** — hints describe IN-VIZ interactions only, not text controls
+7. **NEVER add hints to non-interactive visualizations** — if there's no `movablePoints`, there's no hint
+8. **Verify the element exists before adding a hint** — if label says "red point", there must BE a red movable point
 
 #### Positioning the Hint
 
