@@ -1608,7 +1608,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             {children}
 
             {/* Debug panel - only visible in editor mode */}
-            {isEditor && (
+            {false && (
                 <>
                     {/* Debug toggle button */}
                     <button
