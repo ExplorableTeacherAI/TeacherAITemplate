@@ -1,1 +1,0 @@
-import{u as o,i as s}from"./index-tFQeY9Qe.js";const t={},l=()=>{const e={};for(const[a,i]of Object.entries(t))e[a]=i.defaultValue;return e};o.getState().initialize(l());s(t);const r=[];export{r as blocks};
