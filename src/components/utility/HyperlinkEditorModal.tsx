@@ -62,7 +62,7 @@ export const HyperlinkEditorModal: React.FC = () => {
                 <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/30">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                         <Link className="w-5 h-5" style={{ color: '#10B981' }} />
-                        Edit Hyperlink
+                        {editingHyperlink?.isNew ? 'Add Hyperlink' : 'Edit Hyperlink'}
                     </h2>
                     <button
                         onClick={handleCancel}
@@ -253,7 +253,7 @@ export const HyperlinkEditorModal: React.FC = () => {
                         onClick={handleSave}
                         className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
-                        Apply Changes
+                        {editingHyperlink?.isNew ? 'Add Component' : 'Apply Changes'}
                     </button>
                 </div>
             </div>

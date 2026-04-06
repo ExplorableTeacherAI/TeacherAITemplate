@@ -32,6 +32,8 @@ export interface ScrubbleNumberProps {
     max?: number;
     step?: number;
     color?: string;
+    /** True when creating a new component via slash command (editor shows "Add" instead of "Apply") */
+    isNew?: boolean;
 }
 
 export interface ClozeInputEdit {
@@ -51,6 +53,7 @@ export interface ClozeInputProps {
     color?: string;
     bgColor?: string;
     caseSensitive?: boolean;
+    isNew?: boolean;
 }
 
 export interface ClozeChoiceEdit {
@@ -70,6 +73,7 @@ export interface ClozeChoiceProps {
     placeholder?: string;
     color?: string;
     bgColor?: string;
+    isNew?: boolean;
 }
 
 export interface ToggleEdit {
@@ -87,6 +91,7 @@ export interface ToggleProps {
     options?: string[];
     color?: string;
     bgColor?: string;
+    isNew?: boolean;
 }
 
 export interface TooltipProps {
@@ -96,6 +101,7 @@ export interface TooltipProps {
     bgColor?: string;
     position?: string;   // 'top' | 'bottom' | 'auto'
     maxWidth?: number;
+    isNew?: boolean;
 }
 
 export interface TooltipEdit {
@@ -115,6 +121,7 @@ export interface TriggerComponentProps {
     color?: string;
     bgColor?: string;
     icon?: string;
+    isNew?: boolean;
 }
 
 export interface TriggerComponentEdit {
@@ -133,6 +140,7 @@ export interface HyperlinkComponentProps {
     targetBlockId?: string;
     color?: string;
     bgColor?: string;
+    isNew?: boolean;
 }
 
 export interface HyperlinkComponentEdit {
@@ -149,6 +157,7 @@ export interface InlineFormulaProps {
     latex?: string;
     colorMap?: Record<string, string>;
     color?: string;       // wrapper text color (default: #000000 black)
+    isNew?: boolean;
 }
 
 export interface InlineFormulaEdit {
@@ -165,6 +174,7 @@ export interface SpotColorComponentProps {
     varName?: string;
     text?: string;
     color?: string;
+    isNew?: boolean;
 }
 
 export interface SpotColorEdit {
@@ -183,6 +193,7 @@ export interface LinkedHighlightComponentProps {
     text?: string;
     color?: string;
     bgColor?: string;
+    isNew?: boolean;
 }
 
 export interface LinkedHighlightEdit {
@@ -556,10 +567,10 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveScrubbleNumberEdit = useCallback((newProps: ScrubbleNumberProps) => {
         if (!editingScrubbleNumber) return;
 
-        const { blockId, elementPath, ...originalProps } = editingScrubbleNumber;
+        const { blockId, elementPath, isNew, ...originalProps } = editingScrubbleNumber;
 
-        // Check if any property changed
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        // For new components (via slash command), always save the edit
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addScrubbleNumberEdit({
@@ -626,9 +637,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveClozeInputEdit = useCallback((newProps: ClozeInputProps) => {
         if (!editingClozeInput) return;
 
-        const { blockId, elementPath, ...originalProps } = editingClozeInput;
+        const { blockId, elementPath, isNew, ...originalProps } = editingClozeInput;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addClozeInputEdit({
@@ -695,9 +706,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveClozeChoiceEdit = useCallback((newProps: ClozeChoiceProps) => {
         if (!editingClozeChoice) return;
 
-        const { blockId, elementPath, ...originalProps } = editingClozeChoice;
+        const { blockId, elementPath, isNew, ...originalProps } = editingClozeChoice;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addClozeChoiceEdit({
@@ -764,9 +775,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveToggleEdit = useCallback((newProps: ToggleProps) => {
         if (!editingToggle) return;
 
-        const { blockId, elementPath, ...originalProps } = editingToggle;
+        const { blockId, elementPath, isNew, ...originalProps } = editingToggle;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addToggleEdit({
@@ -833,9 +844,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveTooltipEdit = useCallback((newProps: TooltipProps) => {
         if (!editingTooltip) return;
 
-        const { blockId, elementPath, ...originalProps } = editingTooltip;
+        const { blockId, elementPath, isNew, ...originalProps } = editingTooltip;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addTooltipEdit({
@@ -905,9 +916,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             return;
         }
 
-        const { blockId, elementPath, ...originalProps } = editingTrigger;
+        const { blockId, elementPath, isNew, ...originalProps } = editingTrigger;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (import.meta.env.DEV) {
             console.log('[TriggerEdit] Save:', { blockId, elementPath, propsChanged, originalProps, newProps });
@@ -978,9 +989,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveHyperlinkEdit = useCallback((newProps: HyperlinkComponentProps) => {
         if (!editingHyperlink) return;
 
-        const { blockId, elementPath, ...originalProps } = editingHyperlink;
+        const { blockId, elementPath, isNew, ...originalProps } = editingHyperlink;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addHyperlinkEdit({
@@ -1113,9 +1124,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveInlineFormulaEdit = useCallback((newProps: InlineFormulaProps) => {
         if (!editingInlineFormula) return;
 
-        const { blockId, elementPath, ...originalProps } = editingInlineFormula;
+        const { blockId, elementPath, isNew, ...originalProps } = editingInlineFormula;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addInlineFormulaEdit({
@@ -1182,9 +1193,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveSpotColorEdit = useCallback((newProps: SpotColorComponentProps) => {
         if (!editingSpotColor) return;
 
-        const { blockId, elementPath, ...originalProps } = editingSpotColor;
+        const { blockId, elementPath, isNew, ...originalProps } = editingSpotColor;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addSpotColorEdit({
@@ -1251,9 +1262,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     const saveLinkedHighlightEdit = useCallback((newProps: LinkedHighlightComponentProps) => {
         if (!editingLinkedHighlight) return;
 
-        const { blockId, elementPath, ...originalProps } = editingLinkedHighlight;
+        const { blockId, elementPath, isNew, ...originalProps } = editingLinkedHighlight;
 
-        const propsChanged = JSON.stringify(newProps) !== JSON.stringify(originalProps);
+        const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
         if (propsChanged) {
             addLinkedHighlightEdit({
@@ -1466,6 +1477,158 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
     }, [enableEditing, disableEditing, clearAllEdits]);
+
+    // Listen for inline component editor open requests (from slash command insertion)
+    // This opens the appropriate editor modal immediately after an inline component
+    // placeholder is inserted, providing the "configure first" workflow.
+    useEffect(() => {
+        const handleEditorOpenRequest = (e: Event) => {
+            const { commandType, uniqueId, blockId } = (e as CustomEvent).detail as {
+                commandType: string;
+                uniqueId: string;
+                blockId: string;
+            };
+
+            // Each inline component computes its own elementPath using a specific pattern.
+            // When LessonView renders from a marker without encoded props, components that
+            // accept varName get `var_${uniqueId}` as default. We must match that identity.
+            switch (commandType) {
+                case 'inlineScrubbleNumber': {
+                    // LessonView default: varName = `var_${uniqueId}`
+                    // Component identity: `scrubble-${blockId}-${varName ?? defaultValue}`
+                    // Since varName = `var_${uniqueId}`, identity = `scrubble-${blockId}-var_${uniqueId}`
+                    const defaultVarName = `var_${uniqueId}`;
+                    const elementPath = `scrubble-${blockId}-${defaultVarName}`;
+                    openScrubbleNumberEditor(
+                        { varName: defaultVarName, defaultValue: 10, min: 0, max: 100, step: 1, color: '#0D7377', isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineClozeInput': {
+                    // LessonView default: varName = `var_${uniqueId}`, correctAnswer = 'answer'
+                    // Component identity: `cloze-${blockId}-${varName ?? correctAnswer}`
+                    const defaultVarName = `var_${uniqueId}`;
+                    const elementPath = `cloze-${blockId}-${defaultVarName}`;
+                    openClozeInputEditor(
+                        { varName: defaultVarName, correctAnswer: 'answer', placeholder: '???', isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineClozeChoice': {
+                    // LessonView default: varName = `var_${uniqueId}`, correctAnswer = 'Option 1'
+                    // Component identity: `choice-${blockId}-${varName ?? correctAnswer}`
+                    const defaultVarName = `var_${uniqueId}`;
+                    const elementPath = `choice-${blockId}-${defaultVarName}`;
+                    openClozeChoiceEditor(
+                        { varName: defaultVarName, correctAnswer: 'Option 1', options: ['Option 1', 'Option 2', 'Option 3'], placeholder: '???', isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineToggle': {
+                    // LessonView default: varName = `var_${uniqueId}`, options = ['Option 1', 'Option 2', 'Option 3']
+                    // Component identity: `toggle-${blockId}-${varName ?? options.join(',')}`
+                    const defaultVarName = `var_${uniqueId}`;
+                    const elementPath = `toggle-${blockId}-${defaultVarName}`;
+                    openToggleEditor(
+                        { varName: defaultVarName, options: ['Option 1', 'Option 2', 'Option 3'], isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineTooltip': {
+                    // LessonView renders: <InlineTooltip>term</InlineTooltip>
+                    // Component identity: `tooltip-${blockId}-${childText ?? tooltip?.substring(0, 20)}`
+                    // childText = 'term' (from children)
+                    const elementPath = `tooltip-${blockId}-term`;
+                    openTooltipEditor(
+                        { text: 'term', tooltip: 'Tooltip content', isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineTrigger': {
+                    // LessonView default: varName = `var_${uniqueId}`, children = 'trigger'
+                    // Component identity: `trigger-${blockId}-${varName??'novar'}-${childText}`
+                    // childText = 'trigger' (from children), varName = `var_${uniqueId}`
+                    const defaultVarName = `var_${uniqueId}`;
+                    const elementPath = `trigger-${blockId}-${defaultVarName}-trigger`;
+                    openTriggerEditor(
+                        { text: 'trigger', varName: defaultVarName, value: undefined, isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineHyperlink': {
+                    // LessonView renders: <InlineHyperlink>link</InlineHyperlink>
+                    // Component identity: `hyperlink-${blockId}-${childText ?? href ?? targetBlockId ?? 'link'}`
+                    // childText = 'link' (from children)
+                    const elementPath = `hyperlink-${blockId}-link`;
+                    openHyperlinkEditor(
+                        { text: 'link', href: undefined, targetBlockId: undefined, isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineFormula': {
+                    // LessonView default: latex = 'x^2'  
+                    // Component identity: `inlineFormula-${blockId}-${latex?.substring(0, 30)}`
+                    const elementPath = `inlineFormula-${blockId}-x^2`;
+                    openInlineFormulaEditor(
+                        { latex: 'x^2', isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineSpotColor': {
+                    // LessonView renders: <InlineSpotColor varName={`var_${uniqueId}`}>variable</InlineSpotColor>
+                    // Identity suffix: childText ? `${varName}-${childText}` : varName
+                    // childText = 'variable', varName = `var_${uniqueId}`
+                    // → suffix = `var_${uniqueId}-variable`
+                    const defaultVarName = `var_${uniqueId}`;
+                    const elementPath = `spotColor-${blockId}-${defaultVarName}-variable`;
+                    openSpotColorEditor(
+                        { varName: defaultVarName, text: 'variable', color: '#3B82F6', isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+                case 'inlineLinkedHighlight': {
+                    // LessonView renders: <InlineLinkedHighlight varName={`highlight_${uniqueId}`} highlightId={uniqueId}>highlight</InlineLinkedHighlight>
+                    // Identity suffix: childText ? `${varName}-${highlightId}-${childText}` : `${varName}-${highlightId}`
+                    // childText = 'highlight', varName = `highlight_${uniqueId}`, highlightId = uniqueId
+                    // → suffix = `highlight_${uniqueId}-${uniqueId}-highlight`
+                    const defaultVarName = `highlight_${uniqueId}`;
+                    const elementPath = `linkedHighlight-${blockId}-${defaultVarName}-${uniqueId}-highlight`;
+                    openLinkedHighlightEditor(
+                        { varName: defaultVarName, highlightId: uniqueId, text: 'highlight', isNew: true },
+                        blockId,
+                        elementPath,
+                    );
+                    break;
+                }
+            }
+        };
+
+        window.addEventListener('inline-editor-open-request', handleEditorOpenRequest);
+        return () => window.removeEventListener('inline-editor-open-request', handleEditorOpenRequest);
+    }, [
+        openScrubbleNumberEditor, openClozeInputEditor, openClozeChoiceEditor,
+        openToggleEditor, openTooltipEditor, openTriggerEditor,
+        openHyperlinkEditor, openInlineFormulaEditor, openSpotColorEditor,
+        openLinkedHighlightEditor,
+    ]);
 
     const value = useMemo(() => ({
         isEditing,

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
 import { COLOR_PRESETS_EXTENDED, BRAND_GREEN } from './editorColors';
+import { VariableNamePicker } from './VariableNamePicker';
 
 interface SpotColorEditorModalProps {
     // Props are managed via EditingContext
@@ -80,7 +81,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                         </svg>
-                        Edit Spot Color
+                        {editingSpotColor?.isNew ? 'Add Spot Color' : 'Edit Spot Color'}
                     </h2>
                     <button
                         onClick={handleCancel}
@@ -95,22 +96,13 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                 {/* Content */}
                 <div className="flex-1 overflow-auto p-4 space-y-4">
                     {/* Variable Name */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">
-                            Variable Name <span className="text-muted-foreground">(required)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={varName}
-                            onChange={(e) => setVarName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
-                            placeholder="e.g., radius"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Unique name to identify this color (used in formulas with \clr&#123;name&#125;&#123;...&#125;)
-                        </p>
-                    </div>
+                    <VariableNamePicker
+                        value={varName}
+                        onChange={setVarName}
+                        required
+                        helperText="Identifies this color — used in formulas with \clr{name}{...}"
+                        customPlaceholder="e.g., radius"
+                    />
 
                     {/* Display Text */}
                     <div>
@@ -208,7 +200,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                         onClick={handleSave}
                         className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
-                        Apply Changes
+                        {editingSpotColor?.isNew ? 'Add Component' : 'Apply Changes'}
                     </button>
                 </div>
             </div>

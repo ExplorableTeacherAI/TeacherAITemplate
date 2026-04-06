@@ -1,8 +1,8 @@
 import { type KeyboardEvent, useRef, useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
 import { cn } from "@/lib/utils";
-import { SlashCommandMenu, type SlashCommandType, isInlineCommand, type BlockCommandType } from "./SlashCommandMenu";
-import { getInlineComponentHTML, extractContentWithMarkers } from "@/hooks/useInlineSlashCommands";
+import { SlashCommandMenu, type SlashCommandType, isInlineCommand, type BlockCommandType, type InlineCommandType } from "./SlashCommandMenu";
+import { getInlineComponentHTML, extractContentWithMarkers, dispatchEditorOpenRequest } from "@/hooks/useInlineSlashCommands";
 import { Sparkles, Send, X } from "lucide-react";
 
 interface BlockInputProps {
@@ -255,6 +255,11 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
                 document.execCommand('insertHTML', false, componentHTML);
                 document.execCommand('insertText', false, ' ');
             }
+
+            // Immediately open the editor modal for the newly inserted inline component
+            setTimeout(() => {
+                dispatchEditorOpenRequest(commandType as InlineCommandType, uniqueId, id);
+            }, 50);
 
             slashPositionRef.current = -1;
             return;

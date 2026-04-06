@@ -302,9 +302,11 @@ function getGestureAnimation(
         case "drag-circular":
             return {
                 animate: {
-                    rotate: [0, 360],
+                    x: [0, 20, 28, 20, 0, -20, -28, -20, 0],
+                    y: [0, -12, 0, 12, 0, -12, 0, 12, 0],
+                    scale: [1, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 0.92, 1],
                 },
-                transition: { ...transition, duration: 2.5 },
+                transition: { ...transition, duration: 2.8 },
             };
 
         case "pinch":
