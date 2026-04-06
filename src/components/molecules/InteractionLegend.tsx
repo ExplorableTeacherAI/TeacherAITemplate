@@ -539,13 +539,7 @@ export const InteractionLegend: React.FC<InteractionLegendProps> = ({
     title = 'How to interact with this article',
 }) => {
     const STORAGE_KEY = 'mathvibe-legend-seen';
-    const [isOpen, setIsOpen] = useState(() => {
-        try {
-            return localStorage.getItem(STORAGE_KEY) !== 'true';
-        } catch {
-            return true;
-        }
-    });
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleToggle = () => {
         setIsOpen((prev) => {
