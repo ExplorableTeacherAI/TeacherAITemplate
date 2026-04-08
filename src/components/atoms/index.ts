@@ -46,65 +46,138 @@ export * from "./ui/toggle-group";
 export * from "./ui/tooltip";
 export * from "./ui/use-toast";
 
-// Basic Atoms
-export { Spacer } from "./Spacer";
-export { ModeIndicator } from "./ModeIndicator";
-export { InfoTooltip } from "./InfoTooltip";
-export { InlineDropdown } from "./InlineDropdown";
-export { InlineTextInput } from "./InlineTextInput";
-export { InlineStepper } from "./InlineStepper";
-export { AnnotationOverlay } from "./AnnotationOverlay";
-export { LoadingScreen } from "./LoadingScreen";
-
-// Two.js Animation Components
-export { AnimatedBackground } from "./AnimatedBackground";
-export { MorphingShapes } from "./MorphingShapes";
-export { ParticleSystem } from "./ParticleSystem";
-export { AnimatedGraph } from "./AnimatedGraph";
-export { CoordinateSystem } from "./CoordinateSystem";
-
-// Three.js Components
-export { ThreeCanvas } from "./ThreeCanvas";
-export { ThreeCoordinateSystem } from "./ThreeCoordinateSystem";
-export * from "./ThreeVisuals";
-
-// Colored Equation Components
-export { Equation } from "./Equation";
+// Text Components
+export { InlineClozeChoice } from "./text/InlineClozeChoice";
+export { InlineClozeInput } from "./text/InlineClozeInput";
+export { InlineFeedback } from "./text/InlineFeedback";
+export type { InlineFeedbackProps } from "./text/InlineFeedback";
+export { InlineToggle } from "./text/InlineToggle";
+export { InlineTooltip } from "./text/InlineTooltip";
+export { InlineTrigger } from "./text/InlineTrigger";
+export { InlineHyperlink } from "./text/InlineHyperlink";
+export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
+export { InlineSpotColor } from "./text/InlineSpotColor";
+export { InlineLinkedHighlight } from "./text/InlineLinkedHighlight";
 export {
-    ColoredEquationProvider,
-    ColoredEquation,
-    HighlightedTerm,
-    TermReveal
-} from "./ColoredEquation";
+    EditableH1,
+    EditableH2,
+    EditableH3,
+    EditableH4,
+    EditableH5,
+    EditableH6,
+    headingStyles
+} from "./text/EditableHeadings";
+export { EditableParagraph, EditableSpan } from "./text/EditableParagraph";
+export { EditableText, withEditableText, useEditableTextContext } from "./text/EditableText";
 
-// D3 Components
-export { D3BarChart } from "./D3BarChart";
-export type { D3BarChartProps, DataPoint } from "./D3BarChart";
+// Formula Components
+export { InlineFormula } from "./formula/InlineFormula";
 
-// Mafs Components
-export { MafsBasic } from "./MafsBasic";
-export { MafsAnimated } from "./MafsAnimated";
-export { MafsInteractive } from "./MafsInteractive";
-export { MafsInteractiveDemo } from "./MafsInteractiveDemo";
+// Visual — Two.js Animation Components
+export { AnimatedBackground } from "./visual/AnimatedBackground";
+export { MorphingShapes } from "./visual/MorphingShapes";
+export { ParticleSystem } from "./visual/ParticleSystem";
+export { AnimatedGraph } from "./visual/AnimatedGraph";
+export { CoordinateSystem } from "./visual/CoordinateSystem";
 
-// React Flow Components
-export { FlowDiagram } from "./FlowDiagram";
-export type { FlowNode, FlowEdge, FlowDiagramProps } from "./FlowDiagram";
-export { ExpandableFlowDiagram } from "./ExpandableFlowDiagram";
-export type { TreeNode, TreeEdge, ExpandableFlowDiagramProps } from "./ExpandableFlowDiagram";
-
-// Interactive Highlight Components (unified bidirectional highlighting system)
-export {
-    InteractiveHighlightProvider,
-    InteractiveText,
-    useInteractiveHighlight,
-    useActiveHighlight,
-    useSetActiveHighlight,
-    useHighlightState
-} from "./InteractiveHighlight";
+// Visual — 2D Cartesian (Mafs-powered, primary 2D math component)
+export { Cartesian2D } from "./visual/Cartesian2D";
 export type {
-    HighlightStyle,
-    InteractiveHighlightContextValue,
-    InteractiveHighlightProviderProps,
-    InteractiveTextProps
-} from "./InteractiveHighlight";
+    Cartesian2DProps,
+    PlotItem,
+    FunctionPlot,
+    ParametricPlot,
+    StaticPoint,
+    VectorPlot,
+    SegmentPlot,
+    CirclePlot,
+    MovablePointConfig,
+} from "./visual/Cartesian2D";
+
+// Visual — 3D Cartesian (Three.js-powered, primary 3D math component)
+export { Cartesian3D } from "./visual/Cartesian3D";
+export type {
+    Cartesian3DProps,
+    PlotItem3D,
+    SurfacePlot3D,
+    ParametricCurve3D,
+    ParametricSurface3D,
+    StaticPoint3D,
+    VectorPlot3D,
+    SegmentPlot3D,
+    SpherePlot3D,
+    PlanePlot3D,
+    PolylinePlot3D,
+    DraggablePoint3DConfig,
+} from "./visual/Cartesian3D";
+
+// Visual — Three.js Components
+export { ThreeCanvas } from "./visual/ThreeCanvas";
+export { ThreeCoordinateSystem } from "./visual/ThreeCoordinateSystem";
+export * from "./visual/ThreeVisuals";
+
+// Visual — D3 Components
+export { D3BarChart } from "./visual/D3BarChart";
+export type { D3BarChartProps, DataPoint } from "./visual/D3BarChart";
+
+// Visual — Data Visualization (D3-powered multi-chart component)
+export { DataVisualization } from "./visual/DataVisualization";
+export type { DataVisualizationProps, ChartType, ChartDataPoint, ScatterDataPoint } from "./visual/DataVisualization";
+
+// Visual — SVG Geometry Components
+export { GeometricDiagram } from "./visual/GeometricDiagram";
+export type { GeometricDiagramProps, GeometricVariant } from "./visual/GeometricDiagram";
+export { VennDiagram } from "./visual/VennDiagram";
+export type { VennDiagramProps } from "./visual/VennDiagram";
+export { NumberLine } from "./visual/NumberLine";
+export type { NumberLineProps } from "./visual/NumberLine";
+export { MathTreeVisualization } from "./visual/MathTreeVisualization";
+export type {
+    MathTreeNode,
+    MathTreeScaffoldStep,
+    MathTreeVisualizationProps,
+} from "./visual/MathTreeVisualization";
+
+// Visual — Mafs Components
+export { MafsBasic } from "./visual/MafsBasic";
+export { MafsAnimated } from "./visual/MafsAnimated";
+export { MafsInteractive } from "./visual/MafsInteractive";
+export { MafsInteractiveDemo } from "./visual/MafsInteractiveDemo";
+
+// Visual — React Flow Components
+export { FlowDiagram } from "./visual/FlowDiagram";
+export type { FlowNode, FlowEdge, FlowDiagramProps } from "./visual/FlowDiagram";
+export { ExpandableFlowDiagram } from "./visual/ExpandableFlowDiagram";
+export type { TreeNode, TreeEdge, ExpandableFlowDiagramProps } from "./visual/ExpandableFlowDiagram";
+
+// Visual — Simulation Panel
+export { SimulationPanel } from "./visual/SimulationPanel";
+export type {
+    SimulationPanelProps,
+    SimulationControl,
+    SliderControl,
+    ToggleControl,
+    ButtonControl,
+    SelectControl,
+    ButtonGroupControl,
+} from "./visual/SimulationPanel";
+
+// Visual — D3 Node-Link Diagram (force-directed graph)
+export { NodeLinkDiagram } from "./visual/NodeLinkDiagram";
+export type { DiagramNode, DiagramLink, NodeLinkDiagramProps } from "./visual/NodeLinkDiagram";
+
+// Visual — Matrix Visualization
+export { MatrixVisualization } from "./visual/MatrixVisualization";
+export type { MatrixVisualizationProps } from "./visual/MatrixVisualization";
+
+// Visual — Table
+export { Table } from "./visual/Table";
+export type { TableProps, TableColumn, TableRow } from "./visual/Table";
+
+// Visual — Image Display
+export { ImageDisplay } from "./visual/ImageDisplay";
+export type { ImageDisplayProps, ImageFit } from "./visual/ImageDisplay";
+
+// Visual — Video Display
+export { VideoDisplay } from "./visual/VideoDisplay";
+export type { VideoDisplayProps, VideoFit } from "./visual/VideoDisplay";

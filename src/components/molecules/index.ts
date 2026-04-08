@@ -1,9 +1,7 @@
-// Content Components
-export { Heading } from "./Heading";
-export { Paragraph } from "./Paragraph";
-export { MathBlock } from "./MathBlock";
+// Formula Components
+export { FormulaBlock } from "./formula/FormulaBlock";
+export type { FormulaBlockProps, ClozeInputConfig, ClozeChoiceConfig, LinkedHighlightConfig } from "./formula/FormulaBlock";
 
-// Interactive Components
-export { InteractiveTerm } from "./InteractiveTerm";
-export { InteractiveEquation } from "./InteractiveEquation";
-export { InteractiveParagraph } from "./InteractiveParagraph";
+// Interaction Legend
+export { InteractionLegend } from "./InteractionLegend";
+export type { InteractionLegendProps } from "./InteractionLegend";

@@ -1,4 +1,5 @@
 // Layout Templates
-export { Section } from "./Section";
-export { default as SectionRenderer } from "./SectionRenderer";
+export { Block } from "./Block";
+export { default as BlockRenderer } from "./BlockRenderer";
+export { BlockInput } from "./BlockInput";
 export { LessonView } from "./LessonView";

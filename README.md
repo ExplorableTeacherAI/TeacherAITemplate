@@ -1,350 +1,625 @@
 # MathVibe Template
 
-Welcome to the **MathVibe Template**! This repository is designed to help you build interactive, explorable educational content with ease. It provides a structured way to create lessons, visualizations, and interactive components using pre-built components in React.
-
-## 🚀 Overview
-
-This template allows agents and developers to:
-- Quickly scaffold educational "sections".
-- Organize content using flexible **Layouts**.
-- Integrate interactive components (Two.js, Three.js, Desmos, etc.).
-- Maintain a clean separation between content configuration and component logic.
+Interactive explorable-explanation template for creating mathematics lessons. Built with React + TypeScript + Vite + Tailwind CSS. Content is organized as **blocks** inside **layouts**, with shared state via a **global variable store** (Zustand).
 
 ---
 
-## 📂 Project Structure
+## CRITICAL: EVERY VISUALIZATION MUST BE INTERACTIVE
 
-Here is an overview of the file structure and key directories:
+**This is an explorable explanation platform — NOT a textbook.** Static diagrams defeat the entire purpose. Every visualization MUST allow student manipulation.
 
-```text
+### The Non-Negotiable Interactivity Rules
+
+1. **No static charts** — Every `Cartesian2D`, `DataVisualization`, `GeometricDiagram` must have at least one manipulable element (`movablePoints`, brush selection, or bound to `InlineScrubbleNumber`)
+
+2. **Bi-directional binding** — The same `varName` must connect:
+   - Prose (`InlineScrubbleNumber`)
+   - Formulas (`FormulaBlock` with `\scrub{}`)
+   - Visualizations (point positions, function parameters)
+   
+3. **Linked highlights** — Use `InlineLinkedHighlight` to connect prose terms to visual elements. When students hover "radius" in the text, the radius line in the diagram should highlight.
+
+4. **Observable change** — When students manipulate one element, they must see real-time changes in other elements. Dragging a point should update values in both formulas AND prose.
+
+### Before Creating Any Visualization, Ask:
+
+- **What can the student drag, scrub, or click?** ← If nothing, STOP and redesign
+- **What changes when they interact?** ← At least one derived value must update
+- **Is the same variable used in prose, formula, AND visual?** ← If not, connect them
+
+### Use Soft, Muted Colors
+
+**Never use saturated primaries (`#FF0000`, `#00FF00`, `#0000FF`).** Use the recommended soft palette:
+
+- `#62D0AD` (teal) — primary variables
+- `#8E90F5` (indigo) — secondary variables  
+- `#F7B23B` (amber) — highlights, attention
+- `#AC8BF9` (violet) — tertiary variables
+- `#F8A0CD` (rose) — emphasis
+- `#62CCF9` (sky) — alternative primary
+- `#F4A89A` (coral) — warmth
+- `#A8D5A2` (sage) — natural concepts
+- `#FFCBA4` (peach) — gentle highlights
+- `#7DD3C0` (mint) — fresh/clean
+- `#C9B8E8` (lavender) — subtle emphasis
+- `#22c55e` (green) — success/correct
+- `#ef4444` (red) — errors (use sparingly)
+
+---
+
+## Core Concept: Everything Lives in a Block
+
+The **Block** is the fundamental unit of content. Every piece of a lesson — a paragraph, an equation, a chart, a visualization — must live inside a `<Block>`.
+
+- **Rearrangeable** — teachers drag-and-drop blocks to reorder content
+- **Editable** — each block has its own toolbar for inline editing, deleting, and inserting
+- **Trackable** — the block manager sees and controls every piece individually
+
+**Rule 1: Never use a component outside a Block.** Unwrapped components are invisible to the editing system.
+
+**Rule 2: Each Block must contain exactly ONE primary component.** A single heading, a single paragraph, a single formula, or a single visual. Teachers add, delete, and reorder blocks individually — combining multiple components in one block makes them inseparable and breaks the editing system. The block manager needs to identify and control each piece individually.
+
+> **Exception:** Inline components (`InlineScrubbleNumber`, `InlineClozeInput`, `InlineTooltip`, etc.) belong *inside* their parent `EditableParagraph` — they are part of the text, not separate blocks.
+
+Every block follows the pattern: **Layout > Block > Component**.
+
+**Rule 3: Set `hasVisualization` on visualization blocks.** When a Block contains a visual component (chart, diagram, interactive visualization), add `hasVisualization` to enable the AI alternatives wand icon.
+
+```tsx
+// Text block — no hasVisualization
+<Block id="intro-paragraph" padding="sm">
+    <EditableParagraph id="para-text" blockId="intro-paragraph">Content</EditableParagraph>
+</Block>
+
+// Visualization block — with hasVisualization
+<Block id="data-chart" padding="sm" hasVisualization>
+    <Cartesian2D plots={[...]} />
+</Block>
+```
+
+**Applies to:** `Cartesian2D`, `DataVisualization`, `GeometricDiagram`, `MatrixVisualization`, `FlowDiagram`, `ExpandableFlowDiagram`, `SimulationPanel`, `DesmosGraph`, `GeoGebraGraph`, and custom visualizations.
+
+**Does NOT apply to:** `EditableParagraph`, `EditableH1/H2/H3`, `FormulaBlock`, `ImageDisplay`, `VideoDisplay`, `Table`, `InlineFeedback`.
+
+---
+
+## Project Structure
+
+```
 src/
-├── components/          # React components organized by complexity
-│   ├── atoms/           # Basic UI building blocks (Buttons, Inputs, etc.)
-│   ├── molecules/       # Compound components (Search bars, Cards)
-│   ├── organisms/       # Complex widgets (Graphs, Chat interfaces)
-│   ├── layouts/         # Layout wrappers (FullWidth, Split, Grid, Sidebar)
-│   └── templates/       # Page-level structures and base Section component
-├── data/                # Content configuration
-│   ├── sections/        # Individual section components for modularity (You will create new files here)
-│   ├── sections.tsx     # MAIN ENTRY: Array of sections to render (You will edit this file)
-│   ├── variables.ts     # VARIABLES: Define shared variables here (You will edit this file)
-│   ├── exampleSections.tsx # Reference examples for all layouts
-│   └── exampleVariables.ts # Variables for example/demo sections
-├── stores/              # Global state management (Zustand)
-│   ├── index.ts         # Exports for useVar, useSetVar, etc.
-│   └── variableStore.ts # The variable store implementation
-├── hooks/               # Custom React hooks
-├── lib/                 # Utilities and helper functions
-├── pages/               # Top-level application pages (Index, NotFound)
-└── main.tsx             # Application entry point
+├── data/                           # LESSON CONTENT (edit these files)
+│   ├── variables.ts                #   Define all shared variables (EDIT FIRST)
+│   ├── blocks.tsx                  #   Define all blocks (main entry point)
+│   ├── sections/                   #   Extract section blocks here
+│   ├── exampleBlocks.tsx           #   Reference only — copy patterns from here
+│   └── exampleVariables.ts         #   Reference only — copy structure from here
+│
+├── components/
+│   ├── atoms/                      # Smallest reusable building blocks
+│   │   ├── text/                   #   EditableHeadings, EditableParagraph,
+│   │   │                           #   InlineScrubbleNumber, InlineClozeInput,
+│   │   │                           #   InlineClozeChoice, InlineToggle, InlineTooltip,
+│   │   │                           #   InlineTrigger, InlineHyperlink, InlineSpotColor,
+│   │   │                           #   InlineLinkedHighlight
+│   │   ├── formula/                #   InlineFormula
+│   │   ├── visual/                 #   DataVisualization, ImageDisplay, VideoDisplay,
+│   │   │                           #   Cartesian2D, FlowDiagram, ExpandableFlowDiagram,
+│   │   │                           #   Table, GeometricDiagram, NodeLinkDiagram
+│   │   └── ui/                     #   shadcn/ui primitives
+│   │
+│   ├── molecules/                  # Composed from multiple atoms
+│   │   ├── formula/                #   FormulaBlock
+│   │   └── InteractionLegend.tsx   #   Auto-rendered how-to-interact banner
+│   │
+│   ├── organisms/                  # Complex self-contained visualizations
+│   │   └── visual/                 #   DesmosGraph, GeoGebraGraph
+│   │
+│   ├── layouts/                    # StackLayout, SplitLayout, GridLayout, ScrollytellingLayout, SlideLayout, StepLayout
+│   │
+│   ├── templates/                  # Page infrastructure (Block, LessonView) — do not modify
+│   │
+│   └── utility/                    # Editor modals, overlays — not lesson content
+│
+├── stores/                         # Zustand global variable store
+├── contexts/                       # React contexts (AppMode, Editing, Block)
+├── hooks/                          # Custom hooks
+└── lib/                            # Utilities
 ```
-
-### Key Files in Detail
-
-- **`src/data/sections.tsx`**: **START HERE**. This is the main entry point for your lesson content. The `sections` array in this file determines what is rendered on the page.
-- **`src/data/variables.ts`**: **DEFINE VARIABLES HERE**. All shared variables for cross-section state are defined in this file.
-- **`src/data/exampleSections.tsx`**: A reference file containing comprehensive examples of all available layouts and extensive component usage. Use this for inspiration!
-- **`src/data/exampleVariables.ts`**: Variables used by the example/demo sections.
-- **`src/components/layouts/*`**: Contains the core layout components (`FullWidthLayout`, `SplitLayout`, `GridLayout`, `SidebarLayout`).
-- **`src/components/templates/Section.tsx`**: The core wrapper component for all content blocks.
-- **`src/components/atoms/ui`**: Reusable UI components (Buttons, Inputs, etc.) built with Tailwind CSS.
 
 ---
 
-## 🛠️ How to Make Content
+## How to Create Content
 
-Creating content involves three simple steps: **Create**, **Layout**, and **Register**.
+### Step 1: Define Variables (`src/data/variables.ts`)
 
-### 1. Create a Section via `<Section>`
+Every interactive value must be defined here first.
 
-The `<Section>` component is the fundamental building block. It wraps your content and provides necessary hooks for the AI agent (like highlighting and context awareness).
-
-**Props:**
-- `id` (required): A unique string identifier for the section (e.g., "intro-text", "simulation-1").
-- `padding` (optional): "none" | "sm" | "md" | "lg" (default: "md").
-
-```tsx
-import { Section } from "@/components/templates";
-
-const MyContent = () => (
-  <Section id="my-unique-section-id">
-    <h1 className="text-2xl font-bold">Hello World</h1>
-    <p>This is my first section.</p>
-  </Section>
-);
+```ts
+export const variableDefinitions: Record<string, VariableDefinition> = {
+    amplitude: {
+        defaultValue: 1, type: 'number', label: 'Amplitude',
+        min: 0, max: 10, step: 0.1, unit: 'm',
+    },
+};
 ```
 
-### 2. Choose a Layout
+**Supported types:** `number`, `text`, `select`, `boolean`, `array`, `object`
 
-We provide 4 powerful layouts to organize your sections.
+### Step 2: Create Section Blocks (`src/data/sections/`)
 
-#### A. FullWidthLayout
-Best for titles, introductions, or large visualizations that need maximum space.
-
-**Props:**
-- `maxWidth`: `"none" | "md" | "lg" | "xl" | "2xl" | "full"` (default: `xl`)
+Each section exports a **flat array** of `Layout > Block` elements.
 
 ```tsx
-import { FullWidthLayout } from "@/components/layouts";
+// src/data/sections/Introduction.tsx
+export const introBlocks: ReactElement[] = [
+    <StackLayout key="layout-intro-title" maxWidth="xl">
+        <Block id="intro-title" padding="md">
+            <EditableH1 id="h1-intro-title" blockId="intro-title">
+                Understanding Waves
+            </EditableH1>
+        </Block>
+    </StackLayout>,
 
-<FullWidthLayout maxWidth="xl">
-  <Section id="header">
-    <h1>Chapter 1: The Beginning</h1>
-  </Section>
-</FullWidthLayout>
-```
-
-#### B. SplitLayout
-Perfect for "Explanation + Visualization" pairs. Side-by-side content.
-
-**Props:**
-- `ratio`: `"1:1" | "1:2" | "2:1" | "1:3" | "3:1" | "2:3" | "3:2"`
-- `gap`: `"none" | "sm" | "md" | "lg" | "xl"`
-- `reverse`: `boolean` (optional)
-- `align`: `"start" | "center" | "end" | "stretch"`
-
-```tsx
-import { SplitLayout } from "@/components/layouts";
-
-<SplitLayout ratio="1:1" gap="lg" align="start">
-  <Section id="explanation">
-    <p>On the right, you can see the atom structure...</p>
-  </Section>
-  <Section id="visualization">
-    <MyAtomVisualizer />
-  </Section>
-</SplitLayout>
-```
-
-#### C. GridLayout
-Great for cards, galleries, or multiple small items.
-
-**Props:**
-- `columns`: `2 | 3 | 4 | 5 | 6`
-- `gap`: `"none" | "sm" | "md" | "lg" | "xl"`
-- `align`: `"start" | "center" | "end" | "stretch"`
-
-```tsx
-import { GridLayout } from "@/components/layouts";
-
-<GridLayout columns={3} gap="md">
-  <Section id="card-1">Card 1</Section>
-  <Section id="card-2">Card 2</Section>
-  <Section id="card-3">Card 3</Section>
-</GridLayout>
-```
-
-#### D. SidebarLayout
-Useful for persistent tools, glossaries, or navigation that stays visible while scrolling main content.
-
-**Props:**
-- `sidebarPosition`: `"left" | "right"`
-- `sidebarWidth`: `"narrow" | "medium" | "wide"`
-- `stickySidebar`: `boolean` (default: true)
-
-```tsx
-import { SidebarLayout, Sidebar, Main } from "@/components/layouts";
-
-<SidebarLayout sidebarPosition="left" sidebarWidth="medium">
-  <Sidebar>
-    <Section id="tools">Toolbox</Section>
-  </Sidebar>
-  <Main>
-    <Section id="content">Main Lesson Content...</Section>
-  </Main>
-</SidebarLayout>
-```
-
-### 3. Register in `sections.tsx`
-
-Finally, add your configured layout to the `sections` array in `src/data/sections.tsx`.
-
-```tsx
-// src/data/sections.tsx
-import { type ReactElement } from "react";
-import { FullWidthLayout, SplitLayout } from "@/components/layouts";
-import { Section } from "@/components/templates";
-
-export const sections: ReactElement[] = [
-  <FullWidthLayout key="intro" maxWidth="xl">
-    <Section id="intro-content">
-      <h1>Welcome</h1>
-    </Section>
-  </FullWidthLayout>,
-
-  <SplitLayout key="demo" ratio="1:1">
-     {/* ... content ... */}
-  </SplitLayout>
+    <StackLayout key="layout-intro-text" maxWidth="xl">
+        <Block id="intro-text" padding="sm">
+            <EditableParagraph id="para-intro-text" blockId="intro-text">
+                A wave with amplitude{" "}
+                <InlineScrubbleNumber
+                    varName="amplitude"
+                    {...numberPropsFromDefinition(getVariableInfo('amplitude'))}
+                />{" "}meters.
+            </EditableParagraph>
+        </Block>
+    </StackLayout>,
 ];
 ```
 
----
-
-## 🧩 Reusability & specialized Components
-
-To keep `sections.tsx` clean, it is highly recommended to **define complex sections in separate files** and import them.
-
-**Example Pattern:**
-
-1. Create `src/data/sections/MyTopicDemo.tsx`:
-   ```tsx
-   export const myTopicSection = <Section id="topic">...</Section>;
-   ```
-2. Import in `src/data/sections.tsx`:
-   ```tsx
-   import { myTopicSection } from "./sections/MyTopicDemo";
-   
-   export const sections = [
-       <FullWidthLayout>{myTopicSection}</FullWidthLayout>
-   ];
-   ```
-
-### Specialized Components
-You can find specialized "molecule" and "organism" components in `src/components`.
-- **`src/components/molecules`**: Compound components like search bars or specialized cards.
-- **`src/components/organisms`**: Complex widgets like interactive graphs or chat interfaces.
-
----
-
-## 🎨 Styling
-
-- **Tailwind CSS**: Use utility classes for almost all styling needs (`className="p-4 bg-gray-100 rounded"`).
-- **Icons**: We use `lucide-react` for icons.
-- **Theme**: Colors and variables are defined in `src/index.css`.
-
----
-
-## 🔗 Cross-Section Variables
-
-Share state between different sections using the global variable store. This is essential for creating interactive lessons where changing a value in one section updates visualizations in another.
-
-### Key Files
-
-| File | Purpose |
-|------|---------|
-| `src/data/variables.ts` | 🛑 **Define your variables here** |
-| `src/data/exampleVariables.ts` | Variables for example/demo sections |
-| `src/stores/variableStore.ts` | The Zustand store (don't modify) |
-
-### 1. Define Variables in `variables.ts`
-
-```typescript
-// src/data/variables.ts
-export const variableDefinitions: Record<string, VariableDefinition> = {
-    // NUMBER - Use with sliders
-    amplitude: {
-        defaultValue: 1,
-        type: 'number',
-        label: 'Amplitude',
-        description: 'Wave amplitude',
-        min: 0, max: 5, step: 0.1,
-    },
-
-    // TEXT - Free text input
-    lessonTitle: {
-        defaultValue: 'My Lesson',
-        type: 'text',
-        label: 'Title',
-        placeholder: 'Enter a title...',
-    },
-
-    // SELECT - Dropdown with options
-    waveType: {
-        defaultValue: 'sine',
-        type: 'select',
-        label: 'Wave Type',
-        options: ['sine', 'cosine', 'square'],
-    },
-
-    // BOOLEAN - Toggle switch
-    showGrid: {
-        defaultValue: true,
-        type: 'boolean',
-        label: 'Show Grid',
-    },
-
-    // ARRAY - List of numbers
-    dataPoints: {
-        defaultValue: [1, 4, 9, 16],
-        type: 'array',
-        label: 'Data Points',
-    },
-
-    // OBJECT - Complex data
-    graphSettings: {
-        defaultValue: { xMin: -10, xMax: 10 },
-        type: 'object',
-        schema: '{ xMin: number, xMax: number }',
-    },
-};
-```
-
-### 2. Use Variables in Sections
+### Step 3: Assemble in `blocks.tsx`
 
 ```tsx
-import { useVar, useSetVar } from '@/stores';
-
-// READING a variable (reactive - auto-updates when value changes)
-const amplitude = useVar('amplitude', 1);
-const title = useVar('lessonTitle', 'Default');
-const showGrid = useVar('showGrid', true);
-
-// SETTING a variable
-const setVar = useSetVar();
-setVar('amplitude', 2.5);
-setVar('lessonTitle', 'New Title');
-setVar('showGrid', false);
+import { introBlocks } from "./sections/Introduction";
+export const blocks: ReactElement[] = [...introBlocks];
 ```
 
-### 3. Example: Linked Slider and Visualization
+---
 
-**Section A - Controls:**
+## Section Structure Rules
+
+Sections MUST export a **flat array** — never a wrapper component. Each element = one manageable block.
+
+### ID Conventions — Hierarchical, Descriptive Naming
+
+Every block, layout, and component MUST have a **unique, descriptive, hierarchical ID** that reflects the content hierarchy. Well-structured IDs make it easy to find, edit, and understand the lesson structure.
+
+**Stricter ID Format Rules:**
+- **No generic wrappers**: NEVER use the words "block", "container", "item", or similar generic terms in IDs. (e.g., `intro-title` instead of `block-intro-title`).
+- **No arbitrary numbers**: NEVER use arbitrary numbering like `-01`, `-02`, `-03`. IDs must be contextually meaningful based on their content (e.g., `paragraph-cloze-angle` instead of `paragraph-cloze-01`).
+- **No abbreviations**: NEVER use short obscure abbreviations. Use full words (e.g., `cartesian-2d-` instead of `c2d-`, `math-tree-` instead of `mt-`, `video-` instead of `vid-`).
+
+| Element | Pattern | Example |
+|---------|---------|---------|
+| Layout keys | `layout-<section>-<purpose>` | `layout-intro-title`, `layout-waves-chart` |
+| Block IDs | `<section>-<purpose>` | `intro-title`, `waves-chart` |
+| Heading IDs | `h1/h2/h3-<section>-<purpose>` | `h1-intro-title`, `h2-waves-heading` |
+| Paragraph IDs | `para-<section>-<purpose>` | `para-intro-description`, `para-waves-explanation` |
+| Visual IDs | Use block ID hierarchy | `waves-sine-chart` |
+| `blockId` prop | Must match parent Block's `id` | |
+
+**Rules:**
+- IDs must be **unique across the entire lesson** — never reuse an ID
+- IDs should be **descriptive and readable** — a developer should understand what the block contains from its ID alone
+
+### Descriptive Phrasing for Interactions
+
+**NEVER use command-style phrasing like "set to", "increase to", or "change to" when referencing inline interactive components.**
+
+Because inline components (e.g., `InlineScrubbleNumber`) display real-time reactive values, instructions like "increase the amplitude to 2" will not make sense if the user has already changed the value to 3.
+
+**Use exploratory, state-based, or descriptive language instead:**
+- **WRONG**: "Set the amplitude to 3 to see what happens."
+- **CORRECT**: "If the amplitude is 3, what happens?"
+- **WRONG**: "Increase the frequency to 5."
+- **CORRECT**: "Explore what happens when the frequency is 5."
+- **WRONG**: "Change the mode to custom."
+- **CORRECT**: "This applies when the mode is custom."
+
+For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to", "reset", or state the action contextually.
+
+---
+
+## Component Reference
+
+### Text Components (`@/components/atoms`)
+
+| Component | Purpose |
+|-----------|---------|
+| `EditableH1` ... `EditableH3` | Headings (never use plain `<h1>` tags) |
+| `EditableParagraph` | Body text — supports inline components |
+| `InlineScrubbleNumber` | Draggable number bound to a global variable |
+| `InlineClozeInput` | Fill-in-the-blank input with answer validation |
+| `InlineClozeChoice` | Dropdown choice with answer validation |
+| `InlineToggle` | Click to cycle through options |
+| `InlineTooltip` | Shows tooltip/definition on hover (no variable store) |
+| `InlineTrigger` | Click to snap a variable to a value (emerald) |
+| `InlineHyperlink` | Click to open URL or scroll to block (emerald) |
+| `InlineFormula` | Inline KaTeX formula with colored terms (use single `\` for LaTeX commands) |
+| `InlineSpotColor` | Highlights text with a global variable's color |
+| `InlineLinkedHighlight` | Bidirectional highlighting |
+
+### Formula Components (`@/components/molecules`)
+
+| Component | Purpose |
+|-----------|---------|
+| `FormulaBlock` | Block-level math display with interactive elements |
+### Interaction Legend (`@/components/molecules`)
+
+| Component | Purpose |
+|-----------|---------||
+| `InteractionLegend` | Collapsible "How to read this article" banner with live mini-demos |
+
+`InteractionLegend` is **automatically rendered** at the top of every article by `BlockRenderer`. It shows three self-contained mini-demos (drag a number, fill in a blank, pick from a dropdown) so first-time readers learn the interaction patterns before encountering them in the lesson. The component uses `localStorage` to remember if the user has already seen the expanded legend, collapsing it on subsequent visits. **Do not add this component in section files** — it is handled by the template infrastructure.
+### Visual Components
+
+| Component | Library | Key Props |
+|-----------|---------|-----------|
+| `ImageDisplay` | — | `src`, `alt`, `caption`, `bordered`, `zoomable`, `objectFit` |
+| `VideoDisplay` | — | `src`, `alt`, `caption`, `controls`, `autoPlay`, `poster` |
+| `Cartesian2D` | Mafs | Functions, parametric curves, points, vectors, segments |
+| `DataVisualization` | D3 | `type`, `data`, `scatterData`, `color`, `curve`, `showValues` |
+| `FlowDiagram` | React Flow | `nodes`, `edges`, `height`, `fitView` |
+| `ExpandableFlowDiagram` | React Flow | `rootNode` |
+| `MatrixVisualization` | SVG | `data`, `colorScheme`, `highlightRows/Cols/Cells` |
+| `Table` | — | `columns`, `rows`, `color`, `compact`, `bordered` |
+| `DesmosGraph` | Desmos | `expressions`, `height`, `options` |
+| `GeoGebraGraph` | GeoGebra | `app`, `materialId`, `commands` |
+
+### Feedback Components (`@/components/atoms/text`)
+
+| Component | Purpose |
+|-----------|----------|
+| `InlineFeedback` | Wraps a cloze input/choice and shows contextual feedback as inline flowing text |
+
+`InlineFeedback` watches a variable from the store, compares it against a correct value, and displays **feedback as natural paragraph text** immediately after the cloze component. Key features:
+
+- **Automatic** — feedback appears as soon as the student **submits** their answer; no "Check Answer" button
+- **Submission triggers** — for `InlineClozeInput`: Enter key, blur (clicking away), or auto-correct match while typing. For `InlineClozeChoice`: selecting an option. Feedback never appears while the student is still typing.
+- **Inline flow** — feedback flows as part of the paragraph text, not as a separate block
+- **Subtle styling** — green text for correct, amber for incorrect — no icons, no backgrounds
+- **Animated** — smooth fade-in/out transitions with Framer Motion
+
 ```tsx
-const ControlPanel = () => {
-    const setVar = useSetVar();
-    const amplitude = useVar('amplitude', 1);
+<EditableParagraph id="para-question-radius" blockId="question-radius">
+    Because a circle's diameter is defined as passing straight across the center, a circle with a radius of 3 must have a diameter exactly equal to{" "}
+    <InlineFeedback
+        varName="fbCircleDiameter"
+        correctValue="6"
+        successMessage="Brilliant! You nailed it, since the diameter is always twice the radius, so 2 × 3 = 6"
+        failureMessage="Almost there!"
+        hint="The diameter stretches all the way across the circle through its centre, which means it is exactly twice the radius. Try calculating 2 × 3"
+        reviewBlockId="circles-introduction"
+        reviewLabel="Review radius and diameter"
+    >
+        <InlineClozeInput
+            varName="fbCircleDiameter"
+            correctAnswer="6"
+            {...clozePropsFromDefinition(getVariableInfo('fbCircleDiameter'))}
+        />
+    </InlineFeedback>.
+</EditableParagraph>
+```
 
+| Prop | Type | Default | Purpose |
+|------|------|---------|--------|
+| `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
+| `correctValue` | `string` | *(required)* | Expected correct value |
+| `caseSensitive` | `boolean` | `false` | Case-sensitive comparison |
+| `successMessage` | `ReactNode` | `"Well done! That's exactly right"` | Encouraging message for correct answers |
+| `failureMessage` | `ReactNode` | `"Good effort!"` | Supportive message for wrong answers |
+| `hint` | `ReactNode` | — | Additional guidance after failure message |
+| `reviewBlockId` | `string` | — | Block ID to scroll to for review |
+| `reviewLabel` | `string` | `"Review this concept"` | Review link text |
+
+### Visual Assessment Tasks
+
+Beyond text-based questions, you can create **interactive visual tasks** where students demonstrate understanding by manipulating elements in a visualization — drawing lines, positioning points, or constructing shapes.
+
+**Key principles:**
+- **Don't reveal the answer in instructions.** Say "Draw a radius" not "Draw a line from center to edge"
+- **Use tolerance-based validation.** Students aren't precision instruments — accept answers within reasonable bounds
+- **Provide visual feedback.** Correct answers glow green; incorrect attempts show amber with hints
+- **Allow multiple attempts.** Visual tasks should let students try again after hints
+
+**Example pattern — Drag to validate:**
+
+```tsx
+// Validation function checks if endpoint is on the circle
+const validateRadius = useCallback((endpoint: [number, number]) => {
+    const distanceFromCenter = distance(endpoint, [0, 0]);
+    const isOnCircle = Math.abs(distanceFromCenter - circleRadius) < tolerance;
+    setVar("taskStatus", isOnCircle ? "correct" : "incorrect");
+}, [setVar]);
+
+// Visualization with movable point
+<Cartesian2D
+    movablePoints={[{
+        initial: [1.5, 1.5],
+        color: lineColor,
+        onChange: (point) => validateRadius(point as [number, number]),
+    }]}
+    dynamicPlots={([endpoint]) => [
+        { type: "circle", center: [0, 0], radius: 3, color: "#64748b" },
+        { type: "segment", point1: [0, 0], point2: endpoint, color: lineColor },
+    ]}
+/>
+```
+
+**Task types:**
+| Type | Student Action | Validation Approach |
+|:---|:---|:---|
+| Draw/Position | Drag endpoint to location | Distance from target < tolerance |
+| Construct | Move multiple points | Validate geometric properties |
+| Adjust to value | Change parameter to hit target | Check final value within range |
+
+See `src/data/sections/visualAssessmentDemo.tsx` for complete working examples of:
+- **Draw a Radius** — drag endpoint to circle edge
+- **Find the Midpoint** — position a point at segment center  
+- **Position the Vertex** — adjust triangle apex to achieve target area
+- **Construct a Perpendicular** — create a 90° angle
+
+---
+
+## Layouts
+
+| Layout | Best For | Key Props |
+|--------|----------|-----------|
+| `StackLayout` | Single column | `maxWidth`: `sm` / `md` / `lg` / `xl` / `2xl` / `full` |
+| `SplitLayout` | Side-by-side | `ratio`: `1:1` / `1:2` / `2:1`; `gap`; `align` |
+| `GridLayout` | Multiple items | `columns`: 2–6; `gap` |
+| `ScrollytellingLayout` | Sticky visual + scroll steps | `varName`, `visualPosition`, `visualWidth`, `gap` || `SlideLayout` | One-at-a-time slide deck | `varName`, `height`, `transition`, `showArrows`, `showDots`, `showCounter` |
+| `StepLayout` | Progressive disclosure (step-by-step) | `varName`, `revealLabel`, `showProgress`, `allowBack` |
+
+### StepLayout (Progressive Disclosure with Questions)
+
+Reveals content one step at a time. Completed steps stack above the current one. Supports two modes:
+
+- **Normal steps** — show a "Continue →" button.
+- **Question steps** (`autoAdvance`) — auto-reveal the next step once the correct answer is given.
+
+```tsx
+import { StepLayout, Step } from "@/components/layouts";
+
+<StepLayout varName="stepProgress" showProgress={false}>
+    {/* Question step — auto-advances on correct answer */}
+    <Step completionVarName="myAnswer" autoAdvance>
+        <Block id="intro-question" padding="sm">
+            <EditableParagraph id="para-intro-question" blockId="intro-question">
+                If you have two apples and someone gives you two more, you now have a total of{" "}
+                <InlineClozeInput varName="myAnswer" correctAnswer="4" ... />
+                {" "}apples.
+            </EditableParagraph>
+        </Block>
+    </Step>
+
+    {/* Normal step */}
+    <Step>
+        <Block id="intro-success" padding="sm">
+            <EditableParagraph id="para-intro-success" blockId="intro-success">
+                Correct! Press Continue to proceed.
+            </EditableParagraph>
+        </Block>
+    </Step>
+</StepLayout>
+```
+
+**Step props:**
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|--------|
+| `revealLabel` | `string` | `"Continue"` | Override the button label for this step |
+| `completionVarName` | `string` | — | Gate: variable must be truthy to enable Continue |
+| `autoAdvance` | `boolean` | `false` | Auto-reveal next step when `completionVarName` becomes truthy (hides button) |
+### SplitLayout with Multiple Components Per Side
+
+`SplitLayout` expects exactly **2 children**. To place multiple blocks on one side, wrap them in a `<div className="space-y-4">` container. Each block inside the wrapper remains independently manageable.
+
+```tsx
+<SplitLayout key="layout-example-split" ratio="1:1" gap="lg">
+    {/* Left side: multiple blocks wrapped in a div */}
+    <div className="space-y-4">
+        <Block id="left-description" padding="sm">
+            <EditableParagraph id="para-left-desc" blockId="left-description">
+                Description text with an interactive value of{" "}
+                <InlineScrubbleNumber
+                    varName="myVar"
+                    {...numberPropsFromDefinition(getVariableInfo('myVar'))}
+                />{" "}units.
+            </EditableParagraph>
+        </Block>
+        <Block id="left-formula" padding="sm">
+            <FormulaBlock latex="y = mx + b" />
+        </Block>
+        <Block id="left-drag-hint" padding="sm">
+            <EditableParagraph id="para-left-hint" blockId="left-drag-hint">
+                Drag the number above to see the visualization update.
+            </EditableParagraph>
+        </Block>
+    </div>
+    {/* Right side: single block (no wrapper needed) */}
+    <Block id="right-chart" padding="sm">
+        <ReactiveVisualization />
+    </Block>
+</SplitLayout>
+```
+
+**Key rules:**
+- The `<div>` wrapper counts as one child — `SplitLayout` still sees exactly 2 children.
+- Use `className="space-y-4"` (or `space-y-2`, `space-y-6`) on the wrapper to control vertical spacing between blocks.
+- Each `<Block>` inside the wrapper still follows the **one primary component per Block** rule.
+- If both sides need multiple blocks, wrap both sides in `<div>` containers.
+
+---
+
+## LaTeX Escaping in JSX
+
+**Use a single `\` for LaTeX commands in JSX string attributes — NEVER `\\`.**
+
+In JSX string attributes (`latex="..."`), a single backslash is passed through literally to KaTeX. Using `\\` produces two literal backslashes in the string, which KaTeX cannot parse — causing broken rendering (formula text appears as split plain italic text).
+
+```tsx
+// WRONG — double backslash breaks KaTeX
+<InlineFormula latex="y = A\\sin(\\omega x + \\phi)" colorMap={{}} />
+
+// CORRECT — single backslash
+<InlineFormula latex="y = A\sin(\omega x + \phi)" colorMap={{}} />
+
+// CORRECT — with \clr color syntax
+<InlineFormula
+    latex="\clr{area}{A} = \clr{pi}{\pi} \clr{radius}{r}^2"
+    colorMap={{ area: '#ef4444', pi: '#3b82f6', radius: '#3cc499' }}
+/>
+
+// CORRECT — FormulaBlock follows the same rule
+<FormulaBlock latex="\clr{force}{F} = \scrub{mass} \times \scrub{acceleration}" ... />
+```
+
+This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`, `\alpha`, `\frac`, `\sqrt`, `\sum`, `\int`, `\clr`, `\scrub`, etc.
+
+---
+
+## Table (Table with Inline Components)
+
+`Table` renders a styled HTML table where **each cell can contain any React node** — plain strings, numbers, or rich inline components such as `InlineScrubbleNumber`, `InlineFormula`, `InlineClozeInput`, `InlineToggle`, `InlineLinkedHighlight`, etc.
+
+The table reads its accent colour from the global variable store (via `varName`) so colours stay consistent across the lesson.
+
+```tsx
+<StackLayout key="layout-table" maxWidth="xl">
+    <Block id="table" padding="sm">
+        <Table
+            columns={[
+                { header: 'Parameter', align: 'left' },
+                { header: 'Value', align: 'center', width: 160 },
+                { header: 'Description' },
+            ]}
+            rows={[
+                {
+                    cells: [
+                        'Radius',
+                        <InlineScrubbleNumber
+                            varName="radius"
+                            {...numberPropsFromDefinition(getVariableInfo('radius'))}
+                        />,
+                        'The circle radius',
+                    ],
+                },
+                {
+                    cells: [
+                        'Area formula',
+                        <InlineFormula
+                            latex="\pi r^2"
+                            colorMap={{}}
+                        />,
+                        'Computed from radius',
+                    ],
+                    highlight: true,
+                    highlightColor: '#ef4444',
+                },
+            ]}
+            color="#6366f1"
+            caption="Table — Interactive parameters"
+        />
+    </Block>
+</StackLayout>
+```
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `columns` | `TableColumn[]` | *(required)* | Column definitions (header, width, align) |
+| `rows` | `TableRow[]` | *(required)* | Rows — each has `cells: ReactNode[]`, optional `highlight`, `highlightColor` |
+| `varName` | `string` | — | Variable name for accent colour in the store |
+| `color` | `string` | `#6366f1` | Accent colour for header/highlights |
+| `showHeader` | `boolean` | `true` | Show column headers |
+| `striped` | `boolean` | `true` | Alternating row stripes |
+| `bordered` | `boolean` | `true` | Show table borders |
+| `compact` | `boolean` | `false` | Reduces cell padding |
+| `caption` | `string` | — | Caption below the table |
+
+**Column definition (`TableColumn`):**
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `header` | `string` | Column header label |
+| `width` | `string \| number` | Fixed column width |
+| `align` | `'left' \| 'center' \| 'right'` | Cell text alignment |
+
+---
+
+## Visual Styling Rules
+
+### White Backgrounds for Visualizations
+
+**ALL visualization components MUST use a white (`#FFFFFF`) or very light neutral background.** Never use colored, dark, or gradient backgrounds behind charts, diagrams, or interactive visuals. This ensures maximum readability, clean appearance, and consistency.
+
+### No Gradients — Flat Muted Colors Only
+
+**NEVER use gradient backgrounds or gradient colors** in any component. Always use **flat, solid colors** with **muted, not overly saturated tones**.
+
+- No `linear-gradient()`, `radial-gradient()`, or CSS gradient functions
+- No gradient fills in SVG, Canvas, or custom components
+- Use muted, desaturated colors (HSL saturation < 70%)
+- **Good:** `#6366f1` (soft indigo), `#3cc499` (muted teal), `#f59e0b` (warm amber), `#8b5cf6` (soft violet)
+- **Avoid:** `#FF0000`, `#00FF00`, `#0000FF`, neon colors, pure saturated primaries
+
+### Safe SVG Dimensions and Anti-Clipping
+
+When manually writing custom `<svg>` visual components, **always establish a safe `viewBox` width and height** that securely encompasses all shapes, texts, and potential transforms. Give a margin of 20px-40px.
+
+- **Bad**: `viewBox="0 0 300 200"` while placing text at `x={290}` (gets cut off right off the edge).
+- **Good**: Expand `viewBox="0 0 340 200"` and `width={340}` to safely pad the drawing area preventing crop-offs.
+
+---
+
+## Linking Variables to Visuals
+
+Create a reactive wrapper that reads from the store and passes values as props:
+
+```tsx
+function ReactiveDataViz() {
+    const value = useVar('myValue', 10) as number;
     return (
-        <Slider
-            value={[amplitude]}
-            onValueChange={([v]) => setVar('amplitude', v)}
+        <DataVisualization
+            type="bar"
+            data={[{ label: 'A', value }]}
+            height={320}
         />
     );
-};
+}
 ```
-
-**Section B - Visualization:**
-```tsx
-const WaveDisplay = () => {
-    const amplitude = useVar('amplitude', 1);
-    
-    // amplitude updates automatically when slider moves!
-    return <WaveGraph amplitude={amplitude} />;
-};
-```
-
-### Variable Type Reference
-
-| Type | Default Example | UI Component |
-|------|-----------------|--------------|
-| `number` | `5` | Slider |
-| `text` | `'Hello'` | Input |
-| `select` | `'option1'` | Dropdown |
-| `boolean` | `true` | Switch/Toggle |
-| `array` | `[1, 2, 3]` | Custom |
-| `object` | `{ x: 0, y: 0 }` | Custom |
 
 ---
 
+## Environment Variables
 
-## 🤖 Agent Instructions (for AI)
+| Variable | Values | Purpose |
+|----------|--------|---------|
+| `VITE_APP_MODE` | `editor` / `preview` | Editor enables editing UI; preview is read-only |
+| `VITE_SHOW_EXAMPLES` | `true` / `false` | Load example blocks+variables instead of lesson content |
 
-If you are an AI agent working on this repo:
-1. **Always read `src/data/sections.tsx`** first to see the current content structure.
-2. **Always read `src/data/variables.ts`** to see available shared variables.
-3. **Check `src/data/exampleSections.tsx`** if you need to know how to implement a specific layout or interactive component examples but do not modify this file.
-4. When asked to "add a section", **create the component first**, then wrap it in an appropriate **Layout**, and finally add it to the `sections` array.
-5. When creating interactive content, **define variables in `variables.ts`** first, then use `useVar` and `useSetVar` in your components.
-6. Use **unique IDs** for every `<Section>`.
-7. Prefer **splitting complex code** into separate files in `src/components` or `src/data/sections` rather than dumping everything into `sections.tsx`.
+## NPM Scripts
 
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run dev:editor` | Start in editor mode |
+| `npm run dev:preview` | Start in preview mode |
+| `npm run build` | Production build |
+| `npm run lint` | Run ESLint |
+
+## Tech Stack
+
+- **Framework:** React 18 + TypeScript + Vite
+- **Styling:** Tailwind CSS + shadcn/ui
+- **State:** Zustand + React Context
+- **Math:** KaTeX, Mafs, Desmos, GeoGebra
+- **Graphics:** Three.js, Two.js, D3, React Flow
+- **Icons:** lucide-react

@@ -26,7 +26,7 @@ export interface VariableDefinition {
     /** Description for AI agents */
     description?: string;
     /** Variable type hint */
-    type?: 'number' | 'text' | 'boolean' | 'select' | 'array' | 'object';
+    type?: 'number' | 'text' | 'boolean' | 'select' | 'array' | 'object' | 'spotColor' | 'linkedHighlight';
     /** Unit (e.g., 'Hz', '°', 'm/s') - for numbers */
     unit?: string;
     /** Minimum value (for number sliders) */
@@ -35,10 +35,18 @@ export interface VariableDefinition {
     max?: number;
     /** Step increment (for number sliders) */
     step?: number;
+    /** Display color for InlineScrubbleNumber / InlineSpotColor (e.g. '#D81B60') */
+    color?: string;
     /** Options for 'select' type variables */
     options?: string[];
     /** Placeholder text for text inputs */
     placeholder?: string;
+    /** Correct answer for cloze input validation */
+    correctAnswer?: string;
+    /** Whether cloze matching is case sensitive */
+    caseSensitive?: boolean;
+    /** Background color for inline components */
+    bgColor?: string;
     /** Schema hint for object types (for AI agents) */
     schema?: string;
 }
@@ -180,3 +188,149 @@ export const getDefaultValues = (): Record<string, VarValue> => {
     }
     return defaults;
 };
+
+/**
+ * Get number props for InlineScrubbleNumber from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx, or getExampleVariableInfo(name) in exampleBlocks.tsx.
+ */
+export function numberPropsFromDefinition(def: VariableDefinition | undefined): {
+    defaultValue?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+    color?: string;
+} {
+    if (!def || def.type !== 'number') return {};
+    return {
+        defaultValue: def.defaultValue as number,
+        min: def.min,
+        max: def.max,
+        step: def.step,
+        ...(def.color ? { color: def.color } : {}),
+    };
+}
+
+/**
+ * Get cloze input props for InlineClozeInput from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx, or getExampleVariableInfo(name) in exampleBlocks.tsx.
+ */
+/**
+ * Get cloze choice props for InlineClozeChoice from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx.
+ */
+export function choicePropsFromDefinition(def: VariableDefinition | undefined): {
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+} {
+    if (!def || def.type !== 'select') return {};
+    return {
+        ...(def.placeholder ? { placeholder: def.placeholder } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+    };
+}
+
+/**
+ * Get toggle props for InlineToggle from a variable definition.
+ * Use with getVariableInfo(name) in blocks.tsx.
+ */
+export function togglePropsFromDefinition(def: VariableDefinition | undefined): {
+    color?: string;
+    bgColor?: string;
+} {
+    if (!def || def.type !== 'select') return {};
+    return {
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+    };
+}
+
+export function clozePropsFromDefinition(def: VariableDefinition | undefined): {
+    placeholder?: string;
+    color?: string;
+    bgColor?: string;
+    caseSensitive?: boolean;
+} {
+    if (!def || def.type !== 'text') return {};
+    return {
+        ...(def.placeholder ? { placeholder: def.placeholder } : {}),
+        ...(def.color ? { color: def.color } : {}),
+        ...(def.bgColor ? { bgColor: def.bgColor } : {}),
+        ...(def.caseSensitive !== undefined ? { caseSensitive: def.caseSensitive } : {}),
+    };
+}
+
+/**
+ * Get spot-color props for InlineSpotColor from a variable definition.
+ * Extracts the `color` field.
+ *
+ * @example
+ * <InlineSpotColor
+ *     varName="radius"
+ *     {...spotColorPropsFromDefinition(getVariableInfo('radius'))}
+ * >
+ *     radius
+ * </InlineSpotColor>
+ */
+export function spotColorPropsFromDefinition(def: VariableDefinition | undefined): {
+    color: string;
+} {
+    return {
+        color: def?.color ?? '#8B5CF6',
+    };
+}
+
+/**
+ * Get linked-highlight props for InlineLinkedHighlight from a variable definition.
+ * Extracts the `color` and `bgColor` fields.
+ *
+ * @example
+ * <InlineLinkedHighlight
+ *     varName="activeHighlight"
+ *     highlightId="radius"
+ *     {...linkedHighlightPropsFromDefinition(getVariableInfo('activeHighlight'))}
+ * >
+ *     radius
+ * </InlineLinkedHighlight>
+ */
+export function linkedHighlightPropsFromDefinition(def: VariableDefinition | undefined): {
+    color?: string;
+    bgColor?: string;
+} {
+    return {
+        ...(def?.color ? { color: def.color } : {}),
+        ...(def?.bgColor ? { bgColor: def.bgColor } : {}),
+    };
+}
+
+/**
+ * Build the `variables` prop for FormulaBlock from variable definitions.
+ *
+ * Takes an array of variable names and returns the config map expected by
+ * `<FormulaBlock variables={...} />`.
+ *
+ * @example
+ * import { scrubVarsFromDefinitions } from './variables';
+ *
+ * <FormulaBlock
+ *     latex="\scrub{mass} \times \scrub{accel}"
+ *     variables={scrubVarsFromDefinitions(['mass', 'accel'])}
+ * />
+ */
+export function scrubVarsFromDefinitions(
+    varNames: string[],
+): Record<string, { min?: number; max?: number; step?: number; color?: string }> {
+    const result: Record<string, { min?: number; max?: number; step?: number; color?: string }> = {};
+    for (const name of varNames) {
+        const def = variableDefinitions[name];
+        if (!def) continue;
+        result[name] = {
+            ...(def.min !== undefined ? { min: def.min } : {}),
+            ...(def.max !== undefined ? { max: def.max } : {}),
+            ...(def.step !== undefined ? { step: def.step } : {}),
+            ...(def.color ? { color: def.color } : {}),
+        };
+    }
+    return result;
+}
