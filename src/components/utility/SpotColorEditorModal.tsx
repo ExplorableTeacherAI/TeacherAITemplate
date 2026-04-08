@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
 import { COLOR_PRESETS_EXTENDED, BRAND_GREEN } from './editorColors';
@@ -14,6 +14,14 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
     const [varName, setVarName] = useState('');
     const [text, setText] = useState('');
     const [color, setColor] = useState(BRAND_GREEN);
+
+    // Refs to always have latest values (avoids stale closure in onMouseDown)
+    const varNameRef = useRef(varName);
+    const textRef = useRef(text);
+    const colorRef = useRef(color);
+    varNameRef.current = varName;
+    textRef.current = text;
+    colorRef.current = color;
 
     const COLOR_PRESETS = COLOR_PRESETS_EXTENDED;
 
@@ -39,19 +47,23 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
     // Central color store — update when saving a color change
     const setVarColor = useVariableStore(s => s.setColor);
 
-    // Handle save
+    // Handle save — reads from refs to always get the latest values
     const handleSave = useCallback(() => {
+        const currentVarName = varNameRef.current;
+        const currentText = textRef.current;
+        const currentColor = colorRef.current;
+
         // Update the central variable color store so all components pick up the change
-        if (varName) {
-            setVarColor(varName, color);
+        if (currentVarName) {
+            setVarColor(currentVarName, currentColor);
         }
 
         saveSpotColorEdit({
-            varName: varName || undefined,
-            text: text || undefined,
-            color,
+            varName: currentVarName || undefined,
+            text: currentText || undefined,
+            color: currentColor,
         });
-    }, [varName, text, color, saveSpotColorEdit, setVarColor]);
+    }, [saveSpotColorEdit, setVarColor]);
 
     // Handle cancel
     const handleCancel = useCallback(() => {
@@ -61,11 +73,24 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
     // Handle key press
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             handleSave();
         } else if (e.key === 'Escape') {
             handleCancel();
         }
     }, [handleSave, handleCancel]);
+
+    // Auto-fill text and color when an existing variable is selected
+    const handleVariableSelected = useCallback((info: { name: string; value: unknown; color?: string }) => {
+        // Auto-fill display text with the variable name if text is currently empty or default
+        if (!text || text === 'variable') {
+            setText(info.name);
+        }
+        // Auto-fill color from the variable's stored color
+        if (info.color) {
+            setColor(info.color);
+        }
+    }, [text]);
 
     if (!editingSpotColor) return null;
 
@@ -99,6 +124,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                     <VariableNamePicker
                         value={varName}
                         onChange={setVarName}
+                        onVariableSelected={handleVariableSelected}
                         required
                         helperText="Identifies this color — used in formulas with \clr{name}{...}"
                         customPlaceholder="e.g., radius"
@@ -197,7 +223,12 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                         Cancel
                     </button>
                     <button
-                        onClick={handleSave}
+                        onMouseDown={(e) => {
+                            // Use onMouseDown to fire before any blur/focus changes,
+                            // ensuring the latest field values are captured
+                            e.preventDefault();
+                            handleSave();
+                        }}
                         className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         {editingSpotColor?.isNew ? 'Add Component' : 'Apply Changes'}

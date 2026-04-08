@@ -244,7 +244,10 @@ export const ToggleEditorModal: React.FC = () => {
                         Cancel
                     </button>
                     <button
-                        onClick={handleSave}
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSave();
+                        }}
                         className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         {editingToggle?.isNew ? 'Add Component' : 'Apply Changes'}

@@ -119,6 +119,7 @@ export const LinkedHighlightEditorModal: React.FC = () => {
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             handleSave();
         } else if (e.key === 'Escape') {
             handleCancel();
@@ -342,7 +343,10 @@ export const LinkedHighlightEditorModal: React.FC = () => {
                         Cancel
                     </button>
                     <button
-                        onClick={handleSave}
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSave();
+                        }}
                         className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 transition-colors"
                         style={{ backgroundColor: BRAND_GREEN }}
                     >

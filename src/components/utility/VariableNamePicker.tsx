@@ -9,6 +9,11 @@ interface VariableNamePickerProps {
     value: string;
     /** Callback when value changes */
     onChange: (value: string) => void;
+    /**
+     * Callback fired when an existing variable is selected from the dropdown.
+     * Provides the variable's current value and color so the parent can auto-fill related fields.
+     */
+    onVariableSelected?: (info: { name: string; value: unknown; color?: string }) => void;
     /** Label text (default: "Variable Name") */
     label?: string;
     /** Whether the field is required (default: false) */
@@ -32,6 +37,7 @@ interface VariableNamePickerProps {
 export const VariableNamePicker: React.FC<VariableNamePickerProps> = ({
     value,
     onChange,
+    onVariableSelected,
     label = 'Variable Name',
     required = false,
     helperText,
@@ -41,6 +47,7 @@ export const VariableNamePicker: React.FC<VariableNamePickerProps> = ({
 }) => {
     // Get all existing variables with their values for type filtering
     const allVariables = useVariableStore(useShallow((state) => state.variables));
+    const allColors = useVariableStore(useShallow((state) => state.colors));
 
     // Filter and sort variable names
     const sortedVarNames = useMemo(() => {
@@ -82,8 +89,16 @@ export const VariableNamePicker: React.FC<VariableNamePickerProps> = ({
         } else {
             setIsCustom(false);
             onChange(selected);
+            // Fire onVariableSelected with the variable's value and color
+            if (selected && onVariableSelected) {
+                onVariableSelected({
+                    name: selected,
+                    value: allVariables[selected],
+                    color: allColors[selected],
+                });
+            }
         }
-    }, [onChange]);
+    }, [onChange, onVariableSelected, allVariables, allColors]);
 
     const handleCustomChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         // Allow only valid JS identifiers (letters, digits, underscore, no spaces)
