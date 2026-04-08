@@ -21,11 +21,28 @@ Interactive explorable-explanation template for creating mathematics lessons. Bu
 
 4. **Observable change** — When students manipulate one element, they must see real-time changes in other elements. Dragging a point should update values in both formulas AND prose.
 
+5. **Interaction hints** — Every visualization with actual in-viz interactivity MUST include an `InteractionHintSequence` overlay showing students how to interact with it. The hint displays an animated hand gesture that auto-dismisses when the user interacts. Inline components (`InlineScrubbleNumber`, `InlineToggle`, etc.) have their own built-in hints — use `showHint={false}` to disable for navigation/TOC links. **FormulaBlock** shows hints below **each** interactive element (`\scrub{}`, `\highlight{}`, `\cloze{}`, `\choice{}`).
+
+**CRITICAL: Misleading hints are WORSE than no hints.** Before adding ANY hint:
+
+| ✓ | Verify |
+|:---|:---|
+| ☐ | Visualization has `movablePoints` or draggable elements INSIDE it |
+| ☐ | Hint label describes something that ACTUALLY EXISTS and IS DRAGGABLE |
+| ☐ | Hint describes IN-VISUALIZATION interaction (NOT "drag the number below") |
+| ☐ | Hint position is ON the interactive element (not at center if element is at edge) |
+
+**NEVER do these:**
+- ❌ "Drag the number below" — that's a text control, not the visualization
+- ❌ Hint on static diagram — no movablePoints = no hint
+- ❌ "Drag the point" when no movablePoint exists — hint is lying
+
 ### Before Creating Any Visualization, Ask:
 
 - **What can the student drag, scrub, or click?** ← If nothing, STOP and redesign
 - **What changes when they interact?** ← At least one derived value must update
 - **Is the same variable used in prose, formula, AND visual?** ← If not, connect them
+- **Does it have actual in-viz interactivity (movablePoints)?** ← If YES, add hint; if NO, do NOT add hint
 
 ### Use Soft, Muted Colors
 
@@ -283,41 +300,127 @@ For `InlineTrigger`, avoid verbs like "set" or "change". Use verbs like "snap to
 
 - **Automatic** — feedback appears as soon as the student **submits** their answer; no "Check Answer" button
 - **Submission triggers** — for `InlineClozeInput`: Enter key, blur (clicking away), or auto-correct match while typing. For `InlineClozeChoice`: selecting an option. Feedback never appears while the student is still typing.
+- **Position-aware** — feedback adapts based on where it appears: terminal (end of sentence), mid-sentence, or standalone
 - **Inline flow** — feedback flows as part of the paragraph text, not as a separate block
 - **Subtle styling** — green text for correct, amber for incorrect — no icons, no backgrounds
 - **Animated** — smooth fade-in/out transitions with Framer Motion
 
+**Position-based defaults:**
+
+| Position | When to use | Success default | Failure default |
+|:---|:---|:---|:---|
+| `terminal` | Blank ends the sentence | `"— exactly right!"` | `"— not quite."` |
+| `mid` | Words follow the blank | `"✓"` | `"✗"` |
+| `standalone` | Question ends with ? then blank | `"That's right!"` | `"Not quite!"` |
+
+**Terminal position example (blank at end):**
 ```tsx
-<EditableParagraph id="para-question-radius" blockId="question-radius">
-    Because a circle's diameter is defined as passing straight across the center, a circle with a radius of 3 must have a diameter exactly equal to{" "}
+<EditableParagraph>
+    A circle with radius 3 has diameter{" "}
     <InlineFeedback
-        varName="fbCircleDiameter"
-        correctValue="6"
-        successMessage="Brilliant! You nailed it, since the diameter is always twice the radius, so 2 × 3 = 6"
-        failureMessage="Almost there!"
-        hint="The diameter stretches all the way across the circle through its centre, which means it is exactly twice the radius. Try calculating 2 × 3"
-        reviewBlockId="circles-introduction"
-        reviewLabel="Review radius and diameter"
+        varName="fbCircleDiameter" correctValue="6" position="terminal"
+        successMessage="— exactly! Diameter is always twice the radius"
+        failureMessage="— not quite." hint="Diameter = 2 × radius"
     >
-        <InlineClozeInput
-            varName="fbCircleDiameter"
-            correctAnswer="6"
-            {...clozePropsFromDefinition(getVariableInfo('fbCircleDiameter'))}
-        />
+        <InlineClozeInput varName="fbCircleDiameter" correctAnswer="6" ... />
     </InlineFeedback>.
 </EditableParagraph>
+```
+
+**Mid-sentence example (words follow blank):**
+```tsx
+<EditableParagraph>
+    An interior cell has exactly{" "}
+    <InlineFeedback varName="fbNeighbors" correctValue="4" position="mid">
+        <InlineClozeInput varName="fbNeighbors" correctAnswer="4" ... />
+    </InlineFeedback>{" "}
+    neighbors in each direction.
+</EditableParagraph>
+// Renders: "...has exactly 4 ✓ neighbors in each direction."
 ```
 
 | Prop | Type | Default | Purpose |
 |------|------|---------|--------|
 | `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
 | `correctValue` | `string` | *(required)* | Expected correct value |
+| `position` | `'terminal' \| 'mid' \| 'standalone'` | `'terminal'` | Position of blank — affects default feedback style |
 | `caseSensitive` | `boolean` | `false` | Case-sensitive comparison |
-| `successMessage` | `ReactNode` | `"Well done! That's exactly right"` | Encouraging message for correct answers |
-| `failureMessage` | `ReactNode` | `"Good effort!"` | Supportive message for wrong answers |
-| `hint` | `ReactNode` | — | Additional guidance after failure message |
+| `successMessage` | `string` | *(varies by position)* | Encouraging message for correct answers |
+| `failureMessage` | `string` | *(varies by position)* | Supportive message for wrong answers |
+| `hint` | `string` | — | Additional guidance after failure message |
 | `reviewBlockId` | `string` | — | Block ID to scroll to for review |
 | `reviewLabel` | `string` | `"Review this concept"` | Review link text |
+| `visualizationHint` | `VisualizationHintConfig` | — | Configuration for guided visual discovery |
+
+### Visual Hints in Feedback (Guided Discovery)
+
+When a student answers incorrectly, you can guide them to **discover the answer themselves** through interactive visualization steps. The `visualizationHint` prop creates a "Discover it yourself" button that scrolls to a visualization and shows step-by-step interactive hints.
+
+**Example:**
+```tsx
+<InlineFeedback
+    varName="fbUnitCircleCos"
+    correctValue="-1"
+    failureMessage="Hmm, not quite."
+    hint="Think about where the point sits at 180°"
+    visualizationHint={{
+        blockId: "unit-circle-viz",
+        hintKey: "feedback-unit-circle-hint",
+        steps: [
+            {
+                gesture: "drag-circular",
+                label: "Drag the point upward — watch cos shrink toward zero",
+                completionVar: "theta",
+                completionValue: 90,
+                completionTolerance: 15,
+            },
+            {
+                gesture: "drag-circular",
+                label: "Keep dragging to the left — notice cos becomes -1!",
+                completionVar: "theta",
+                completionValue: 180,
+                completionTolerance: 20,
+            },
+        ],
+        label: "Discover it yourself",
+        resetVars: { theta: 0 },
+    }}
+>
+    <InlineClozeChoice varName="fbUnitCircleCos" correctAnswer="-1" options={["0", "1", "-1"]} />
+</InlineFeedback>
+```
+
+**Critical Rules for Visual Hints:**
+
+| Rule | Bad Example | Good Example |
+|:---|:---|:---|
+| **Question must match the visualization journey** — answer should be discoverable at the END of steps | Asking cos(0°) but guiding to 180° | Asking cos(180°) and guiding 0° → 90° → 180° |
+| **Always reset to starting position** — use `resetVars` | No resetVars | `resetVars: { theta: 0 }` |
+| **Steps must be actionable** — concrete actions, not observations | "Look at where the point is" | "Drag the point upward to the top" |
+| **Steps must be verifiable** — use `completionVar`, `completionValue`, `completionTolerance` | "Drag the point" | `completionVar: "theta", completionValue: 90` |
+| **Steps auto-advance on completion** — no manual buttons | Manual "Next" buttons | Auto-advance when variable reaches target |
+| **Clear, concise labels** — action + observation | Long paragraphs | "Drag upward — watch cos shrink" |
+
+**Step properties:**
+
+| Property | Type | Required | Purpose |
+|:---|:---|:---|:---|
+| `gesture` | `GestureType` | Yes | Animation: `"drag"`, `"drag-circular"`, `"click"`, etc. |
+| `label` | `string` | Yes | Short instruction: action + what to observe |
+| `position` | `{ x: string, y: string }` | No | Position of hint icon (percentage) |
+| `completionVar` | `string` | Yes* | Variable to watch for step completion |
+| `completionValue` | `number` | Yes* | Target value to reach |
+| `completionTolerance` | `number` | No | Acceptable range (default: 15) |
+
+**VisualizationHintConfig properties:**
+
+| Property | Type | Required | Purpose |
+|:---|:---|:---|:---|
+| `blockId` | `string` | Yes | Block ID of visualization to scroll to |
+| `hintKey` | `string` | Yes | Unique key for the hint sequence |
+| `steps` | `HintStep[]` | Yes | Array of guided steps |
+| `label` | `string` | No | Button label (default: "See it in action") |
+| `resetVars` | `Record<string, number \| string \| boolean>` | Yes* | Variables to reset when button clicked |
 
 ### Visual Assessment Tasks
 
@@ -597,23 +700,6 @@ function ReactiveDataViz() {
 ```
 
 ---
-
-## Environment Variables
-
-| Variable | Values | Purpose |
-|----------|--------|---------|
-| `VITE_APP_MODE` | `editor` / `preview` | Editor enables editing UI; preview is read-only |
-| `VITE_SHOW_EXAMPLES` | `true` / `false` | Load example blocks+variables instead of lesson content |
-
-## NPM Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run dev:editor` | Start in editor mode |
-| `npm run dev:preview` | Start in preview mode |
-| `npm run build` | Production build |
-| `npm run lint` | Run ESLint |
 
 ## Tech Stack
 

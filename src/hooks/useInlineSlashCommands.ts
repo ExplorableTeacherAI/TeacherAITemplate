@@ -1,6 +1,21 @@
 import { useState, useRef, useCallback } from 'react';
 import type { SlashCommandType } from '@/components/templates/SlashCommandMenu';
-import { isInlineCommand } from '@/components/templates/SlashCommandMenu';
+import { isInlineCommand, type InlineCommandType } from '@/components/templates/SlashCommandMenu';
+
+/**
+ * Dispatch a custom event requesting the editor modal to open for a newly
+ * inserted inline component. EditingContext listens for this and calls the
+ * appropriate `openXxxEditor` method with `isNew: true`.
+ */
+export const dispatchEditorOpenRequest = (
+    commandType: InlineCommandType,
+    uniqueId: string,
+    blockId: string,
+) => {
+    window.dispatchEvent(new CustomEvent('inline-editor-open-request', {
+        detail: { commandType, uniqueId, blockId },
+    }));
+};
 
 /**
  * Extract content from a contentEditable element, converting inline component
@@ -317,6 +332,15 @@ export const useInlineSlashCommands = ({
                 document.execCommand('insertHTML', false, componentHTML);
                 document.execCommand('insertText', false, ' ');
             }
+
+            // Resolve blockId from the container's closest data-block-id ancestor
+            const blockEl = container.closest('[data-block-id]');
+            const blockId = blockEl?.getAttribute('data-block-id') || '';
+
+            // Immediately open the editor modal for the newly inserted inline component
+            setTimeout(() => {
+                dispatchEditorOpenRequest(commandType as InlineCommandType, uniqueId, blockId);
+            }, 50);
 
             slashPositionRef.current = -1;
         },

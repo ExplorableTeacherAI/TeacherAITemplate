@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { AppModeProvider } from "@/contexts/AppModeContext";
 import { EditingProvider } from "@/contexts/EditingContext";
+import { InlineInteractionHintProvider } from "@/contexts/InlineInteractionHintContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { HierarchyReporter } from "./components/HierarchyReporter";
@@ -20,27 +21,29 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AppModeProvider>
         <EditingProvider>
-          <HierarchyReporter />
-          <ScrubbleNumberEditorModal />
-          <ClozeInputEditorModal />
-          <ClozeChoiceEditorModal />
-          <ToggleEditorModal />
-          <TooltipEditorModal />
-          <TriggerEditorModal />
-          <HyperlinkEditorModal />
-          <InlineFormulaEditorModal />
-          <SpotColorEditorModal />
-          <LinkedHighlightEditorModal />
-          <FormulaBlockEditorModal />
-          <TooltipProvider>
-            <HashRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </HashRouter>
-          </TooltipProvider>
+          <InlineInteractionHintProvider>
+            <HierarchyReporter />
+            <ScrubbleNumberEditorModal />
+            <ClozeInputEditorModal />
+            <ClozeChoiceEditorModal />
+            <ToggleEditorModal />
+            <TooltipEditorModal />
+            <TriggerEditorModal />
+            <HyperlinkEditorModal />
+            <InlineFormulaEditorModal />
+            <SpotColorEditorModal />
+            <LinkedHighlightEditorModal />
+            <FormulaBlockEditorModal />
+            <TooltipProvider>
+              <HashRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </HashRouter>
+            </TooltipProvider>
+          </InlineInteractionHintProvider>
         </EditingProvider>
       </AppModeProvider>
     </QueryClientProvider>

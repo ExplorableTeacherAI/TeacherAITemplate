@@ -4,6 +4,7 @@ import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 import { useVar, useSetVar, useVarColor, useVariableStore } from '@/stores';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineLinkedHighlightProps {
     /** Unique identifier for this component instance */
@@ -24,6 +25,8 @@ interface InlineLinkedHighlightProps {
     bgColor?: string;
     /** The display text */
     children: React.ReactNode;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
 }
 
 /**
@@ -49,6 +52,7 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
     color = '#3b82f6',
     bgColor,
     children,
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
     const [isHovered, setIsHovered] = useState(false);
@@ -59,6 +63,9 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
 
     const isStandalone = typeof window !== 'undefined' && window.self === window.top;
     const canEdit = isEditor || isStandalone;
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('linked-highlight', { enabled: showHint });
 
     // Variable store: read the current active highlight ID for this group
     const activeHighlightId = useVar(varName || '', '') as string;
@@ -146,10 +153,11 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
     // Hover handlers: set/clear the store variable
     const handleMouseEnter = useCallback(() => {
         setIsHovered(true);
+        dismissHint(); // Dismiss interaction hint on first hover
         if (!(canEdit && isEditing) && effectiveVarName && effectiveHighlightId) {
             setVar(effectiveVarName, effectiveHighlightId);
         }
-    }, [canEdit, isEditing, effectiveVarName, effectiveHighlightId, setVar]);
+    }, [canEdit, isEditing, effectiveVarName, effectiveHighlightId, setVar, dismissHint]);
 
     const handleMouseLeave = useCallback(() => {
         setIsHovered(false);
@@ -322,6 +330,9 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
                     </svg>
                 </button>
             )}
+
+            {/* Interaction Hint - shows for first instance only */}
+            <HintIcon type="linked-highlight" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

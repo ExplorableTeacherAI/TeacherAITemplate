@@ -50,7 +50,7 @@ export * from "./ui/use-toast";
 export { InlineClozeChoice } from "./text/InlineClozeChoice";
 export { InlineClozeInput } from "./text/InlineClozeInput";
 export { InlineFeedback } from "./text/InlineFeedback";
-export type { InlineFeedbackProps } from "./text/InlineFeedback";
+export type { InlineFeedbackProps, FeedbackPosition, SectionLink, VisualizationHintConfig } from "./text/InlineFeedback";
 export { InlineToggle } from "./text/InlineToggle";
 export { InlineTooltip } from "./text/InlineTooltip";
 export { InlineTrigger } from "./text/InlineTrigger";
@@ -181,3 +181,15 @@ export type { ImageDisplayProps, ImageFit } from "./visual/ImageDisplay";
 // Visual — Video Display
 export { VideoDisplay } from "./visual/VideoDisplay";
 export type { VideoDisplayProps, VideoFit } from "./visual/VideoDisplay";
+
+// Visual — Interaction Hint (animated gesture overlay for interactive visualizations)
+export { InteractionHintSequence } from "./visual/InteractionHint";
+export type { GestureType, HintStep, InteractionHintSequenceProps, DragPathConfig } from "./visual/InteractionHint";
+
+// Visual — Triggered Hint Overlay (bridges InlineFeedback → visualization hints)
+export { TriggeredHintOverlay } from "./visual/TriggeredHintOverlay";
+export type { TriggeredHintOverlayProps } from "./visual/TriggeredHintOverlay";
+
+// Inline Interaction Hint (tooltip-style hints for inline components)
+export { InlineInteractionHint, useComponentHint, HintIcon } from "./text/InlineInteractionHint";
+export type { InlineInteractionHintProps, UseComponentHintOptions } from "./text/InlineInteractionHint";

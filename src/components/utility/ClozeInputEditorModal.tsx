@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { COLOR_PRESETS_STANDARD, CLOZE_BG_OPACITY, BRAND_GREEN } from './editorColors';
 import { BgColorPicker } from './BgColorPicker';
+import { VariableNamePicker } from './VariableNamePicker';
 
 export const ClozeInputEditorModal: React.FC = () => {
     const { editingClozeInput, closeClozeInputEditor, saveClozeInputEdit } = useEditing();
@@ -57,6 +58,7 @@ export const ClozeInputEditorModal: React.FC = () => {
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             handleSave();
         } else if (e.key === 'Escape') {
             handleCancel();
@@ -77,7 +79,7 @@ export const ClozeInputEditorModal: React.FC = () => {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
-                        Edit Cloze Input
+                        {editingClozeInput?.isNew ? 'Add Cloze Input' : 'Edit Cloze Input'}
                     </h2>
                     <button
                         onClick={handleCancel}
@@ -92,22 +94,12 @@ export const ClozeInputEditorModal: React.FC = () => {
                 {/* Content */}
                 <div className="flex-1 overflow-auto p-4 space-y-4">
                     {/* Variable Name */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">
-                            Variable Name <span className="text-muted-foreground">(optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={varName}
-                            onChange={(e) => setVarName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
-                            placeholder="e.g., quarterCircleAngle"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            If set, the student's answer will be synced with global state
-                        </p>
-                    </div>
+                    <VariableNamePicker
+                        value={varName}
+                        onChange={setVarName}
+                        helperText="Store the student's answer in a global variable"
+                        customPlaceholder="e.g., quarterCircleAngle"
+                    />
 
                     {/* Correct Answer */}
                     <div>
@@ -234,10 +226,13 @@ export const ClozeInputEditorModal: React.FC = () => {
                         Cancel
                     </button>
                     <button
-                        onClick={handleSave}
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSave();
+                        }}
                         className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
-                        Apply Changes
+                        {editingClozeInput?.isNew ? 'Add Component' : 'Apply Changes'}
                     </button>
                 </div>
             </div>

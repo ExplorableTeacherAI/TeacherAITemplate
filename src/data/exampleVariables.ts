@@ -1785,6 +1785,15 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: '6',
         color: '#6366f1',
     },
+    fbNeighbors: {
+        defaultValue: '',
+        type: 'text',
+        label: 'Grid Neighbors Answer',
+        description: 'Student answer for the number of neighbors in a 4-way grid',
+        placeholder: '???',
+        correctAnswer: '4',
+        color: '#6366f1',
+    },
 
     // ─────────────────────────────────────────
     // SELECT (cloze choice) - InlineFeedback Demo — dropdown answers
@@ -1835,6 +1844,84 @@ export const exampleVariableDefinitions: Record<string, VariableDefinition> = {
         correctAnswer: '180°',
         options: ['90°', '180°', '360°', '270°'],
         color: '#8b5cf6',
+    },
+
+    // ─────────────────────────────────────────
+    // ENHANCED FEEDBACK DEMO — mini-visualization state
+    // ─────────────────────────────────────────
+    fbDemoCos: {
+        defaultValue: 1,
+        type: 'number',
+        label: 'Demo Cosine Value',
+        description: 'Cosine value from the mini unit circle in the feedback demo',
+        min: -1,
+        max: 1,
+        step: 0.01,
+        color: '#3b82f6',
+    },
+    fbDemoSin: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Demo Sine Value',
+        description: 'Sine value from the mini unit circle in the feedback demo',
+        min: -1,
+        max: 1,
+        step: 0.01,
+        color: '#22c55e',
+    },
+    fbDemoTheta: {
+        defaultValue: 0,
+        type: 'number',
+        label: 'Demo Theta Value',
+        description: 'Angle (in degrees) from the mini unit circle in the feedback demo',
+        min: -180,
+        max: 180,
+        step: 1,
+        color: '#ef4444',
+    },
+    fbDemoAmplitude: {
+        defaultValue: 1.5,
+        type: 'number',
+        label: 'Demo Amplitude',
+        description: 'Amplitude for the mini sine wave in the feedback demo',
+        min: 0.1,
+        max: 3,
+        step: 0.1,
+        color: '#ef4444',
+    },
+
+    // ─────────────────────────────────────────
+    // ENHANCED FEEDBACK DEMO — questions linked to visualizations
+    // ─────────────────────────────────────────
+    fbUnitCircleCos: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Unit Circle Cosine Answer',
+        description: 'Student answer for what cos(0) equals on the unit circle',
+        placeholder: '???',
+        correctAnswer: '1',
+        options: ['0', '1', '-1', '0.5'],
+        color: '#3b82f6',
+    },
+    fbSineWaveAmp: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Sine Wave Amplitude Answer',
+        description: 'Student answer for what happens when amplitude doubles',
+        placeholder: '???',
+        correctAnswer: 'height doubles',
+        options: ['wave shifts right', 'height doubles', 'wave gets faster', 'wave flattens'],
+        color: '#ef4444',
+    },
+    fbCrossProduct: {
+        defaultValue: '',
+        type: 'select',
+        label: 'Cross Product Direction Answer',
+        description: 'Student answer for cross product direction',
+        placeholder: '???',
+        correctAnswer: 'perpendicular to both',
+        options: ['parallel to both', 'perpendicular to both', 'same as first vector', 'opposite direction'],
+        color: '#22c55e',
     },
 
     // ─────────────────────────────────────────

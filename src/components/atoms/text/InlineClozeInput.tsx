@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineClozeInputProps {
     /** Unique identifier for this component instance */
@@ -25,6 +26,8 @@ interface InlineClozeInputProps {
     onChange?: (value: string, isCorrect: boolean) => void;
     /** When true, skip editor-mode rendering (used inside FormulaBlock portals) */
     disableEditing?: boolean;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
 }
 
 /**
@@ -63,8 +66,12 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     caseSensitive = false,
     onChange,
     disableEditing = false,
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('cloze-input', { enabled: showHint });
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -209,6 +216,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
             e.preventDefault();
         }
         if (canEdit && isEditing && !disableEditing) return;
+        dismissHint(); // Dismiss interaction hint on first click
         if (!isCorrect) {
             setTypingValue(inputValue === '6' ? '' : inputValue); // Clear weird "6" ghost values if they exist, otherwise seed typing mode normally
             setIsInputting(true);
@@ -412,6 +420,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         <span
             ref={containerRef}
             {...wrapperProps}
+            className="inline-flex items-center relative"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -431,6 +440,9 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
             >
                 {effectivePlaceholder}
             </span>
+
+            {/* Interaction Hint - shows for first instance only */}
+            <HintIcon type="cloze-input" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineTriggerProps {
     /** Unique identifier for this component instance */
@@ -23,6 +24,8 @@ interface InlineTriggerProps {
     icon?: string;
     /** Optional callback on trigger */
     onTrigger?: () => void;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
 }
 
 /**
@@ -51,6 +54,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
     bgColor = 'rgba(16, 185, 129, 0.15)',
     icon,
     onTrigger,
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
 
@@ -67,6 +71,9 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
 
     // Hover state
     const [isHovered, setIsHovered] = useState(false);
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('trigger', { enabled: showHint });
 
     // Extract text from children for identity (handles string, number, arrays)
     const childText = useMemo(() => {
@@ -198,6 +205,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
 
     const handleClick = () => {
         if (canEdit && isEditing) return;
+        dismissHint(); // Dismiss interaction hint on first click
         if (effectiveVarName && effectiveValue !== undefined) {
             setVar(effectiveVarName, effectiveValue);
         }
@@ -261,7 +269,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
 
     // Preview mode: clickable trigger
     return (
-        <span ref={containerRef} {...wrapperProps}>
+        <span ref={containerRef} {...wrapperProps} className="relative inline">
             <motion.span
                 onClick={handleClick}
                 onMouseDown={handleMouseDown}
@@ -288,6 +296,9 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
             >
                 {effectiveText ?? children}
             </motion.span>
+
+            {/* Interaction Hint - shows for first instance only */}
+            <HintIcon type="trigger" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

@@ -413,6 +413,7 @@ export const matrixDemoBlocks: ReactElement[] = [
             </Block>
             <Block id="matrix-det-equation" padding="sm">
                 <FormulaBlock
+                    showHint={true}
                     latex="\det\begin{pmatrix} 1 & 3 \\ 2 & 4 \end{pmatrix} = (1)(4) - (3)(2) = \cloze{matrixDeterminantAnswer}"
                     clozeInputs={{
                         matrixDeterminantAnswer: {

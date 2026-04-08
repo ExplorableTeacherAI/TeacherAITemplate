@@ -111,6 +111,12 @@ export interface MovablePointConfig {
     | ((point: [number, number]) => [number, number]);
     /** Called on every frame the point moves */
     onChange?: (point: [number, number]) => void;
+    /**
+     * Externally-driven position. When this changes, the movable point
+     * jumps to this position (via `setPoint`). Use together with `onChange`
+     * for full bidirectional binding between the store and the visualization.
+     */
+    position?: [number, number];
 }
 
 // ── Component props ───────────────────────────────────────────────────────────
@@ -477,6 +483,12 @@ export function Cartesian2D({
 
     const allMPs = [mp0, mp1, mp2, mp3] as const;
 
+    // ── Position sync suppression ────────────────────────────────────────
+    // When a movable point is dragged, its onChange updates the store, which
+    // changes the `position` prop. We suppress the resulting sync-back to
+    // avoid fighting with the drag.
+    const syncSuppressed = useRef([false, false, false, false]);
+
     // ── Latest-ref pattern for onChange callbacks ──────────────────────────
     // Storing callbacks in refs avoids stale-closure bugs while preventing
     // the effects from re-firing whenever an inline function is re-created.
@@ -491,13 +503,46 @@ export function Cartesian2D({
     cb3.current = movablePoints[3]?.onChange;
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { cb0.current?.(mp0.point as [number, number]); }, [mp0.point[0], mp0.point[1]]);
+    useEffect(() => { syncSuppressed.current[0] = true; cb0.current?.(mp0.point as [number, number]); }, [mp0.point[0], mp0.point[1]]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { cb1.current?.(mp1.point as [number, number]); }, [mp1.point[0], mp1.point[1]]);
+    useEffect(() => { syncSuppressed.current[1] = true; cb1.current?.(mp1.point as [number, number]); }, [mp1.point[0], mp1.point[1]]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { cb2.current?.(mp2.point as [number, number]); }, [mp2.point[0], mp2.point[1]]);
+    useEffect(() => { syncSuppressed.current[2] = true; cb2.current?.(mp2.point as [number, number]); }, [mp2.point[0], mp2.point[1]]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { cb3.current?.(mp3.point as [number, number]); }, [mp3.point[0], mp3.point[1]]);
+    useEffect(() => { syncSuppressed.current[3] = true; cb3.current?.(mp3.point as [number, number]); }, [mp3.point[0], mp3.point[1]]);
+
+    // ── Sync external position → movable point ──────────────────────────
+    // Only applies when position comes from an external source (e.g. text
+    // scrubbing) — NOT from the drag round-trip through the store.
+    const extPos0x = movablePoints[0]?.position?.[0];
+    const extPos0y = movablePoints[0]?.position?.[1];
+    const extPos1x = movablePoints[1]?.position?.[0];
+    const extPos1y = movablePoints[1]?.position?.[1];
+    const extPos2x = movablePoints[2]?.position?.[0];
+    const extPos2y = movablePoints[2]?.position?.[1];
+    const extPos3x = movablePoints[3]?.position?.[0];
+    const extPos3y = movablePoints[3]?.position?.[1];
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (syncSuppressed.current[0]) { syncSuppressed.current[0] = false; return; }
+        if (extPos0x != null && extPos0y != null && activeCount > 0) mp0.setPoint([extPos0x, extPos0y]);
+    }, [extPos0x, extPos0y]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (syncSuppressed.current[1]) { syncSuppressed.current[1] = false; return; }
+        if (extPos1x != null && extPos1y != null && activeCount > 1) mp1.setPoint([extPos1x, extPos1y]);
+    }, [extPos1x, extPos1y]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (syncSuppressed.current[2]) { syncSuppressed.current[2] = false; return; }
+        if (extPos2x != null && extPos2y != null && activeCount > 2) mp2.setPoint([extPos2x, extPos2y]);
+    }, [extPos2x, extPos2y]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (syncSuppressed.current[3]) { syncSuppressed.current[3] = false; return; }
+        if (extPos3x != null && extPos3y != null && activeCount > 3) mp3.setPoint([extPos3x, extPos3y]);
+    }, [extPos3x, extPos3y]);
 
     // ── Compute derived plots from current movable-point positions ─────────
     const activePoints = allMPs

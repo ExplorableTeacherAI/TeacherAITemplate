@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect, useCallback, useContext } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useVar, useSetVar } from '@/stores/variableStore';
 import { useVarColor } from '@/stores';
 import { cn } from '@/lib/utils';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
+import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineScrubbleNumberProps {
     /** Unique identifier for this component instance */
@@ -18,6 +19,8 @@ interface InlineScrubbleNumberProps {
     value?: number;
     /** Minimum value (default: 0) */
     min?: number;
+    /** Whether to show interaction hint for first occurrence (default: true) */
+    showHint?: boolean;
     /** Maximum value (default: 100) */
     max?: number;
     /** Step amount (default: 1) */
@@ -90,10 +93,15 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     color = "#D81B60", // Default red/pink
     onChange,
     formatValue,
+    showHint = true,
 }) => {
 
     const [isDragging, setIsDragging] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+
+    // ── Interaction Hint System ──
+    const { hintVisible, dismissHint } = useComponentHint('scrubble-number', { enabled: showHint });
+
     const dragStartX = useRef(0);
     const dragStartValue = useRef(0);
     const containerRef = useRef<HTMLSpanElement>(null);
@@ -257,6 +265,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             return;
         }
 
+        dismissHint(); // Dismiss interaction hint on first drag
         setIsDragging(true);
         dragStartX.current = e.clientX;
         dragStartValue.current = value;
@@ -271,6 +280,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         const touch = e.touches[0];
         if (!touch) return;
 
+        dismissHint(); // Dismiss interaction hint on first drag
         setIsDragging(true);
         dragStartX.current = touch.clientX;
         dragStartValue.current = value;
@@ -440,8 +450,10 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                 )}
                 style={{
                     color: effectiveColor,
-                    borderBottom: `2px solid ${effectiveColor}`,
-                    paddingBottom: '1px',
+                    textDecoration: 'underline',
+                    textDecorationColor: effectiveColor,
+                    textDecorationThickness: '2px',
+                    textUnderlineOffset: '2px',
                     touchAction: 'none', // Prevent touch scrolling on this element
                 }}
             >
@@ -464,6 +476,9 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                     </svg>
                 </button>
             )}
+
+            {/* Interaction Hint - shows for first instance only */}
+            <HintIcon type="scrubble-number" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

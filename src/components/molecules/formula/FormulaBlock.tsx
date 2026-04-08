@@ -8,6 +8,7 @@ import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 import { InlineClozeInput, InlineClozeChoice } from '@/components/atoms';
+import { useComponentHint, FormulaHintIcon } from '@/components/atoms/text/InlineInteractionHint';
 
 /**
  * Per-variable configuration for scrubble numbers inside the formula.
@@ -124,6 +125,9 @@ export interface FormulaBlockProps {
 
     /** Optional className on the outer wrapper */
     className?: string;
+
+    /** Whether to show interaction hints for scrubble numbers and linked highlights (default: true) */
+    showHint?: boolean;
 }
 
 // ─── Defaults ──────────────────────────────────────────────────────────────────
@@ -162,6 +166,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     linkedHighlights = {},
     color = '#000000',
     className,
+    showHint = true,
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const katexRef = useRef<HTMLSpanElement>(null);
@@ -271,6 +276,47 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     // ── Portal targets for cloze/choice React components ──────────────────
     const [clozePortalTargets, setClozePortalTargets] = useState<Map<string, HTMLElement>>(new Map());
     const [choicePortalTargets, setChoicePortalTargets] = useState<Map<string, HTMLElement>>(new Map());
+
+    // ── Interaction hints for formula interactive elements ──────────────────
+    const hasScrubbles = scrubVarNames.length > 0;
+    const hasHighlights = highlightIds.length > 0;
+    const hasClozeInputs = clozeInputNames.length > 0;
+    const hasClozeChoices = clozeChoiceNames.length > 0;
+    
+    const { hintVisible: scrubbleHintVisible, dismissHint: dismissScrubbleHint } = useComponentHint(
+        'formula-scrubble',
+        { enabled: showHint && hasScrubbles && !isEditing }
+    );
+    const { hintVisible: highlightHintVisible, dismissHint: dismissHighlightHint } = useComponentHint(
+        'formula-linked-highlight',
+        { enabled: showHint && hasHighlights && !isEditing }
+    );
+    const { hintVisible: clozeInputHintVisible, dismissHint: dismissClozeInputHint } = useComponentHint(
+        'formula-cloze-input',
+        { enabled: showHint && hasClozeInputs && !isEditing }
+    );
+    const { hintVisible: clozeChoiceHintVisible, dismissHint: dismissClozeChoiceHint } = useComponentHint(
+        'formula-cloze-choice',
+        { enabled: showHint && hasClozeChoices && !isEditing }
+    );
+
+    // ── CSS selectors for finding first interactive element of each type ────
+    const scrubbleSelector = useMemo(
+        () => scrubVarNames.map(n => `.scrub-${n}`).join(', '),
+        [scrubVarNames]
+    );
+    const highlightSelector = useMemo(
+        () => highlightIds.map(id => `.highlight-${id}`).join(', '),
+        [highlightIds]
+    );
+    const clozeInputSelector = useMemo(
+        () => clozeInputNames.map(n => `.cloze-portal-${n}`).join(', '),
+        [clozeInputNames]
+    );
+    const clozeChoiceSelector = useMemo(
+        () => clozeChoiceNames.map(n => `.choice-portal-${n}`).join(', '),
+        [clozeChoiceNames]
+    );
 
     // ── Resolve effective color for each scrub/val variable ─────────────────
     const resolvedColors = useMemo(() => {
@@ -417,10 +463,12 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         for (const { el, varName } of elements) {
             const col = resolvedColors[varName] ?? DEFAULT_SCRUB_COLOR;
 
-            // Visual cue: underline + pointer
+            // Visual cue: underline + pointer (use text-decoration to respect baseline with exponents)
             el.style.cursor = 'ew-resize';
-            el.style.borderBottom = `2px solid ${col}`;
-            el.style.paddingBottom = '1px';
+            el.style.textDecoration = 'underline';
+            el.style.textDecorationColor = col;
+            el.style.textDecorationThickness = '2px';
+            el.style.textUnderlineOffset = '2px';
             el.style.userSelect = 'none';
             el.style.transition = 'opacity 0.15s ease';
 
@@ -447,6 +495,9 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
                     e.preventDefault();
                     e.stopPropagation();
 
+                    // Dismiss the interaction hint when user starts dragging
+                    dismissScrubbleHint();
+
                     isDragging.current = true;
                     dragVarName.current = varName;
                     dragStartX.current = e.clientX;
@@ -466,13 +517,15 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
             // Reset element styles that we may have set
             for (const { el } of elements) {
                 el.style.cursor = '';
-                el.style.borderBottom = '';
-                el.style.paddingBottom = '';
+                el.style.textDecoration = '';
+                el.style.textDecorationColor = '';
+                el.style.textDecorationThickness = '';
+                el.style.textUnderlineOffset = '';
                 el.style.userSelect = '';
             }
         };
         // Re-attach when scrub vars, colors, or allVars change (KaTeX re-renders)
-    }, [processedLatex, scrubVarNames, resolvedColors, displayVariables, allVars]);
+    }, [processedLatex, scrubVarNames, resolvedColors, displayVariables, allVars, dismissScrubbleHint]);
 
     // ── Global mousemove / mouseup for dragging ─────────────────────────────
     useEffect(() => {
@@ -530,6 +583,9 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
                         e.preventDefault();
                         const touch = e.touches[0];
 
+                        // Dismiss the interaction hint when user starts dragging
+                        dismissScrubbleHint();
+
                         isDragging.current = true;
                         dragVarName.current = varName;
                         dragStartX.current = touch.clientX;
@@ -575,7 +631,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
         };
-    }, [processedLatex, scrubVarNames, allVars, displayVariables, setVar]);
+    }, [processedLatex, scrubVarNames, allVars, displayVariables, setVar, dismissScrubbleHint]);
 
     // ── Post-render: collect portal targets for cloze/choice React components ─
     useEffect(() => {
@@ -653,6 +709,8 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
                 el.addEventListener('mouseenter', () => {
                     el.style.backgroundColor = activeBg;
                     el.style.opacity = '1';
+                    // Dismiss the interaction hint when user hovers
+                    dismissHighlightHint();
                     if (groupVarName) setVar(groupVarName, highlightId);
                 }, { signal: abortController.signal });
 
@@ -667,7 +725,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         return () => {
             abortController.abort();
         };
-    }, [processedLatex, highlightIds, displayLinkedHighlights, allVars, setVar]);
+    }, [processedLatex, highlightIds, displayLinkedHighlights, allVars, setVar, dismissHighlightHint]);
 
     // ── Render ──────────────────────────────────────────────────────────────
     return (
@@ -704,22 +762,57 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
                         </svg>
                     </button>
                 )}
+                {/* Interaction hints for formula scrubble numbers */}
+                <FormulaHintIcon 
+                    type="formula-scrubble" 
+                    visible={scrubbleHintVisible} 
+                    isEditing={isEditing}
+                    containerRef={katexRef}
+                    selector={scrubbleSelector}
+                />
+                {/* Interaction hints for formula linked highlights */}
+                <FormulaHintIcon 
+                    type="formula-linked-highlight" 
+                    visible={highlightHintVisible} 
+                    isEditing={isEditing}
+                    containerRef={katexRef}
+                    selector={highlightSelector}
+                />
+                {/* Interaction hints for formula cloze inputs */}
+                <FormulaHintIcon 
+                    type="formula-cloze-input" 
+                    visible={clozeInputHintVisible} 
+                    isEditing={isEditing}
+                    containerRef={katexRef}
+                    selector={clozeInputSelector}
+                />
+                {/* Interaction hints for formula cloze choices */}
+                <FormulaHintIcon 
+                    type="formula-cloze-choice" 
+                    visible={clozeChoiceHintVisible} 
+                    isEditing={isEditing}
+                    containerRef={katexRef}
+                    selector={clozeChoiceSelector}
+                />
             </span>
 
             {/* ── Portaled InlineClozeInput components ────────────────── */}
             {[...clozePortalTargets.entries()].map(([varName, el]) => {
                 const config = displayClozeInputs[varName];
                 return createPortal(
-                    <InlineClozeInput
-                        key={`cloze-${varName}`}
-                        varName={varName}
-                        correctAnswer={config?.correctAnswer || ''}
-                        placeholder={config?.placeholder}
-                        color={config?.color}
-                        bgColor={config?.bgColor}
-                        caseSensitive={config?.caseSensitive}
-                        disableEditing
-                    />,
+                    <span onFocus={dismissClozeInputHint} onClick={dismissClozeInputHint}>
+                        <InlineClozeInput
+                            key={`cloze-${varName}`}
+                            varName={varName}
+                            correctAnswer={config?.correctAnswer || ''}
+                            placeholder={config?.placeholder}
+                            color={config?.color}
+                            bgColor={config?.bgColor}
+                            caseSensitive={config?.caseSensitive}
+                            disableEditing
+                            showHint={false}
+                        />
+                    </span>,
                     el,
                 );
             })}
@@ -728,16 +821,19 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
             {[...choicePortalTargets.entries()].map(([varName, el]) => {
                 const config = displayClozeChoices[varName];
                 return createPortal(
-                    <InlineClozeChoice
-                        key={`choice-${varName}`}
-                        varName={varName}
-                        correctAnswer={config?.correctAnswer || ''}
-                        options={config?.options || []}
-                        placeholder={config?.placeholder}
-                        color={config?.color}
-                        bgColor={config?.bgColor}
-                        disableEditing
-                    />,
+                    <span onFocus={dismissClozeChoiceHint} onClick={dismissClozeChoiceHint}>
+                        <InlineClozeChoice
+                            key={`choice-${varName}`}
+                            varName={varName}
+                            correctAnswer={config?.correctAnswer || ''}
+                            options={config?.options || []}
+                            placeholder={config?.placeholder}
+                            color={config?.color}
+                            bgColor={config?.bgColor}
+                            disableEditing
+                            showHint={false}
+                        />
+                    </span>,
                     el,
                 );
             })}

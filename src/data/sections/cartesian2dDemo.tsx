@@ -3,7 +3,6 @@ import { StackLayout, SplitLayout } from "@/components/layouts";
 import { Block } from "@/components/templates";
 import {
     Cartesian2D,
-    EditableH2,
     EditableH4,
     EditableParagraph,
     InlineLinkedHighlight,
@@ -11,6 +10,7 @@ import {
     InlineSpotColor,
     EditableH3,
     InlineHyperlink,
+    InteractionHintSequence,
 } from "@/components/atoms";
 import type { PlotItem } from "@/components/atoms";
 import { Mafs, Coordinates, Plot, useMovablePoint } from "mafs";
@@ -23,49 +23,55 @@ import { getExampleVariableInfo, numberPropsFromDefinition, linkedHighlightProps
 
 function BasicFunctionsViz() {
     return (
-        <Cartesian2D
-            viewBox={{ x: [-5, 5], y: [-2.5, 2.5] }}
-            movablePoints={[
-                {
-                    initial: [Math.PI / 2, 0],
-                    color: "#3b82f6",
-                    constrain: "horizontal"
-                }
-            ]}
-            dynamicPlots={([p]) => {
-                const px = p[0];
-                return [
-                    { type: "function", fn: Math.sin, color: "#3b82f6", weight: 3 },
-                    { type: "function", fn: Math.cos, color: "#f59e0b", weight: 3 },
+        <div className="relative">
+            <Cartesian2D
+                viewBox={{ x: [-5, 5], y: [-2.5, 2.5] }}
+                movablePoints={[
                     {
-                        type: "function",
-                        fn: (x) => -Math.sin(x),
-                        color: "#ef4444",
-                        weight: 2,
-                        domain: [-Math.PI, Math.PI],
-                    },
-                    // Mark the key points evaluated exactly at the dragged x-coordinate
-                    { type: "point", x: px, y: Math.sin(px), color: "#3b82f6" },
-                    { type: "point", x: px, y: Math.cos(px), color: "#f59e0b" },
-                    {
-                        type: "segment",
-                        point1: [px, 0],
-                        point2: [px, Math.sin(px)],
+                        initial: [Math.PI / 2, 0],
                         color: "#3b82f6",
-                        style: "dashed",
-                        weight: 1,
-                    },
-                    {
-                        type: "segment",
-                        point1: [px, 0],
-                        point2: [px, Math.cos(px)],
-                        color: "#f59e0b",
-                        style: "dashed",
-                        weight: 1,
-                    },
-                ];
-            }}
-        />
+                        constrain: "horizontal"
+                    }
+                ]}
+                dynamicPlots={([p]) => {
+                    const px = p[0];
+                    return [
+                        { type: "function", fn: Math.sin, color: "#3b82f6", weight: 3 },
+                        { type: "function", fn: Math.cos, color: "#f59e0b", weight: 3 },
+                        {
+                            type: "function",
+                            fn: (x) => -Math.sin(x),
+                            color: "#ef4444",
+                            weight: 2,
+                            domain: [-Math.PI, Math.PI],
+                        },
+                        // Mark the key points evaluated exactly at the dragged x-coordinate
+                        { type: "point", x: px, y: Math.sin(px), color: "#3b82f6" },
+                        { type: "point", x: px, y: Math.cos(px), color: "#f59e0b" },
+                        {
+                            type: "segment",
+                            point1: [px, 0],
+                            point2: [px, Math.sin(px)],
+                            color: "#3b82f6",
+                            style: "dashed",
+                            weight: 1,
+                        },
+                        {
+                            type: "segment",
+                            point1: [px, 0],
+                            point2: [px, Math.cos(px)],
+                            color: "#f59e0b",
+                            style: "dashed",
+                            weight: 1,
+                        },
+                    ];
+                }}
+            />
+            <InteractionHintSequence
+                hintKey="basic-functions-drag"
+                steps={[{ gesture: "drag-horizontal", label: "Drag the blue point left and right to evaluate sin(x) and cos(x) at different positions", position: { x: "60%", y: "50%" } }]}
+            />
+        </div>
     );
 }
 
@@ -74,64 +80,82 @@ function BasicFunctionsViz() {
 function UnitCircleExplorer() {
     const setVar = useSetVar();
     return (
-        <Cartesian2D
-            viewBox={{ x: [-2, 2], y: [-2, 2] }}
-            // Constrain the draggable point to the unit circle
-            movablePoints={[
-                {
-                    initial: [1, 0],
-                    color: "#ef4444",
-                    constrain: ([px, py]) => {
-                        const angle = Math.atan2(py, px);
-                        return [Math.cos(angle), Math.sin(angle)];
-                    },
-                    onChange: ([px, py]) => {
-                        setVar('ucCosineVal', px);
-                        setVar('ucSineVal', py);
-                    }
-                },
-            ]}
-            plots={[
-                // Unit circle outline
-                {
-                    type: "circle",
-                    center: [0, 0],
-                    radius: 1,
-                    color: "#64748b",
-                    fillOpacity: 0.05,
-                    strokeStyle: "dashed",
-                },
-            ]}
-            dynamicPlots={([p]) => {
-                const [cx, cy] = p;
-                return [
-                    // Radius vector from origin to point
-                    { type: "vector", tail: [0, 0], tip: p, color: "#ef4444", weight: 2.5 },
-                    // cos(θ): horizontal drop-line from point to x-axis
+        <div className="relative">
+            <Cartesian2D
+                viewBox={{ x: [-2, 2], y: [-2, 2] }}
+                // Constrain the draggable point to the unit circle
+                movablePoints={[
                     {
-                        type: "segment",
-                        point1: [cx, 0],
-                        point2: p,
-                        color: "#3b82f6",
-                        style: "dashed",
-                        weight: 1.5,
+                        initial: [1, 0],
+                        color: "#ef4444",
+                        constrain: ([px, py]) => {
+                            const angle = Math.atan2(py, px);
+                            return [Math.cos(angle), Math.sin(angle)];
+                        },
+                        onChange: ([px, py]) => {
+                            setVar('ucCosineVal', px);
+                            setVar('ucSineVal', py);
+                        }
                     },
-                    // sin(θ): vertical drop-line from point to y-axis
+                ]}
+                plots={[
+                    // Unit circle outline
                     {
-                        type: "segment",
-                        point1: [0, cy],
-                        point2: p,
-                        color: "#22c55e",
-                        style: "dashed",
-                        weight: 1.5,
+                        type: "circle",
+                        center: [0, 0],
+                        radius: 1,
+                        color: "#64748b",
+                        fillOpacity: 0.05,
+                        strokeStyle: "dashed",
                     },
-                    // cos(θ) foot on x-axis
-                    { type: "point", x: cx, y: 0, color: "#3b82f6" },
-                    // sin(θ) foot on y-axis
-                    { type: "point", x: 0, y: cy, color: "#22c55e" },
-                ];
-            }}
-        />
+                ]}
+                dynamicPlots={([p]) => {
+                    const [cx, cy] = p;
+                    return [
+                        // Radius vector from origin to point
+                        { type: "vector", tail: [0, 0], tip: p, color: "#ef4444", weight: 2.5 },
+                        // cos(θ): horizontal drop-line from point to x-axis
+                        {
+                            type: "segment",
+                            point1: [cx, 0],
+                            point2: p,
+                            color: "#3b82f6",
+                            style: "dashed",
+                            weight: 1.5,
+                        },
+                        // sin(θ): vertical drop-line from point to y-axis
+                        {
+                            type: "segment",
+                            point1: [0, cy],
+                            point2: p,
+                            color: "#22c55e",
+                            style: "dashed",
+                            weight: 1.5,
+                        },
+                        // cos(θ) foot on x-axis
+                        { type: "point", x: cx, y: 0, color: "#3b82f6" },
+                        // sin(θ) foot on y-axis
+                        { type: "point", x: 0, y: cy, color: "#22c55e" },
+                    ];
+                }}
+            />
+            <InteractionHintSequence
+                hintKey="unit-circle-drag"
+                steps={[
+                    {
+                        gesture: "drag-circular",
+                        label: "Drag the red point around the unit circle — watch how cos(θ) and sin(θ) projections change",
+                        position: { x: "50%", y: "30%" },
+                        dragPath: {
+                            type: "arc",
+                            startAngle: 0,
+                            endAngle: -90,
+                            radius: 35
+                        }
+                    },
+                ]}
+            />
+        </div>
     );
 }
 
@@ -147,12 +171,31 @@ function ReactiveSineWaveViz() {
     const amplitude = useVar('sineAmplitude', 1.5) as number;
     const omega = useVar('sineOmega', 1) as number;
     const phase = useVar('sinePhase', 0) as number;
+    const setVar = useSetVar();
 
     return (
-        <>
+        <div className="relative">
             <Cartesian2D
                 viewBox={{ x: [-5, 5], y: [-3.5, 3.5] }}
                 highlightVarName="c2dHighlight"
+                movablePoints={[
+                    {
+                        // Amplitude control — drag vertically at the peak of the full wave
+                        initial: [Math.PI / (2 * omega) - phase / omega, amplitude],
+                        position: [Math.PI / (2 * omega) - phase / omega, amplitude],
+                        color: "#ef4444",
+                        constrain: ([, py]) => [Math.PI / (2 * omega) - phase / omega, Math.max(0.1, Math.min(3, py))],
+                        onChange: ([, py]) => setVar('sineAmplitude', Math.round(py * 10) / 10),
+                    },
+                    {
+                        // Phase control — drag horizontally to shift the wave
+                        initial: [-phase / omega, 0],
+                        position: [-phase / omega, 0],
+                        color: "#a855f7",
+                        constrain: ([px]) => [Math.max(-3, Math.min(3, px)), 0],
+                        onChange: ([px]) => setVar('sinePhase', Math.round(-px * omega * 20) / 20),
+                    },
+                ]}
                 plots={[
                     // Reference: y = sin(x) (unmodified)
                     {
@@ -184,18 +227,21 @@ function ReactiveSineWaveViz() {
                         color: "#22c55e",
                         weight: 3,
                     },
-                    // Phase indicator: mark where the full wave crosses zero
-                    {
-                        type: "point",
-                        x: -phase / omega,
-                        y: 0,
-                        color: "#a855f7",
-                        highlightId: "phase",
-                    },
+                    // Amplitude height indicator
                     {
                         type: "segment",
-                        point1: [-phase / omega, 0],
-                        point2: [-phase / omega, amplitude * Math.sin(omega * (-phase / omega) + phase)],
+                        point1: [Math.PI / (2 * omega) - phase / omega, 0],
+                        point2: [Math.PI / (2 * omega) - phase / omega, amplitude],
+                        color: "#ef4444",
+                        style: "dashed",
+                        weight: 1.5,
+                        highlightId: "amplitude",
+                    },
+                    // Phase indicator
+                    {
+                        type: "segment",
+                        point1: [0, 0],
+                        point2: [-phase / omega, 0],
                         color: "#a855f7",
                         style: "dashed",
                         weight: 1.5,
@@ -203,7 +249,14 @@ function ReactiveSineWaveViz() {
                     },
                 ]}
             />
-        </>
+            <InteractionHintSequence
+                hintKey="sine-wave-drag"
+                steps={[
+                    { gesture: "drag-vertical", label: "Drag the red point up or down to change the amplitude", position: { x: "60%", y: "25%" }, dragPath: { type: "line", startOffset: { x: 0, y: -15 }, endOffset: { x: 0, y: 15 } } },
+                    { gesture: "drag-horizontal", label: "Drag the purple point left or right to shift the phase", position: { x: "50%", y: "50%" } },
+                ]}
+            />
+        </div>
     );
 }
 
@@ -305,7 +358,7 @@ function ScatterPlotViz() {
     }, [m, b, setVar]);
 
     return (
-        <div className="w-full overflow-hidden rounded-xl">
+        <div className="relative w-full overflow-hidden rounded-xl">
             <Mafs
                 height={400}
                 viewBox={{ x: [0, 8], y: [0, 9] }}
@@ -340,6 +393,10 @@ function ScatterPlotViz() {
                     />
                 ))}
             </Mafs>
+            <InteractionHintSequence
+                hintKey="scatter-plot-drag"
+                steps={[{ gesture: "drag", label: "Drag any data point to a new position and watch the trend line recalculate automatically", position: { x: "55%", y: "45%" } }]}
+            />
         </div>
     );
 }
@@ -475,6 +532,16 @@ function LineDrawingViz() {
             >
                 Clear
             </button>
+
+            <InteractionHintSequence
+                hintKey="line-drawing-tutorial"
+                currentStep={points.length >= 3 ? 3 : points.length}
+                steps={[
+                    { gesture: "click", label: "Click anywhere on the grid to place your first point", position: { x: "45%", y: "45%" } },
+                    { gesture: "click", label: "Click a second spot — a line segment will connect them automatically", position: { x: "55%", y: "35%" } },
+                    { gesture: "click", label: "Add a third point to start building a shape — midpoints appear on each segment", position: { x: "35%", y: "55%" } },
+                ]}
+            />
         </div>
     );
 }
@@ -672,6 +739,7 @@ export const cartesian2dDemo: ReactElement[] = [
 
             <Block id="cartesian-2d-explorer-equation" padding="sm">
                 <FormulaBlock
+                    showHint={true}
                     latex="\clr{result}{y} = \scrub{sineAmplitude} \cdot \sin\!\left( \scrub{sineOmega}\, x + \scrub{sinePhase} \right)"
                     colorMap={{ result: '#22c55e' }}
                     variables={{

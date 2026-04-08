@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useEditing } from '@/contexts/EditingContext';
 import { useVariableStore } from '@/stores';
 import { COLOR_PRESETS_STANDARD, BRAND_GREEN } from './editorColors';
+import { VariableNamePicker } from './VariableNamePicker';
 
 interface ScrubbleNumberEditorModalProps {
     // Props are managed via EditingContext
@@ -17,6 +18,20 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
     const [step, setStep] = useState(1);
     const [color, setColor] = useState('#D81B60');
     const [error, setError] = useState<string | null>(null);
+
+    // Refs to always have latest values (avoids stale closure in onMouseDown)
+    const varNameRef = useRef(varName);
+    const defaultValueRef = useRef(defaultValue);
+    const minRef = useRef(min);
+    const maxRef = useRef(max);
+    const stepRef = useRef(step);
+    const colorRef = useRef(color);
+    varNameRef.current = varName;
+    defaultValueRef.current = defaultValue;
+    minRef.current = min;
+    maxRef.current = max;
+    stepRef.current = step;
+    colorRef.current = color;
 
     const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
@@ -54,24 +69,27 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
     // Central color store — update when saving a color change
     const setVarColor = useVariableStore(s => s.setColor);
 
-    // Handle save
+    // Handle save — reads from refs to always get the latest values
     const handleSave = useCallback(() => {
         if (!validate()) return;
 
+        const currentVarName = varNameRef.current;
+        const currentColor = colorRef.current;
+
         // Update the central variable color store so all components pick up the change
-        if (varName) {
-            setVarColor(varName, color);
+        if (currentVarName) {
+            setVarColor(currentVarName, currentColor);
         }
 
         saveScrubbleNumberEdit({
-            varName: varName || undefined,
-            defaultValue,
-            min,
-            max,
-            step,
-            color,
+            varName: currentVarName || undefined,
+            defaultValue: defaultValueRef.current,
+            min: minRef.current,
+            max: maxRef.current,
+            step: stepRef.current,
+            color: currentColor,
         });
-    }, [varName, defaultValue, min, max, step, color, validate, saveScrubbleNumberEdit, setVarColor]);
+    }, [validate, saveScrubbleNumberEdit, setVarColor]);
 
     // Handle cancel
     const handleCancel = useCallback(() => {
@@ -81,11 +99,24 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
     // Handle key press
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             handleSave();
         } else if (e.key === 'Escape') {
             handleCancel();
         }
     }, [handleSave, handleCancel]);
+
+    // Auto-fill fields when an existing variable is selected
+    const handleVariableSelected = useCallback((info: { name: string; value: unknown; color?: string }) => {
+        // Auto-fill default value if the variable holds a number
+        if (typeof info.value === 'number') {
+            setDefaultValue(info.value);
+        }
+        // Auto-fill color from the variable's stored color
+        if (info.color) {
+            setColor(info.color);
+        }
+    }, []);
 
     if (!editingScrubbleNumber) return null;
 
@@ -101,7 +132,7 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
-                        Edit Scrubbable Number
+                        {editingScrubbleNumber?.isNew ? 'Add Scrubbable Number' : 'Edit Scrubbable Number'}
                     </h2>
                     <button
                         onClick={handleCancel}
@@ -116,22 +147,14 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                 {/* Content */}
                 <div className="flex-1 overflow-auto p-4 space-y-4">
                     {/* Variable Name */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">
-                            Variable Name <span className="text-muted-foreground">(optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={varName}
-                            onChange={(e) => setVarName(e.target.value)}
-                            className="w-full px-3 py-2 text-sm bg-muted/30 border rounded-lg focus:outline-none focus:ring-2"
-                            style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
-                            placeholder="e.g., wedgeCount"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            If set, this variable will be synced with global state
-                        </p>
-                    </div>
+                    <VariableNamePicker
+                        value={varName}
+                        onChange={setVarName}
+                        onVariableSelected={handleVariableSelected}
+                        filterType="number"
+                        helperText="Links this number to a global variable for use in charts, equations, etc."
+                        customPlaceholder="e.g., wedgeCount"
+                    />
 
                     {/* Default Value */}
                     <div>
@@ -259,10 +282,13 @@ export const ScrubbleNumberEditorModal: React.FC<ScrubbleNumberEditorModalProps>
                         Cancel
                     </button>
                     <button
-                        onClick={handleSave}
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSave();
+                        }}
                         className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
-                        Apply Changes
+                        {editingScrubbleNumber?.isNew ? 'Add Component' : 'Apply Changes'}
                     </button>
                 </div>
             </div>
