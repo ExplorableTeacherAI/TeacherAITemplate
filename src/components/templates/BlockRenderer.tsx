@@ -7,6 +7,11 @@ export interface BlockRendererProps {
     /** Array of Block elements to render */
     initialBlocks?: ReactElement[];
     isPreview?: boolean;
+    /** Hide the auto-rendered InteractionLegend (used for small embedded explorables) */
+    hideLegend?: boolean;
+    /** Render at natural content height with compact padding (for iframe embeds)
+     *  instead of the default absolutely-positioned scroll container */
+    embedded?: boolean;
     onEditBlock?: (instruction: string) => void;
     onAddBlock?: (blockId: string) => void;
     onReorder?: (newBlocks: ReactElement[]) => void;
@@ -115,6 +120,8 @@ const DraggableBlock = ({
 export const BlockRenderer = ({
     initialBlocks = [],
     isPreview = false,
+    hideLegend = false,
+    embedded = false,
     onEditBlock,
     onAddBlock,
     onReorder,
@@ -137,12 +144,19 @@ export const BlockRenderer = ({
         } catch { }
     }, [initialBlocks]);
 
-    const containerStyles = useMemo<CSSProperties>(() => ({
-        position: "absolute",
-        inset: 0,
-        overflowY: "auto",
-        overflowX: "hidden",
-    }), []);
+    const containerStyles = useMemo<CSSProperties>(() => (
+        embedded
+            ? {
+                position: "relative",
+                overflow: "visible",
+            }
+            : {
+                position: "absolute",
+                inset: 0,
+                overflowY: "auto",
+                overflowX: "hidden",
+            }
+    ), [embedded]);
 
     const handleReorder = (newOrder: ReactElement[]) => {
         if (onReorder) {
@@ -154,12 +168,16 @@ export const BlockRenderer = ({
         <div ref={containerRef} style={containerStyles} className="pointer-events-auto">
             <div
                 ref={stackRef}
-                className="min-h-full z-30 flex flex-col gap-6 pt-8 pb-16 px-8 md:px-16 lg:px-24"
+                className={
+                    embedded
+                        ? "z-30 flex flex-col gap-4 px-4 py-4 md:px-6"
+                        : "min-h-full z-30 flex flex-col gap-6 pt-8 pb-16 px-8 md:px-16 lg:px-24"
+                }
                 aria-label="Content Blocks"
             >
                 <div className="max-w-5xl mx-auto w-full">
                     {/* Interaction legend — teaches first-time users how the interactive elements work */}
-                    {initialBlocks.length > 0 && <InteractionLegend />}
+                    {initialBlocks.length > 0 && !hideLegend && <InteractionLegend />}
 
                     {onReorder ? (
                         <Reorder.Group

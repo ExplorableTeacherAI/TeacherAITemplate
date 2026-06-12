@@ -305,6 +305,22 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
         setVisible(false);
     }, [hasAnswer]);
 
+    // Report answer correctness to the embedding page (tutor chat) so it can
+    // react instantly (avatar celebration/encouragement) without waiting for
+    // the tutor agent's reply. No-op when not embedded in an iframe.
+    useEffect(() => {
+        if (!hasAnswer || window.parent === window) return;
+        window.parent.postMessage(
+            {
+                type: 'mathvibe-explorable-feedback',
+                varName,
+                value: storeValue,
+                correct: isCorrect,
+            },
+            '*'
+        );
+    }, [hasAnswer, isCorrect, storeValue, varName]);
+
     const handleVizHintClick = useCallback(() => {
         if (!visualizationHint) return;
         setVizHintTriggered(true);

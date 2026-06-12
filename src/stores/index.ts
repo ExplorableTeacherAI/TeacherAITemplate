@@ -37,6 +37,7 @@ export {
     useSetVar,
     useVarColor,
     initializeVariableColors,
+    registerVariables,
     type VarValue,
 } from './variableStore';
 
