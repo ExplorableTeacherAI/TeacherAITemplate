@@ -575,6 +575,46 @@ function MyInlineComponent({ showHint = true }) {
 | `varName` | `string` | *(required)* | Variable key to lookup the color for |
 | `color` | `string` | *(required)* | The hex color for this variable (usually via store) |
 
+## RevealOnInteraction (Explore First, Ask Second)
+
+`RevealOnInteraction` keeps an embedded question hidden until the student has actually interacted with the visualization, then fades it in. This enforces the "explore first, ask second" flow — the student discovers the pattern by dragging, and only then is prompted to answer.
+
+It watches a boolean store variable. Pair it with the `interactionVar` prop on `Cartesian2D`, which flips that variable to `true` on the student's **first genuine drag** (the initial mount sync is ignored automatically). The flag is transient — it does **not** need a `variables.ts` entry (`useVar` defaults it to `false`).
+
+```tsx
+// 1. The visualization flips the flag on first drag:
+<Block id="same-segment-viz" padding="sm" hasVisualization>
+    <Cartesian2D
+        interactionVar="sameSegmentAngles_explored"
+        movablePoints={[/* ... */]}
+        dynamicPlots={/* ... */}
+    />
+</Block>
+
+// 2. The question stays hidden until then:
+<Block id="same-segment-question" padding="sm">
+    <EditableParagraph id="para-same-segment-question" blockId="same-segment-question">
+        <RevealOnInteraction varName="sameSegmentAngles_explored">
+            When inscribed angles subtend the same arc, they are{" "}
+            <InlineFeedback varName="sameSegmentAngles_answer" correctValue="always equal" /* ... */>
+                <InlineClozeChoice varName="sameSegmentAngles_answer" /* ... */ />
+            </InlineFeedback>.
+        </RevealOnInteraction>
+    </EditableParagraph>
+</Block>
+```
+
+For an interaction that is **not** a `Cartesian2D` drag, set the flag yourself from the relevant `onChange`: `setVar('sameSegmentAngles_explored', true)`.
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `varName` | `string` | *(required)* | Boolean store variable that gates the reveal |
+| `children` | `ReactNode` | *(required)* | Content shown once the student has interacted |
+| `placeholder` | `ReactNode` | `null` | Optional soft nudge shown before interaction |
+| `block` | `boolean` | `false` | Render as a `div` instead of an inline `span` |
+
+**`Cartesian2D` companion prop:** `interactionVar?: string` — store variable set to `true` on the first real movable-point drag.
+
 ## Variable Types
 
 | Type | Example Definition |
@@ -1205,6 +1245,7 @@ Import from `@/components/layouts`.
 - `InlineHyperlink` — click to open external URL or scroll to a block on page (connective, emerald)
 - `InlineSpotColor` — colored text highlight
 - `InlineLinkedHighlight` — bidirectional highlighting
+- `RevealOnInteraction` — hides an embedded question until the student interacts with the visualization, then fades it in (pairs with `Cartesian2D` `interactionVar`)
 - `Table` — block-level table with inline components in cells (import from `@/components/atoms`)
 
 ### Math Components
