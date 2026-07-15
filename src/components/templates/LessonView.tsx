@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, type ReactElement, isValidElement, Children, type ReactNode, cloneElement } from "react";
+import { useEffect, useCallback, useMemo, useState, type ReactElement, isValidElement, Children, type ReactNode, cloneElement } from "react";
 import { Block } from "./Block";
 import { BlockInput } from "./BlockInput";
 import { type SlashCommandType } from "./SlashCommandMenu";
@@ -22,8 +22,16 @@ import { EditableText } from "@/components/atoms/text/EditableText";
 import { StackLayout } from "@/components/layouts";
 import { FormulaBlock } from "@/components/molecules";
 import { WelcomeScreen } from "./WelcomeScreen";
+import { SectionBuildSkeleton } from "./SectionBuildSkeleton";
 import { Card } from "@/components/atoms/ui/card";
 import BlockRenderer from "./BlockRenderer";
+import {
+    collectBlockIds,
+    getSectionBlockIds,
+    isInFlight,
+    useSectionBuildStatus,
+    type SectionBuildInfo,
+} from "@/lib/section-build-status";
 import { loadBlocks, createBlocksWatcher } from "@/lib/block-loader";
 import blockLoaderConfig from "@/config/blocks-loader.config";
 import { useAppMode } from "@/contexts/AppModeContext";
@@ -309,6 +317,79 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     const { isPreview } = useAppMode();
     const editing = useOptionalEditing();
 
+    // ---- live section-build progress (teacher's editor preview only) ------
+    // The parent frontend posts section-build-status messages while builds
+    // run. In-flight sections whose blocks are already in the lesson get a
+    // non-interactive "verifying" glow; the rest render as skeletons below
+    // the existing content.
+    const buildSections = useSectionBuildStatus();
+    const lessonBlockIds = useMemo(() => {
+        const ids = new Set<string>();
+        initialBlocks.forEach((block) => collectBlockIds(block, ids));
+        return ids;
+    }, [initialBlocks]);
+    // Block id → badge label for blocks under verification (label only on the
+    // section's first block so it isn't repeated on every block).
+    const [glowBlocks, setGlowBlocks] = useState<Map<string, string>>(new Map());
+    const [skeletonSections, setSkeletonSections] = useState<SectionBuildInfo[]>([]);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            const glow = new Map<string, string>();
+            const skeletons: SectionBuildInfo[] = [];
+            for (const section of buildSections.filter(isInFlight)) {
+                const sectionIds = await getSectionBlockIds(section.id);
+                const visible = [...sectionIds].filter((id) => lessonBlockIds.has(id));
+                if (visible.length > 0) {
+                    const label =
+                        section.status === "verifying" ? "Verifying…" : "Updating…";
+                    visible.forEach((id, index) => glow.set(id, index === 0 ? label : ""));
+                } else {
+                    skeletons.push(section);
+                }
+            }
+            if (cancelled) return;
+            setGlowBlocks((prev) => {
+                if (prev.size === glow.size && [...glow].every(([k, v]) => prev.get(k) === v)) {
+                    return prev;
+                }
+                return glow;
+            });
+            setSkeletonSections((prev) => {
+                const same =
+                    prev.length === skeletons.length &&
+                    prev.every((s, i) => s.id === skeletons[i].id && s.status === skeletons[i].status);
+                return same ? prev : skeletons;
+            });
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [buildSections, lessonBlockIds]);
+
+    // Apply the glow at the DOM level: wrapping the block elements would break
+    // BlockRenderer's reorder/editing identity, but every Block renders a
+    // stable [data-block-id] node we can decorate. pointer-events is disabled
+    // via the class so the teacher can't interact with a half-verified section.
+    useEffect(() => {
+        const applied: HTMLElement[] = [];
+        glowBlocks.forEach((label, id) => {
+            const el = document.querySelector(
+                `[data-block-id="${CSS.escape(id)}"]`
+            ) as HTMLElement | null;
+            if (!el) return;
+            el.classList.add("section-build-glow");
+            if (label) el.setAttribute("data-build-label", label);
+            applied.push(el);
+        });
+        return () =>
+            applied.forEach((el) => {
+                el.classList.remove("section-build-glow");
+                el.removeAttribute("data-build-label");
+            });
+    }, [glowBlocks, initialBlocks, loadingBlocks]);
+
     const handleCommitBlock = (blockId: string, content: string, blockType?: SlashCommandType) => {
         console.log("Committing block:", { blockId, content, blockType, hasEditing: !!editing });
 
@@ -479,10 +560,11 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     // Verify that content is actually rendered in DOM
-                    // Either blocks exist OR the welcome screen is shown
-                    const hasBlocks = document.querySelectorAll('section, [data-block-id]').length > 0;
+                    // Either blocks exist, build skeletons are shown, OR the
+                    // welcome screen is shown
+                    const hasBlocks = document.querySelectorAll('section, [data-block-id], [data-build-skeleton]').length > 0;
                     const hasWelcomeScreen = document.querySelector('.glass') !== null;
-                    
+
                     if (!hasBlocks && !hasWelcomeScreen) {
                         // Content not yet rendered, wait a bit and retry
                         setTimeout(waitForPaint, 100);
@@ -761,10 +843,25 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
         }, '*');
     };
 
+    // Skeleton placeholders for sections still building in the background,
+    // rendered below the real blocks (or instead of the welcome screen).
+    const buildSkeletons =
+        skeletonSections.length > 0 ? (
+            <div className={initialBlocks.length > 0 ? "space-y-4 pt-4" : "space-y-4"}>
+                {skeletonSections.map((section) => (
+                    <SectionBuildSkeleton
+                        key={section.id}
+                        title={section.title}
+                        status={section.status}
+                    />
+                ))}
+            </div>
+        ) : null;
+
     return (
         <div className="flex flex-col h-full glass">
             <Card className="flex-1 overflow-hidden bg-white no-border relative">
-                {initialBlocks.length > 0 ? (
+                {initialBlocks.length > 0 || skeletonSections.length > 0 ? (
                     <div className="relative w-full h-full">
                         <BlockRenderer
                             initialBlocks={initialBlocks}
@@ -773,6 +870,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                             onAddBlock={handleAddBlock}
                             onReorder={handleReorder}
                             onDeleteBlock={handleDeleteBlock}
+                            trailingContent={buildSkeletons}
                         />
                     </div>
                 ) : (

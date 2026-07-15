@@ -16,6 +16,9 @@ export interface BlockRendererProps {
     onAddBlock?: (blockId: string) => void;
     onReorder?: (newBlocks: ReactElement[]) => void;
     onDeleteBlock?: (blockId: string) => void;
+    /** Rendered after the blocks, inside the scroll container (e.g. skeletons
+     *  for sections still being built in the background) */
+    trailingContent?: ReactNode;
 }
 
 /**
@@ -125,7 +128,8 @@ export const BlockRenderer = ({
     onEditBlock,
     onAddBlock,
     onReorder,
-    onDeleteBlock
+    onDeleteBlock,
+    trailingContent
 }: BlockRendererProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const stackRef = useRef<HTMLDivElement | null>(null);
@@ -211,6 +215,7 @@ export const BlockRenderer = ({
                             ))}
                         </div>
                     )}
+                    {trailingContent}
                 </div>
             </div>
         </div>

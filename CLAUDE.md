@@ -1926,3 +1926,230 @@ Then use it inside a `SplitLayout` with scrubble numbers and triggers in the tex
 
 Reactive wrappers are **inner** components used inside a `<Block>`, not top-level block wrappers. The flat array rule still applies.
 
+
+## Bespoke Figures — Custom Canvas/SVG Visuals (PREFERRED for star visuals)
+
+**The star visual of every section is a bespoke figure** — custom SVG/canvas drawn from
+the domain model, wrapped in the `<Figure>` shell, animated with the motion toolkit.
+Library components (`Cartesian2D`, `DataVisualization`, …) are for **supporting material**
+only (quick charts, coordinate checks) — never the section's main visual unless the
+concept literally IS a standard chart.
+
+**Read `FIGURE_DESIGN_LANGUAGE.md` before writing any figure code.** Every rule there is a
+generation-time requirement: white ground, ink `#334155`–`#64748B` (never pure black),
+exactly ONE accent hue (default Soft Teal `#62D0AD`), two stroke weights (structure 1.5–2px,
+accent 2.5–3.5px, accent always heaviest), rounded caps/joins, ≥24px interior padding,
+direct labels (no legends), tabular-nums readouts, soft shadow on draggables only,
+nothing teleports (springs for discrete changes, 1:1 tracking during drag).
+
+A complete copyable exemplar lives in `src/data/sections/figureDemo.tsx` (reference-only,
+like `exampleBlocks.tsx` — not registered in `blocks.tsx`).
+
+### The `<Figure>` Shell (import from `@/components/molecules`)
+
+Uniform chrome for every bespoke figure: rounded white frame, quiet icon controls
+(top-right, fade in on hover/focus, always visible on touch), 13px ink-gray caption below.
+The drawing inside stays fully custom — the frame is a `position: relative` container, so
+`InteractionHintSequence` overlays keep working inside. Never rebuild or restyle this chrome.
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `id` | `string` *(required)* | Emitted as `data-figure-id` on the root (verification harness target) |
+| `caption` | `ReactNode` | Caption below the frame — sentence case, explains the interaction |
+| `onReset` | `() => void` | When provided, shows a reset icon button that calls it |
+| `playable` | `boolean` | Shows a play/pause toggle in the chrome |
+| `playVarName` | `string` | Store variable receiving the playing boolean — figure code reads it via `useVar(playVarName, false)` to pause its `useRafLoop` |
+| `aspectRatio` | `string` | Optional CSS aspect-ratio for the frame (e.g. `"16 / 9"`) |
+| `children` | `ReactNode` *(required)* | The bespoke drawing + figure-local controls |
+| `className` | `string` | Extra classes on the outer `<figure>` |
+
+### `FigureSlider` — the One Continuous Control
+
+Most bespoke figures need exactly one continuous control. `FigureSlider` is a styled range
+input bound to a store variable, matching the shell chrome (ink-gray 12px label, quiet
+slate track, accent thumb with soft shadow, tabular-nums readout). Never restyle a raw
+`<input type="range">` per figure.
+
+| Prop | Type | Purpose |
+|------|------|---------|
+| `varName` | `string` *(required)* | Number variable the slider reads/writes |
+| `min` / `max` / `step` | `number` | Range — supply via the definition spread (below) |
+| `defaultValue` | `number` | Initial value when the store has no entry |
+| `label` | `string` | Short label left of the track |
+| `formatValue` | `(v: number) => string` | Readout formatting (e.g. `(v) => \`${v.toFixed(1)} m\``) |
+| `color` | `string` | Thumb accent — normally comes from the variable's `color` |
+
+Like `InlineScrubbleNumber`, **never hardcode `min`/`max`/`step` inline** — define the
+variable in `src/data/variables.ts` and spread the definition:
+
+```tsx
+<FigureSlider
+    varName="leverRightDistance"
+    label="Distance from fulcrum"
+    {...numberPropsFromDefinition(getVariableInfo('leverRightDistance'))}
+    formatValue={(v) => `${v.toFixed(1)} m`}
+/>
+```
+
+### Motion Toolkit Quick Reference (import from `@/lib/motion`)
+
+Helpers, not components — a floor for bespoke figures, never a ceiling.
+
+| Export | Signature | Use for |
+|--------|-----------|---------|
+| `useRafLoop` | `useRafLoop((dt, elapsed) => void, { paused? })` | Simulations. Shared rAF loop; `dt`/`elapsed` in **seconds**, `dt` clamped to 64ms; auto-pauses on `paused` and when the tab is hidden; frame-rate independent |
+| `useSpring` | `useSpring(target, { stiffness?, damping?, precision? }) => number` | Release animations and discrete-state transitions ("nothing teleports"). Gentle, slightly under-damped default; retargets mid-flight without restarting |
+| `easeOutCubic` | `(t: 0..1) => 0..1` | UI transitions (the default easing) |
+| `easeInOutCubic` | `(t: 0..1) => 0..1` | Symmetric A→B moves |
+| `linear` | `(t) => t` | Constant-rate processes |
+| `lerp` | `lerp(a, b, t)` | Linear interpolation |
+| `clamp` | `clamp(v, min, max)` | Bounding drags and model values |
+| `remap` | `remap(v, inMin, inMax, outMin, outMax)` | Model → view mapping (unclamped; compose with `clamp`) |
+| `damp` | `damp(a, b, lambda, dt)` | Frame-rate-independent exponential smoothing inside a rAF callback |
+| `vec2` | `vec2.add/sub/scale/dot/len/dist/norm/rotate` over `{ x, y }` | Pointer projection, geometry. `rotate` matches SVG's `rotate()` direction in y-down coords |
+
+Rules of thumb: `useSpring` for anything that settles (beam angles, mode changes, hover
+scale-ups); `useRafLoop` for anything that runs (orbits, sweeps, physics) — always advance
+by `dt`/`elapsed`, never by frame count; during a drag write the model **directly** from the
+pointer (1:1, zero lag) and let springs ease only derived quantities or the release.
+
+### Complete Example — Balance Beam (condensed from `src/data/sections/figureDemo.tsx`)
+
+Step 1 — variables in `src/data/variables.ts`:
+
+```ts
+leverRightDistance: {
+    defaultValue: 1.5, type: 'number', label: 'Right mass distance',
+    description: 'Distance of the draggable 1 kg mass from the fulcrum',
+    unit: 'm', min: 0.5, max: 4.5, step: 0.1, color: '#62D0AD',
+},
+leverPlaying: { defaultValue: false, type: 'boolean', label: 'Lever sweep playing' },
+```
+
+Step 2 — the figure (drawing derives from the domain model; nothing hand-placed):
+
+```tsx
+import { Figure, FigureSlider } from "@/components/molecules";
+import { InteractionHintSequence } from "@/components/atoms";
+import { useVar, useSetVar } from "@/stores";
+import { clamp, remap, useRafLoop, useSpring, vec2, type Vec2 } from "@/lib/motion";
+
+const PIVOT: Vec2 = { x: 280, y: 230 };
+const PX_PER_METER = 52;
+
+function LeverBalanceDrawing() {
+    const setVar = useSetVar();
+    const distance = useVar<number>("leverRightDistance", 1.5);
+    const playing = useVar<boolean>("leverPlaying", false);
+    const [dragging, setDragging] = useState(false);
+    const [hovered, setHovered] = useState(false);
+    const svgRef = useRef<SVGSVGElement>(null);
+
+    // The model draws the view: tilt derives from net torque.
+    const netTorque = 2 * 2 - 1 * distance;                       // left − right
+    const angle = useSpring(clamp(remap(netTorque, -4, 4, 12, -12), -12, 12),
+        { stiffness: 120, damping: 14 });                          // physical settle
+    const handleScale = useSpring(dragging || hovered ? 1.15 : 1,  // affordance pop
+        { stiffness: 400, damping: 26 });
+
+    // Play mode: sweep on the shared rAF loop (real dt, pauses when hidden).
+    useRafLoop((_dt, elapsed) => {
+        setVar("leverRightDistance", clamp(2.5 + 2 * Math.sin(elapsed * 0.6), 0.5, 4.5));
+    }, { paused: !playing || dragging });
+
+    // Direct 1:1 tracking during drag: project pointer onto the beam axis.
+    const handlePointerMove = (event: React.PointerEvent<SVGCircleElement>) => {
+        if (!dragging || !svgRef.current) return;
+        const rect = svgRef.current.getBoundingClientRect();
+        const point: Vec2 = {
+            x: ((event.clientX - rect.left) / rect.width) * 560,
+            y: ((event.clientY - rect.top) / rect.height) * 320,
+        };
+        const beamDirection = vec2.rotate({ x: 1, y: 0 }, (angle * Math.PI) / 180);
+        const alongBeam = vec2.dot(vec2.sub(point, PIVOT), beamDirection);
+        setVar("leverRightDistance", clamp(alongBeam / PX_PER_METER, 0.5, 4.5));
+    };
+
+    const handleX = PIVOT.x + distance * PX_PER_METER;
+    return (
+        <svg ref={svgRef} viewBox="0 0 560 320" className="block w-full">
+            <defs>{/* soft shadow for the DRAGGABLE element only */}
+                <filter id="handle-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1.5" floodColor="#0F172A" floodOpacity="0.25" />
+                </filter>
+            </defs>
+            {/* stable tabular-nums readouts, direct-labeled in each side's color */}
+            <text x="36" y="48" fill="#334155" fontSize="12"
+                style={{ fontVariantNumeric: "tabular-nums" }}>2 kg × 2.0 m = 4.0</text>
+            <text x="524" y="48" fill="#62D0AD" fontSize="12" textAnchor="end"
+                style={{ fontVariantNumeric: "tabular-nums" }}>
+                {`1 kg × ${distance.toFixed(1)} m = ${(1 * distance).toFixed(1)}`}</text>
+            {/* static structure: quiet ink, 2px, rounded */}
+            <polygon points="280,232 258,284 302,284" fill="#F1F5F9"
+                stroke="#64748B" strokeWidth="2" strokeLinejoin="round" />
+            <g transform={`rotate(${angle} ${PIVOT.x} ${PIVOT.y})`}>
+                <line x1={PIVOT.x - 247} y1={PIVOT.y} x2={PIVOT.x + 247} y2={PIVOT.y}
+                    stroke="#64748B" strokeWidth="2" strokeLinecap="round" />
+                <rect x={PIVOT.x - 2 * PX_PER_METER - 17} y={PIVOT.y - 32}
+                    width="34" height="30" rx="4" fill="#64748B" />{/* fixed mass: NOT grabbable-looking */}
+                {/* lever arm = the concept quantity: ONE accent, heaviest stroke */}
+                <line x1={PIVOT.x} y1={PIVOT.y} x2={handleX} y2={PIVOT.y}
+                    stroke="#62D0AD" strokeWidth="3.5" strokeLinecap="round" />
+                {/* draggable handle: ≥12px radius accent circle, shadow, spring hover scale */}
+                <g transform={`translate(${handleX} ${PIVOT.y - 15}) scale(${handleScale})`}>
+                    <circle r="14" fill="#62D0AD" filter="url(#handle-shadow)" />
+                </g>
+                <circle cx={handleX} cy={PIVOT.y - 15} r="24" fill="transparent"  /* 24px hit area */
+                    style={{ cursor: dragging ? "grabbing" : "grab", touchAction: "none" }}
+                    onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); setDragging(true); }}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={() => setDragging(false)}
+                    onPointerEnter={() => setHovered(true)}
+                    onPointerLeave={() => setHovered(false)} />
+            </g>
+        </svg>
+    );
+}
+
+function LeverBalanceFigure() {
+    const setVar = useSetVar();
+    return (
+        <Figure id="lever-balance" playable playVarName="leverPlaying"
+            onReset={() => { setVar("leverRightDistance", 1.5); setVar("leverPlaying", false); }}
+            caption="A 2 kg mass sits 2 m left of the fulcrum. Drag the teal 1 kg mass — or press play — and watch the beam settle where the torques lead it.">
+            <LeverBalanceDrawing />
+            <div className="px-6 pb-5">
+                <FigureSlider varName="leverRightDistance" label="Distance from fulcrum"
+                    {...numberPropsFromDefinition(getVariableInfo('leverRightDistance'))}
+                    formatValue={(v) => `${v.toFixed(1)} m`} />
+            </div>
+            <InteractionHintSequence hintKey="lever-balance-drag"
+                steps={[{ gesture: "drag-horizontal", label: "Drag the teal mass along the beam",
+                    position: { x: "64%", y: "48%" },
+                    dragPath: { type: "line", startOffset: { x: -30, y: 0 }, endOffset: { x: 30, y: 0 } } }]} />
+        </Figure>
+    );
+}
+```
+
+Then place it in a block as usual (`hasVisualization` is required):
+
+```tsx
+<StackLayout key="layout-lever-balance-figure" maxWidth="xl">
+    <Block id="lever-balance-figure" padding="sm" hasVisualization>
+        <LeverBalanceFigure />
+    </Block>
+</StackLayout>
+```
+
+Checklist for every bespoke figure (in addition to the interactivity rules above):
+
+- [ ] One idea per figure; the default state poses the question (starts unbalanced, not solved)
+- [ ] One accent hue on the manipulable/concept element; ink + paper otherwise
+- [ ] Two stroke weights, rounded caps; soft shadow on draggables only
+- [ ] Drawing derives from model state (`useVar`) — no hand-placed visual quantities
+- [ ] 1:1 pointer tracking while dragging; `useSpring` settle for everything discrete
+- [ ] `useRafLoop` for anything continuous, advanced by `dt`/`elapsed` (never frame count)
+- [ ] Wrapped in `<Figure>` with `id`, caption, and `onReset`; sliders via `FigureSlider`
+- [ ] `InteractionHintSequence` inside the shell, positioned on the draggable element
+- [ ] Labels readable and non-overlapping at BOTH extremes of every control's range

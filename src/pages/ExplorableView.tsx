@@ -25,6 +25,15 @@ const ExplorableView = () => {
     const { isEditor } = useAppMode();
     const [dots, setDots] = useState("");
 
+    // Embedded in the tutor chat, the explorable must sit directly on the
+    // chat's background — clear the app's own page background so the iframe
+    // can be transparent. The teacher's editor keeps the normal white page.
+    useEffect(() => {
+        if (isEditor) return;
+        document.documentElement.style.background = "transparent";
+        document.body.style.background = "transparent";
+    }, [isEditor]);
+
     useEffect(() => {
         if (entry) return;
         const t = setInterval(() => setDots((d) => (d.length >= 3 ? "" : d + ".")), 500);
@@ -93,7 +102,7 @@ const ExplorableView = () => {
 
     if (!entry) {
         return (
-            <div className="h-screen flex items-center justify-center bg-white">
+            <div className={`h-screen flex items-center justify-center ${isEditor ? "bg-white" : "bg-transparent"}`}>
                 <div className="text-center text-slate-400">
                     <div className="text-base font-medium">Preparing your interactive explanation{dots}</div>
                     <div className="text-xs mt-2">This appears automatically when it is ready</div>
@@ -103,7 +112,7 @@ const ExplorableView = () => {
     }
 
     return (
-        <div className="relative bg-white">
+        <div className={`relative ${isEditor ? "bg-white" : "bg-transparent"}`}>
             <BlockRenderer
                 initialBlocks={entry.blocks}
                 isPreview={!isEditor}
