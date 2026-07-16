@@ -183,3 +183,32 @@ export const initializeVariableColors = (
     }
     useVariableStore.getState().initializeColors(colorMap);
 };
+
+/**
+ * Register additional variables AFTER the store has been initialized.
+ *
+ * Unlike initialize() (which only runs once), this merges new defaults and
+ * colors into the store without touching variables that already exist.
+ * Used by dynamically added content (e.g. tutor explorables in
+ * src/data/explorables/) that loads its own variable definitions.
+ *
+ * @example
+ * registerVariables({ fractionBars_numerator: { defaultValue: 1, type: 'number', color: '#62D0AD' } });
+ */
+export const registerVariables = (
+    definitions: Record<string, { defaultValue?: VarValue; color?: string }>
+): void => {
+    const store = useVariableStore.getState();
+    const newVars: Record<string, VarValue> = {};
+    for (const [name, def] of Object.entries(definitions)) {
+        if (def.defaultValue !== undefined && !(name in store.variables)) {
+            newVars[name] = def.defaultValue;
+        }
+    }
+    if (Object.keys(newVars).length > 0) {
+        store.setVariables(newVars);
+        // Keep reset() consistent: registered defaults survive a reset.
+        initialDefaults = { ...initialDefaults, ...newVars };
+    }
+    initializeVariableColors(definitions);
+};

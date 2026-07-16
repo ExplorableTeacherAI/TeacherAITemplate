@@ -58,6 +58,7 @@ export { InlineHyperlink } from "./text/InlineHyperlink";
 export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
 export { InlineSpotColor } from "./text/InlineSpotColor";
 export { InlineLinkedHighlight } from "./text/InlineLinkedHighlight";
+export { RevealOnInteraction } from "./text/RevealOnInteraction";
 export {
     EditableH1,
     EditableH2,

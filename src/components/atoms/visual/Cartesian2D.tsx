@@ -172,6 +172,13 @@ export interface Cartesian2DProps {
      * the same `varName`.
      */
     highlightVarName?: string;
+    /**
+     * Variable name in the global store to flip to `true` the first time the
+     * student genuinely drags one of the movable points (the initial mount
+     * sync is ignored). Pair it with a `RevealOnInteraction` that watches the
+     * same variable to reveal a question only after the student has explored.
+     */
+    interactionVar?: string;
 }
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
@@ -447,6 +454,7 @@ export function Cartesian2D({
     subdivisions = 1,
     className = "",
     highlightVarName,
+    interactionVar,
 }: Cartesian2DProps) {
     // Read the active highlight ID from the global variable store
     const activeId = useVar(highlightVarName ?? '', '') as string;
@@ -502,14 +510,30 @@ export function Cartesian2D({
     cb2.current = movablePoints[2]?.onChange;
     cb3.current = movablePoints[3]?.onChange;
 
+    // ── First-interaction tracking ─────────────────────────────────────────
+    // The movable-point effects below also fire once on mount (initial sync);
+    // `mountedRef` lets us ignore that and flip `interactionVar` only on a
+    // genuine drag. `interactedRef` makes it a one-shot write.
+    const mountedRef = useRef(false);
+    const interactedRef = useRef(false);
+    const markInteraction = useCallback(() => {
+        if (!mountedRef.current || !interactionVar || interactedRef.current) return;
+        interactedRef.current = true;
+        setVar(interactionVar, true);
+    }, [interactionVar, setVar]);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { syncSuppressed.current[0] = true; cb0.current?.(mp0.point as [number, number]); }, [mp0.point[0], mp0.point[1]]);
+    useEffect(() => { syncSuppressed.current[0] = true; cb0.current?.(mp0.point as [number, number]); markInteraction(); }, [mp0.point[0], mp0.point[1]]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { syncSuppressed.current[1] = true; cb1.current?.(mp1.point as [number, number]); }, [mp1.point[0], mp1.point[1]]);
+    useEffect(() => { syncSuppressed.current[1] = true; cb1.current?.(mp1.point as [number, number]); markInteraction(); }, [mp1.point[0], mp1.point[1]]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { syncSuppressed.current[2] = true; cb2.current?.(mp2.point as [number, number]); }, [mp2.point[0], mp2.point[1]]);
+    useEffect(() => { syncSuppressed.current[2] = true; cb2.current?.(mp2.point as [number, number]); markInteraction(); }, [mp2.point[0], mp2.point[1]]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => { syncSuppressed.current[3] = true; cb3.current?.(mp3.point as [number, number]); }, [mp3.point[0], mp3.point[1]]);
+    useEffect(() => { syncSuppressed.current[3] = true; cb3.current?.(mp3.point as [number, number]); markInteraction(); }, [mp3.point[0], mp3.point[1]]);
+
+    // Runs after the four mount-time syncs above, so any later point change is
+    // a real interaction.
+    useEffect(() => { mountedRef.current = true; }, []);
 
     // ── Sync external position → movable point ──────────────────────────
     // Only applies when position comes from an external source (e.g. text
