@@ -68,6 +68,12 @@ gradients, soft muted palette only. On top of that:
 - **Whitespace is load-bearing.** ≥ 24px padding inside the drawing surface on all sides;
   labels never touch the frame; nothing is ever clipped (see the safe-viewBox rule in
   `CLAUDE.md`). If a figure feels crowded, the fix is removing elements, not shrinking them.
+- **Scale the canvas to the content.** Drawing surface ≤ ~560px tall; the whole figure with
+  its controls fits one laptop screen (≤ ~780px). Coordinate bounds hug the action (content
+  extent + ~15% margin) so the ink spans well over half of the canvas in both axes at every
+  reachable state. A big canvas with the action huddled in one corner — or a giant dead band
+  of nothing — is a hard verification failure, exactly like clipping. If most of the range is
+  never used, shrink the bounds; never pad the world with empty space.
 - **No chart-junk, ever:** no 3D effects on 2D data, no clip-art, no emoji inside the drawing
   surface, no decorative icons, no full gridlines when tick marks suffice, no legend when
   direct labeling is possible (it almost always is).
@@ -150,7 +156,8 @@ below 3 on any item = polish failure, figure goes back for refinement.
 3. **Label legibility** — 5: every label readable, direct-labeled, non-overlapping, inside
    the frame. 1: any clipped/overlapping/colliding label.
 4. **Whitespace & composition** — 5: breathing room on all sides, balanced weight, nothing
-   cramped. 1: elements touch the frame or each other.
+   cramped, content fills the canvas. 1: elements touch the frame or each other, OR the
+   content huddles in a corner of a mostly-empty oversized canvas.
 5. **Affordance clarity** — 5: draggables unmistakably grabbable (size, accent, depth);
    static elements unmistakably static. 1: cannot tell what is interactive.
 6. **Junk-free** — 5: zero anti-patterns from §8. 1: any of #1, #3, #9, #10 present.
