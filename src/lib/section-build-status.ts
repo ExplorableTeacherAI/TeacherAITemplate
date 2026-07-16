@@ -14,6 +14,8 @@ export type SectionBuildInfo = {
     status: string; // queued | building | verifying | ready | needs_attention | failed | interrupted
     /** True once the section is registered into blocks.tsx */
     registered: boolean;
+    /** Live builder activity, e.g. "writing spec and code", "repairing issues (round 1/2)" */
+    detail?: string;
 };
 
 const IN_FLIGHT_STATES = new Set(["queued", "building", "verifying"]);

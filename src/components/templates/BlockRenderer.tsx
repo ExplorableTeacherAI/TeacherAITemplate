@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, cloneElement, isValidElement, Children, Fra
 import { Reorder, useDragControls } from "framer-motion";
 import { BlockContext } from "@/contexts/BlockContext";
 import { InteractionLegend } from "@/components/molecules";
+import { BlockErrorBoundary } from "./BlockErrorBoundary";
 
 export interface BlockRendererProps {
     /** Array of Block elements to render */
@@ -44,6 +45,12 @@ const deepCloneWithProps = (element: ReactNode, props: { isPreview?: boolean; on
 
     return clonedElement;
 };
+
+// The preview iframe is reloaded by the parent frontend whenever a section
+// registers/completes or an edit is saved. Persisting scroll per page URL in
+// sessionStorage (same origin across reloads) keeps the teacher where they
+// were instead of snapping back to the top of the lesson every time.
+const SCROLL_STORAGE_KEY = `lesson-scroll:${window.location.pathname}${window.location.search}`;
 
 /**
  * Extract block ID from element - handles both direct Block components and wrapped layouts
@@ -104,7 +111,9 @@ const DraggableBlock = ({
             style={{ position: "relative" }}
         >
             <BlockContext.Provider value={{ dragControls, onDelete: handleDelete, id: blockId }}>
-                {deepCloneWithProps(block, { isPreview, onEditBlock, onAddBlock })}
+                <BlockErrorBoundary blockId={blockId}>
+                    {deepCloneWithProps(block, { isPreview, onEditBlock, onAddBlock })}
+                </BlockErrorBoundary>
             </BlockContext.Provider>
         </Reorder.Item>
     );
@@ -133,6 +142,62 @@ export const BlockRenderer = ({
 }: BlockRendererProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const stackRef = useRef<HTMLDivElement | null>(null);
+    const scrollRestoredRef = useRef(false);
+
+    // Save scroll position (rAF-throttled) so it survives iframe reloads
+    useEffect(() => {
+        if (embedded) return;
+        const el = containerRef.current;
+        if (!el) return;
+        let raf = 0;
+        const onScroll = () => {
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => {
+                try {
+                    sessionStorage.setItem(SCROLL_STORAGE_KEY, String(el.scrollTop));
+                } catch {
+                    // storage unavailable (private mode etc.) — scroll just resets
+                }
+            });
+        };
+        el.addEventListener("scroll", onScroll, { passive: true });
+        return () => {
+            el.removeEventListener("scroll", onScroll);
+            cancelAnimationFrame(raf);
+        };
+    }, [embedded]);
+
+    // Restore the saved position once, after real content has rendered.
+    // Content keeps growing for a moment (images, lazy visualizations), so
+    // retry briefly until the saved offset is actually reachable.
+    useEffect(() => {
+        if (embedded || scrollRestoredRef.current || initialBlocks.length === 0) return;
+        const el = containerRef.current;
+        if (!el) return;
+        scrollRestoredRef.current = true;
+        let saved = 0;
+        try {
+            saved = parseInt(sessionStorage.getItem(SCROLL_STORAGE_KEY) ?? "0", 10) || 0;
+        } catch {
+            return;
+        }
+        if (saved <= 0) return;
+        let attempts = 0;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const tryRestore = () => {
+            if (el.scrollHeight - el.clientHeight >= saved || attempts >= 10) {
+                el.scrollTop = saved;
+                return;
+            }
+            attempts += 1;
+            timer = setTimeout(tryRestore, 150);
+        };
+        const raf = requestAnimationFrame(() => requestAnimationFrame(tryRestore));
+        return () => {
+            cancelAnimationFrame(raf);
+            if (timer) clearTimeout(timer);
+        };
+    }, [embedded, initialBlocks]);
 
     // Typeset MathJax
     useEffect(() => {
@@ -209,7 +274,9 @@ export const BlockRenderer = ({
                                     value={{ id: getBlockId(block) }}
                                 >
                                     <div className="w-full">
-                                        {deepCloneWithProps(block, { isPreview, onEditBlock, onAddBlock })}
+                                        <BlockErrorBoundary blockId={getBlockId(block)}>
+                                            {deepCloneWithProps(block, { isPreview, onEditBlock, onAddBlock })}
+                                        </BlockErrorBoundary>
                                     </div>
                                 </BlockContext.Provider>
                             ))}

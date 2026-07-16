@@ -359,7 +359,12 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             setSkeletonSections((prev) => {
                 const same =
                     prev.length === skeletons.length &&
-                    prev.every((s, i) => s.id === skeletons[i].id && s.status === skeletons[i].status);
+                    prev.every(
+                        (s, i) =>
+                            s.id === skeletons[i].id &&
+                            s.status === skeletons[i].status &&
+                            s.detail === skeletons[i].detail
+                    );
                 return same ? prev : skeletons;
             });
         })();
@@ -853,6 +858,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                         key={section.id}
                         title={section.title}
                         status={section.status}
+                        detail={section.detail}
                     />
                 ))}
             </div>
