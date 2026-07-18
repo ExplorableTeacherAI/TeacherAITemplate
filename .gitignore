@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Per-workspace vite dep cache (see vite.config.ts cacheDir)
+.vite_cache
