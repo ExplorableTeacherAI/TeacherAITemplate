@@ -84,12 +84,20 @@ const ExplorableView = () => {
             if (vars === prev) return;
             for (const [name, value] of Object.entries(vars)) {
                 if (prev[name] !== value) {
+                    // RevealOnInteraction and similar gates are implementation
+                    // details, not concept variables the tutor should discuss.
+                    const isInternalState = /_(explored|interacted|revealed)$/.test(name);
+                    if (isInternalState) continue;
                     window.parent.postMessage(
                         {
                             type: "mathvibe-explorable-interaction",
                             explorableId: id,
                             varName: name,
+                            previousValue: prev[name],
                             value,
+                            // Generic store changes are exploration. Assessed
+                            // answers are reported explicitly by InlineFeedback.
+                            interactionKind: "variable_change",
                         },
                         "*"
                     );

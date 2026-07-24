@@ -72,7 +72,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const dropdownRef = useRef<HTMLSpanElement>(null);
 
     // ── Interaction Hint System ──
     const { hintVisible, dismissHint } = useComponentHint('cloze-choice', { enabled: showHint });
@@ -332,12 +332,12 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
 
                     <AnimatePresence>
                         {isOpen && (
-                            <motion.div
+                            <motion.span
                                 initial={{ opacity: 0, y: -4, scale: 0.97 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                                 transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-                                className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
+                                className="absolute top-full left-0 mt-1 inline-block rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
                                 style={{
                                     background: 'white',
                                     boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
@@ -366,7 +366,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                                         </button>
                                     );
                                 })}
-                            </motion.div>
+                            </motion.span>
                         )}
                     </AnimatePresence>
                 </span>
@@ -399,12 +399,12 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
 
                 <AnimatePresence>
                     {isOpen && (
-                        <motion.div
+                        <motion.span
                             initial={{ opacity: 0, y: -4, scale: 0.97 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -4, scale: 0.97 }}
                             transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-                            className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
+                            className="absolute top-full left-0 mt-1 inline-block rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
                             style={{
                                 background: 'white',
                                 boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
@@ -433,7 +433,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                                     </button>
                                 );
                             })}
-                        </motion.div>
+                        </motion.span>
                     )}
                 </AnimatePresence>
             </span>
