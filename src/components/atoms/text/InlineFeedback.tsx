@@ -310,12 +310,15 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     // the tutor agent's reply. No-op when not embedded in an iframe.
     useEffect(() => {
         if (!hasAnswer || window.parent === window) return;
+        const explorableId = new URLSearchParams(window.location.search).get('explorable') ?? undefined;
         window.parent.postMessage(
             {
                 type: 'mathvibe-explorable-feedback',
+                explorableId,
                 varName,
                 value: storeValue,
                 correct: isCorrect,
+                interactionKind: 'answer',
             },
             '*'
         );
