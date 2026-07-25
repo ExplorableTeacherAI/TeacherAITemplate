@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, Fragment } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import {
     Mafs,
     Coordinates,
@@ -6,6 +6,7 @@ import {
     Point,
     Line,
     Circle,
+    Vector,
     useMovablePoint,
 } from "mafs";
 import { useVar, useSetVar } from "@/stores/variableStore";
@@ -271,8 +272,6 @@ function renderPlotItem(
         }
 
         case "vector": {
-            // Rendered as a directed line segment; the arrowhead is a small
-            // filled circle at the tip to keep the dependency list slim.
             const tail = item.tail ?? ([0, 0] as [number, number]);
             const { opacity, weight } = getHighlightStyle(
                 item.highlightId,
@@ -280,22 +279,14 @@ function renderPlotItem(
                 item.weight ?? 2
             );
             return (
-                <Fragment key={key}>
-                    <Line.Segment
-                        point1={tail}
-                        point2={item.tip}
+                <g key={key} opacity={opacity}>
+                    <Vector
+                        tail={tail}
+                        tip={item.tip}
                         color={item.color}
                         weight={weight}
-                        opacity={opacity}
                     />
-                    {/* Arrowhead indicator at tip */}
-                    <Circle
-                        center={item.tip}
-                        radius={0.08}
-                        color={item.color}
-                        fillOpacity={opacity}
-                    />
-                </Fragment>
+                </g>
             );
         }
 
