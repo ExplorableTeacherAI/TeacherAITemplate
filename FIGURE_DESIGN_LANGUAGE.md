@@ -83,6 +83,12 @@ gradients, soft muted palette only. On top of that:
 - Labels are set in the page's sans-serif at 11–13px, ink-gray, sentence case; math symbols
   italic to match KaTeX prose.
 - **Direct labeling beats legends.** Put the word next to the thing, in the thing's color.
+- **Readouts and status panels live BESIDE the drawing surface, never on it.** Estimate
+  boxes, causal-chain panels, counters, and any card-style readout belong in a side rail
+  or a row above/below the canvas — the plot area is reserved for the phenomenon itself.
+  Inside the frame, only small annotations anchored to geometry are allowed (a point's
+  coordinate tag, an arrow label), and they must never occlude the curve/shape they
+  describe or collide with each other at ANY slider state.
 - **Numeric readouts are stable.** Use tabular numerals / fixed decimal places so values
   don't jitter in width while scrubbing; a changing number never reflows its neighbors.
 - Labels never overlap geometry or each other at ANY reachable state of the interaction —
@@ -141,6 +147,7 @@ gradients, soft muted palette only. On top of that:
 | 8 | Draggable element with no visual affordance | Interaction undiscoverable |
 | 9 | Emoji/clip-art inside the drawing surface | Tone mismatch, salience noise |
 | 10 | The star visual is a stock library chart wearing the lesson's labels | The library-ceiling failure this document exists to prevent |
+| 11 | Readout/status panels floating over the plot area, occluding data or colliding with labels | The panel wins the salience contest against the phenomenon — panels belong beside the canvas |
 
 ---
 
@@ -154,7 +161,8 @@ below 3 on any item = polish failure, figure goes back for refinement.
 2. **Ink quality** — 5: warm-gray structure, two stroke weights, rounded caps, no pure
    black. 1: hairline default strokes, mixed weights, CAD look.
 3. **Label legibility** — 5: every label readable, direct-labeled, non-overlapping, inside
-   the frame. 1: any clipped/overlapping/colliding label.
+   the frame; readout/status panels sit beside the drawing surface, not over the data.
+   1: any clipped/overlapping/colliding label, or a panel occluding the plot.
 4. **Whitespace & composition** — 5: breathing room on all sides, balanced weight, nothing
    cramped, content fills the canvas. 1: elements touch the frame or each other, OR the
    content huddles in a corner of a mostly-empty oversized canvas.
