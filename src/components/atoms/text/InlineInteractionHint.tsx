@@ -209,15 +209,16 @@ export function HintIcon({ type, visible, isEditing = false }: HintIconProps) {
     return (
         <AnimatePresence>
             {visible && !isEditing && (
-                <motion.div
+                <motion.span
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                    className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none block"
                     style={{ top: 'calc(100% - 8px)' }}
                 >
-                    <motion.div
+                    <motion.span
+                        className="block"
                         animate={config.animation.animate}
                         transition={{
                             repeat: Infinity,
@@ -226,8 +227,8 @@ export function HintIcon({ type, visible, isEditing = false }: HintIconProps) {
                         }}
                     >
                         <Icon size={18} className="text-gray-400" />
-                    </motion.div>
-                </motion.div>
+                    </motion.span>
+                </motion.span>
             )}
         </AnimatePresence>
     );
@@ -302,16 +303,17 @@ export function FormulaHintIcon({ type, visible, isEditing = false, containerRef
     return (
         <AnimatePresence>
             {visible && !isEditing && positions.map((position, index) => (
-                <motion.div
+                <motion.span
                     key={`hint-${type}-${index}`}
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 4 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute z-50 pointer-events-none -translate-x-1/2"
+                    className="absolute z-50 pointer-events-none -translate-x-1/2 block"
                     style={{ left: position.left, top: position.top - 8 }}
                 >
-                    <motion.div
+                    <motion.span
+                        className="block"
                         animate={config.animation.animate}
                         transition={{
                             repeat: Infinity,
@@ -320,8 +322,8 @@ export function FormulaHintIcon({ type, visible, isEditing = false, containerRef
                         }}
                     >
                         <Icon size={18} className="text-gray-400" />
-                    </motion.div>
-                </motion.div>
+                    </motion.span>
+                </motion.span>
             ))}
         </AnimatePresence>
     );

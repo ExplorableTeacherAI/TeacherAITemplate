@@ -132,7 +132,10 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
 
     // Process \clr{name}{content} -> \textcolor{color}{content}
     const processedLatex = useMemo(() => {
-        let result = effectiveLatex;
+        // Repair doubled backslashes before command names (`\\frac` → `\frac`) —
+        // JSX attributes pass `\\` through literally and AI-generated formulas
+        // sometimes double-escape, which KaTeX renders as raw red source text.
+        let result = effectiveLatex.replace(/\\\\(?=[A-Za-z])/g, '\\');
         const clrPattern = /\\clr\{([^}]+)\}\{([^}]+)\}/g;
         result = result.replace(clrPattern, (_, termName, content) => {
             const c = effectiveColorMap[termName];

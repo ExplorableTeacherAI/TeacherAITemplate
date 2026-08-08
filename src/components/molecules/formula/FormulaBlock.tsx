@@ -364,6 +364,13 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     const processedLatex = useMemo(() => {
         let result = displayLatex;
 
+        // 0. Repair doubled backslashes before command names (`\\frac` → `\frac`).
+        // JSX string attributes pass `\\` through literally, and AI-generated
+        // formulas sometimes double-escape — KaTeX then fails and dumps raw red
+        // source. A `\\` before a letter is never a legitimate row break (those
+        // precede whitespace, `&`, or end-of-row), so this is safe to collapse.
+        result = result.replace(/\\\\(?=[A-Za-z])/g, '\\');
+
         // 1. Replace \scrub{varName} with a colored, class-tagged placeholder
         result = result.replace(
             /\\scrub\{([^}]+)\}/g,
