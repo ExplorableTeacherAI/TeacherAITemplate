@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo, useState, type ReactElement, isValidElement, Children, type ReactNode, cloneElement } from "react";
+import { useEffect, useCallback, useMemo, useState, type ReactElement, isValidElement, Children, Fragment, type ReactNode, cloneElement } from "react";
 import { Block } from "./Block";
 import { BlockInput } from "./BlockInput";
 import { type SlashCommandType } from "./SlashCommandMenu";
@@ -37,20 +37,13 @@ import blockLoaderConfig from "@/config/blocks-loader.config";
 import { useAppMode } from "@/contexts/AppModeContext";
 import { LoadingScreen } from "@/components/utility/LoadingScreen";
 import { useOptionalEditing } from "@/contexts/EditingContext";
+import { decodeMarkerProps } from "@/lib/inlineMarkers";
+import { collectBlockIds as collectSortableBlockIds, serializeBlockLayout } from "@/lib/block-tree";
 
 /**
  * Decode optional base64-encoded props from a marker.
  * Returns parsed object or null.
  */
-const decodeMarkerProps = (encoded: string | undefined): Record<string, unknown> | null => {
-    if (!encoded) return null;
-    try {
-        return JSON.parse(atob(encoded));
-    } catch {
-        return null;
-    }
-};
-
 /**
  * Parse content that may contain inline component markers and convert to React elements.
  * Markers formats:
@@ -81,6 +74,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineScrubbleNumber
                         key={uniqueId}
+                        id={uniqueId}
                         varName={p?.varName ?? `var_${uniqueId}`}
                         defaultValue={p?.defaultValue ?? 10}
                         min={p?.min ?? 0}
@@ -96,6 +90,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineClozeChoice
                         key={uniqueId}
+                        id={uniqueId}
                         varName={p?.varName ?? `var_${uniqueId}`}
                         correctAnswer={p?.correctAnswer ?? "Option 1"}
                         options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
@@ -111,6 +106,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineClozeInput
                         key={uniqueId}
+                        id={uniqueId}
                         varName={p?.varName ?? `var_${uniqueId}`}
                         correctAnswer={p?.correctAnswer ?? "answer"}
                         placeholder={p?.placeholder ?? "???"}
@@ -126,6 +122,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineToggle
                         key={uniqueId}
+                        id={uniqueId}
                         varName={p?.varName ?? `var_${uniqueId}`}
                         options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
                         color={p?.color}
@@ -139,6 +136,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineTooltip
                         key={uniqueId}
+                        id={uniqueId}
                         tooltip={p?.tooltip ?? "Tooltip content"}
                         color={p?.color}
                         bgColor={p?.bgColor}
@@ -155,6 +153,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineTrigger
                         key={uniqueId}
+                        id={uniqueId}
                         varName={p?.varName ?? `var_${uniqueId}`}
                         value={p?.value}
                         color={p?.color}
@@ -170,6 +169,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineHyperlink
                         key={uniqueId}
+                        id={uniqueId}
                         href={p?.href}
                         targetBlockId={p?.targetBlockId}
                         color={p?.color}
@@ -185,6 +185,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineFormula
                         key={uniqueId}
+                        id={uniqueId}
                         latex={p?.latex ?? "x^2"}
                         colorMap={p?.colorMap}
                         color={p?.color}
@@ -197,6 +198,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineSpotColor
                         key={uniqueId}
+                        id={uniqueId}
                         varName={p?.varName ?? `var_${uniqueId}`}
                         color={p?.color ?? "#3B82F6"}
                     >
@@ -210,6 +212,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 parts.push(
                     <InlineLinkedHighlight
                         key={uniqueId}
+                        id={uniqueId}
                         varName={p?.varName ?? `highlight_${uniqueId}`}
                         highlightId={p?.highlightId ?? uniqueId}
                         color={p?.color}
@@ -270,6 +273,28 @@ const hasElementId = (element: ReactNode, targetId: string): boolean => {
     return found;
 };
 
+/** Return the first stable block identity found in a rendered lesson node. */
+const extractBlockId = (element: ReactElement): string | undefined => {
+    if (!isValidElement(element)) return undefined;
+    const el = element as ReactElement<{ id?: string; blockId?: string; children?: ReactNode }>;
+    if (el.props.id) return el.props.id;
+    if (el.props.blockId) return el.props.blockId;
+    if (el.key) {
+        const key = String(el.key);
+        if (key.startsWith('layout-')) return key.replace('layout-', '');
+        if (key.startsWith('.')) return key.substring(1);
+        return key;
+    }
+
+    let found: string | undefined;
+    Children.forEach(el.props.children, child => {
+        if (!found && isValidElement(child)) {
+            found = extractBlockId(child as ReactElement);
+        }
+    });
+    return found;
+};
+
 /**
  * Find the id prop of an EditableParagraph (or similar) that has a matching blockId,
  * so we can preserve it when replacing block content after inline component insertion.
@@ -311,10 +336,91 @@ const replaceBlockContent = (element: ReactElement, targetId: string, newContent
     return element;
 };
 
+const EMPTY_BLOCK_PLACEHOLDER = "Type '/' for commands or press Space to ask AI";
+
+/**
+ * React source for an empty paragraph can be `null`, an empty string, or only
+ * formatting whitespace. Keep this check at the React-tree level so a saved
+ * empty paragraph is rendered with the same editor as a newly inserted block.
+ */
+const isVisuallyEmptyReactContent = (node: ReactNode): boolean => {
+    if (node === null || node === undefined || typeof node === 'boolean') return true;
+    if (typeof node === 'string' || typeof node === 'number') {
+        return String(node).replace(/(?:\s|\u00a0|\u200B|\uFEFF)+/g, '').length === 0;
+    }
+    if (Array.isArray(node)) return node.every(isVisuallyEmptyReactContent);
+    if (isValidElement(node) && node.type === Fragment) {
+        return isVisuallyEmptyReactContent(
+            (node as ReactElement<{ children?: ReactNode }>).props.children
+        );
+    }
+    return false;
+};
+
+const replacePersistedEmptyParagraph = (
+    node: ReactNode,
+    onCommit: (id: string, value: string, blockType?: SlashCommandType) => void,
+    onAIRequest: (id: string, instruction: string) => void,
+): ReactNode => {
+    if (!isValidElement(node)) return node;
+
+    const element = node as ReactElement<{ blockId?: string; children?: ReactNode }>;
+    if (
+        element.type === EditableParagraph &&
+        element.props.blockId &&
+        isVisuallyEmptyReactContent(element.props.children)
+    ) {
+        return (
+            <BlockInput
+                key={element.key ?? `empty-${element.props.blockId}`}
+                id={element.props.blockId}
+                onCommit={onCommit}
+                onAIRequest={onAIRequest}
+                placeholder={EMPTY_BLOCK_PLACEHOLDER}
+            />
+        );
+    }
+
+    if (element.props.children === undefined) return element;
+    return cloneElement(
+        element,
+        {},
+        Children.map(element.props.children, child =>
+            replacePersistedEmptyParagraph(child, onCommit, onAIRequest)
+        ),
+    );
+};
+
+const inlineComponentTypes = new Set<unknown>([
+    InlineScrubbleNumber,
+    InlineClozeInput,
+    InlineClozeChoice,
+    InlineToggle,
+    InlineTooltip,
+    InlineTrigger,
+    InlineHyperlink,
+    InlineFormula,
+    InlineSpotColor,
+    InlineLinkedHighlight,
+]);
+
+const removeInlineComponentById = (node: ReactNode, componentId: string): ReactNode => {
+    if (!isValidElement(node)) return node;
+    const element = node as ReactElement<Record<string, unknown>>;
+    if (inlineComponentTypes.has(element.type) && element.props.id === componentId) {
+        return null;
+    }
+    if (!('children' in element.props)) return element;
+    const children = Children.map(element.props.children as ReactNode, child =>
+        removeInlineComponentById(child, componentId)
+    );
+    return cloneElement(element, {}, children);
+};
+
 export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     const [initialBlocks, setInitialBlocks] = useState<ReactElement[]>([]);
     const [loadingBlocks, setLoadingBlocks] = useState(true);
-    const { isPreview } = useAppMode();
+    const { isEditor, isPreview } = useAppMode();
     const editing = useOptionalEditing();
 
     // ---- live section-build progress (teacher's editor preview only) ------
@@ -395,7 +501,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             });
     }, [glowBlocks, initialBlocks, loadingBlocks]);
 
-    const handleCommitBlock = (blockId: string, content: string, blockType?: SlashCommandType) => {
+    const handleCommitBlock = useCallback((blockId: string, content: string, blockType?: SlashCommandType) => {
         console.log("Committing block:", { blockId, content, blockType, hasEditing: !!editing });
 
         setInitialBlocks(prevBlocks => {
@@ -495,7 +601,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             // Fallback or dev mode without context?
             console.warn("Editing context not found, cannot batch save block add");
         }
-    };
+    }, [editing]);
 
     /**
      * Handle inline component insertion from EditableText.
@@ -547,6 +653,18 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
         window.addEventListener('block-inline-content-update', handler);
         return () => window.removeEventListener('block-inline-content-update', handler);
     }, [handleInlineContentUpdate]);
+
+    useEffect(() => {
+        const handler = (event: Event) => {
+            const { componentId } = (event as CustomEvent<{ componentId?: string }>).detail || {};
+            if (!componentId) return;
+            setInitialBlocks(previous => previous.map(block =>
+                removeInlineComponentById(block, componentId) as ReactElement
+            ));
+        };
+        window.addEventListener('inline-component-cancelled', handler);
+        return () => window.removeEventListener('inline-component-cancelled', handler);
+    }, []);
 
     // Notify parent when all content (including images) is fully loaded
     useEffect(() => {
@@ -619,54 +737,26 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     }, [loadingBlocks, initialBlocks]);
 
     /**
-     * Extract the first block ID found in a top-level element.
-     * Checks id, blockId props, and key as fallbacks.
-     */
-    const extractBlockId = (element: ReactElement): string | undefined => {
-        if (!isValidElement(element)) return undefined;
-        const el = element as ReactElement<{ id?: string; blockId?: string; children?: ReactNode }>;
-        // Check common ID props
-        if (el.props.id) return el.props.id;
-        if (el.props.blockId) return el.props.blockId;
-        // Check key as fallback (strip "layout-" prefix if present)
-        if (el.key) {
-            const keyStr = String(el.key);
-            if (keyStr.startsWith('layout-')) return keyStr.replace('layout-', '');
-            if (keyStr.startsWith('.')) return keyStr.substring(1); // React internal prefix
-            return keyStr;
-        }
-        // Recurse into children
-        let foundId: string | undefined;
-        if (el.props.children) {
-            Children.forEach(el.props.children, (child) => {
-                if (!foundId && isValidElement(child)) {
-                    foundId = extractBlockId(child as ReactElement);
-                }
-            });
-        }
-        return foundId;
-    };
-
-    /**
      * Handle AI request from a BlockInput: sends the instruction + location context
      * to the parent window (Frontend) which routes it to the builder chat.
      * Also removes the placeholder structure edit that handleAddBlock created,
      * since the builder chat will handle the block creation.
      */
-    /**
-     * Handle AI request from a BlockInput: sends the instruction + location context
-     * to the parent window (Frontend) which routes it to the builder chat.
-     * Also removes the placeholder structure edit that handleAddBlock created,
-     * since the builder chat will handle the block creation.
-     */
-    const handleAIRequest = (blockId: string, instruction: string, afterBlockId: string | null, beforeBlockId: string | null) => {
-        // Remove the placeholder structure edit for this block
-        // (handleAddBlock added one immediately, but AI path doesn't use inline editing)
-        if (editing) {
+    const handleAIRequest = useCallback((
+        blockId: string,
+        instruction: string,
+        afterBlockId: string | null,
+        beforeBlockId: string | null,
+        replaceExisting = false,
+    ) => {
+        // A newly inserted BlockInput has a provisional add edit. The AI path
+        // owns its creation, so discard that edit. A persisted empty paragraph
+        // already exists and must instead be addressed as a replacement.
+        if (editing && !replaceExisting) {
             const placeholderEdit = editing.pendingEdits.find(
                 e => e.type === 'structure' &&
-                    (e as any).action === 'add' &&
-                    (e as any).blockId === blockId
+                    e.action === 'add' &&
+                    e.blockId === blockId
             );
             if (placeholderEdit) {
                 editing.removeEdit(placeholderEdit.id);
@@ -678,12 +768,23 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
         // Send to parent window (Frontend)
         window.parent.postMessage({
             type: 'block-ai-request',
-            newBlockId: blockId,
             instruction,
+            ...(replaceExisting
+                ? { replaceBlockId: blockId }
+                : { newBlockId: blockId }),
             afterBlockId,
             beforeBlockId,
         }, '*');
-    };
+    }, [editing]);
+
+    const handlePersistedEmptyAIRequest = useCallback((blockId: string, instruction: string) => {
+        const index = initialBlocks.findIndex(block => hasElementId(block, blockId));
+        const afterBlockId = index > 0 ? extractBlockId(initialBlocks[index - 1]) || null : null;
+        const beforeBlockId = index >= 0 && index + 1 < initialBlocks.length
+            ? extractBlockId(initialBlocks[index + 1]) || null
+            : null;
+        handleAIRequest(blockId, instruction, afterBlockId, beforeBlockId, true);
+    }, [handleAIRequest, initialBlocks]);
 
     const handleAddBlock = (targetId: string) => {
         console.log("handleAddBlock called with targetId:", targetId);
@@ -710,22 +811,11 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                             id={newId}
                             onCommit={handleCommitBlock}
                             onAIRequest={(id, instruction) => handleAIRequest(id, instruction, afterId, beforeId)}
-                            placeholder="Type '/' for commands or press Space to ask AI"
+                            placeholder={EMPTY_BLOCK_PLACEHOLDER}
                         />
                     </Block>
                 </StackLayout>
             );
-
-            // Track the addition of the new block placeholder immediately
-            if (editing) {
-                editing.addStructureEdit({
-                    action: 'add',
-                    blockId: newId,
-                    blockType: 'placeholder',
-                    afterBlockId: targetId,
-                    content: ''
-                });
-            }
 
             // Insert after the found element
             const newBlocks = [
@@ -733,6 +823,20 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                 newBlock,
                 ...initialBlocks.slice(index + 1)
             ];
+
+            // Persist both the insertion anchor and the complete resulting
+            // order so add + reorder combinations never depend on file layout.
+            if (editing) {
+                editing.addStructureEdit({
+                    action: 'add',
+                    blockId: newId,
+                    blockType: 'placeholder',
+                    afterBlockId: targetId,
+                    content: '',
+                    blockIds: collectSortableBlockIds(newBlocks),
+                    layout: serializeBlockLayout(newBlocks),
+                });
+            }
 
             setInitialBlocks(newBlocks);
         } else {
@@ -770,53 +874,19 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
         };
     }, []);
 
-    // Show loading screen at top level
-    if (loadingBlocks) {
-        return <LoadingScreen />;
-    }
-
-    const getBlockIdFromElement = (element: ReactElement): string | undefined => {
-        // Try to find the block ID by traversing down
-        if (!isValidElement(element)) return undefined;
-
-        // Cast to access props safely
-        const el = element as ReactElement<{ id?: string; children?: ReactNode }>;
-
-        // Check if this element is a Block
-        if (el.props.id && el.type === Block) return el.props.id;
-        // Also check standard prop
-        if (el.props.id) return el.props.id;
-
-        let foundId: string | undefined = undefined;
-        if (el.props.children) {
-            Children.forEach(el.props.children, (child) => {
-                if (!foundId && isValidElement(child)) {
-                    foundId = getBlockIdFromElement(child as ReactElement);
-                }
-            });
-        }
-        return foundId;
-    };
-
-
     const handleReorder = (newBlocks: ReactElement[]) => {
         setInitialBlocks(newBlocks);
 
-        // Extract IDs to track the new order
-        const blockIds = newBlocks.map(s => {
-            // If key has format 'layout-...' try to parse it
-            if (s.key && typeof s.key === 'string' && s.key.startsWith('layout-')) {
-                return s.key.replace('layout-', '');
-            }
-            // Otherwise try to find inner Block ID
-            return getBlockIdFromElement(s) || 'unknown';
-        });
+        // Persist every nested Block in visual slot order. Layout wrappers are
+        // placement containers, not draggable content units.
+        const blockIds = collectSortableBlockIds(newBlocks);
 
         // Record the reorder as an edit
         if (editing) {
             editing.addStructureEdit({
                 action: 'reorder',
                 blockIds,
+                layout: serializeBlockLayout(newBlocks),
             });
         }
 
@@ -828,16 +898,18 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     };
 
     const handleDeleteBlock = (blockId: string) => {
-        setInitialBlocks(prev => {
-            // We need to remove the top-level element that CONTAINS this blockId
-            return prev.filter(block => !hasElementId(block, blockId));
-        });
+        // Delete the complete top-level layout containing this block, matching
+        // the deterministic source mutation performed by the backend.
+        const newBlocks = initialBlocks.filter(block => !hasElementId(block, blockId));
+        setInitialBlocks(newBlocks);
 
         // Record the delete as an edit
         if (editing) {
             editing.addStructureEdit({
                 action: 'delete',
                 blockId,
+                blockIds: collectSortableBlockIds(newBlocks),
+                layout: serializeBlockLayout(newBlocks),
             });
         }
 
@@ -847,6 +919,26 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             blockId
         }, '*');
     };
+
+    // Saved empty paragraphs must remain first-class block inputs. This keeps
+    // their caret, slash commands, and Space-to-Ask-AI behavior identical
+    // before and after an auto-save/reload.
+    const renderedBlocks = useMemo(() => {
+        if (!isEditor) return initialBlocks;
+        return initialBlocks.map(block =>
+            replacePersistedEmptyParagraph(
+                block,
+                handleCommitBlock,
+                handlePersistedEmptyAIRequest,
+            ) as ReactElement
+        );
+    }, [handleCommitBlock, handlePersistedEmptyAIRequest, initialBlocks, isEditor]);
+
+    // Keep every hook above this loading branch so the editor and loading
+    // renders always execute hooks in exactly the same order.
+    if (loadingBlocks) {
+        return <LoadingScreen />;
+    }
 
     // Skeleton placeholders for sections still building in the background,
     // rendered below the real blocks (or instead of the welcome screen).
@@ -870,7 +962,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                 {initialBlocks.length > 0 || skeletonSections.length > 0 ? (
                     <div className="relative w-full h-full">
                         <BlockRenderer
-                            initialBlocks={initialBlocks}
+                            initialBlocks={renderedBlocks}
                             isPreview={isPreview}
                             onEditBlock={onEditBlock}
                             onAddBlock={handleAddBlock}

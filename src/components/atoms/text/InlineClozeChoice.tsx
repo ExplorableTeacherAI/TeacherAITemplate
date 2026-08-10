@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useVar, useSetVar } from '@/stores/variableStore';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -72,6 +73,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(id || `choice-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const dropdownRef = useRef<HTMLSpanElement>(null);
 
     // ── Interaction Hint System ──
@@ -90,7 +92,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `choice-${blockIdFromContext}-${varName ?? correctAnswer}`;
+            const elementPath = `choice-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -98,7 +100,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `choice-${blockId}-${varName ?? correctAnswer}`;
+        const elementPath = `choice-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, varName, correctAnswer]);
 
@@ -111,7 +113,9 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'clozeChoice' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { varName?: string; correctAnswer?: string; options?: string[]; placeholder?: string; color?: string; bgColor?: string } } | null;
@@ -169,7 +173,6 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     }, [isOpen]);
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(id || varName || `choice-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             varName: effectiveVarName,
@@ -179,7 +182,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
             color: effectiveColor,
             bgColor: effectiveBgColor,
         });
-        try { return btoa(json); } catch { return ''; }
+        try { return encodeMarkerJson(json); } catch { return ''; }
     }, [effectiveVarName, effectiveCorrectAnswer, effectiveOptions, effectivePlaceholder, effectiveColor, effectiveBgColor]);
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
@@ -192,7 +195,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `choice-${blockId}-${varName ?? correctAnswer}`;
+            elementPath = `choice-${blockId}-${inlineIdRef.current}`;
         }
 
         openClozeChoiceEditor(
@@ -203,6 +206,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                 placeholder: effectivePlaceholder,
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath

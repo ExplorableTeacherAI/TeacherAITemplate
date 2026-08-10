@@ -1,5 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -55,6 +56,9 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
     showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(
+        id || `linkedHighlight-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
+    );
     const [isHovered, setIsHovered] = useState(false);
 
     const { isEditor } = useAppMode();
@@ -102,7 +106,7 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `linkedHighlight-${blockIdFromContext}-${identitySuffix}`;
+            const elementPath = `linkedHighlight-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -110,7 +114,7 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `linkedHighlight-${blockId}-${identitySuffix}`;
+        const elementPath = `linkedHighlight-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, identitySuffix]);
 
@@ -123,7 +127,9 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'linkedHighlight' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { varName?: string; highlightId?: string; text?: string; color?: string; bgColor?: string } } | null;
@@ -225,7 +231,7 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `linkedHighlight-${blockId}-${identitySuffix}`;
+            elementPath = `linkedHighlight-${blockId}-${inlineIdRef.current}`;
         }
 
         const text = effectiveText ?? domTextRef.current ?? containerRef.current?.textContent?.trim() ?? '';
@@ -237,6 +243,7 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
                 text,
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath
@@ -251,10 +258,6 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
     };
 
     // Stable ID & serialized props for round-trip extraction
-    const inlineIdRef = useRef(
-        id || `linkedHighlight-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
-    );
-
     const componentProps = useMemo(() => {
         const textForProps = effectiveText ?? childText ?? domTextRef.current;
         const json = JSON.stringify({
@@ -265,7 +268,7 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
             ...(textForProps ? { text: textForProps } : {}),
         });
         try {
-            return btoa(json);
+            return encodeMarkerJson(json);
         } catch {
             return '';
         }

@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { cn } from "@/lib/utils";
 import { SlashCommandMenu, type SlashCommandType, isInlineCommand, type BlockCommandType, type InlineCommandType } from "./SlashCommandMenu";
 import { getInlineComponentHTML, extractContentWithMarkers, dispatchEditorOpenRequest } from "@/hooks/useInlineSlashCommands";
+import { createInlineMarkerId } from "@/lib/inlineMarkers";
 import { Sparkles, Send, X } from "lucide-react";
 
 interface BlockInputProps {
@@ -21,6 +22,7 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
     const [isAIMode, setIsAIMode] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [sentInstruction, setSentInstruction] = useState<string | null>(null);
+    const [isEmpty, setIsEmpty] = useState(true);
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
     // Track the position in the text where the slash was typed
     const slashPositionRef = useRef<number>(-1);
@@ -30,6 +32,50 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
             contentRef.current.focus();
         }
     }, []);
+
+    const focusEditor = useCallback(() => {
+        const editor = contentRef.current;
+        if (!editor) return;
+        // Browsers often represent an untouched contentEditable as <br>. Clear
+        // that implementation detail so an empty add-block always starts at
+        // offset zero, not after the visual hint or at the far edge.
+        if (isEmpty) editor.innerHTML = '';
+        editor.focus();
+        const range = document.createRange();
+        if (isEmpty) {
+            range.setStart(editor, 0);
+            range.collapse(true);
+        } else {
+            range.selectNodeContents(editor);
+            range.collapse(false);
+        }
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    }, [isEmpty]);
+
+    // The visible block is much taller than an empty contentEditable line.
+    // Make the complete blank content area a focus target instead of requiring
+    // the teacher to find the invisible one-line caret surface.
+    const handleContainerMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+        const target = event.target as HTMLElement;
+        if (target.closest('button, [role="menu"], [data-radix-popper-content-wrapper]')) return;
+        if (contentRef.current?.contains(target)) return;
+        event.preventDefault();
+        focusEditor();
+    }, [focusEditor]);
+
+    const commitCurrentContent = useCallback(() => {
+        if (isAIMode || isSending || !contentRef.current) return;
+        const content = extractContentWithMarkers(contentRef.current);
+        if (content.trim()) onCommit(id, content, selectedBlockType || undefined);
+    }, [id, isAIMode, isSending, onCommit, selectedBlockType]);
+
+    useEffect(() => {
+        const flush = () => commitCurrentContent();
+        window.addEventListener('editor-flush-request', flush);
+        return () => window.removeEventListener('editor-flush-request', flush);
+    }, [commitCurrentContent]);
 
     // Compute menu position from caret, with container fallback
     const computeMenuPosition = useCallback(() => {
@@ -52,6 +98,7 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
         let text = contentRef.current?.innerText || "";
         // Trim trailing newlines which browsers might add
         text = text.replace(/[\n\r]+$/, "");
+        setIsEmpty(text.replace(/[\s\u00a0\u200B\uFEFF]+/g, '').length === 0);
 
         // If text is effectively empty, reset state
         if (!text) {
@@ -74,11 +121,12 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
         if (!isAIMode && !selectedBlockType && text.length <= 2 && /^[\s\u00a0]+$/.test(text)) {
             setIsAIMode(true);
             // Clear the space and set AI placeholder
-            if (contentRef.current) {
-                contentRef.current.innerText = "";
-                contentRef.current.dataset.placeholder = "Ask AI to create something...";
-                contentRef.current.focus();
-            }
+                if (contentRef.current) {
+                    contentRef.current.innerText = "";
+                    contentRef.current.dataset.placeholder = "Ask AI to create something...";
+                    contentRef.current.focus();
+                }
+                setIsEmpty(true);
             return;
         }
 
@@ -145,13 +193,13 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
                 return;
             }
 
-            if (contentRef.current) {
-                // Extract content with inline component markers
-                const content = extractContentWithMarkers(contentRef.current);
-                if (content.trim()) {
-                    onCommit(id, content, selectedBlockType || undefined);
-                }
-            }
+            commitCurrentContent();
+            // Committing a block with Enter is an explicit save. This is
+            // especially important for inline components, whose provisional
+            // edits are deliberately excluded from auto-save.
+            requestAnimationFrame(() => {
+                window.parent.postMessage({ type: 'request-manual-save' }, '*');
+            });
         }
 
         // Close menu on Escape, or exit AI mode
@@ -162,6 +210,7 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
                     contentRef.current.innerText = "";
                     contentRef.current.dataset.placeholder = placeholder;
                 }
+                setIsEmpty(true);
             }
             setShowSlashMenu(false);
             setSlashQuery("");
@@ -208,7 +257,7 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
 
         // Check if this is an inline component command
         if (isInlineCommand(commandType)) {
-            const uniqueId = `${commandType}-${Date.now()}`;
+            const uniqueId = createInlineMarkerId(commandType);
             const componentHTML = getInlineComponentHTML(commandType, uniqueId);
 
             // Restore focus (may have moved to the menu)
@@ -271,6 +320,7 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
         // Keep text before the slash
         const textBeforeSlash = lastSlashIndex > 0 ? currentText.substring(0, lastSlashIndex) : "";
         contentRef.current.innerText = textBeforeSlash;
+        setIsEmpty(textBeforeSlash.trim().length === 0);
         contentRef.current.focus();
 
         // Move cursor to end
@@ -340,10 +390,11 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
 
     return (
         <div ref={containerRef} className={cn(
-            "w-full relative transition-all duration-200",
+            "w-full min-h-[2.5rem] relative transition-all duration-200 cursor-text",
             isAIMode && !isSending && "rounded-lg border-2 border-[#D4EDE5] bg-[#D4EDE5]/20 px-3 py-2",
             isSending && "rounded-lg border-2 border-[#0D7377] bg-[#D4EDE5]/10 px-3 py-2 animate-[pulse-border_2s_ease-in-out_infinite]"
         )}
+            onMouseDown={handleContainerMouseDown}
             style={isSending ? {
                 animation: 'pulse-border 2s ease-in-out infinite',
             } : undefined}
@@ -391,19 +442,30 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
                             </button>
                         </div>
                     )}
-                    <div className="flex items-center gap-2">
+                    <div className="relative flex items-center gap-2">
+                        {isEmpty && (
+                            <span
+                                aria-hidden="true"
+                                className="pointer-events-none absolute left-0 top-1.5 z-0 text-muted-foreground/50"
+                            >
+                                {isAIMode ? "Ask AI to create something..." : placeholder}
+                            </span>
+                        )}
                         <p
                             ref={contentRef}
                             contentEditable
                             onKeyDown={handleKeyDown}
                             onInput={handleInput}
+                            onBlur={commitCurrentContent}
                             className={cn(
-                                "w-full outline-none leading-relaxed cursor-text min-h-[1.5em] flex-1",
-                                "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50",
+                                "relative z-10 w-full outline-none leading-relaxed cursor-text min-h-[2.5rem] py-1.5 flex-1 bg-transparent",
                                 isAIMode
                                     ? "text-gray-800"
                                     : getBlockTypeStyles()
                             )}
+                            role="textbox"
+                            aria-label={isAIMode ? "Ask AI" : "Empty lesson block editor"}
+                            data-empty={isEmpty ? "true" : "false"}
                             data-placeholder={isAIMode ? "Ask AI to create something..." : placeholder}
                         />
                         {isAIMode && (
@@ -432,6 +494,11 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
                             <span className="text-[10px] text-gray-400">
                                 <kbd className="px-1 py-0.5 rounded bg-white border border-gray-200 font-mono text-[10px]">Esc</kbd> to dismiss
                             </span>
+                        </div>
+                    )}
+                    {!isAIMode && selectedBlockType && (
+                        <div className="mt-1 text-[10px] text-muted-foreground/70">
+                            Press Enter or click outside the block to finish and save.
                         </div>
                     )}
                 </>

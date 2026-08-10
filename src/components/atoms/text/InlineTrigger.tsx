@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion';
 import { useSetVar } from '@/stores/variableStore';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -57,6 +58,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
     showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(id || `trigger-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -100,7 +102,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `trigger-${blockIdFromContext}-${identitySuffix}`;
+            const elementPath = `trigger-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -108,7 +110,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `trigger-${blockId}-${identitySuffix}`;
+        const elementPath = `trigger-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, identitySuffix]);
 
@@ -121,7 +123,9 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
         const triggerEdits = pendingEdits.filter(e => e.type === 'trigger');
         const edit = [...triggerEdits].reverse().find(e =>
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         if (import.meta.env.DEV && triggerEdits.length > 0) {
@@ -142,6 +146,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
     const effectiveValue = pendingEdit?.newProps.value ?? value;
     const effectiveColor = pendingEdit?.newProps.color ?? color;
     const effectiveBgColor = pendingEdit?.newProps.bgColor ?? bgColor;
+    const effectiveIcon = pendingEdit?.newProps.icon ?? icon;
 
     // DOM text fallback — captured after mount for when childText extraction fails
     const domTextRef = useRef<string | undefined>(undefined);
@@ -153,7 +158,6 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
     });
 
     // Stable ID and serialized props for round-trip extraction (base64-encoded for HTML attribute safety)
-    const inlineIdRef = useRef(id || `trigger-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         // Always include text to survive round-trip; fall back to DOM text or default
         const textForProps = effectiveText ?? domTextRef.current;
@@ -163,9 +167,10 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
             value: effectiveValue,
             color: effectiveColor,
             bgColor: effectiveBgColor,
+            icon: effectiveIcon,
         });
-        try { return btoa(json); } catch { return ''; }
-    }, [effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor]);
+        try { return encodeMarkerJson(json); } catch { return ''; }
+    }, [effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor, effectiveIcon]);
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
@@ -177,7 +182,7 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `trigger-${blockId}-${identitySuffix}`;
+            elementPath = `trigger-${blockId}-${inlineIdRef.current}`;
         }
 
         // Use effectiveText, falling back to DOM textContent for robustness
@@ -190,11 +195,13 @@ export const InlineTrigger: React.FC<InlineTriggerProps> = ({
                 value: effectiveValue,
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
+                icon: effectiveIcon,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath
         );
-    }, [editIdentity, blockIdFromContext, effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor, openTriggerEditor, identitySuffix]);
+    }, [editIdentity, blockIdFromContext, effectiveText, effectiveVarName, effectiveValue, effectiveColor, effectiveBgColor, effectiveIcon, openTriggerEditor, identitySuffix]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (canEdit && isEditing) {

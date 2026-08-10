@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { X } from 'lucide-react';
 import { useVar, useSetVar } from '@/stores/variableStore';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -69,6 +70,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(id || `cloze-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
     // ── Interaction Hint System ──
     const { hintVisible, dismissHint } = useComponentHint('cloze-input', { enabled: showHint });
@@ -86,7 +88,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `cloze-${blockIdFromContext}-${varName ?? correctAnswer}`;
+            const elementPath = `cloze-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -94,7 +96,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `cloze-${blockId}-${varName ?? correctAnswer}`;
+        const elementPath = `cloze-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, varName, correctAnswer]);
 
@@ -107,7 +109,9 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'clozeInput' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { varName?: string; correctAnswer?: string; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } } | null;
@@ -163,7 +167,6 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     }, [isInputting]);
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(id || varName || `cloze-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             varName: effectiveVarName,
@@ -173,7 +176,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
             bgColor: effectiveBgColor,
             caseSensitive: effectiveCaseSensitive,
         });
-        try { return btoa(json); } catch { return ''; }
+        try { return encodeMarkerJson(json); } catch { return ''; }
     }, [effectiveVarName, effectiveCorrectAnswer, effectivePlaceholder, effectiveColor, effectiveBgColor, effectiveCaseSensitive]);
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
@@ -186,7 +189,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `cloze-${blockId}-${varName ?? correctAnswer}`;
+            elementPath = `cloze-${blockId}-${inlineIdRef.current}`;
         }
 
         openClozeInputEditor(
@@ -197,6 +200,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
                 caseSensitive: effectiveCaseSensitive,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath

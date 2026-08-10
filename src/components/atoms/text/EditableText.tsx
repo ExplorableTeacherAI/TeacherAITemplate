@@ -54,6 +54,22 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const originalInlineCountRef = useRef<number>(0);
     const originalTextWithoutInlineRef = useRef<string>('');
     const skipBlurRef = useRef(false);
+    const [isVisuallyEmpty, setIsVisuallyEmpty] = useState(false);
+
+    const refreshEmptyState = useCallback(() => {
+        const element = containerRef.current;
+        if (!element) return;
+        const hasInlineComponent = Boolean(
+            element.querySelector('[data-inline-component]')
+        );
+        const text = (element.innerText || element.textContent || '')
+            .replace(/(?:\s|\u00a0|\u200B|\u200C|\u200D|\uFEFF)+/g, '');
+        setIsVisuallyEmpty(!hasInlineComponent && text.length === 0);
+    }, []);
+
+    useEffect(() => {
+        refreshEmptyState();
+    }, [children, refreshEmptyState]);
 
     // Inline slash commands (inert when enableSlashCommands is false)
     const {
@@ -133,16 +149,18 @@ export const EditableText: React.FC<EditableTextProps> = ({
                     // Select all text
                     const range = document.createRange();
                     range.selectNodeContents(containerRef.current);
+                    if (isVisuallyEmpty) range.collapse(true);
                     const selection = window.getSelection();
                     selection?.removeAllRanges();
                     selection?.addRange(range);
                 }
             }, 0);
         }
-    }, [isEditor, isContentEditable, extractTextWithoutInline]);
+    }, [isEditor, isContentEditable, extractTextWithoutInline, isVisuallyEmpty]);
 
-    // Handle blur to save changes
-    const handleBlur = useCallback(() => {
+    // Capture the current DOM without necessarily ending the editing session.
+    // Auto-save uses finishEditing=false so it never steals keyboard focus.
+    const captureChanges = useCallback((finishEditing: boolean) => {
         if (!containerRef.current) return;
 
         // If a child inline component editor is opening, skip blur processing entirely.
@@ -150,7 +168,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         // would be incorrect (the text hasn't changed, only the inline component's props).
         if (skipBlurRef.current) {
             skipBlurRef.current = false;
-            setIsContentEditable(false);
+            if (finishEditing) setIsContentEditable(false);
             return;
         }
 
@@ -158,6 +176,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         const newHtml = containerRef.current.innerHTML;
         const originalText = originalTextRef.current;
         const originalHtml = originalHtmlRef.current;
+        refreshEmptyState();
 
         // Check if NEW inline component placeholders were inserted during this edit session.
         // Compare the current count against the count recorded when editing started.
@@ -181,7 +200,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
         // When inline components are present, normalize whitespace before
         // comparing — browsers may reformat the DOM when entering
         // contentEditable mode, causing spurious diffs.
-        const normalizeWs = (s: string) => s.replace(/[\s\u200B\u200C\u200D\uFEFF]+/g, ' ').trim();
+        const normalizeWs = (s: string) => s
+            .replace(/(?:\s|\u200B|\u200C|\u200D|\uFEFF)+/g, ' ')
+            .trim();
         let textContentChanged: boolean;
         if (hasAnyInlineComponents) {
             const newTextWithout = extractTextWithoutInline(containerRef.current);
@@ -236,8 +257,36 @@ export const EditableText: React.FC<EditableTextProps> = ({
             }));
         }
 
-        setIsContentEditable(false);
-    }, [blockId, getElementPath, addTextEdit, enableSlashCommands, extractTextWithoutInline]);
+        if (finishEditing) setIsContentEditable(false);
+    }, [blockId, getElementPath, addTextEdit, enableSlashCommands, extractTextWithoutInline, refreshEmptyState]);
+
+    const handleBlur = useCallback(() => captureChanges(true), [captureChanges]);
+
+    useEffect(() => {
+        const flush = () => {
+            if (isContentEditable && containerRef.current) captureChanges(false);
+        };
+        window.addEventListener('editor-flush-request', flush);
+        return () => window.removeEventListener('editor-flush-request', flush);
+    }, [captureChanges, isContentEditable]);
+
+    useEffect(() => {
+        const removeCancelledPlaceholder = (event: Event) => {
+            const detail = (event as CustomEvent<{
+                blockId?: string;
+                componentId?: string;
+            }>).detail;
+            if (!detail?.componentId || detail.blockId !== blockId || !containerRef.current) return;
+
+            const provisional = Array.from(
+                containerRef.current.querySelectorAll<HTMLElement>('[data-component-id]')
+            ).find(element => element.getAttribute('data-component-id') === detail.componentId);
+            provisional?.remove();
+            setIsContentEditable(false);
+        };
+        window.addEventListener('inline-component-cancelled', removeCancelledPlaceholder);
+        return () => window.removeEventListener('inline-component-cancelled', removeCancelledPlaceholder);
+    }, [blockId]);
 
     // Handle keyboard events
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -248,6 +297,12 @@ export const EditableText: React.FC<EditableTextProps> = ({
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             containerRef.current?.blur();
+            // Enter is the teacher's explicit commit gesture. Inline component
+            // edits intentionally opt out of auto-save, so ask the host to run
+            // a manual save after React has captured the blur transaction.
+            requestAnimationFrame(() => {
+                window.parent.postMessage({ type: 'request-manual-save' }, '*');
+            });
         }
 
         // Cancel on Escape — restore innerHTML (not innerText) to preserve existing inline components
@@ -266,21 +321,25 @@ export const EditableText: React.FC<EditableTextProps> = ({
         }
     }, [isEditor]);
 
-    // If not in editor mode, just render children normally
-    if (!isEditor) {
-        return React.createElement(Component, { id, className }, children);
-    }
-
-    // Handle input events — forward to slash command detector
+    // Capture ordinary keystrokes immediately into the pending transaction.
+    // The parent debounces persistence; this only updates local edit state.
     const handleInput = useCallback(() => {
         handleSlashInput();
-    }, [handleSlashInput]);
+        refreshEmptyState();
+        const inlineCount = containerRef.current?.querySelectorAll('[data-inline-component]').length ?? 0;
+        if (inlineCount <= originalInlineCountRef.current) captureChanges(false);
+    }, [handleSlashInput, captureChanges, refreshEmptyState]);
 
     // Close slash menu when leaving edit mode
     const handleBlurWithSlash = useCallback(() => {
         handleCloseSlashMenu();
         handleBlur();
     }, [handleCloseSlashMenu, handleBlur]);
+
+    // Hooks must run in the same order in preview and editor modes.
+    if (!isEditor) {
+        return React.createElement(Component, { id, className }, children);
+    }
 
     return (
         <EditableTextContext.Provider value={{ isParentEditable: isContentEditable, skipBlurRef }}>
@@ -291,16 +350,23 @@ export const EditableText: React.FC<EditableTextProps> = ({
                     ref: containerRef,
                     className: cn(
                         className,
-                        isEditor && 'cursor-text transition-all duration-150 outline-none focus:outline-none'
+                        isEditor && 'relative cursor-text transition-all duration-150 outline-none focus:outline-none',
+                        isEditor && Component === 'span'
+                            ? 'inline-block min-h-[1.5em] min-w-[1ch]'
+                            : 'block w-full min-h-[1.75em]',
+                        isEditor && 'data-[empty=true]:before:absolute data-[empty=true]:before:inset-0 data-[empty=true]:before:content-[attr(data-placeholder)] data-[empty=true]:before:text-muted-foreground/50 data-[empty=true]:before:pointer-events-none'
                     ),
                     contentEditable: isContentEditable,
                     suppressContentEditableWarning: true,
                     onClick: handleClick,
                     onBlur: handleBlurWithSlash,
                     onKeyDown: handleKeyDown,
-                    onInput: enableSlashCommands ? handleInput : undefined,
+                    onInput: handleInput,
                     'data-editable': 'true',
                     'data-editing': isContentEditable ? 'true' : undefined,
+                    'data-empty': isVisuallyEmpty ? 'true' : 'false',
+                    'data-placeholder': 'Click to edit empty block…',
+                    'aria-label': isVisuallyEmpty ? 'Empty editable lesson block' : undefined,
                 },
                 children
             )}

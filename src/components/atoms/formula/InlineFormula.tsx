@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -49,6 +50,7 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
 }) => {
     const katexRef = useRef<HTMLSpanElement>(null);
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(id || `inlineFormula-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -69,7 +71,7 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `inlineFormula-${blockIdFromContext}-${latex?.substring(0, 30)}`;
+            const elementPath = `inlineFormula-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -77,7 +79,7 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `inlineFormula-${blockId}-${latex?.substring(0, 30)}`;
+        const elementPath = `inlineFormula-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, latex]);
 
@@ -90,7 +92,9 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'inlineFormula' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { latex?: string; colorMap?: Record<string, string>; color?: string } } | null;
@@ -104,6 +108,11 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
     const effectiveLatex = pendingEdit?.newProps.latex ?? latex;
     const baseColorMap = pendingEdit?.newProps.colorMap ?? colorMap;
     const effectiveColorMap = useMemo(() => {
+        // A panel edit must win immediately. The shared store still contains
+        // the previous persisted colors until the backend save finishes; if it
+        // overrides the pending map here, extraction serializes the old colors
+        // and silently discards a multi-field formula edit.
+        if (pendingEdit?.newProps.colorMap !== undefined) return baseColorMap;
         const keys = Object.keys(baseColorMap);
         if (keys.length === 0) return baseColorMap;
         const merged = { ...baseColorMap };
@@ -116,18 +125,17 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
             }
         }
         return changed ? merged : baseColorMap;
-    }, [baseColorMap, allVarColors]);
+    }, [baseColorMap, allVarColors, pendingEdit]);
     const effectiveColor = pendingEdit?.newProps.color ?? color;
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(id || `inlineFormula-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             latex: effectiveLatex,
             colorMap: effectiveColorMap,
             color: effectiveColor,
         });
-        try { return btoa(json); } catch { return ''; }
+        try { return encodeMarkerJson(json); } catch { return ''; }
     }, [effectiveLatex, effectiveColorMap, effectiveColor]);
 
     // Process \clr{name}{content} -> \textcolor{color}{content}
@@ -195,7 +203,7 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `inlineFormula-${blockId}-${latex?.substring(0, 30)}`;
+            elementPath = `inlineFormula-${blockId}-${inlineIdRef.current}`;
         }
 
         openInlineFormulaEditor(
@@ -203,6 +211,7 @@ export const InlineFormula: React.FC<InlineFormulaProps> = ({
                 latex: effectiveLatex,
                 colorMap: effectiveColorMap,
                 color: effectiveColor,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath

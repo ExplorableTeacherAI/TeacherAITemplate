@@ -27,6 +27,7 @@ export const TriggerEditorModal: React.FC = () => {
     const [valueStr, setValueStr] = useState('');
     const [color, setColor] = useState('#10B981');
     const [bgColor, setBgColor] = useState('rgba(16, 185, 129, 0.15)');
+    const [error, setError] = useState<string | null>(null);
 
     const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
@@ -41,6 +42,7 @@ export const TriggerEditorModal: React.FC = () => {
             setValueStr(editingTrigger.value !== undefined ? String(editingTrigger.value) : '');
             setColor(editingTrigger.color || '#10B981');
             setBgColor(editingTrigger.bgColor || 'rgba(16, 185, 129, 0.15)');
+            setError(null);
         }
     }, [editingTrigger]);
 
@@ -56,14 +58,30 @@ export const TriggerEditorModal: React.FC = () => {
     }, []);
 
     const handleSave = useCallback(() => {
+        if (!text.trim()) {
+            setError('Trigger text is required.');
+            return;
+        }
+        if (!varName.trim()) {
+            setError('Variable name is required.');
+            return;
+        }
+        if (!valueStr.trim()) {
+            setError('A value to set is required.');
+            return;
+        }
+        setError(null);
         saveTriggerEdit({
             text: text || undefined,
             varName: varName || undefined,
             value: valueStr ? parseValue(valueStr) : undefined,
             color,
             bgColor: bgColor || undefined,
+            // The current panel does not expose icon selection, but an
+            // unrelated edit must still preserve an icon already in source.
+            icon: editingTrigger?.icon,
         });
-    }, [text, varName, valueStr, color, bgColor, saveTriggerEdit]);
+    }, [text, varName, valueStr, color, bgColor, editingTrigger, saveTriggerEdit]);
 
     const handleCancel = useCallback(() => {
         closeTriggerEditor();
@@ -223,6 +241,12 @@ export const TriggerEditorModal: React.FC = () => {
                         presets={COLOR_PRESETS}
                         defaultOpacity={DEFAULT_BG_OPACITY}
                     />
+
+                    {error && (
+                        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                            {error}
+                        </p>
+                    )}
 
                     {/* Preview */}
                     <div>

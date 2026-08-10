@@ -30,19 +30,23 @@ export const TooltipEditorModal: React.FC = () => {
     }, [editingTooltip]);
 
     const validate = useCallback(() => {
+        if (!text.trim()) {
+            setError('Display text is required');
+            return false;
+        }
         if (!tooltip.trim()) {
             setError('Tooltip content is required');
             return false;
         }
         setError(null);
         return true;
-    }, [tooltip]);
+    }, [text, tooltip]);
 
     const handleSave = useCallback(() => {
         if (!validate()) return;
 
         saveTooltipEdit({
-            text: text || undefined,
+            text: text.trim(),
             tooltip: tooltip.trim(),
             color,
             bgColor: bgColor || undefined,

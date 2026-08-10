@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import type { SlashCommandType } from '@/components/templates/SlashCommandMenu';
 import { isInlineCommand, type InlineCommandType } from '@/components/templates/SlashCommandMenu';
+import { createInlineMarkerId, decodeMarkerJson, encodeMarkerJson, encodeMarkerProps } from '@/lib/inlineMarkers';
 
 /**
  * Dispatch a custom event requesting the editor modal to open for a newly
@@ -23,32 +24,50 @@ export const dispatchEditorOpenRequest = (
  * Shared between BlockInput and EditableText.
  */
 export const extractContentWithMarkers = (element: HTMLElement): string => {
-    let result = '';
-
-    const processNode = (node: Node) => {
+    const serializeNode = (node: Node): string => {
         if (node.nodeType === Node.TEXT_NODE) {
-            result += node.textContent || '';
+            return node.textContent || '';
         } else if (node.nodeType === Node.ELEMENT_NODE) {
             const el = node as HTMLElement;
             const componentType = el.getAttribute('data-inline-component');
             const componentId = el.getAttribute('data-component-id');
 
+            // Runtime answer feedback is derived UI, never lesson source.
+            if (componentType === 'inlineFeedbackResult') return '';
+
             if (componentType && componentId) {
-                // Check for saved props (present on real React-rendered components)
                 const propsAttr = el.getAttribute('data-component-props');
+                if (componentType === 'inlineFeedback') {
+                    let props: Record<string, unknown> = {};
+                    if (propsAttr) {
+                        try {
+                            const parsed = JSON.parse(decodeMarkerJson(propsAttr));
+                            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                                props = parsed as Record<string, unknown>;
+                            }
+                        } catch { /* validated below when encoded */ }
+                    }
+                    const childrenContent = Array.from(el.childNodes)
+                        .map(serializeNode)
+                        .join('');
+                    const encoded = encodeMarkerProps({ ...props, childrenContent });
+                    return `{{${componentType}:${componentId}|${encoded}}}`;
+                }
+
+                // Check for saved props (present on real React-rendered components)
                 if (propsAttr) {
                     // Props are stored as base64-encoded JSON on the element.
                     // Validate it's valid base64 by attempting a decode round-trip.
                     try {
-                        atob(propsAttr); // validate
-                        result += `{{${componentType}:${componentId}|${propsAttr}}}`;
+                        JSON.parse(decodeMarkerJson(propsAttr)); // validate
+                        return `{{${componentType}:${componentId}|${propsAttr}}}`;
                     } catch {
                         // Fallback: attribute might be raw JSON (legacy), try encoding it
                         try {
-                            const encoded = btoa(propsAttr);
-                            result += `{{${componentType}:${componentId}|${encoded}}}`;
+                            const encoded = encodeMarkerJson(propsAttr);
+                            return `{{${componentType}:${componentId}|${encoded}}}`;
                         } catch {
-                            result += `{{${componentType}:${componentId}}}`;
+                            return `{{${componentType}:${componentId}}}`;
                         }
                     }
                 } else {
@@ -57,23 +76,23 @@ export const extractContentWithMarkers = (element: HTMLElement): string => {
                     const domText = el.textContent?.trim();
                     if (domText) {
                         try {
-                            const minimalProps = btoa(JSON.stringify({ text: domText }));
-                            result += `{{${componentType}:${componentId}|${minimalProps}}}`;
+                            const minimalProps = encodeMarkerProps({ text: domText });
+                            return `{{${componentType}:${componentId}|${minimalProps}}}`;
                         } catch {
-                            result += `{{${componentType}:${componentId}}}`;
+                            return `{{${componentType}:${componentId}}}`;
                         }
                     } else {
-                        result += `{{${componentType}:${componentId}}}`;
+                        return `{{${componentType}:${componentId}}}`;
                     }
                 }
             } else {
-                node.childNodes.forEach(processNode);
+                return Array.from(node.childNodes).map(serializeNode).join('');
             }
         }
+        return '';
     };
 
-    element.childNodes.forEach(processNode);
-    return result.trim();
+    return Array.from(element.childNodes).map(serializeNode).join('').trim();
 };
 
 /**
@@ -280,7 +299,7 @@ export const useInlineSlashCommands = ({
             // Only handle inline commands here
             if (!isInlineCommand(commandType)) return;
 
-            const uniqueId = `${commandType}-${Date.now()}`;
+            const uniqueId = createInlineMarkerId(commandType);
             const componentHTML = getInlineComponentHTML(commandType, uniqueId);
             const container = containerRef.current;
 

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useEditing } from '@/contexts/EditingContext';
 import type { HintStep } from '@/components/atoms/visual/InteractionHint';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // InlineFeedback — inline feedback for cloze inputs / choices
@@ -270,6 +271,7 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     const defaults = getDefaultMessages(position);
     const [vizHintTriggered, setVizHintTriggered] = useState(false);
     const feedbackRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(`feedback-${varName}`);
     const [visible, setVisible] = useState(false);
 
     // Detect edit mode
@@ -281,6 +283,27 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
 
     const effectiveSuccessMessage = successMessage ?? defaults.success;
     const effectiveFailureMessage = failureMessage ?? defaults.failure;
+    const componentProps = React.useMemo(() => {
+        const json = JSON.stringify({
+            varName,
+            correctValue,
+            caseSensitive,
+            position,
+            successMessage,
+            failureMessage,
+            hint,
+            reviewBlockId,
+            reviewLabel,
+            sectionLinks,
+            visualizationHint,
+            className,
+        });
+        try { return encodeMarkerJson(json); } catch { return ''; }
+    }, [
+        varName, correctValue, caseSensitive, position, successMessage,
+        failureMessage, hint, reviewBlockId, reviewLabel, sectionLinks,
+        visualizationHint, className,
+    ]);
 
     const hasAnswer = storeValue.trim() !== '';
     const isCorrect =
@@ -345,6 +368,8 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
         <span
             className={cn("inline", className)}
             data-inline-component="inlineFeedback"
+            data-component-id={inlineIdRef.current}
+            data-component-props={componentProps}
         >
             {children}
 

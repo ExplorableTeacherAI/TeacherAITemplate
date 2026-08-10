@@ -1,5 +1,8 @@
 import { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect, type ReactNode } from 'react';
 import { useAppMode } from './AppModeContext';
+import { extractContentWithMarkers } from '@/hooks/useInlineSlashCommands';
+import { encodeMarkerProps, updateProvisionalInlinePlaceholder } from '@/lib/inlineMarkers';
+import type { BlockLayoutManifest } from '@/lib/block-tree';
 
 // Edit types
 export interface TextEdit {
@@ -15,7 +18,26 @@ export interface TextEdit {
     timestamp: number;
 }
 
-export interface ScrubbleNumberEdit {
+/** Canonical save unit for text mixed with any number of inline components. */
+export interface BlockContentEdit {
+    id: string;
+    type: 'blockContent';
+    blockId: string;
+    elementId?: string;
+    newContent: string;
+    /** Local editor metadata; stripped before the backend request. */
+    manualSaveOnly?: boolean;
+    timestamp: number;
+}
+
+interface InlineComponentIdentity {
+    /** Stable marker identity, required to disambiguate repeated component types. */
+    componentId?: string;
+    /** New inline additions wait for the teacher's explicit Save action. */
+    manualSaveOnly?: boolean;
+}
+
+export interface ScrubbleNumberEdit extends InlineComponentIdentity {
     id: string;
     type: 'scrubbleNumber';
     blockId: string;
@@ -25,7 +47,7 @@ export interface ScrubbleNumberEdit {
     timestamp: number;
 }
 
-export interface ScrubbleNumberProps {
+export interface ScrubbleNumberProps extends InlineComponentIdentity {
     varName?: string;
     defaultValue?: number;
     min?: number;
@@ -36,7 +58,7 @@ export interface ScrubbleNumberProps {
     isNew?: boolean;
 }
 
-export interface ClozeInputEdit {
+export interface ClozeInputEdit extends InlineComponentIdentity {
     id: string;
     type: 'clozeInput';
     blockId: string;
@@ -46,7 +68,7 @@ export interface ClozeInputEdit {
     timestamp: number;
 }
 
-export interface ClozeInputProps {
+export interface ClozeInputProps extends InlineComponentIdentity {
     varName?: string;
     correctAnswer?: string;
     placeholder?: string;
@@ -56,7 +78,7 @@ export interface ClozeInputProps {
     isNew?: boolean;
 }
 
-export interface ClozeChoiceEdit {
+export interface ClozeChoiceEdit extends InlineComponentIdentity {
     id: string;
     type: 'clozeChoice';
     blockId: string;
@@ -66,7 +88,7 @@ export interface ClozeChoiceEdit {
     timestamp: number;
 }
 
-export interface ClozeChoiceProps {
+export interface ClozeChoiceProps extends InlineComponentIdentity {
     varName?: string;
     correctAnswer?: string;
     options?: string[];
@@ -76,7 +98,7 @@ export interface ClozeChoiceProps {
     isNew?: boolean;
 }
 
-export interface ToggleEdit {
+export interface ToggleEdit extends InlineComponentIdentity {
     id: string;
     type: 'toggle';
     blockId: string;
@@ -86,7 +108,7 @@ export interface ToggleEdit {
     timestamp: number;
 }
 
-export interface ToggleProps {
+export interface ToggleProps extends InlineComponentIdentity {
     varName?: string;
     options?: string[];
     color?: string;
@@ -94,7 +116,7 @@ export interface ToggleProps {
     isNew?: boolean;
 }
 
-export interface TooltipProps {
+export interface TooltipProps extends InlineComponentIdentity {
     text?: string;       // The trigger text (children content)
     tooltip?: string;    // The tooltip/definition content
     color?: string;
@@ -104,7 +126,7 @@ export interface TooltipProps {
     isNew?: boolean;
 }
 
-export interface TooltipEdit {
+export interface TooltipEdit extends InlineComponentIdentity {
     id: string;
     type: 'tooltip';
     blockId: string;
@@ -114,7 +136,7 @@ export interface TooltipEdit {
     timestamp: number;
 }
 
-export interface TriggerComponentProps {
+export interface TriggerComponentProps extends InlineComponentIdentity {
     text?: string;
     varName?: string;
     value?: string | number | boolean;
@@ -124,7 +146,7 @@ export interface TriggerComponentProps {
     isNew?: boolean;
 }
 
-export interface TriggerComponentEdit {
+export interface TriggerComponentEdit extends InlineComponentIdentity {
     id: string;
     type: 'trigger';
     blockId: string;
@@ -134,7 +156,7 @@ export interface TriggerComponentEdit {
     timestamp: number;
 }
 
-export interface HyperlinkComponentProps {
+export interface HyperlinkComponentProps extends InlineComponentIdentity {
     text?: string;
     href?: string;
     targetBlockId?: string;
@@ -143,7 +165,7 @@ export interface HyperlinkComponentProps {
     isNew?: boolean;
 }
 
-export interface HyperlinkComponentEdit {
+export interface HyperlinkComponentEdit extends InlineComponentIdentity {
     id: string;
     type: 'hyperlink';
     blockId: string;
@@ -153,14 +175,14 @@ export interface HyperlinkComponentEdit {
     timestamp: number;
 }
 
-export interface InlineFormulaProps {
+export interface InlineFormulaProps extends InlineComponentIdentity {
     latex?: string;
     colorMap?: Record<string, string>;
     color?: string;       // wrapper text color (default: #000000 black)
     isNew?: boolean;
 }
 
-export interface InlineFormulaEdit {
+export interface InlineFormulaEdit extends InlineComponentIdentity {
     id: string;
     type: 'inlineFormula';
     blockId: string;
@@ -170,14 +192,14 @@ export interface InlineFormulaEdit {
     timestamp: number;
 }
 
-export interface SpotColorComponentProps {
+export interface SpotColorComponentProps extends InlineComponentIdentity {
     varName?: string;
     text?: string;
     color?: string;
     isNew?: boolean;
 }
 
-export interface SpotColorEdit {
+export interface SpotColorEdit extends InlineComponentIdentity {
     id: string;
     type: 'spotColor';
     blockId: string;
@@ -187,7 +209,7 @@ export interface SpotColorEdit {
     timestamp: number;
 }
 
-export interface LinkedHighlightComponentProps {
+export interface LinkedHighlightComponentProps extends InlineComponentIdentity {
     varName?: string;
     highlightId?: string;
     text?: string;
@@ -196,7 +218,7 @@ export interface LinkedHighlightComponentProps {
     isNew?: boolean;
 }
 
-export interface LinkedHighlightEdit {
+export interface LinkedHighlightEdit extends InlineComponentIdentity {
     id: string;
     type: 'linkedHighlight';
     blockId: string;
@@ -233,13 +255,16 @@ export interface StructureEdit {
     action: 'reorder' | 'delete' | 'add';
     blockId?: string;
     blockIds?: string[];
+    layout?: BlockLayoutManifest;
     content?: string;
     blockType?: string;
     afterBlockId?: string;
+    componentProps?: FormulaBlockComponentProps;
+    manualSaveOnly?: boolean;
     timestamp: number;
 }
 
-export type PendingEdit = TextEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | LinkedHighlightEdit | FormulaBlockEdit | StructureEdit;
+export type PendingEdit = BlockContentEdit | TextEdit | ScrubbleNumberEdit | ClozeInputEdit | ClozeChoiceEdit | ToggleEdit | TooltipEdit | TriggerComponentEdit | HyperlinkComponentEdit | InlineFormulaEdit | SpotColorEdit | LinkedHighlightEdit | FormulaBlockEdit | StructureEdit;
 
 interface EditingContextType {
     // State
@@ -316,10 +341,21 @@ interface EditingProviderProps {
     children: ReactNode;
 }
 
+const isSameInlineTarget = (
+    candidate: { blockId: string; elementPath: string; componentId?: string },
+    edit: { blockId: string; elementPath: string; componentId?: string },
+) => candidate.blockId === edit.blockId && (
+    edit.componentId
+        ? candidate.componentId === edit.componentId
+        : candidate.elementPath === edit.elementPath
+);
+
 export const EditingProvider = ({ children }: EditingProviderProps) => {
     const { isEditor } = useAppMode();
 
-    const [isEditing, setIsEditing] = useState(false);
+    // Editor pages are always editable. Preview mode still starts (and stays)
+    // non-editable, so student interactions are never intercepted.
+    const [isEditing, setIsEditing] = useState(isEditor);
     const [pendingEdits, setPendingEdits] = useState<PendingEdit[]>([]);
     const [editingScrubbleNumber, setEditingScrubbleNumber] = useState<(ScrubbleNumberProps & {
         blockId: string;
@@ -368,10 +404,32 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Keep a ref of pending edits for event listeners to avoid stale closures
     const pendingEditsRef = useRef(pendingEdits);
+    const pendingRevisionRef = useRef(0);
+    const openComponentEditorRef = useRef(false);
 
     useEffect(() => {
         pendingEditsRef.current = pendingEdits;
+        pendingRevisionRef.current += 1;
     }, [pendingEdits]);
+
+    useEffect(() => {
+        const open = Boolean(
+            editingScrubbleNumber || editingClozeInput || editingClozeChoice ||
+            editingToggle || editingTooltip || editingTrigger || editingHyperlink ||
+            editingInlineFormula || editingSpotColor || editingLinkedHighlight ||
+            editingFormulaBlock
+        );
+        openComponentEditorRef.current = open;
+        // The parent owns auto-save. Tell it that inline configuration is a
+        // transaction in progress so it does not snapshot the provisional
+        // marker before the teacher validates and applies the panel.
+        window.parent.postMessage({ type: 'component-editor-state', open }, '*');
+    }, [
+        editingScrubbleNumber, editingClozeInput, editingClozeChoice,
+        editingToggle, editingTooltip, editingTrigger, editingHyperlink,
+        editingInlineFormula, editingSpotColor, editingLinkedHighlight,
+        editingFormulaBlock,
+    ]);
 
     // Generate unique ID for edits
     const generateId = useCallback(() => {
@@ -463,6 +521,42 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     const addStructureEdit = useCallback((edit: Omit<StructureEdit, 'id' | 'type' | 'timestamp'>) => {
         setPendingEdits(prev => {
+            // Only the latest complete order matters. Keeping every drag event
+            // replays obsolete intermediate positions around adds/deletes.
+            if (edit.action === 'reorder') {
+                const withoutOlderReorders = prev.filter(
+                    candidate => candidate.type !== 'structure' || candidate.action !== 'reorder'
+                );
+                return [
+                    ...withoutOlderReorders,
+                    {
+                        ...edit,
+                        id: generateId(),
+                        type: 'structure' as const,
+                        timestamp: Date.now(),
+                    },
+                ];
+            }
+
+            // Repeated deletes are idempotent. Retain the newest complete
+            // order snapshot rather than sending duplicate operations.
+            if (edit.action === 'delete') {
+                const existingDeleteIndex = prev.findIndex(
+                    candidate => candidate.type === 'structure' &&
+                        candidate.action === 'delete' &&
+                        candidate.blockId === edit.blockId
+                );
+                if (existingDeleteIndex !== -1) {
+                    const updated = [...prev];
+                    updated[existingDeleteIndex] = {
+                        ...updated[existingDeleteIndex],
+                        ...edit,
+                        timestamp: Date.now(),
+                    } as StructureEdit;
+                    return updated;
+                }
+            }
+
             // Check if there's already an 'add' structure edit for this blockId
             // This handles the case where we add a placeholder and then commit content to it
             if (edit.action === 'add') {
@@ -486,6 +580,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                         blockType: (existing.blockType !== 'placeholder' && edit.blockType === 'modify-content')
                             ? existing.blockType
                             : edit.blockType,
+                        manualSaveOnly: existing.manualSaveOnly ||
+                            edit.manualSaveOnly || edit.blockType === 'modify-content',
                         timestamp: Date.now(),
                     };
                     return updated;
@@ -494,6 +590,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
             const newEdit: StructureEdit = {
                 ...edit,
+                manualSaveOnly: edit.manualSaveOnly || edit.blockType === 'modify-content',
                 id: generateId(),
                 type: 'structure',
                 timestamp: Date.now(),
@@ -507,11 +604,53 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const clearAllEdits = useCallback(() => {
+        pendingEditsRef.current = [];
+        pendingRevisionRef.current += 1;
         setPendingEdits([]);
+    }, []);
+
+    const cancelProvisionalInlineComponent = useCallback((
+        editor: (InlineComponentIdentity & { blockId: string; isNew?: boolean }) | null,
+        markerType: string,
+    ) => {
+        if (!editor?.isNew || !editor.componentId) return;
+
+        const { blockId, componentId } = editor;
+        const escapedId = componentId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const markerRe = new RegExp(
+            `\\{\\{${markerType}:${escapedId}(?:\\|[A-Za-z0-9+/=]*)?\\}\\}\\s?`,
+            'g',
+        );
+
+        // The paragraph may already have been promoted from a DOM placeholder
+        // to a structure edit when focus moved into the panel. Remove the
+        // provisional marker before closing the panel so auto-save cannot add
+        // a component that the teacher cancelled.
+        setPendingEdits(prev => prev.map(edit => {
+            if (
+                edit.type !== 'structure' || edit.action !== 'add' ||
+                edit.blockId !== blockId || !edit.content
+            ) return edit;
+            const content = edit.content.replace(markerRe, '');
+            const stillContainsInlineComponent = /\{\{inline[A-Za-z]+:[^}]+\}\}/.test(content);
+            return content === edit.content
+                ? edit
+                : {
+                    ...edit,
+                    content,
+                    manualSaveOnly: stillContainsInlineComponent || undefined,
+                    timestamp: Date.now(),
+                };
+        }));
+
+        window.dispatchEvent(new CustomEvent('inline-component-cancelled', {
+            detail: { blockId, componentId },
+        }));
     }, []);
 
     // Scrubble Number editing methods
     const addScrubbleNumberEdit = useCallback((edit: Omit<ScrubbleNumberEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineScrubbleNumber', edit.newProps);
         const newEdit: ScrubbleNumberEdit = {
             ...edit,
             id: generateId(),
@@ -523,8 +662,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             // Check if there's already an edit for the same scrubble number
             const existingIndex = prev.findIndex(
                 e => e.type === 'scrubbleNumber' &&
-                    (e as ScrubbleNumberEdit).blockId === edit.blockId &&
-                    (e as ScrubbleNumberEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as ScrubbleNumberEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -561,13 +699,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeScrubbleNumberEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingScrubbleNumber, 'inlineScrubbleNumber');
         setEditingScrubbleNumber(null);
-    }, []);
+    }, [editingScrubbleNumber, cancelProvisionalInlineComponent]);
 
     const saveScrubbleNumberEdit = useCallback((newProps: ScrubbleNumberProps) => {
         if (!editingScrubbleNumber) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingScrubbleNumber;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingScrubbleNumber;
 
         // For new components (via slash command), always save the edit
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
@@ -576,6 +715,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addScrubbleNumberEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -586,6 +727,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Cloze Input editing methods
     const addClozeInputEdit = useCallback((edit: Omit<ClozeInputEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineClozeInput', edit.newProps);
         const newEdit: ClozeInputEdit = {
             ...edit,
             id: generateId(),
@@ -596,8 +738,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'clozeInput' &&
-                    (e as ClozeInputEdit).blockId === edit.blockId &&
-                    (e as ClozeInputEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as ClozeInputEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -631,13 +772,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeClozeInputEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingClozeInput, 'inlineClozeInput');
         setEditingClozeInput(null);
-    }, []);
+    }, [editingClozeInput, cancelProvisionalInlineComponent]);
 
     const saveClozeInputEdit = useCallback((newProps: ClozeInputProps) => {
         if (!editingClozeInput) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingClozeInput;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingClozeInput;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -645,6 +787,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addClozeInputEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -655,6 +799,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Cloze Choice editing methods
     const addClozeChoiceEdit = useCallback((edit: Omit<ClozeChoiceEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineClozeChoice', edit.newProps);
         const newEdit: ClozeChoiceEdit = {
             ...edit,
             id: generateId(),
@@ -665,8 +810,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'clozeChoice' &&
-                    (e as ClozeChoiceEdit).blockId === edit.blockId &&
-                    (e as ClozeChoiceEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as ClozeChoiceEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -700,13 +844,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeClozeChoiceEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingClozeChoice, 'inlineClozeChoice');
         setEditingClozeChoice(null);
-    }, []);
+    }, [editingClozeChoice, cancelProvisionalInlineComponent]);
 
     const saveClozeChoiceEdit = useCallback((newProps: ClozeChoiceProps) => {
         if (!editingClozeChoice) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingClozeChoice;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingClozeChoice;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -714,6 +859,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addClozeChoiceEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -724,6 +871,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Toggle editing methods
     const addToggleEdit = useCallback((edit: Omit<ToggleEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineToggle', edit.newProps);
         const newEdit: ToggleEdit = {
             ...edit,
             id: generateId(),
@@ -734,8 +882,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'toggle' &&
-                    (e as ToggleEdit).blockId === edit.blockId &&
-                    (e as ToggleEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as ToggleEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -769,13 +916,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeToggleEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingToggle, 'inlineToggle');
         setEditingToggle(null);
-    }, []);
+    }, [editingToggle, cancelProvisionalInlineComponent]);
 
     const saveToggleEdit = useCallback((newProps: ToggleProps) => {
         if (!editingToggle) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingToggle;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingToggle;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -783,6 +931,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addToggleEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -793,6 +943,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Tooltip editing methods
     const addTooltipEdit = useCallback((edit: Omit<TooltipEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineTooltip', edit.newProps);
         const newEdit: TooltipEdit = {
             ...edit,
             id: generateId(),
@@ -803,8 +954,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'tooltip' &&
-                    (e as TooltipEdit).blockId === edit.blockId &&
-                    (e as TooltipEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as TooltipEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -838,13 +988,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeTooltipEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingTooltip, 'inlineTooltip');
         setEditingTooltip(null);
-    }, []);
+    }, [editingTooltip, cancelProvisionalInlineComponent]);
 
     const saveTooltipEdit = useCallback((newProps: TooltipProps) => {
         if (!editingTooltip) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingTooltip;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingTooltip;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -852,6 +1003,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addTooltipEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -862,6 +1015,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Trigger editing methods
     const addTriggerEdit = useCallback((edit: Omit<TriggerComponentEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineTrigger', edit.newProps);
         const newEdit: TriggerComponentEdit = {
             ...edit,
             id: generateId(),
@@ -872,8 +1026,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'trigger' &&
-                    (e as TriggerComponentEdit).blockId === edit.blockId &&
-                    (e as TriggerComponentEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as TriggerComponentEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -907,8 +1060,9 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeTriggerEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingTrigger, 'inlineTrigger');
         setEditingTrigger(null);
-    }, []);
+    }, [editingTrigger, cancelProvisionalInlineComponent]);
 
     const saveTriggerEdit = useCallback((newProps: TriggerComponentProps) => {
         if (!editingTrigger) {
@@ -916,7 +1070,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             return;
         }
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingTrigger;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingTrigger;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -928,6 +1082,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addTriggerEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -938,6 +1094,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // Hyperlink editing methods
     const addHyperlinkEdit = useCallback((edit: Omit<HyperlinkComponentEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineHyperlink', edit.newProps);
         const newEdit: HyperlinkComponentEdit = {
             ...edit,
             id: generateId(),
@@ -948,8 +1105,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'hyperlink' &&
-                    (e as HyperlinkComponentEdit).blockId === edit.blockId &&
-                    (e as HyperlinkComponentEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as HyperlinkComponentEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -983,13 +1139,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeHyperlinkEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingHyperlink, 'inlineHyperlink');
         setEditingHyperlink(null);
-    }, []);
+    }, [editingHyperlink, cancelProvisionalInlineComponent]);
 
     const saveHyperlinkEdit = useCallback((newProps: HyperlinkComponentProps) => {
         if (!editingHyperlink) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingHyperlink;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingHyperlink;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -997,6 +1154,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addHyperlinkEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -1007,6 +1166,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // InlineFormula editing methods
     const addInlineFormulaEdit = useCallback((edit: Omit<InlineFormulaEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineFormula', edit.newProps);
         const newEdit: InlineFormulaEdit = {
             ...edit,
             id: generateId(),
@@ -1031,8 +1191,11 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                 const existingStructure = updated[structureAddIndex] as StructureEdit;
                 const content = existingStructure.content || '';
 
-                // Update the first inlineFormula marker with the new props
-                const markerRegex = /\{\{inlineFormula:([^|}]+)(?:\|[A-Za-z0-9+/=]*)?\}\}/;
+                // Match the exact new formula when repeated formulas share a block.
+                const escapedComponentId = edit.componentId?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const markerRegex = new RegExp(
+                    `\\{\\{inlineFormula:(${escapedComponentId || '[^|}]+'})(?:\\|[A-Za-z0-9+/=]*)?\\}\\}`,
+                );
                 const markerMatch = content.match(markerRegex);
 
                 if (markerMatch) {
@@ -1046,7 +1209,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                         if (edit.newProps.color && edit.newProps.color !== '#000000') {
                             updatedProps.color = edit.newProps.color;
                         }
-                        const newBase64 = btoa(JSON.stringify(updatedProps));
+                        const newBase64 = encodeMarkerProps(updatedProps);
                         const newContent = content.replace(
                             markerRegex,
                             `{{inlineFormula:${markerMatch[1]}|${newBase64}}}`
@@ -1065,8 +1228,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                 // (the InlineFormula component reads pending edits for effectiveLatex)
                 const existingEditIndex = updated.findIndex(
                     e => e.type === 'inlineFormula' &&
-                        (e as InlineFormulaEdit).blockId === edit.blockId &&
-                        (e as InlineFormulaEdit).elementPath === edit.elementPath
+                        isSameInlineTarget(e as InlineFormulaEdit, edit)
                 );
                 if (existingEditIndex !== -1) {
                     updated[existingEditIndex] = {
@@ -1083,8 +1245,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             // 2. Normal flow: check for existing formula edit for the same element
             const existingIndex = prev.findIndex(
                 e => e.type === 'inlineFormula' &&
-                    (e as InlineFormulaEdit).blockId === edit.blockId &&
-                    (e as InlineFormulaEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as InlineFormulaEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -1118,13 +1279,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeInlineFormulaEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingInlineFormula, 'inlineFormula');
         setEditingInlineFormula(null);
-    }, []);
+    }, [editingInlineFormula, cancelProvisionalInlineComponent]);
 
     const saveInlineFormulaEdit = useCallback((newProps: InlineFormulaProps) => {
         if (!editingInlineFormula) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingInlineFormula;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingInlineFormula;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -1132,6 +1294,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addInlineFormulaEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -1142,6 +1306,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // SpotColor editing methods
     const addSpotColorEdit = useCallback((edit: Omit<SpotColorEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineSpotColor', edit.newProps);
         const newEdit: SpotColorEdit = {
             ...edit,
             id: generateId(),
@@ -1152,8 +1317,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'spotColor' &&
-                    (e as SpotColorEdit).blockId === edit.blockId &&
-                    (e as SpotColorEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as SpotColorEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -1187,13 +1351,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeSpotColorEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingSpotColor, 'inlineSpotColor');
         setEditingSpotColor(null);
-    }, []);
+    }, [editingSpotColor, cancelProvisionalInlineComponent]);
 
     const saveSpotColorEdit = useCallback((newProps: SpotColorComponentProps) => {
         if (!editingSpotColor) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingSpotColor;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingSpotColor;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -1201,6 +1366,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addSpotColorEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -1211,6 +1378,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
     // LinkedHighlight editing methods
     const addLinkedHighlightEdit = useCallback((edit: Omit<LinkedHighlightEdit, 'id' | 'type' | 'timestamp'>) => {
+        updateProvisionalInlinePlaceholder(edit.componentId, 'inlineLinkedHighlight', edit.newProps);
         const newEdit: LinkedHighlightEdit = {
             ...edit,
             id: generateId(),
@@ -1221,8 +1389,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         setPendingEdits(prev => {
             const existingIndex = prev.findIndex(
                 e => e.type === 'linkedHighlight' &&
-                    (e as LinkedHighlightEdit).blockId === edit.blockId &&
-                    (e as LinkedHighlightEdit).elementPath === edit.elementPath
+                    isSameInlineTarget(e as LinkedHighlightEdit, edit)
             );
 
             if (existingIndex !== -1) {
@@ -1256,13 +1423,14 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const closeLinkedHighlightEditor = useCallback(() => {
+        cancelProvisionalInlineComponent(editingLinkedHighlight, 'inlineLinkedHighlight');
         setEditingLinkedHighlight(null);
-    }, []);
+    }, [editingLinkedHighlight, cancelProvisionalInlineComponent]);
 
     const saveLinkedHighlightEdit = useCallback((newProps: LinkedHighlightComponentProps) => {
         if (!editingLinkedHighlight) return;
 
-        const { blockId, elementPath, isNew, ...originalProps } = editingLinkedHighlight;
+        const { blockId, elementPath, componentId, isNew, ...originalProps } = editingLinkedHighlight;
 
         const propsChanged = isNew || JSON.stringify(newProps) !== JSON.stringify(originalProps);
 
@@ -1270,6 +1438,8 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             addLinkedHighlightEdit({
                 blockId,
                 elementPath,
+                componentId,
+                manualSaveOnly: isNew === true,
                 originalProps,
                 newProps,
             });
@@ -1350,7 +1520,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     // Filter out inline component edits whose block already has a structure 'add' edit
     // (including 'modify-content' edits for inline component insertion into existing paragraphs).
     // Before filtering, merge inline edit props into the structure edit's content markers
-    // so the structure agent writes the component with the user's edited props (not defaults).
+    // so deterministic block creation writes the user's edited props (not defaults).
     const _INLINE_EDIT_TYPES = new Set([
         'inlineFormula', 'tooltip', 'trigger', 'hyperlink',
         'scrubbleNumber', 'clozeInput', 'clozeChoice', 'toggle',
@@ -1372,24 +1542,37 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     };
 
     /** Replace a marker's base64 props in the content string with updated props. */
-    const mergePropsIntoMarker = (content: string, editType: string, newProps: Record<string, unknown>): string => {
+    const mergePropsIntoMarker = (
+        content: string,
+        editType: string,
+        newProps: Record<string, unknown>,
+        componentId?: string,
+    ): string => {
         const markerType = _EDIT_TO_MARKER[editType];
         if (!markerType) return content;
 
-        // Match the first marker of this type:  {{type:id|base64}}  or  {{type:id}}
-        const re = new RegExp(`\\{\\{${markerType}:([^|}]+)(?:\\|[A-Za-z0-9+/=]*)?\\}\\}`);
+        // New blocks can contain several components of the same type. Match
+        // the stable marker id when available so editing the second tooltip
+        // cannot accidentally overwrite the first one.
+        const markerId = componentId ? componentId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '[^|}]+';
+        const re = new RegExp(`\\{\\{${markerType}:(${markerId})(?:\\|[A-Za-z0-9+/=]*)?\\}\\}`);
         const m = content.match(re);
         if (!m) return content;
 
         try {
-            const encoded = btoa(JSON.stringify(newProps));
+            const persistedProps = { ...newProps };
+            delete persistedProps.componentId;
+            const encoded = encodeMarkerProps(persistedProps);
             return content.replace(m[0], `{{${markerType}:${m[1]}|${encoded}}}`);
         } catch {
             return content;
         }
     };
 
-    const filterEditsForBackend = useCallback((edits: PendingEdit[]): PendingEdit[] => {
+    const filterEditsForBackend = useCallback((
+        edits: PendingEdit[],
+        persistEmptyBlocks = false,
+    ): PendingEdit[] => {
         // Identify blocks with structure 'add' edits
         const structureAddEdits = edits.filter(
             e => e.type === 'structure' && (e as StructureEdit).action === 'add'
@@ -1402,12 +1585,28 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
         const inlineEditsForStructure = edits.filter(
             e => _INLINE_EDIT_TYPES.has(e.type) && structureAddBlockIds.has((e as any).blockId)
         );
+        const formulaEditsForStructure = edits.filter(
+            e => e.type === 'formulaBlock' && structureAddBlockIds.has((e as FormulaBlockEdit).blockId)
+        ) as FormulaBlockEdit[];
 
         // Merge inline edit props into the structure edit's content markers
         // so the structure agent creates the component with the correct props.
         const updatedEdits = edits.map(e => {
             if (e.type !== 'structure' || (e as StructureEdit).action !== 'add') return e;
             const se = e as StructureEdit;
+
+            if (se.blockType === 'formulaBlock') {
+                const formulaEdit = [...formulaEditsForStructure]
+                    .reverse()
+                    .find(candidate => candidate.blockId === se.blockId);
+                if (formulaEdit) {
+                    return {
+                        ...se,
+                        content: formulaEdit.newProps.latex ?? se.content,
+                        componentProps: formulaEdit.newProps,
+                    } as StructureEdit;
+                }
+            }
             if (!se.content) return e;
 
             // Find inline edits targeting this block
@@ -1418,20 +1617,126 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
 
             let updatedContent = se.content;
             for (const ie of related) {
-                updatedContent = mergePropsIntoMarker(updatedContent, ie.type, (ie as any).newProps);
+                updatedContent = mergePropsIntoMarker(
+                    updatedContent,
+                    ie.type,
+                    (ie as any).newProps,
+                    (ie as any).componentId,
+                );
             }
 
-            if (updatedContent === se.content) return e;
-            return { ...se, content: updatedContent };
+            const manualSaveOnly = related.some(edit =>
+                (edit as InlineComponentIdentity).manualSaveOnly
+            );
+            if (updatedContent === se.content && !manualSaveOnly) return e;
+            return { ...se, content: updatedContent, ...(manualSaveOnly ? { manualSaveOnly: true } : {}) };
+        });
+
+        // Keep an untouched add-block as a placeholder during ordinary edit
+        // notifications so auto-save knows it is still an active draft. An
+        // explicit save/Enter opts into converting it to a real empty paragraph.
+        const normalizedEdits = updatedEdits.map(e => {
+            if (
+                persistEmptyBlocks &&
+                e.type === 'structure' && e.action === 'add' &&
+                e.blockType === 'placeholder'
+            ) {
+                return {
+                    ...e,
+                    blockType: 'paragraph',
+                    content: '',
+                } as StructureEdit;
+            }
+            return e;
         });
 
         // Filter out inline edits (their props are now merged into the structure edit)
-        return updatedEdits.filter(e => {
+        const filtered = normalizedEdits.filter(e => {
             if (_INLINE_EDIT_TYPES.has(e.type) && structureAddBlockIds.has((e as any).blockId)) {
+                return false;
+            }
+            if (e.type === 'formulaBlock' && structureAddBlockIds.has((e as FormulaBlockEdit).blockId)) {
                 return false;
             }
             return true;
         });
+
+        // Existing editable text blocks are persisted as one canonical stream:
+        // text + every inline component (with current effective props) in DOM
+        // order. This makes combinations independent of mutation ordering and
+        // disambiguates repeated components of the same type.
+        const snapshotBlockIds = new Set(
+            filtered
+                .filter(e => e.type === 'text' || _INLINE_EDIT_TYPES.has(e.type))
+                .map(e => (e as TextEdit).blockId)
+                .filter(blockId => blockId && !structureAddBlockIds.has(blockId))
+        );
+        const snapshots: BlockContentEdit[] = [];
+        const snapped = new Set<string>();
+
+        for (const blockId of snapshotBlockIds) {
+            const elements = Array.from(
+                document.querySelectorAll<HTMLElement>('[data-editable="true"]')
+            ).filter(el => el.closest('[data-block-id]')?.getAttribute('data-block-id') === blockId);
+
+            for (const element of elements) {
+                // Multiple editable elements in one block require an id so the
+                // backend never guesses which JSX element should be replaced.
+                if (elements.length > 1 && !element.id) continue;
+                const key = `${blockId}:${element.id || 'only'}`;
+                if (snapped.has(key)) continue;
+                snapped.add(key);
+                let snapshotContent = extractContentWithMarkers(element);
+                // A freshly inserted slash-command component can still be a
+                // plain DOM placeholder while its configuration panel closes.
+                // Merge the validated panel values into its marker before the
+                // inline edit is replaced by this canonical block snapshot.
+                for (const inlineEdit of filtered.filter(
+                    candidate => _INLINE_EDIT_TYPES.has(candidate.type) &&
+                        (candidate as InlineComponentIdentity & { blockId?: string }).blockId === blockId
+                )) {
+                    const typedInlineEdit = inlineEdit as PendingEdit & {
+                        componentId?: string;
+                        newProps?: Record<string, unknown>;
+                    };
+                    if (!typedInlineEdit.newProps) continue;
+                    snapshotContent = mergePropsIntoMarker(
+                        snapshotContent,
+                        typedInlineEdit.type,
+                        typedInlineEdit.newProps,
+                        typedInlineEdit.componentId,
+                    );
+                }
+                snapshots.push({
+                    id: `block-content:${key}`,
+                    type: 'blockContent',
+                    blockId,
+                    ...(element.id ? { elementId: element.id } : {}),
+                    newContent: snapshotContent,
+                    manualSaveOnly: filtered.some(edit =>
+                        (edit as { manualSaveOnly?: boolean }).manualSaveOnly &&
+                        (edit as { blockId?: string }).blockId === blockId
+                    ),
+                    timestamp: Math.max(
+                        ...filtered
+                            .filter(e => (e as any).blockId === blockId)
+                            .map(e => e.timestamp),
+                        Date.now(),
+                    ),
+                });
+            }
+        }
+
+        if (snapshots.length === 0) return filtered;
+        const snapshottedBlockIds = new Set(snapshots.map(snapshot => snapshot.blockId));
+        return [
+            ...filtered.filter(e => {
+                const blockId = (e as any).blockId as string | undefined;
+                return !blockId || !snapshottedBlockIds.has(blockId) ||
+                    (e.type !== 'text' && !_INLINE_EDIT_TYPES.has(e.type));
+            }),
+            ...snapshots,
+        ];
     }, []);
 
     // Notify parent whenever edits change
@@ -1441,6 +1746,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
             type: 'edits-changed',
             edits: editsForBackend,
             count: editsForBackend.length,
+            revision: pendingRevisionRef.current,
         }, '*');
     }, [pendingEdits, filterEditsForBackend]);
 
@@ -1470,13 +1776,66 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     type: 'edits-response',
                     edits: editsForBackend,
                     count: editsForBackend.length,
+                    revision: pendingRevisionRef.current,
                 }, '*');
+            }
+
+            // Clear only the exact revision that the backend saved. If the
+            // teacher kept typing during the request, retain everything; the
+            // already-saved portion is safe to send again because edits are
+            // deterministic and idempotent.
+            if (event.data.type === 'ack-saved') {
+                const requestId = event.data.requestId;
+                const cleared = event.data.revision === pendingRevisionRef.current;
+                if (cleared) clearAllEdits();
+                const currentEdits = cleared
+                    ? []
+                    : filterEditsForBackend(pendingEditsRef.current);
+                window.parent.postMessage({
+                    type: 'save-ack-result',
+                    requestId,
+                    cleared,
+                    edits: currentEdits,
+                    revision: pendingRevisionRef.current,
+                }, '*');
+            }
+
+            // Saving must first flush whichever contentEditable currently has
+            // focus. Two animation frames allow React state and effective
+            // inline-component props to reach the DOM before it is serialized.
+            if (event.data.type === 'prepare-save') {
+                const requestId = event.data.requestId;
+                if (openComponentEditorRef.current) {
+                    window.parent.postMessage({
+                        type: 'save-ready',
+                        requestId,
+                        error: 'Apply or cancel the open component editor before saving.',
+                        edits: [],
+                        count: 0,
+                        revision: pendingRevisionRef.current,
+                    }, '*');
+                    return;
+                }
+                window.dispatchEvent(new CustomEvent('editor-flush-request'));
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    const editsForBackend = filterEditsForBackend(
+                        pendingEditsRef.current,
+                        event.data.persistEmptyBlocks === true,
+                    );
+                    window.parent.postMessage({
+                        type: 'save-ready',
+                        requestId,
+                        edits: editsForBackend,
+                        count: editsForBackend.length,
+                        revision: pendingRevisionRef.current,
+                    }, '*');
+                }));
             }
         };
 
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
-    }, [enableEditing, disableEditing, clearAllEdits]);
+    }, [enableEditing, disableEditing, clearAllEdits, filterEditsForBackend]);
 
     // Listen for inline component editor open requests (from slash command insertion)
     // This opens the appropriate editor modal immediately after an inline component
@@ -1500,7 +1859,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const defaultVarName = `var_${uniqueId}`;
                     const elementPath = `scrubble-${blockId}-${defaultVarName}`;
                     openScrubbleNumberEditor(
-                        { varName: defaultVarName, defaultValue: 10, min: 0, max: 100, step: 1, color: '#0D7377', isNew: true },
+                        { varName: defaultVarName, defaultValue: 10, min: 0, max: 100, step: 1, color: '#0D7377', isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1512,7 +1871,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const defaultVarName = `var_${uniqueId}`;
                     const elementPath = `cloze-${blockId}-${defaultVarName}`;
                     openClozeInputEditor(
-                        { varName: defaultVarName, correctAnswer: 'answer', placeholder: '???', isNew: true },
+                        { varName: defaultVarName, correctAnswer: 'answer', placeholder: '???', isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1524,7 +1883,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const defaultVarName = `var_${uniqueId}`;
                     const elementPath = `choice-${blockId}-${defaultVarName}`;
                     openClozeChoiceEditor(
-                        { varName: defaultVarName, correctAnswer: 'Option 1', options: ['Option 1', 'Option 2', 'Option 3'], placeholder: '???', isNew: true },
+                        { varName: defaultVarName, correctAnswer: 'Option 1', options: ['Option 1', 'Option 2', 'Option 3'], placeholder: '???', isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1536,7 +1895,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const defaultVarName = `var_${uniqueId}`;
                     const elementPath = `toggle-${blockId}-${defaultVarName}`;
                     openToggleEditor(
-                        { varName: defaultVarName, options: ['Option 1', 'Option 2', 'Option 3'], isNew: true },
+                        { varName: defaultVarName, options: ['Option 1', 'Option 2', 'Option 3'], isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1548,7 +1907,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     // childText = 'term' (from children)
                     const elementPath = `tooltip-${blockId}-term`;
                     openTooltipEditor(
-                        { text: 'term', tooltip: 'Tooltip content', isNew: true },
+                        { text: 'term', tooltip: 'Tooltip content', isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1561,7 +1920,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const defaultVarName = `var_${uniqueId}`;
                     const elementPath = `trigger-${blockId}-${defaultVarName}-trigger`;
                     openTriggerEditor(
-                        { text: 'trigger', varName: defaultVarName, value: undefined, isNew: true },
+                        { text: 'trigger', varName: defaultVarName, value: undefined, isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1573,7 +1932,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     // childText = 'link' (from children)
                     const elementPath = `hyperlink-${blockId}-link`;
                     openHyperlinkEditor(
-                        { text: 'link', href: undefined, targetBlockId: undefined, isNew: true },
+                        { text: 'link', href: undefined, targetBlockId: undefined, isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1584,7 +1943,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     // Component identity: `inlineFormula-${blockId}-${latex?.substring(0, 30)}`
                     const elementPath = `inlineFormula-${blockId}-x^2`;
                     openInlineFormulaEditor(
-                        { latex: 'x^2', isNew: true },
+                        { latex: 'x^2', isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1598,7 +1957,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const defaultVarName = `var_${uniqueId}`;
                     const elementPath = `spotColor-${blockId}-${defaultVarName}-variable`;
                     openSpotColorEditor(
-                        { varName: defaultVarName, text: 'variable', color: '#3B82F6', isNew: true },
+                        { varName: defaultVarName, text: 'variable', color: '#3B82F6', isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );
@@ -1612,7 +1971,7 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
                     const defaultVarName = `highlight_${uniqueId}`;
                     const elementPath = `linkedHighlight-${blockId}-${defaultVarName}-${uniqueId}-highlight`;
                     openLinkedHighlightEditor(
-                        { varName: defaultVarName, highlightId: uniqueId, text: 'highlight', isNew: true },
+                        { varName: defaultVarName, highlightId: uniqueId, text: 'highlight', isNew: true, componentId: uniqueId },
                         blockId,
                         elementPath,
                     );

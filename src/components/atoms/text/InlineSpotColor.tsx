@@ -1,5 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -53,6 +54,9 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
     children,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(
+        id || `spotColor-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
+    );
     const [isHovered, setIsHovered] = useState(false);
 
     // ---- Editing support ----
@@ -88,7 +92,7 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `spotColor-${blockIdFromContext}-${identitySuffix}`;
+            const elementPath = `spotColor-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -96,7 +100,7 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `spotColor-${blockId}-${identitySuffix}`;
+        const elementPath = `spotColor-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, identitySuffix]);
 
@@ -109,7 +113,9 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'spotColor' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { varName?: string; text?: string; color?: string } } | null;
@@ -155,7 +161,7 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `spotColor-${blockId}-${identitySuffix}`;
+            elementPath = `spotColor-${blockId}-${inlineIdRef.current}`;
         }
 
         // Use effectiveText, falling back to DOM textContent for robustness
@@ -166,6 +172,7 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
                 varName: effectiveVarName,
                 text,
                 color: effectiveColor,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath
@@ -180,10 +187,6 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
     };
 
     // ---- Stable ID & serialized props for round-trip extraction ----
-    const inlineIdRef = useRef(
-        id || `spotColor-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
-    );
-
     const componentProps = useMemo(() => {
         // Always include text to survive round-trip extraction.
         // childText (derived from children prop) is available during render;
@@ -191,7 +194,7 @@ export const InlineSpotColor: React.FC<InlineSpotColorProps> = ({
         const textForProps = effectiveText ?? childText ?? domTextRef.current;
         const json = JSON.stringify({ varName: effectiveVarName, color: effectiveColor, ...(textForProps ? { text: textForProps } : {}) });
         try {
-            return btoa(json);
+            return encodeMarkerJson(json);
         } catch {
             return '';
         }

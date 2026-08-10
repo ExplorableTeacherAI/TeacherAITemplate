@@ -49,6 +49,7 @@ export const LinkedHighlightEditorModal: React.FC = () => {
     const [text, setText] = useState('');
     const [color, setColor] = useState('#3b82f6');
     const [bgColor, setBgColor] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     const COLOR_PRESETS = COLOR_PRESETS_EXTENDED;
 
@@ -71,6 +72,7 @@ export const LinkedHighlightEditorModal: React.FC = () => {
             setText(editingLinkedHighlight.text || '');
             setColor(editingLinkedHighlight.color || '#3b82f6');
             setBgColor(editingLinkedHighlight.bgColor || '');
+            setError(null);
         }
     }, [editingLinkedHighlight]);
 
@@ -104,10 +106,23 @@ export const LinkedHighlightEditorModal: React.FC = () => {
     }, []);
 
     const handleSave = useCallback(() => {
+        if (!varName.trim()) {
+            setError('Group variable is required.');
+            return;
+        }
+        if (!highlightId.trim()) {
+            setError('Highlight ID is required.');
+            return;
+        }
+        if (!text.trim()) {
+            setError('Display text is required.');
+            return;
+        }
+        setError(null);
         saveLinkedHighlightEdit({
             varName: varName || undefined,
             highlightId: highlightId || undefined,
-            text: text || undefined,
+            text: text.trim(),
             color,
             bgColor: bgColor || undefined,
         });
@@ -307,6 +322,12 @@ export const LinkedHighlightEditorModal: React.FC = () => {
                         defaultOpacity={DEFAULT_BG_OPACITY}
                         label="Active Background (optional)"
                     />
+
+                    {error && (
+                        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                            {error}
+                        </p>
+                    )}
 
                     {/* Preview */}
                     <div>

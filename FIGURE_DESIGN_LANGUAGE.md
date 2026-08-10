@@ -68,8 +68,14 @@ gradients, soft muted palette only. On top of that:
 - **Whitespace is load-bearing.** ≥ 24px padding inside the drawing surface on all sides;
   labels never touch the frame; nothing is ever clipped (see the safe-viewBox rule in
   `CLAUDE.md`). If a figure feels crowded, the fix is removing elements, not shrinking them.
-- **Scale the canvas to the content.** Drawing surface ≤ ~560px tall; the whole figure with
-  its controls fits one laptop screen (≤ ~780px). Coordinate bounds hug the action (content
+- **Scale the canvas to the content.** The `<Figure>` shell renders at most **560px wide**,
+  centered in the content column (the shell enforces this — a `w-full` SVG never spans the
+  1024px column). Design the viewBox for that width: prefer landscape-to-4:3 aspect
+  (e.g. 560×320, 440×280, 400×300). Target a **280–360px drawing surface** on
+  desktop and treat **420px as a hard visualization maximum**; use 240–340px when stacked
+  on mobile. A square or portrait viewBox usually reads oversized. Put prose and figure
+  beside each other when possible so both remain visible in one glance; never use
+  `h-screen`, `min-h-screen`, or a full-viewport figure. Coordinate bounds hug the action (content
   extent + ~15% margin) so the ink spans well over half of the canvas in both axes at every
   reachable state. A big canvas with the action huddled in one corner — or a giant dead band
   of nothing — is a hard verification failure, exactly like clipping. If most of the range is
@@ -173,3 +179,7 @@ below 3 on any item = polish failure, figure goes back for refinement.
    gesture. 1: default state already displays the answer/degenerate case.
 8. **Cohesion with the lesson** — 5: same palette, stroke language, and label style as the
    lesson's other figures (one hand drew them all). 1: visibly different visual dialect.
+9. **Visual–prose balance** — 5: the active prose and its figure are visible together;
+   the drawing surface is compact (normally 280–360px, never above ~420px) and filled
+   with meaningful content. 1: the figure consumes most of the viewport, forces the
+   learner to scroll away from its explanation, or magnifies sparse content.

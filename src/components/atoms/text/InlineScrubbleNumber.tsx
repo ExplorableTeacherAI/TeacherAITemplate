@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useVar, useSetVar } from '@/stores/variableStore';
 import { useVarColor } from '@/stores';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -105,6 +106,9 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     const dragStartX = useRef(0);
     const dragStartValue = useRef(0);
     const containerRef = useRef<HTMLSpanElement>(null);
+    // The persisted id is the authoritative identity. The generated fallback
+    // still keeps two otherwise-identical components distinct in one render.
+    const inlineIdRef = useRef(id || `scrubble-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -121,7 +125,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     // Update identity when context blockId or props change (context is authoritative when present)
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `scrubble-${blockIdFromContext}-${varName ?? defaultValue}`;
+            const elementPath = `scrubble-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -129,7 +133,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `scrubble-${blockId}-${varName ?? defaultValue}`;
+        const elementPath = `scrubble-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, varName, defaultValue]);
 
@@ -143,7 +147,9 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'scrubbleNumber' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { varName?: string; min?: number; max?: number; step?: number; defaultValue?: number; color?: string } } | null;
@@ -312,7 +318,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `scrubble-${blockId}-${varName ?? defaultValue}`;
+            elementPath = `scrubble-${blockId}-${inlineIdRef.current}`;
         }
 
         openScrubbleNumberEditor(
@@ -323,6 +329,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                 max: displayMax,
                 step: displayStep,
                 color: effectiveColor,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath
@@ -383,9 +390,6 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     // Calculate progress percentage
     const progress = ((value - displayMin) / (displayMax - displayMin)) * 100;
 
-    // Stable unique ID for this component instance (for round-trip extraction)
-    const inlineIdRef = useRef(id || varName || `scrubble-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
-
     // Serialize essential props as a base64-encoded data attribute so extractContentWithMarkers
     // can preserve them during round-trip re-rendering (base64 is HTML-attribute-safe)
     const componentProps = (() => {
@@ -397,7 +401,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             step: displayStep,
             color: effectiveColor,
         });
-        try { return btoa(json); } catch { return ''; }
+        try { return encodeMarkerJson(json); } catch { return ''; }
     })();
 
     return (

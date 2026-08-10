@@ -210,6 +210,7 @@ export const FormulaBlockEditorModal: React.FC = () => {
     const { editingFormulaBlock, closeFormulaBlockEditor, saveFormulaBlockEdit } = useEditing();
 
     const [latex, setLatex] = useState('');
+    const [wrapperColor, setWrapperColor] = useState<string | undefined>(undefined);
     const [colorMap, setColorMap] = useState<Record<string, string>>({});
     const [variables, setVariables] = useState<Record<string, { min: number; max: number; step: number; color: string }>>({});
     const [colorTerms, setColorTerms] = useState<{ name: string; content: string; color: string }[]>([]);
@@ -227,6 +228,7 @@ export const FormulaBlockEditorModal: React.FC = () => {
         if (editingFormulaBlock) {
             const props = editingFormulaBlock;
             setLatex(props.latex || '');
+            setWrapperColor(props.color);
             setColorMap(props.colorMap || {});
             setActiveTab('latex');
 
@@ -497,6 +499,11 @@ export const FormulaBlockEditorModal: React.FC = () => {
 
     // Save
     const handleSave = useCallback(() => {
+        if (!latex.trim()) {
+            setError('Formula is required.');
+            setActiveTab('latex');
+            return;
+        }
         saveFormulaBlockEdit({
             latex,
             colorMap,
@@ -504,8 +511,9 @@ export const FormulaBlockEditorModal: React.FC = () => {
             clozeInputs: Object.keys(clozeInputs).length > 0 ? clozeInputs : undefined,
             clozeChoices: Object.keys(clozeChoices).length > 0 ? clozeChoices : undefined,
             linkedHighlights: Object.keys(linkedHighlights).length > 0 ? linkedHighlights : undefined,
+            color: wrapperColor,
         });
-    }, [latex, colorMap, variables, clozeInputs, clozeChoices, linkedHighlights, saveFormulaBlockEdit]);
+    }, [latex, colorMap, variables, clozeInputs, clozeChoices, linkedHighlights, wrapperColor, saveFormulaBlockEdit]);
 
     const handleCancel = useCallback(() => {
         closeFormulaBlockEditor();
@@ -954,11 +962,7 @@ export const FormulaBlockEditorModal: React.FC = () => {
                     </button>
                     <button
                         onClick={handleSave}
-                        disabled={!latex.trim()}
-                        className={cn(
-                            `px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`,
-                            !latex.trim() && "opacity-50 cursor-not-allowed"
-                        )}
+                        className={`px-4 py-2 text-sm font-medium bg-[${BRAND_GREEN}] text-white rounded-lg hover:bg-[${BRAND_GREEN}]/90 transition-colors`}
                     >
                         {editingFormulaBlock.isNew ? 'Insert Formula' : 'Apply Changes'}
                     </button>

@@ -4,16 +4,13 @@ import { useVariableStore } from '@/stores';
 import { COLOR_PRESETS_EXTENDED, BRAND_GREEN } from './editorColors';
 import { VariableNamePicker } from './VariableNamePicker';
 
-interface SpotColorEditorModalProps {
-    // Props are managed via EditingContext
-}
-
-export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
+export const SpotColorEditorModal: React.FC = () => {
     const { editingSpotColor, closeSpotColorEditor, saveSpotColorEdit } = useEditing();
 
     const [varName, setVarName] = useState('');
     const [text, setText] = useState('');
     const [color, setColor] = useState(BRAND_GREEN);
+    const [error, setError] = useState<string | null>(null);
 
     // Refs to always have latest values (avoids stale closure in onMouseDown)
     const varNameRef = useRef(varName);
@@ -41,6 +38,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
             setVarName(editingSpotColor.varName || '');
             setText(editingSpotColor.text || '');
             setColor(editingSpotColor.color || BRAND_GREEN);
+            setError(null);
         }
     }, [editingSpotColor]);
 
@@ -53,6 +51,16 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
         const currentText = textRef.current;
         const currentColor = colorRef.current;
 
+        if (!currentVarName.trim()) {
+            setError('Variable name is required.');
+            return;
+        }
+        if (!currentText.trim()) {
+            setError('Display text is required.');
+            return;
+        }
+        setError(null);
+
         // Update the central variable color store so all components pick up the change
         if (currentVarName) {
             setVarColor(currentVarName, currentColor);
@@ -60,7 +68,7 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
 
         saveSpotColorEdit({
             varName: currentVarName || undefined,
-            text: currentText || undefined,
+            text: currentText.trim(),
             color: currentColor,
         });
     }, [saveSpotColorEdit, setVarColor]);
@@ -91,6 +99,21 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
             setColor(info.color);
         }
     }, [text]);
+
+    // A new spot color normally displays its variable name. Keep the default
+    // placeholder in sync while a custom name is being typed, but stop as soon
+    // as the teacher provides a distinct display label.
+    const handleVarNameChange = useCallback((nextName: string) => {
+        const previousName = varNameRef.current;
+        const currentText = textRef.current.trim();
+        setVarName(nextName);
+        if (
+            editingSpotColor?.isNew &&
+            (!currentText || currentText === 'variable' || currentText === previousName)
+        ) {
+            setText(nextName);
+        }
+    }, [editingSpotColor?.isNew]);
 
     if (!editingSpotColor) return null;
 
@@ -123,17 +146,23 @@ export const SpotColorEditorModal: React.FC<SpotColorEditorModalProps> = () => {
                     {/* Variable Name */}
                     <VariableNamePicker
                         value={varName}
-                        onChange={setVarName}
+                        onChange={handleVarNameChange}
                         onVariableSelected={handleVariableSelected}
                         required
                         helperText="Identifies this color — used in formulas with \clr{name}{...}"
                         customPlaceholder="e.g., radius"
                     />
 
+                    {error && (
+                        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                            {error}
+                        </p>
+                    )}
+
                     {/* Display Text */}
                     <div>
                         <label className="block text-sm font-medium mb-2">
-                            Display Text <span className="text-muted-foreground">(optional)</span>
+                            Display Text <span className="text-destructive ml-0.5">*</span>
                         </label>
                         <input
                             type="text"

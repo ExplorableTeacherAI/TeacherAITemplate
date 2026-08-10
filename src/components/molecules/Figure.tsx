@@ -82,8 +82,17 @@ export const Figure: React.FC<FigureProps> = ({
 
     const hasControls = playable || Boolean(onReset);
 
+    // Width-capped and centered: figures remain evidence inside the narrative
+    // even inside the wide `xl` content column — an
+    // unconstrained w-full SVG at 1024px renders comically large. Width (not
+    // height) is capped so the element keeps the viewBox aspect and
+    // pointer→viewBox math in drawings stays linear. Override with
+    // className="max-w-..." for deliberately wide figures.
     return (
-        <figure data-figure-id={id} className={cn("group w-full", className)}>
+        <figure
+            data-figure-id={id}
+            className={cn("group mx-auto w-full max-w-[560px]", className)}
+        >
             <div
                 className="relative w-full overflow-hidden rounded-xl border border-border/40 bg-white"
                 style={aspectRatio ? { aspectRatio } : undefined}
