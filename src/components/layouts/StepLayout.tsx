@@ -1,5 +1,6 @@
 import { type ReactNode, Children, useState, useCallback, isValidElement, useEffect, useRef } from "react";
 import { useSetVar, useVar } from "@/stores";
+import { isAnswerCorrect } from "@/lib/utils";
 
 // ─── Sub-component ────────────────────────────────────────────────────────────
 
@@ -27,10 +28,12 @@ export interface StepProps {
     /**
      * The correct answer that completionVarName must match for the step to
      * be considered complete. Comparison is case-insensitive by default.
+     * Accepts a single string, pipe-separated alternates (e.g. "first | 1 | 1st"),
+     * or an array of accepted answers.
      *
      * Example: correctAnswer="0.5"
      */
-    correctAnswer?: string;
+    correctAnswer?: string | string[];
     /**
      * When true the step hides the Continue button entirely and instead
      * watches `completionVarName` — as soon as that variable matches the
@@ -53,7 +56,7 @@ export const Step = ({ children, className = "" }: StepProps) => {
 
 interface AutoAdvanceWatcherProps {
     gateVarName: string;
-    correctAnswer: string;
+    correctAnswer: string | string[];
     onReady: () => void;
 }
 
@@ -65,9 +68,8 @@ function AutoAdvanceWatcher({ gateVarName, correctAnswer, onReady }: AutoAdvance
     const gateValue = useVar(gateVarName, "");
     const hasTriggered = useRef(false);
 
-    // Check if the answer is correct (case-insensitive, trimmed)
-    const isReady = typeof gateValue === 'string' && 
-        gateValue.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+    // Check if the answer is correct (case-insensitive, trimmed, any alternate)
+    const isReady = typeof gateValue === 'string' && isAnswerCorrect(gateValue, correctAnswer);
 
     useEffect(() => {
         if (isReady && !hasTriggered.current) {
@@ -86,7 +88,7 @@ interface ContinueButtonProps {
     label: string;
     onClick: () => void;
     gateVarName?: string;
-    correctAnswer?: string;
+    correctAnswer?: string | string[];
     isLast: boolean;
 }
 
@@ -99,9 +101,9 @@ function ContinueButton({ label, onClick, gateVarName, correctAnswer, isLast }: 
     // hook call count is stable across renders.
     const gateValue = useVar(gateVarName ?? "__step_no_gate__", "");
     
-    // If no gate, always ready. If gate exists, check answer matches.
-    const isReady = !gateVarName || !correctAnswer || 
-        (typeof gateValue === 'string' && gateValue.trim().toLowerCase() === correctAnswer.trim().toLowerCase());
+    // If no gate, always ready. If gate exists, check answer matches any alternate.
+    const isReady = !gateVarName || !correctAnswer || correctAnswer.length === 0 ||
+        (typeof gateValue === 'string' && isAnswerCorrect(gateValue, correctAnswer));
 
     if (isLast) return null;
 

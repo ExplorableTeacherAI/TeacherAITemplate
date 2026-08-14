@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { useVar, useSetVar } from '@/stores/variableStore';
-import { cn } from '@/lib/utils';
+import { cn, isAnswerCorrect } from '@/lib/utils';
 import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
@@ -13,8 +13,12 @@ interface InlineClozeInputProps {
     id?: string;
     /** Variable name in the shared store (stores student's typed answer) */
     varName?: string;
-    /** The correct answer */
-    correctAnswer: string;
+    /**
+     * The correct answer(s). Accepts a single string, pipe-separated
+     * alternates (e.g. "first | 1 | 1st"), or an array of accepted answers
+     * (e.g. ["first", "1", "1st"]).
+     */
+    correctAnswer: string | string[];
     /** Optional placeholder text (default: "???") */
     placeholder?: string;
     /** Optional color for the input and text (default: blue) */
@@ -114,7 +118,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
                 : (e as any).elementPath === elementPath)
         );
 
-        return edit as { newProps: { varName?: string; correctAnswer?: string; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } } | null;
+        return edit as { newProps: { varName?: string; correctAnswer?: string | string[]; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } } | null;
     }, [isEditing, canEdit, pendingEdits, editIdentity]);
 
     // Effective prop values (pending edits override)
@@ -145,11 +149,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     const inputValue = typeof rawInputValue === 'string' ? rawInputValue : String(rawInputValue ?? '');
 
     const isChecked = inputValue.trim() !== '';
-    const isCorrect = isChecked && (() => {
-        const userAnswer = effectiveCaseSensitive ? inputValue : inputValue.toLowerCase();
-        const correctAns = effectiveCaseSensitive ? effectiveCorrectAnswer : effectiveCorrectAnswer.toLowerCase();
-        return userAnswer.trim() === correctAns.trim();
-    })();
+    const isCorrect = isChecked && isAnswerCorrect(inputValue, effectiveCorrectAnswer, effectiveCaseSensitive);
 
     const setInputValue = useCallback((val: string) => {
         if (usesVarStore && effectiveVarName) {
@@ -195,7 +195,10 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         openClozeInputEditor(
             {
                 varName: effectiveVarName,
-                correctAnswer: effectiveCorrectAnswer,
+                // The editor modal edits a plain string — arrays become pipe-separated
+                correctAnswer: Array.isArray(effectiveCorrectAnswer)
+                    ? effectiveCorrectAnswer.join(' | ')
+                    : effectiveCorrectAnswer,
                 placeholder: effectivePlaceholder,
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
@@ -233,11 +236,8 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
         // The store is updated only on submission (Enter, blur, or auto-correct match).
         setTypingValue(value);
 
-        // Auto-check the answer as user types
-        const userAnswer = effectiveCaseSensitive ? value : value.toLowerCase();
-        const correctAns = effectiveCaseSensitive ? effectiveCorrectAnswer : effectiveCorrectAnswer.toLowerCase();
-
-        if (userAnswer.trim() === correctAns.trim()) {
+        // Auto-check the answer as user types (any accepted alternate matches)
+        if (isAnswerCorrect(value, effectiveCorrectAnswer, effectiveCaseSensitive)) {
             setInputValue(value); // Correct — commit to the store now
             setIsInputting(false);
             onChange?.(value, true);
@@ -256,10 +256,7 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     };
 
     const checkAnswer = () => {
-        const userAnswer = effectiveCaseSensitive ? typingValue : typingValue.toLowerCase();
-        const correctAns = effectiveCaseSensitive ? effectiveCorrectAnswer : effectiveCorrectAnswer.toLowerCase();
-
-        const correct = userAnswer.trim() === correctAns.trim();
+        const correct = isAnswerCorrect(typingValue, effectiveCorrectAnswer, effectiveCaseSensitive);
         setInputValue(typingValue); // Commit to the store on submission
         setIsInputting(false);
         onChange?.(typingValue, correct);

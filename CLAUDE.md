@@ -270,11 +270,53 @@ quarterCircleAngle: {
 />
 ```
 
+### Multiple Correct Answers
+
+`correctAnswer` accepts **more than one valid answer** whenever a question has equivalent phrasings (e.g. "first", "1", and "1st" are all correct). Two interchangeable forms are supported:
+
+```tsx
+// Array form (preferred when authoring code)
+<InlineClozeInput
+    varName="racePosition"
+    correctAnswer={["first", "1", "1st"]}
+    {...clozePropsFromDefinition(getVariableInfo('racePosition'))}
+/>
+
+// Pipe-separated string form (equivalent — this is also what the teacher editor modal produces)
+<InlineClozeInput
+    varName="racePosition"
+    correctAnswer="first | 1 | 1st"
+    {...clozePropsFromDefinition(getVariableInfo('racePosition'))}
+/>
+```
+
+Matching rules:
+- Every alternate is **trimmed** and compared **case-insensitively** by default (`caseSensitive` applies to all alternates)
+- The student's answer is correct if it matches **any** alternate — auto-match while typing, Enter, and blur submission all honor the full set
+- The same forms work everywhere an answer is checked: `variables.ts` `correctAnswer`, `InlineFeedback` `correctValue`, `Step` `correctAnswer` (auto-advance and gated Continue), and `\cloze{}` inside `FormulaBlock` (use the pipe string form there)
+
+**Rule: whenever a cloze answer has common equivalent forms (numerals vs words, ordinals, abbreviations, symbol vs name), list ALL of them.** Ask: "could a student reasonably type this differently and still be right?" If yes, add the alternate.
+
+```ts
+// variables.ts — define the alternates once, in the variable definition
+racePosition: {
+    defaultValue: '',
+    type: 'text',
+    label: 'Race Position',
+    description: 'Student answer for the race position question',
+    placeholder: '???',
+    correctAnswer: ['first', '1', '1st'],
+    color: '#3B82F6',
+},
+```
+
+**IMPORTANT — keep `InlineFeedback` in sync:** when a cloze input accepts multiple answers, its wrapping `InlineFeedback` must receive the SAME set via `correctValue` (e.g. `correctValue={["first", "1", "1st"]}`), otherwise the input turns green while the feedback says the answer is wrong.
+
 ### Key Cloze Variable Fields
 
 | Field | Purpose |
 |-------|---------|
-| `correctAnswer` | The expected answer string (not stored in variable store — stays as a prop) |
+| `correctAnswer` | The expected answer(s) — a string, pipe-separated alternates (`"first \| 1 \| 1st"`), or an array (`['first', '1', '1st']`). Not stored in variable store — stays as a prop |
 | `caseSensitive` | Whether matching is case sensitive (default: `false`) |
 | `placeholder` | Button text shown before student types (default: `"???"`) |
 | `color` | Text/border color |
@@ -645,7 +687,7 @@ For an interaction that is **not** a `Cartesian2D` drag, set the flag yourself f
 |------|--------------------|
 | `number` | `{ defaultValue: 5, type: 'number', min: 0, max: 10, step: 1 }` |
 | `text` | `{ defaultValue: 'Hello', type: 'text', placeholder: 'Enter...' }` |
-| `text` (cloze) | `{ defaultValue: '', type: 'text', correctAnswer: '90', placeholder: '???', color: '#3B82F6' }` |
+| `text` (cloze) | `{ defaultValue: '', type: 'text', correctAnswer: '90', placeholder: '???', color: '#3B82F6' }` — `correctAnswer` also accepts multiple answers: `['first', '1', '1st']` or `'first \| 1 \| 1st'` |
 | `select` | `{ defaultValue: 'sine', type: 'select', options: ['sine', 'cosine'] }` |
 | `select` (cloze choice) | `{ defaultValue: '', type: 'select', correctAnswer: 'circle', options: ['cube', 'circle'], placeholder: '???', color: '#D81B60' }` |
 | `select` (toggle) | `{ defaultValue: 'triangle', type: 'select', options: ['triangle', 'square', 'pentagon'], color: '#D946EF' }` |
@@ -1362,7 +1404,7 @@ happens to accept) is a TypeScript error that fails the build. The exact unions:
 | Prop | Type | Default | Purpose |
 |------|------|---------|--------|
 | `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
-| `correctValue` | `string` | *(required)* | Expected correct value |
+| `correctValue` | `string \| string[]` | *(required)* | Expected correct value(s) — a string, pipe-separated alternates, or an array; must mirror the cloze component's `correctAnswer` |
 | `position` | `'terminal' \| 'mid' \| 'standalone'` | `'terminal'` | Position of blank in sentence — affects default feedback style |
 | `caseSensitive` | `boolean` | `false` | Whether comparison is case-sensitive |
 | `successMessage` | `string` | *(varies by position)* | Message shown on correct answer — celebrate and explain WHY (no trailing period) |
@@ -1455,7 +1497,7 @@ Question ends with `?`, so feedback is a natural conversational response.
 
 **Matching rules:**
 - The `varName` in `InlineFeedback` must match the `varName` in the cloze component inside
-- The `correctValue` in `InlineFeedback` must match the `correctAnswer` of the cloze component
+- The `correctValue` in `InlineFeedback` must match the `correctAnswer` of the cloze component — including ALL alternates when multiple answers are accepted (e.g. both use `["first", "1", "1st"]`)
 
 **Position rules:**
 - **Prefer terminal position** — restructure questions so the blank ends the sentence

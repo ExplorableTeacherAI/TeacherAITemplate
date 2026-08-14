@@ -102,7 +102,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 break;
             }
             case "inlineClozeInput": {
-                const p = savedProps as { varName?: string; correctAnswer?: string; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } | null;
+                const p = savedProps as { varName?: string; correctAnswer?: string | string[]; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } | null;
                 parts.push(
                     <InlineClozeInput
                         key={uniqueId}

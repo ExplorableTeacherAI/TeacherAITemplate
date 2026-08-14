@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useVar, useVariableStore } from '@/stores/variableStore';
-import { cn } from '@/lib/utils';
+import { cn, isAnswerCorrect } from '@/lib/utils';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useEditing } from '@/contexts/EditingContext';
 import type { HintStep } from '@/components/atoms/visual/InteractionHint';
@@ -44,8 +44,12 @@ export interface VisualizationHintConfig {
 export interface InlineFeedbackProps {
     /** Variable name to watch in the store (must match the cloze component's varName) */
     varName: string;
-    /** Expected correct value (compared against the store value) */
-    correctValue: string;
+    /**
+     * Expected correct value(s), compared against the store value.
+     * Accepts a single string, pipe-separated alternates (e.g. "first | 1 | 1st"),
+     * or an array of accepted answers — must mirror the cloze component's `correctAnswer`.
+     */
+    correctValue: string | string[];
     /** Case-sensitive comparison (default: false) */
     caseSensitive?: boolean;
     /**
@@ -306,11 +310,7 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     ]);
 
     const hasAnswer = storeValue.trim() !== '';
-    const isCorrect =
-        hasAnswer &&
-        (caseSensitive
-            ? storeValue.trim() === correctValue.trim()
-            : storeValue.trim().toLowerCase() === correctValue.trim().toLowerCase());
+    const isCorrect = hasAnswer && isAnswerCorrect(storeValue, correctValue, caseSensitive);
 
     const showHint = hint && !isCorrect && hasAnswer;
     const showReviewLink = reviewBlockId && !isCorrect && hasAnswer;
