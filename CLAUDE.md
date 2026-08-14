@@ -419,6 +419,30 @@ In JSX string attributes (`latex="..."`), a single backslash is passed through l
 
 This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`, `\alpha`, `\frac`, `\sqrt`, `\sum`, `\int`, `\clr`, etc.
 
+### Critical Rule: ASCII-Only LaTeX — Never Paste Unicode Math Characters
+
+**LaTeX strings must contain ONLY ASCII characters.** KaTeX has no glyphs for
+precomposed accented Unicode (`î`, `ĵ`, `â`, …) — they render as missing-glyph
+boxes in the lesson. Always write the LaTeX command form:
+
+```tsx
+// WRONG — Unicode î/ĵ render as broken boxes
+<InlineFormula latex="a\,î + b\,ĵ + c\,k̂" colorMap={{}} />
+
+// CORRECT — LaTeX accent commands with dotless \imath/\jmath
+<InlineFormula latex="a\hat{\imath} + b\hat{\jmath} + c\hat{k}" colorMap={{}} />
+```
+
+| Never type | Write instead |
+|:---|:---|
+| `î`, `ĵ`, `k̂` | `\hat{\imath}`, `\hat{\jmath}`, `\hat{k}` |
+| `π`, `θ`, `ω` | `\pi`, `\theta`, `\omega` |
+| `×`, `·`, `≤`, `≥`, `≠` | `\times`, `\cdot`, `\le`, `\ge`, `\ne` |
+| `°` | `^\circ` |
+| `→`, `⇒` | `\to`, `\Rightarrow` |
+
+(Unicode is fine in prose text — this rule is only for `latex="..."` strings.)
+
 **Same rule for `FormulaBlock`:**
 
 ```tsx
@@ -1121,6 +1145,14 @@ This ensures:
 ## Available Layouts
 
 Import from `@/components/layouts`.
+
+**Layout prop values are closed sets — use ONLY the values listed below.** Do not
+guess additional variants: passing an unlisted value (e.g. a size a sibling layout
+happens to accept) is a TypeScript error that fails the build. The exact unions:
+`StackLayout.maxWidth`: `none | sm | md | lg | xl | 2xl | full` ·
+`SplitLayout.gap` / `GridLayout.gap`: `none | sm | md | lg | xl` ·
+`SplitLayout.ratio`: `1:1 | 1:2 | 2:1 | 1:3 | 3:1 | 2:3 | 3:2` ·
+`GridLayout.columns`: `2–6` · `align`: `start | center | end | stretch`.
 
 - `StackLayout` — single column, use `maxWidth` prop (`sm`, `md`, `lg`, `xl`, `2xl`, `full`)
 - `SplitLayout` — side-by-side (ideal for text + visual), use `ratio` (`1:1`, `1:2`, `2:1`, `1:3`, `3:1`, `2:3`, `3:2`), `gap` (`none`, `sm`, `md`, `lg`, `xl`), `align` (`start`, `center`, `end`, `stretch`)
@@ -1954,7 +1986,7 @@ The drawing inside stays fully custom — the frame is a `position: relative` co
 
 | Prop | Type | Purpose |
 |------|------|---------|
-| `id` | `string` *(required)* | Emitted as `data-figure-id` on the root (verification harness target) |
+| `id` | `string` *(required)* | Emitted as `data-figure-id` on the root for review and research tooling |
 | `caption` | `ReactNode` | Caption below the frame — sentence case, explains the interaction |
 | `onReset` | `() => void` | When provided, shows a reset icon button that calls it |
 | `playable` | `boolean` | Shows a play/pause toggle in the chrome |

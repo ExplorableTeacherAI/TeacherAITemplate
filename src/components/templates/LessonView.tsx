@@ -425,16 +425,15 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
 
     // ---- live section-build progress (teacher's editor preview only) ------
     // The parent frontend posts section-build-status messages while builds
-    // run. In-flight sections whose blocks are already in the lesson get a
-    // non-interactive "verifying" glow; the rest render as skeletons below
-    // the existing content.
+    // run. In-flight sections whose blocks are already in the lesson get an
+    // update glow; the rest render as skeletons below the existing content.
     const buildSections = useSectionBuildStatus();
     const lessonBlockIds = useMemo(() => {
         const ids = new Set<string>();
         initialBlocks.forEach((block) => collectBlockIds(block, ids));
         return ids;
     }, [initialBlocks]);
-    // Block id → badge label for blocks under verification (label only on the
+    // Block id → badge label for blocks being updated (label only on the
     // section's first block so it isn't repeated on every block).
     const [glowBlocks, setGlowBlocks] = useState<Map<string, string>>(new Map());
     const [skeletonSections, setSkeletonSections] = useState<SectionBuildInfo[]>([]);
@@ -448,8 +447,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                 const sectionIds = await getSectionBlockIds(section.id);
                 const visible = [...sectionIds].filter((id) => lessonBlockIds.has(id));
                 if (visible.length > 0) {
-                    const label =
-                        section.status === "verifying" ? "Verifying…" : "Updating…";
+                    const label = "Updating…";
                     visible.forEach((id, index) => glow.set(id, index === 0 ? label : ""));
                 } else {
                     skeletons.push(section);

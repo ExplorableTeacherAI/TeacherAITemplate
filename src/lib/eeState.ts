@@ -2,7 +2,7 @@
  * EE State Bridge
  * ---------------
  * Exposes the lesson's domain model (the global variable store) on
- * `window.__eeState` so the verification harness and research tooling can
+ * `window.__eeState` so scene review and research tooling can
  * read the model, subscribe to changes, and drive interactions
  * programmatically. Installed once at startup from `main.tsx`.
  *
@@ -19,7 +19,7 @@ export interface EEStateBridge {
     /** Read one variable. */
     get: (name: string) => VarValue | undefined;
     /**
-     * Write one variable — the harness escape hatch for driving the model
+     * Write one variable — the scene-review escape hatch for driving the model
      * when a pointer gesture cannot be automated reliably.
      */
     setVar: (name: string, value: VarValue) => void;

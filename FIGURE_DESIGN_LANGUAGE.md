@@ -5,7 +5,7 @@ of every section. This document has three consumers:
 
 1. **The builder agent** — read this BEFORE writing any figure code; every rule below is a
    generation-time requirement, not a suggestion.
-2. **The verification harness** — the VLM polish channel critiques screenshots against the
+2. **Rendered self-review** — builders and scene reviewers inspect screenshots against the
    checklist at the end of this document.
 3. **Humans** — reviewing why a figure does or doesn't feel right.
 
@@ -157,10 +157,10 @@ gradients, soft muted palette only. On top of that:
 
 ---
 
-## 9. VLM polish checklist (scored 1–5 each, from a screenshot)
+## 9. Rendered polish checklist (scored 1–5 each, from a screenshot)
 
-The harness asks these questions of every figure screenshot. "5" descriptors are anchored;
-below 3 on any item = polish failure, figure goes back for refinement.
+Use these questions for every figure screenshot. "5" descriptors are anchored;
+below 3 on any item means the figure needs refinement.
 
 1. **Accent discipline** — 5: exactly one resting accent hue, on the concept-relevant
    element; ink/paper otherwise. 1: ≥ 3 competing hues or accent on chrome.

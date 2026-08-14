@@ -14,7 +14,7 @@ setupThemeListener();
 // tutor's rrweb screen recording (best-effort, no-op when not embedded)
 initEmbedRecorder();
 
-// Expose the variable store as window.__eeState for the verification harness
+// Expose the variable store for scene review and research tooling.
 installEEStateBridge();
 
 const Root = import.meta.env.PROD ? (

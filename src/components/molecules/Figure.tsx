@@ -17,7 +17,7 @@ import { useVar, useSetVar, useVarColor } from "@/stores";
  * `InteractionHintSequence` keep working inside.
  */
 export interface FigureProps {
-    /** Unique figure id — emitted as `data-figure-id` for the verification harness. */
+    /** Unique figure id — emitted as `data-figure-id` for review and research tooling. */
     id: string;
     /** Caption rendered below the frame (13px, ink-gray, sentence case). */
     caption?: ReactNode;

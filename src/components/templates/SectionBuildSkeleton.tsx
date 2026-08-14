@@ -3,7 +3,6 @@ import { Loader2 } from "lucide-react";
 const STATUS_LABELS: Record<string, string> = {
     queued: "Waiting to build",
     building: "Building this section",
-    verifying: "Checking this section",
 };
 
 /**
