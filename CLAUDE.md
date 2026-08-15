@@ -1642,7 +1642,7 @@ resetVars: { theta: 0 },
 
 ## VisualOptionCards (Phase-1 Visual Chooser — TEMPORARY block)
 
-`VisualOptionCards` (import from `@/components/organisms`) is the teacher-facing carousel used during **text-first section builds**: the section's concept prose is written first, and this block stands in the exact spot where the section's interactive visual will go. Each card is a brief design spec for one candidate visual. When the teacher clicks "Use this visual", the choice is forwarded to the builder as a chat message; the builder then builds that visual and **REPLACES this entire block** with it.
+`VisualOptionCards` (import from `@/components/organisms`) is the teacher-facing carousel used during **text-first section builds**: the section's concept prose is written first, and this block stands in the exact spot where the section's interactive visual will go. Each card is a brief design spec for one candidate visual. When the teacher clicks "Use this visual" (or describes their own idea via the built-in "I have my own idea" input, or asks for different ideas), the choice is forwarded to the builder as a chat message; the builder then builds that visual and **REPLACES this entire block** with it.
 
 **Rules:**
 - This block is TEMPORARY scaffolding. It must NEVER survive into a finished section — building the chosen visual always replaces it (same block id).
