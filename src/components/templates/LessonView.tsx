@@ -29,7 +29,6 @@ import {
     collectBlockIds,
     getSectionBlockIds,
     isInFlight,
-    useBuilderBusy,
     useSectionBuildStatus,
     type SectionBuildInfo,
 } from "@/lib/section-build-status";
@@ -429,7 +428,6 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     // run. In-flight sections whose blocks are already in the lesson get an
     // update glow; the rest render as skeletons below the existing content.
     const buildSections = useSectionBuildStatus();
-    const builderBusy = useBuilderBusy();
     const lessonBlockIds = useMemo(() => {
         const ids = new Set<string>();
         initialBlocks.forEach((block) => collectBlockIds(block, ids));
@@ -979,18 +977,12 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                             trailingContent={buildSkeletons}
                         />
                     </div>
-                ) : builderBusy ? (
-                    // Never show the welcome screen while a build is running:
-                    // an empty/non-compiling blocks file mid-build would read
-                    // as "my lesson disappeared".
-                    <div className="h-full overflow-auto p-6">
-                        <SectionBuildSkeleton
-                            title="Your lesson"
-                            status="building"
-                            detail="Writing your lesson — this stays up while the content is being updated"
-                        />
-                    </div>
                 ) : (
+                    // Nothing built yet (e.g. during clarification, before the
+                    // plan is confirmed). Once section builds start, their
+                    // `Section:` skeletons satisfy the branch above, and an
+                    // existing lesson is protected from mid-write blanking by
+                    // the watcher keeping the last good blocks.
                     <WelcomeScreen />
                 )}
             </Card>
