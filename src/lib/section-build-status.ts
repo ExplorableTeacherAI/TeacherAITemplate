@@ -102,3 +102,24 @@ export function getSectionBlockIds(sectionId: string): Promise<Set<string>> {
     }
     return cached;
 }
+
+/**
+ * True while the teacher's builder is running a turn (parent frontend posts
+ * `builder-busy`). Used to keep the lesson visible during builds: a mid-write
+ * blocks file briefly fails to compile, and without this the page would fall
+ * back to the WelcomeScreen and the teacher would appear to lose their lesson.
+ */
+export function useBuilderBusy(): boolean {
+    const [busy, setBusy] = useState(false);
+
+    useEffect(() => {
+        const handler = (event: MessageEvent) => {
+            if (event.data?.type !== "builder-busy") return;
+            setBusy(!!event.data.busy);
+        };
+        window.addEventListener("message", handler);
+        return () => window.removeEventListener("message", handler);
+    }, []);
+
+    return busy;
+}

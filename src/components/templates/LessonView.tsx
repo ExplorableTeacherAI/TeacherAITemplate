@@ -29,6 +29,7 @@ import {
     collectBlockIds,
     getSectionBlockIds,
     isInFlight,
+    useBuilderBusy,
     useSectionBuildStatus,
     type SectionBuildInfo,
 } from "@/lib/section-build-status";
@@ -428,6 +429,7 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     // run. In-flight sections whose blocks are already in the lesson get an
     // update glow; the rest render as skeletons below the existing content.
     const buildSections = useSectionBuildStatus();
+    const builderBusy = useBuilderBusy();
     const lessonBlockIds = useMemo(() => {
         const ids = new Set<string>();
         initialBlocks.forEach((block) => collectBlockIds(block, ids));
@@ -857,9 +859,17 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
             if (import.meta.env.DEV) {
                 cleanup = createBlocksWatcher(
                     (updatedBlocks) => {
-                        if (!cancelled) {
-                            setInitialBlocks(updatedBlocks);
-                        }
+                        if (cancelled) return;
+                        // A builder mid-write leaves the blocks file briefly
+                        // non-compiling, and the watcher then reports zero
+                        // blocks. Keep the last good lesson on screen instead
+                        // of blanking to the welcome screen; the next good
+                        // update (or the post-turn reload) replaces it.
+                        setInitialBlocks((previous) =>
+                            updatedBlocks.length === 0 && previous.length > 0
+                                ? previous
+                                : updatedBlocks
+                        );
                     },
                     blockLoaderConfig
                 );
@@ -967,6 +977,17 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                             onReorder={handleReorder}
                             onDeleteBlock={handleDeleteBlock}
                             trailingContent={buildSkeletons}
+                        />
+                    </div>
+                ) : builderBusy ? (
+                    // Never show the welcome screen while a build is running:
+                    // an empty/non-compiling blocks file mid-build would read
+                    // as "my lesson disappeared".
+                    <div className="h-full overflow-auto p-6">
+                        <SectionBuildSkeleton
+                            title="Your lesson"
+                            status="building"
+                            detail="Writing your lesson — this stays up while the content is being updated"
                         />
                     </div>
                 ) : (
