@@ -1,3 +1,6 @@
+// Visual choice carousel (phase-1 section builds; editor-mode only)
+export { VisualOptionCards, type VisualOptionCard } from "./VisualOptionCards";
+
 // Visualization Components
 export { DesmosGraph } from "./visual/DesmosGraph";
 export { GeoGebraGraph } from "./visual/GeoGebraGraph";

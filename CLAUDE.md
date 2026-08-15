@@ -1640,6 +1640,45 @@ steps: [
 resetVars: { theta: 0 },
 ```
 
+## VisualOptionCards (Phase-1 Visual Chooser — TEMPORARY block)
+
+`VisualOptionCards` (import from `@/components/organisms`) is the teacher-facing carousel used during **text-first section builds**: the section's concept prose is written first, and this block stands in the exact spot where the section's interactive visual will go. Each card is a brief design spec for one candidate visual. When the teacher clicks "Use this visual", the choice is forwarded to the builder as a chat message; the builder then builds that visual and **REPLACES this entire block** with it.
+
+**Rules:**
+- This block is TEMPORARY scaffolding. It must NEVER survive into a finished section — building the chosen visual always replaces it (same block id).
+- Editor-mode only: in student preview it renders nothing, so an unfinished section shows clean text. Never design prose that depends on the carousel being visible.
+- 2-3 cards, at most ONE with `recommended: true`.
+- Every card must be implementable with the components in this file — decide internally which component family you would use BEFORE writing the card.
+- `manipulate` must name a concrete draggable/movable element INSIDE the visual (never an external slider).
+
+```tsx
+import { VisualOptionCards } from "@/components/organisms";
+
+<Block id="circle-area-visual">
+    <VisualOptionCards
+        blockId="circle-area-visual"
+        cards={[
+            {
+                id: "unroll-circumference",
+                title: "Unrolling the circle",
+                manipulate: "Drag the end of the circle's edge to unroll it into a straight line",
+                reveals: "The unrolled edge is always a bit more than 3 diameters long — that ratio is π",
+                looks: "A circle beside a ruler line; the circumference peels off and lays flat as you drag",
+                targetsMisconception: "Students think π is a special number picked by mathematicians, not a ratio",
+                recommended: true,
+            },
+            {
+                id: "sector-rearrange",
+                title: "Slicing into a rectangle",
+                manipulate: "Drag the slider of slices, then drag sectors to rearrange them into a near-rectangle",
+                reveals: "The rearranged shape approaches a rectangle of height r and width πr, so A = πr²",
+                looks: "A circle cut into colored pizza sectors next to the rectangle they form",
+            },
+        ]}
+    />
+</Block>
+```
+
 ## Visual Assessment Tasks
 
 Beyond text-based questions (`InlineClozeInput`, `InlineClozeChoice`), you can create **interactive visual tasks** where students demonstrate understanding by manipulating elements in a visualization — drawing lines, positioning points, or constructing shapes.
