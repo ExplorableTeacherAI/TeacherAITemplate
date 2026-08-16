@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Hand, Lightbulb, Loader2, PenLine, RefreshCw, Sparkles, Star } from "lucide-react";
 import { useAppMode } from "@/contexts/AppModeContext";
 
@@ -15,6 +15,10 @@ export interface VisualOptionCard {
     looks: string;
     /** Optional: the misconception this design targets */
     targetsMisconception?: string;
+    /** Interaction paradigm this design comes from — recorded for analysis:
+     *  conventional | inversion | temporal | constructivist | comparison |
+     *  goal | prediction */
+    paradigm?: string;
     /** Mark at most ONE card as recommended */
     recommended?: boolean;
 }
@@ -89,6 +93,31 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
     );
     const [ideaOpen, setIdeaOpen] = useState(false);
     const [ideaText, setIdeaText] = useState("");
+    // When the teacher first SAW these options, so the time spent deciding is
+    // recoverable — a click timestamp alone cannot separate an instant accept
+    // from two minutes of comparing.
+    const shownAtRef = useRef<number>(Date.now());
+
+    useEffect(() => {
+        if (isPreview || choice) return;
+        shownAtRef.current = Date.now();
+        window.parent.postMessage(
+            {
+                type: "visual-cards-shown",
+                blockId,
+                cards: cards.map((c) => ({
+                    id: c.id,
+                    title: c.title,
+                    paradigm: c.paradigm,
+                    recommended: !!c.recommended,
+                    targetsMisconception: c.targetsMisconception,
+                    manipulate: c.manipulate,
+                })),
+            },
+            "*",
+        );
+        // Re-report when the option set itself changes (regenerated ideas).
+    }, [blockId, fp, isPreview, choice, cards]);
 
     if (isPreview) return null;
 
@@ -104,13 +133,22 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
     const choose = (card: VisualOptionCard) =>
         commit(
             { mode: "chosen", cardId: card.id, fp, at: Date.now() },
-            { type: "visual-card-selected", blockId, cardId: card.id, cardTitle: card.title },
+            {
+                type: "visual-card-selected",
+                blockId,
+                cardId: card.id,
+                cardTitle: card.title,
+                paradigm: card.paradigm,
+                wasRecommended: !!card.recommended,
+                deliberationMs: Date.now() - shownAtRef.current,
+                optionCount: cards.length,
+            },
         );
 
     const askForDifferentIdeas = () =>
         commit(
             { mode: "regen", fp, at: Date.now() },
-            { type: "visual-cards-regenerate", blockId },
+            { type: "visual-cards-regenerate", blockId, deliberationMs: Date.now() - shownAtRef.current, optionCount: cards.length },
         );
 
     const submitIdea = () => {
@@ -118,7 +156,7 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
         if (!idea) return;
         commit(
             { mode: "custom", idea, fp, at: Date.now() },
-            { type: "visual-card-custom", blockId, idea },
+            { type: "visual-card-custom", blockId, idea, deliberationMs: Date.now() - shownAtRef.current, optionCount: cards.length },
         );
     };
 

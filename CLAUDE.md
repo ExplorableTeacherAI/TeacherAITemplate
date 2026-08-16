@@ -1648,6 +1648,7 @@ resetVars: { theta: 0 },
 - This block is TEMPORARY scaffolding. It must NEVER survive into a finished section — building the chosen visual always replaces it (same block id).
 - Editor-mode only: in student preview it renders nothing, so an unfinished section shows clean text. Never design prose that depends on the carousel being visible.
 - 2-3 cards, at most ONE with `recommended: true`.
+- Every card MUST carry `paradigm` — one of `conventional`, `inversion`, `temporal`, `constructivist`, `comparison`, `goal`, `prediction` — naming its interaction paradigm. Cards in one carousel must come from DIFFERENT paradigms.
 - Every card must be implementable with the components in this file — decide internally which component family you would use BEFORE writing the card.
 - `manipulate` must name a concrete draggable/movable element INSIDE the visual (never an external slider).
 
@@ -1665,6 +1666,7 @@ import { VisualOptionCards } from "@/components/organisms";
                 reveals: "The unrolled edge is always a bit more than 3 diameters long — that ratio is π",
                 looks: "A circle beside a ruler line; the circumference peels off and lays flat as you drag",
                 targetsMisconception: "Students think π is a special number picked by mathematicians, not a ratio",
+                paradigm: "temporal",
                 recommended: true,
             },
             {
@@ -1673,6 +1675,7 @@ import { VisualOptionCards } from "@/components/organisms";
                 manipulate: "Drag the slider of slices, then drag sectors to rearrange them into a near-rectangle",
                 reveals: "The rearranged shape approaches a rectangle of height r and width πr, so A = πr²",
                 looks: "A circle cut into colored pizza sectors next to the rectangle they form",
+                paradigm: "constructivist",
             },
         ]}
     />
