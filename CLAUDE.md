@@ -17,7 +17,7 @@ Content is organized as **blocks** inside **layouts**, with shared state via a *
 |:---|:---|:---|:---|
 | **1. No static charts** | Every chart/graph must have at least one manipulable element | `<Cartesian2D plots={[...]} />` with no movable points | `<Cartesian2D ... movablePoints={[...]} />` with bound variables |
 | **2. Bi-directional binding** | Prose ↔ Formula ↔ Visual must ALL sync via shared variables | Scrubbing text doesn't update the chart | `varName="radius"` used in `InlineScrubbleNumber`, `FormulaBlock \scrub{}`, AND `Cartesian2D` |
-| **3. Linked highlights** | Hovering prose terms highlights visual elements and vice versa | No visual connection between explanation and diagram | `InlineLinkedHighlight` connects "radius" text to the radius line in the diagram |
+| **3. Linked highlights** | Hovering prose terms highlights visual elements and vice versa — the target pops (heavier stroke + halo) while everything else dims to 30-45% | A tint so faint nothing appears to happen on hover | `InlineLinkedHighlight` connects "radius" text to the radius line, which thickens and gains a halo while the rest of the diagram recedes |
 | **4. Observable change** | When user manipulates, they see real-time consequences | User drags a point but nothing else changes | Dragging the radius updates the area value in both formula and prose |
 
 ### Before Creating Any Visualization, Ask:
@@ -58,6 +58,9 @@ Before considering a visualization complete, walk through these checks:
 - [ ] Colors have sufficient contrast against white background
 - [ ] Interactive elements are visually distinct from static elements
 - [ ] No visual clutter — elements don't compete for attention
+- [ ] Every linked highlight passes the squint test: hovering the bound phrase makes its target
+      the obvious difference in the picture (heavier stroke + halo, or scaled-up mark) while
+      all other elements and labels recede to 30-45% opacity
 
 **D. Interactivity Works:**
 - [ ] Every described interaction WORKS when tried
@@ -1171,6 +1174,9 @@ This ensures:
 **Rules:**
 1. Leave plenty of padded space or margin (at least `20px` to `40px`) around the perimeter of visual items.
 2. If text may change or grow (e.g. reactive variables or bold interactive states), ensure the `viewBox` bounds can accommodate the maximum possible width of that text.
+3. **Budget label width before you place the plot.** Text is roughly `characters × fontSize × 0.6` units wide (`"Positive"` at 12px ≈ 58 units). Reserve gutters for every label that sits beside the drawing, then size the plot with what's left: `plotWidth = viewBoxWidth − leftGutter − rightGutter`. Never pick a round plot size and hope the labels fit next to it.
+4. **Anchor edge labels back toward the ink.** Right of the plot → `textAnchor="end"` at `x = viewBoxWidth − pad`. Left of the plot → `textAnchor="start"` at `x = pad`. Centered under a column → `textAnchor="middle"` with the x clamped so the half-width still fits.
+5. **Check every reachable state.** Walk each slider/drag to its minimum and maximum and confirm the longest string still renders whole. A label that fits at the default value and is sliced at the extreme is a failed visualization.
 
 ```tsx
 // WRONG — text at X=290 will be clipped by the strict width=300 boundary
@@ -1182,7 +1188,51 @@ This ensures:
 <svg width={340} height={200} viewBox="0 0 340 200">
     <text x={290} y={100}>Hypotenuse</text>
 </svg>
+
+// WRONG — plot ends at 520 inside a 560-wide viewBox; "Positive" needs ~58 more
+// units and renders as "Posit". The SVG clips it silently — no error, no warning.
+<text x={chartX + chartWidth + 12} y={chartY + 20} fontSize="12">Positive</text>
+
+// CORRECT — gutter reserved first, label anchored back toward the plot
+const PAD = 24, RIGHT_GUTTER = 72;
+const chartWidth = VIEWBOX_WIDTH - PAD - RIGHT_GUTTER;
+<text x={VIEWBOX_WIDTH - PAD} y={chartY + 20} textAnchor="end" fontSize="12">Positive</text>
 ```
+
+### Critical Rule: No Borders or Frames Around Visualizations
+
+**Never wrap a visualization in a border, ring, card, or shadow, and never draw a rectangle around the plot area.** The visual sits directly on the page's white ground — the `<Figure>` shell is deliberately borderless, and `<Block>` supplies the spacing.
+
+```tsx
+// WRONG — chrome competing with the drawing
+<div className="rounded-xl border border-slate-200 shadow-sm p-4">
+    <MyFigureDrawing />
+</div>
+
+// WRONG — a box drawn "to hold the chart" is chart junk
+<rect x={40} y={50} width={480} height={260} fill="none" stroke="#64748B" strokeWidth="2" />
+
+// CORRECT — nothing but the drawing
+<Figure id="my-figure" caption="…">
+    <MyFigureDrawing />
+</Figure>
+```
+
+A stroke is allowed only when it **means** something (the boundary of the region being explained), never as a container for the visual.
+
+### Critical Rule: One Quantity, One Number Format
+
+**A quantity must render through the same formatter everywhere it appears** — in the drawing, in the slider readout, and in the prose. Define the formatter once and call it in all three places.
+
+```tsx
+const fmtPercent = (v: number) => `${v.toFixed(1)}%`;   // one source of truth
+```
+
+**Rules:**
+1. Percentages use `%` with fixed decimals (`13.6%`). **Never `‰`**, never a bare number beside a sibling readout that shows a unit.
+2. **Never rescale a value to avoid a decimal point.** `Math.round(p * 10) + "‰"` renders `136‰` next to a slider reading `13.6%` — every reader sees a missing decimal point and a wrong number.
+3. Decimal places come from the variable's `step` (`step: 0.1` → one decimal) and stay constant at every value, paired with `fontVariantNumeric: "tabular-nums"` so the readout never jitters.
+4. Before finishing, list every string the visualization prints at the default state and at both extremes of every control, and confirm each is a number a teacher would write by hand.
 
 ## Available Layouts
 
@@ -2063,10 +2113,11 @@ like `exampleBlocks.tsx` — not registered in `blocks.tsx`).
 
 ### The `<Figure>` Shell (import from `@/components/molecules`)
 
-Uniform chrome for every bespoke figure: rounded white frame, quiet icon controls
+Uniform chrome for every bespoke figure: **borderless** white ground, quiet icon controls
 (top-right, fade in on hover/focus, always visible on touch), 13px ink-gray caption below.
-The drawing inside stays fully custom — the frame is a `position: relative` container, so
-`InteractionHintSequence` overlays keep working inside. Never rebuild or restyle this chrome.
+The drawing inside stays fully custom — the shell is a `position: relative` container, so
+`InteractionHintSequence` overlays keep working inside. Never rebuild or restyle this chrome,
+and never add a border, ring, card, or shadow around it.
 
 | Prop | Type | Purpose |
 |------|------|---------|
@@ -2268,4 +2319,10 @@ Checklist for every bespoke figure (in addition to the interactivity rules above
 - [ ] `useRafLoop` for anything continuous, advanced by `dt`/`elapsed` (never frame count)
 - [ ] Wrapped in `<Figure>` with `id`, caption, and `onReset`; sliders via `FigureSlider`
 - [ ] `InteractionHintSequence` inside the shell, positioned on the draggable element
+- [ ] Every linked highlight pops its target (stroke ≥1.5× plus a ~28%-opacity halo) AND
+      recedes every other element and label to 30-45%, eased ~150ms both ways (§6a of
+      `FIGURE_DESIGN_LANGUAGE.md`); pointer enter/leave on the element writes the same variable
 - [ ] Labels readable and non-overlapping at BOTH extremes of every control's range
+- [ ] Every label FULLY inside the viewBox — gutters reserved before the plot was sized, edge labels anchored back toward the ink, nothing sliced at any reachable state
+- [ ] No border/ring/card/shadow around the figure and no `<rect>` frame around the plot
+- [ ] Each quantity uses ONE formatter everywhere (figure, slider readout, prose) — `%` never `‰`, fixed decimals, tabular numerals

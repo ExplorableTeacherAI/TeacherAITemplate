@@ -65,6 +65,13 @@ gradients, soft muted palette only. On top of that:
 - **Depth is earned, not decorated.** No drop shadows on static geometry. A single soft
   shadow (`0 1px 3px rgba(15, 23, 42, 0.15)` or SVG blur equivalent) is allowed on
   *draggable* elements only — depth signals "you can pick this up."
+- **No frame around a figure.** The `<Figure>` shell is borderless on purpose: the drawing
+  sits directly on the page's white ground. NEVER add a border, ring, card, outline, or
+  shadow around a figure — not with a wrapper `div` (`border`, `ring-*`, `shadow-*`,
+  `rounded-* border`), not with a `<rect stroke=…>` drawn around the plot area, not by
+  restyling the shell. The one exception is a stroke that carries meaning (the boundary of
+  the thing being explained — a container, a region, a cell), and even then it is ink, not
+  chrome. A box drawn "to hold the chart" is chart junk, exactly like a legend box.
 - **Whitespace is load-bearing.** ≥ 24px padding inside the drawing surface on all sides;
   labels never touch the frame; nothing is ever clipped (see the safe-viewBox rule in
   `CLAUDE.md`). If a figure feels crowded, the fix is removing elements, not shrinking them.
@@ -100,6 +107,76 @@ gradients, soft muted palette only. On top of that:
 - Labels never overlap geometry or each other at ANY reachable state of the interaction —
   check the extremes of every slider/drag range, not just the default.
 
+### 4a. Every label must FIT — the gutter contract
+
+An SVG clips anything outside its own `viewBox`. A label that starts inside the box but
+runs past its right edge is silently sliced in half — the reader sees `Posit`. This is the
+single most common figure defect. It is never acceptable, and it is entirely preventable
+with arithmetic before you draw.
+
+**Budget the text, then place the geometry.** Text width in the viewBox's units is roughly
+`characters × fontSize × 0.6` (13px sentence-case ≈ 7.5px per character; bold ≈ 8px).
+`"Positive"` at 12px ≈ 58 units wide. Do this sum for the LONGEST string each label can
+ever hold — including the widest value it will show while the student scrubs.
+
+Then, concretely:
+
+1. **Reserve gutters first, size the plot last.** Decide the label widths, subtract them
+   from the viewBox, and give the remainder to the drawing:
+   `plotWidth = viewBoxWidth − leftGutter − rightGutter`. Never pick a round plot size and
+   hope the labels fit beside it.
+2. **Anchor toward the ink.** Labels right of the plot: `textAnchor="end"` at
+   `x = viewBoxWidth − pad`. Labels left of the plot: `textAnchor="start"` at `x = pad`.
+   Labels under a column: `textAnchor="middle"`, and clamp the x so the half-width still
+   fits (`clamp(cx, halfWidth + pad, viewBoxWidth − halfWidth − pad)`).
+3. **Nothing is drawn outside `[pad, viewBoxWidth − pad] × [pad, viewBoxHeight − pad]`**
+   with `pad ≥ 24`. If a computed x/y for a label falls outside that band at any reachable
+   state, the label is in the wrong place — move it inside the plot or above it.
+4. **Side labels are usually the wrong idea.** A row label beside the plot ("Positive" /
+   "Negative") almost always fits better *inside* its own band, in that band's color, or
+   directly above the plot. Prefer that over widening the gutters.
+5. **Verify at the extremes.** Walk every control to min and max and re-check the longest
+   rendered string at each. A label that fits at the default value and is clipped at max is
+   a failed figure.
+
+```tsx
+// WRONG — viewBox 560 wide, plot ends at 520, label starts at 532 and needs ~58 more units.
+// "Positive" renders as "Posit" and the reader never sees the word.
+<text x={chartX + chartWidth + 12} y={chartY + 20} fontSize="12">Positive</text>
+
+// CORRECT — gutter reserved up front, label anchored back toward the plot.
+const PAD = 24, RIGHT_GUTTER = 72;              // widest row label + breathing room
+const chartWidth = VIEWBOX_WIDTH - PAD - RIGHT_GUTTER;
+<text x={VIEWBOX_WIDTH - PAD} y={chartY + 20} textAnchor="end" fontSize="12">Positive</text>
+```
+
+### 4b. One quantity, one number format
+
+A quantity that appears in the drawing, in a `FigureSlider` readout, and in the prose must
+render through **the same formatter** in all three places. Define it once at module scope
+and call it everywhere:
+
+```tsx
+const fmtPercent = (v: number) => `${v.toFixed(1)}%`;   // 13.6%  — one source of truth
+```
+
+Rules:
+
+- **Percentages are `%` with a fixed number of decimals.** `(13.6).toFixed(1) + "%"`.
+  Never `‰`, never `pp`, never a bare number where its sibling readout shows a unit.
+- **Never rescale a value to dodge a decimal point.** `Math.round(p * 10) + "‰"` is the
+  classic version of this bug: it renders `136‰` next to a slider reading `13.6%`, and every
+  reader parses it as a typo or a wrong number. If the value has a fraction, print the
+  fraction.
+- **Same decimal places at every state.** Pick the precision from the variable's `step`
+  (`step: 0.1` → one decimal) and keep it constant, so the readout never gains or loses a
+  digit mid-drag. Pair with `fontVariantNumeric: "tabular-nums"`.
+- **Counts are integers, shares are percentages** — a figure never shows the same quantity
+  as a count in one label and a percentage in another without saying so in words.
+- **Read the rendered strings back.** Before you finish, list every string the figure prints
+  at the default state and at both extremes of every control, and check each one is a number
+  a teacher would write by hand.
+
 ## 5. Motion
 
 - **Nothing teleports.** Every visual state change is either continuously driven by the
@@ -129,6 +206,53 @@ gradients, soft muted palette only. On top of that:
 - **The initial state poses the question, not the answer.** Default parameter values show
   the interesting problem state, invite the manipulation, and leave the aha discoverable.
 
+### 6a. Linked highlights — pop the target, recede everything else
+
+A hover binding (`InlineLinkedHighlight`, `highlightVarName`, `\highlight{}{}`) is only worth
+having if the picture visibly answers the hover. The recurring failure is a target that shifts
+a shade while its neighbours stay at full strength: the student hovers the phrase, nothing
+seems to happen, and the binding teaches nothing. Contrast comes from doing both halves at
+once.
+
+- **Pop the target.** Stroke weight ≥1.5× its resting value — the heaviest line on screen
+  while active — plus a **halo**: a second, wider stroke of the same hue underneath at ~25-30%
+  opacity (`strokeWidth + 6`, `opacity 0.28`), or an equivalent soft glow filter. Points and
+  handles also scale ~1.3×; filled regions raise their fill from ~15% to ~35% opacity.
+- **Recede everything else.** While any highlight is active, every non-target stroke, fill,
+  and label drops to **30-45% opacity** — one `opacity` expression on each sibling group.
+  Dimming is what makes the highlight readable; popping alone is not enough.
+- **Ease both directions** over ~150 ms (`transition: opacity 150ms ease-out`, same for
+  stroke-width). Highlights never snap.
+- **Bidirectional.** `onPointerEnter` / `onPointerLeave` on the drawn element write the same
+  variable, so hovering the figure lights the prose phrase too.
+- **The squint test.** Idle frame beside hovered frame: the highlighted element must be the
+  obvious difference at a squint. If you have to hunt for what changed, raise the pop and
+  deepen the dim.
+
+```tsx
+const highlight = useVar<string | null>("arrowHighlight", null);
+const isActive = highlight === "rightArrow";
+const recede = highlight && !isActive ? 0.38 : 1;
+
+{isActive && (
+    <path d={arrowPath} stroke="#62D0AD" strokeWidth={9} opacity={0.28}
+        fill="none" strokeLinecap="round" />          {/* halo */}
+)}
+<path d={arrowPath} stroke="#62D0AD" strokeWidth={isActive ? 4 : 2.5}
+    fill="none" strokeLinecap="round"
+    style={{ transition: "stroke-width 150ms ease-out" }}
+    onPointerEnter={() => setVar("arrowHighlight", "rightArrow")}
+    onPointerLeave={() => setVar("arrowHighlight", null)} />
+
+<g opacity={recede} style={{ transition: "opacity 150ms ease-out" }}>
+    {/* every other element AND its labels recede together */}
+</g>
+```
+
+Amber (`#F7B23B`) is the attention hue for guided hints and feedback flashes. A hover
+highlight instead intensifies the element's OWN colour — it does not repaint the element in a
+new hue, which would break the one-quantity-one-colour rule.
+
 ## 7. Affordances (what invites the hand)
 
 - Draggable handles look grabbable: ≥ 12px visual radius (≥ 24px hit area), accent-colored,
@@ -154,6 +278,10 @@ gradients, soft muted palette only. On top of that:
 | 9 | Emoji/clip-art inside the drawing surface | Tone mismatch, salience noise |
 | 10 | The star visual is a stock library chart wearing the lesson's labels | The library-ceiling failure this document exists to prevent |
 | 11 | Readout/status panels floating over the plot area, occluding data or colliding with labels | The panel wins the salience contest against the phenomenon — panels belong beside the canvas |
+| 12 | A border/ring/card/shadow around the figure, or a `<rect>` frame drawn around the plot | Chrome competing with the drawing; the shell is borderless by design (§3) |
+| 13 | Any label sliced by the viewBox edge (`Posit`, `Nega`) at any reachable state | Half a word is not a label — the gutter arithmetic in §4a was skipped |
+| 14 | The same quantity printed in two formats/units (`136‰` in the figure, `13.6%` on the slider) | Reads as a typo or a contradiction; destroys trust in every other number |
+| 15 | A linked highlight that only tints its target while every neighbour stays at full strength | Nothing visibly happens on hover — the binding is dead weight (§6a) |
 
 ---
 
@@ -166,9 +294,10 @@ below 3 on any item means the figure needs refinement.
    element; ink/paper otherwise. 1: ≥ 3 competing hues or accent on chrome.
 2. **Ink quality** — 5: warm-gray structure, two stroke weights, rounded caps, no pure
    black. 1: hairline default strokes, mixed weights, CAD look.
-3. **Label legibility** — 5: every label readable, direct-labeled, non-overlapping, inside
-   the frame; readout/status panels sit beside the drawing surface, not over the data.
-   1: any clipped/overlapping/colliding label, or a panel occluding the plot.
+3. **Label legibility** — 5: every label readable, direct-labeled, non-overlapping, and
+   FULLY inside the viewBox at every reachable state; readout/status panels sit beside the
+   drawing surface, not over the data. 1: any clipped/overlapping/colliding label (a single
+   sliced word scores 1 on its own), or a panel occluding the plot.
 4. **Whitespace & composition** — 5: breathing room on all sides, balanced weight, nothing
    cramped, content fills the canvas. 1: elements touch the frame or each other, OR the
    content huddles in a corner of a mostly-empty oversized canvas.
@@ -179,7 +308,18 @@ below 3 on any item means the figure needs refinement.
    gesture. 1: default state already displays the answer/degenerate case.
 8. **Cohesion with the lesson** — 5: same palette, stroke language, and label style as the
    lesson's other figures (one hand drew them all). 1: visibly different visual dialect.
-9. **Visual–prose balance** — 5: the active prose and its figure are visible together;
+9. **Number discipline** — 5: every quantity uses one formatter everywhere it appears
+   (figure label, slider readout, prose), with fixed decimals and tabular numerals.
+   1: mismatched units or formats for the same quantity (`136‰` vs `13.6%`), or a digit
+   count that changes while scrubbing.
+10. **Frame-free** — 5: no border, ring, card, or drawn box around the figure or its plot;
+   the drawing meets the page directly. 1: a visible frame of any kind around the visual.
+11. **Highlight legibility** — compare an idle screenshot with one taken while a bound
+   phrase is hovered. 5: the target pops (heaviest stroke plus halo, or scaled-up mark) while
+   every other element and label recedes to 30-45% — the difference is obvious at a squint,
+   and the trigger phrase reads clearly on white. 1: nothing perceptible changes, or only the
+   target shifts a shade while its neighbours stay at full strength.
+12. **Visual–prose balance** — 5: the active prose and its figure are visible together;
    the drawing surface is compact (normally 280–360px, never above ~420px) and filled
    with meaningful content. 1: the figure consumes most of the viewport, forces the
    learner to scroll away from its explanation, or magnifies sparse content.

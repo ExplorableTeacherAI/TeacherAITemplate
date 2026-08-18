@@ -864,15 +864,12 @@ export function InteractionHintSequence({
                         </motion.div>
                     </motion.div>
 
-                    {/* ── Instruction bar — simple box along the bottom ── */}
+                    {/* ── Instruction bar — in normal flow so it stacks BELOW the
+                        figure content (drawing + sliders) instead of overlaying
+                        whatever sits at the bottom of the relative container ── */}
                     <motion.div
                         key={`label-${activeStep}`}
-                        className="absolute z-50 pointer-events-none select-none"
-                        style={{
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                        }}
+                        className="relative z-50 w-full pointer-events-none select-none"
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 4 }}

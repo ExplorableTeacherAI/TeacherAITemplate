@@ -7,10 +7,14 @@ import { useVar, useSetVar, useVarColor } from "@/stores";
  * Figure — uniform chrome for bespoke canvas/SVG figures
  * ======================================================
  *
- * A thin shell that gives every custom figure the same quiet polish (frame,
- * caption, reset / play-pause controls) while the drawing inside stays fully
- * bespoke. See `FIGURE_DESIGN_LANGUAGE.md`: chrome is uniform, content is
+ * A thin shell that gives every custom figure the same quiet polish (white
+ * ground, caption, reset / play-pause controls) while the drawing inside stays
+ * fully bespoke. See `FIGURE_DESIGN_LANGUAGE.md`: chrome is uniform, content is
  * unique — never rebuild this chrome per-figure, never restyle the shell.
+ *
+ * The shell is deliberately BORDERLESS. Do not add a border, ring, card, or
+ * shadow around a figure here or in figure code — the drawing itself is the
+ * only thing the reader should see.
  *
  * The children get the full surface: the frame is a `position: relative`
  * container, so absolutely-positioned overlays such as
@@ -94,7 +98,10 @@ export const Figure: React.FC<FigureProps> = ({
             className={cn("group mx-auto w-full max-w-[560px]", className)}
         >
             <div
-                className="relative w-full overflow-hidden rounded-xl border border-border/40 bg-white"
+                // Borderless by design: the drawing sits directly on the page
+                // ground. A visible frame is chrome competing with the figure —
+                // see FIGURE_DESIGN_LANGUAGE.md §3 ("no frame around a figure").
+                className="relative w-full overflow-hidden rounded-xl bg-white"
                 style={aspectRatio ? { aspectRatio } : undefined}
             >
                 {children}

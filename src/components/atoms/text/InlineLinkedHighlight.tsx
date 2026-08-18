@@ -281,8 +281,9 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
         contentEditable: false as const,
     };
 
-    // Compute highlight background (active state)
-    const activeBg = effectiveBgColor || `${effectiveColor}22`;
+    // Compute highlight background (active state). The tint has to read as a
+    // highlight at a glance — below ~20% opacity it disappears on white.
+    const activeBg = effectiveBgColor || `${effectiveColor}33`;
     // Dim non-active siblings when another in the group is hovered
     const opacity = hasAnyActive ? (isActive ? 1 : 0.4) : 1;
 
@@ -302,8 +303,9 @@ export const InlineLinkedHighlight: React.FC<InlineLinkedHighlightProps> = ({
                 color: effectiveColor,
                 opacity,
                 textDecoration: 'underline',
-                textDecorationStyle: 'dotted',
+                textDecorationStyle: isActive ? 'solid' : 'dotted',
                 textDecorationColor: effectiveColor,
+                textDecorationThickness: isActive ? '2px' : undefined,
                 backgroundColor: isActive ? activeBg : 'transparent',
                 padding: '1px 4px',
                 borderRadius: 4,
