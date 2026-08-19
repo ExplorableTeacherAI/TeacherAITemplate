@@ -1783,22 +1783,19 @@ Checklist for every linked pair (in addition to the bespoke-figure checklist):
 
 **Rules:**
 - **Every word on the card is read by a TEACHER, in about fifteen seconds, with nothing else to go on.** Write in plain classroom English, to the teacher, about their students. Never address the reader as the one interacting ("a ghost ball *you* place" makes the teacher the student — write "a faint copy students place themselves"), and never put design vocabulary on the card (paradigm, trace, affordance, binding, arity). If a phrase would make a colleague in the staff room say "what?", replace it with the ordinary word: *dots left behind* not "strobe trail", *lines that stay level* not "level lines that stay perfectly horizontal", *faint copy* not "ghost".
-- **Write every card in FOUR BEATS — the way you would describe the visual to someone with their eyes closed:** the scene → what students do → what they then watch → what it teaches. This is the standard to match:
+- **A card is exactly THREE beats — the description, what students do, what it teaches.** Add nothing beyond them: a card the teacher has to wade through gets skimmed, and a skimmed card is not compared. This is the standard to match:
   > **Two balls fall from the same height — one straight down, one moving sideways**
   >
-  > Imagine a table with two identical balls at the same height. One ball is dropped straight down, while the other is thrown sideways off the table.
+  > Imagine a table with two identical balls at the same height. One ball is dropped straight down, while the other is thrown sideways off the table. As they fall, each one leaves a faint trail showing the path it took.
   >
   > **Students predict:** Place the faint ball where they think the sideways-moving ball will be when the dropped ball hits the floor.
-  >
-  > **They watch:** See both balls' positions as they fall, with a ghost trail showing the sideways ball's path.
   >
   > **They discover:** Both balls hit the floor at the same time, even though one is moving sideways.
   >
   > **Clears up:** Moving sideways faster does not make a ball fall more slowly.
 - **`title` describes THE VISUAL, not the activity** — up to ~14 words, and naming the contrast the visual is built on is encouraged (the title above earns its length because every word adds picture). Never an invented name ("The strobe race"), never the activity ("Predict which ball lands first" — that is `manipulate`), never a metaphor standing in for the picture ("Unrolling the circle").
-- **`looks` is THE SCENE** — one or two sentences (~45 words) putting the reader in the picture: the objects, where they are, and the setup that matters. Opening with "Imagine…" is a good instinct. No dragging happens here, and no component names, coordinates, or hex colours.
+- **`looks` is THE DESCRIPTION, and it carries everything that is not one of the other two beats** — one or two sentences (~45 words): (a) the scene, the objects, where they are and the setup that matters, opening with "Imagine…" if that helps; (b) what the picture DOES, woven into the same sentences rather than split onto its own line ("…as they fall, each one leaves a faint trail showing the path it took"); and (c) for a linked pair, the second view mentioned in plain words as part of the picture ("…with a graph beside it drawing one line per ball"). No component names, coordinates, or hex colours.
 - **`manipulate` is WHAT STUDENTS DO** — one sentence, the gesture on something already standing in that scene. It renders under a label taken from `paradigm` ("Students predict:", "Students build:", "Students compare:"), so write the sentence to continue that label.
-- **`watch` is WHAT THEY THEN WATCH — REQUIRED** — one sentence naming what visibly answers the moment they act. This is the beat most often missing, and its absence is the single biggest reason a card cannot be pictured: without it the reader holds a handle attached to nothing.
 - This block is TEMPORARY scaffolding. It must NEVER survive into a finished section — building the chosen visual always replaces it (same block id).
 - Editor-mode only: in student preview it renders nothing, so an unfinished section shows clean text. Never design prose that depends on the carousel being visible.
 - 2-3 cards, at most ONE with `recommended: true`.
@@ -1819,13 +1816,11 @@ import { VisualOptionCards } from "@/components/organisms";
                 // THE VISUAL, with the contrast named — not "Unroll the rim",
                 // which would be the activity (that lives in `manipulate`).
                 title: "A circle rolled out flat against a ruler",
-                // THE SCENE: objects, where they are, what stands out.
-                // No dragging here — that is the next beat.
-                looks: "Imagine a wheel standing on a long ruler, with one spot on its rim marked in teal and the ruler already showing the wheel's width three times over",
+                // THE DESCRIPTION: the scene, plus what the picture does.
+                // Everything that is not one of the other two beats lives here.
+                looks: "Imagine a wheel standing on a long ruler, with one spot on its rim marked in teal. As the wheel rolls, its rim unrolls into a straight stripe along the ruler beneath it",
                 // WHAT STUDENTS DO — continues the "Students step through:" label.
                 manipulate: "Roll the wheel along the ruler until the marked spot comes back down to the line",
-                // WHAT THEY THEN WATCH — the answer, as its own beat.
-                watch: "The rim unrolls into a straight stripe along the ruler, stopping just past the third width mark",
                 reveals: "The rim always stretches to just over three widths, whatever the wheel — that number is π",
                 targetsMisconception: "Students think π is a special number picked by mathematicians, not a ratio",
                 paradigm: "temporal",
@@ -1834,21 +1829,21 @@ import { VisualOptionCards } from "@/components/organisms";
             {
                 id: "sector-rearrange",
                 title: "A circle cut into wedges, rebuilt as a rectangle",
-                looks: "Imagine a circle sliced into coloured wedges like a cut cake, with an empty outlined strip waiting on the line beneath it",
+                looks: "Imagine a circle sliced into coloured wedges like a cut cake, with an empty outlined strip waiting beneath it that squares off into a rectangle as the wedges drop in",
                 manipulate: "Drag each wedge down into the strip, alternating point-up and point-down so they interlock",
-                watch: "The strip fills in and squares off, ending up as tall as the circle's radius and as wide as half its rim",
                 reveals: "The wedges lose no area when they move, so the circle's area is the rectangle's area — πr²",
                 paradigm: "constructivist",
             },
             {
                 id: "radius-area-pair",
                 title: "A circle beside a graph of its own area",
-                looks: "Imagine a circle on the left and, on the right, an empty graph labelled radius across the bottom and area up the side, with one dot marking the circle as it is now",
+                looks: "Imagine a circle on the left and, beside it, a graph of area against radius where a dot tracks the circle and traces a curve that bends steeply upward as it grows",
                 manipulate: "Stretch the circle by its rim and compare how far the dot travels sideways with how far it climbs",
-                watch: "The dot traces a curve that bends steeply upward — the area runs away from the radius rather than keeping pace",
                 reveals: "Doubling the radius makes the area four times bigger, which is why the curve bends instead of running straight",
                 paradigm: "comparison",
                 // A LINKED PAIR: both views read the same `radius` variable.
+                // Not shown on the card — the teacher meets the graph inside
+                // `looks` above; this carries the phase-2 build contract.
                 secondView: {
                     shows: "A graph of area against radius, with the current point marked",
                     role: "complementary",

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Eye, Hand, Lightbulb, Link2, Loader2, PenLine, RefreshCw, Sparkles, Star } from "lucide-react";
+import { Hand, Lightbulb, Loader2, PenLine, RefreshCw, Sparkles, Star } from "lucide-react";
 import { useAppMode } from "@/contexts/AppModeContext";
 
 /** A design that pairs TWO linked views sharing the same store variables.
@@ -29,12 +29,6 @@ const PARADIGM_ACTION_LABELS: Record<string, string> = {
 const actionLabel = (paradigm?: string) =>
     (paradigm && PARADIGM_ACTION_LABELS[paradigm]) || "Students do:";
 
-const SECOND_VIEW_ROLE_LABELS: Record<VisualOptionSecondView["role"], string> = {
-    complementary: "Each view shows what the other can't",
-    constraining: "The familiar view keeps the abstract one honest",
-    constructing: "The insight is the link between them",
-};
-
 export interface VisualOptionCard {
     /** Stable id for this option, e.g. "unit-circle-drag" */
     id: string;
@@ -56,13 +50,6 @@ export interface VisualOptionCard {
      *     be when the dropped ball hits the floor"
      */
     manipulate: string;
-    /**
-     * WHAT THEY THEN WATCH — one sentence naming what visibly answers once
-     * they act. Without it the reader is holding a handle attached to nothing.
-     * ✅ "See both balls' positions as they fall, with a ghost trail showing
-     *     the sideways ball's path"
-     */
-    watch?: string;
     /** The aha, as a plain sentence the teacher could say aloud to the class */
     reveals: string;
     /**
@@ -76,7 +63,12 @@ export interface VisualOptionCard {
     looks: string;
     /** Optional: the misconception this design targets */
     targetsMisconception?: string;
-    /** Present when this design is a LINKED PAIR of two views moving together */
+    /**
+     * Present when this design is a LINKED PAIR of two views moving together.
+     * NOT rendered on the card — the teacher reads about the second view in
+     * `looks`, in plain words. This carries the phase-2 build contract and the
+     * linked-view measure for analytics.
+     */
     secondView?: VisualOptionSecondView;
     /** Interaction paradigm this design comes from — recorded for analysis:
      *  conventional | inversion | temporal | constructivist | comparison |
@@ -260,15 +252,6 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                                 {chosenCard.manipulate}
                             </p>
                         </div>
-                        {chosenCard.watch && (
-                            <div className="mb-1.5 flex items-start gap-2">
-                                <Eye className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
-                                <p className="text-xs leading-relaxed text-slate-600">
-                                    <span className="font-medium text-slate-700">They watch:</span>{" "}
-                                    {chosenCard.watch}
-                                </p>
-                            </div>
-                        )}
                         <div className="flex items-start gap-2">
                             <Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-none text-amber-400" />
                             <p className="text-xs leading-relaxed text-slate-600">
@@ -337,15 +320,6 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                                     {card.manipulate}
                                 </p>
                             </div>
-                            {card.watch && (
-                                <div className="mb-2 flex items-start gap-2">
-                                    <Eye className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
-                                    <p className="text-xs leading-relaxed text-slate-600">
-                                        <span className="font-medium text-slate-700">They watch:</span>{" "}
-                                        {card.watch}
-                                    </p>
-                                </div>
-                            )}
                             <div className="flex items-start gap-2">
                                 <Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-none text-amber-400" />
                                 <p className="text-xs leading-relaxed text-slate-600">
@@ -353,25 +327,6 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                                     {card.reveals}
                                 </p>
                             </div>
-                            {card.secondView && (
-                                <div className="mt-3 rounded border border-[#8E90F5]/30 bg-[#8E90F5]/5 px-2 py-1.5">
-                                    <div className="flex items-start gap-2">
-                                        <Link2 className="mt-0.5 h-3.5 w-3.5 flex-none text-[#8E90F5]" />
-                                        <div>
-                                            <p className="text-[11px] leading-relaxed text-slate-600">
-                                                <span className="font-medium text-slate-700">
-                                                    Two linked views:
-                                                </span>{" "}
-                                                {card.secondView.shows} — moves together with the
-                                                first.
-                                            </p>
-                                            <p className="mt-0.5 text-[10px] leading-relaxed text-slate-400">
-                                                {SECOND_VIEW_ROLE_LABELS[card.secondView.role]}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                             {card.targetsMisconception && (
                                 <p className="mt-3 rounded bg-amber-50 px-2 py-1.5 text-[11px] leading-relaxed text-amber-700">
                                     Clears up: {card.targetsMisconception}
