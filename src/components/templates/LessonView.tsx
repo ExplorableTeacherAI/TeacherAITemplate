@@ -38,7 +38,7 @@ import { useAppMode } from "@/contexts/AppModeContext";
 import { LoadingScreen } from "@/components/utility/LoadingScreen";
 import { useOptionalEditing } from "@/contexts/EditingContext";
 import { decodeMarkerProps } from "@/lib/inlineMarkers";
-import { collectBlockIds as collectSortableBlockIds, serializeBlockLayout } from "@/lib/block-tree";
+import { collectBlockIds as collectSortableBlockIds, removeBlockFromTree, serializeBlockLayout } from "@/lib/block-tree";
 
 /**
  * Decode optional base64-encoded props from a marker.
@@ -904,9 +904,10 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
     };
 
     const handleDeleteBlock = (blockId: string) => {
-        // Delete the complete top-level layout containing this block, matching
-        // the deterministic source mutation performed by the backend.
-        const newBlocks = initialBlocks.filter(block => !hasElementId(block, blockId));
+        // Delete only this block, matching the deterministic source mutation
+        // performed by the backend. A split row whose other side survives
+        // collapses to a stack; the layout goes only when it empties.
+        const newBlocks = removeBlockFromTree(initialBlocks, blockId);
         setInitialBlocks(newBlocks);
 
         // Record the delete as an edit

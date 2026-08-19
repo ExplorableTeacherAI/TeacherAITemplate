@@ -260,6 +260,47 @@ const withoutBlock = (rows: BlockLayoutRow[], sourceId: string): BlockLayoutRow[
         columns: row.columns.map((column) => column.filter((id) => id !== sourceId)),
     })));
 
+const pruneBlock = (nodes: ReactElement[], blockId: string): ReactElement[] => {
+    const prune = (node: ReactNode): ReactNode => {
+        if (!isValidElement(node)) return node;
+        if (isBlockElement(node)) {
+            return getDirectBlockId(node) === blockId ? null : node;
+        }
+        // isBlockElement narrows the positive branch, leaving `node` typed as
+        // never here, so re-assert the element shape before reading children.
+        const element = node as ReactElement<{ children?: ReactNode }>;
+        const children = element.props.children;
+        if (children === undefined) return element;
+        return cloneElement(element, undefined, Children.map(children, prune));
+    };
+    return nodes
+        .map((node) => prune(node))
+        .filter((node): node is ReactElement => isValidElement(node));
+};
+
+/**
+ * Drop a single Block and keep its siblings. Deleting one side of a split row
+ * collapses that row to a stack rather than taking the whole row with it.
+ */
+export const removeBlockFromTree = (
+    trees: ReactElement[],
+    blockId: string,
+): ReactElement[] => {
+    const manifest = serializeBlockLayout(trees);
+    if (!manifest.blockIds.includes(blockId)) return trees;
+
+    const rows = withoutBlock(manifest.rows, blockId);
+    if (rows.length === 0) return [];
+
+    // Prune first: applyBlockLayoutToTree re-appends any block the manifest
+    // does not mention, which would resurrect the one just deleted.
+    return applyBlockLayoutToTree(pruneBlock(trees, blockId), {
+        version: 3,
+        blockIds: rows.flatMap((row) => row.columns.flat()),
+        rows,
+    });
+};
+
 export const moveBlockInTree = (
     trees: ReactElement[],
     sourceId: string,
