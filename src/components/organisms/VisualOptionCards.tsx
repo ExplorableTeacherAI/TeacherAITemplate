@@ -1,20 +1,83 @@
 import { useEffect, useRef, useState } from "react";
-import { Hand, Lightbulb, Loader2, PenLine, RefreshCw, Sparkles, Star } from "lucide-react";
+import { Eye, Hand, Lightbulb, Link2, Loader2, PenLine, RefreshCw, Sparkles, Star } from "lucide-react";
 import { useAppMode } from "@/contexts/AppModeContext";
+
+/** A design that pairs TWO linked views sharing the same store variables.
+ *  See D.1a of the visual design space: the second view must carry information
+ *  the first cannot, and both must move together from one source of truth. */
+export interface VisualOptionSecondView {
+    /** What the second view displays, e.g. "A graph of the area as you drag" */
+    shows: string;
+    /** Why the second view earns its place */
+    role: "complementary" | "constraining" | "constructing";
+    /** The shared store variable(s) and hover highlight that connect the views */
+    syncedBy: string;
+}
+
+/** The action line's label follows the design's paradigm, so the mode of each
+ *  option reads at a glance without printing the jargon word itself. */
+const PARADIGM_ACTION_LABELS: Record<string, string> = {
+    conventional: "Students adjust:",
+    inversion: "Students set the result:",
+    temporal: "Students step through:",
+    constructivist: "Students build:",
+    comparison: "Students compare:",
+    goal: "Students aim for:",
+    prediction: "Students predict:",
+};
+
+const actionLabel = (paradigm?: string) =>
+    (paradigm && PARADIGM_ACTION_LABELS[paradigm]) || "Students do:";
+
+const SECOND_VIEW_ROLE_LABELS: Record<VisualOptionSecondView["role"], string> = {
+    complementary: "Each view shows what the other can't",
+    constraining: "The familiar view keeps the abstract one honest",
+    constructing: "The insight is the link between them",
+};
 
 export interface VisualOptionCard {
     /** Stable id for this option, e.g. "unit-circle-drag" */
     id: string;
-    /** Short name of the visual, e.g. "Unrolling the circle" */
+    /**
+     * Describes THE VISUAL — what is on the screen — never the activity.
+     * A plain descriptive statement, up to ~14 words; naming the contrast the
+     * visual is built on is encouraged.
+     * ❌ "The strobe race" (invented name)
+     * ❌ "Predict which ball lands first" (the activity, not the picture)
+     * ✅ "Two balls fall from the same height — one straight down, one moving
+     *     sideways"
+     */
     title: string;
-    /** The exact thing the student drags/moves INSIDE the visual */
+    /**
+     * WHAT STUDENTS DO — one sentence naming the gesture and the thing they
+     * act on inside the visual. Rendered under a label taken from `paradigm`
+     * ("Students predict:", "Students build:", …).
+     * ✅ "Place the faint ball where they think the sideways-moving ball will
+     *     be when the dropped ball hits the floor"
+     */
     manipulate: string;
-    /** The critical point / aha moment the interaction reveals */
+    /**
+     * WHAT THEY THEN WATCH — one sentence naming what visibly answers once
+     * they act. Without it the reader is holding a handle attached to nothing.
+     * ✅ "See both balls' positions as they fall, with a ghost trail showing
+     *     the sideways ball's path"
+     */
+    watch?: string;
+    /** The aha, as a plain sentence the teacher could say aloud to the class */
     reveals: string;
-    /** One or two sentences describing what the visual looks like */
+    /**
+     * THE SCENE — one or two sentences (~45 words) putting the reader in the
+     * picture, as if describing it to someone with their eyes closed: the
+     * objects, where they are, and the setup that matters. This is the scene,
+     * not a spec — "Imagine a table with two identical balls at the same
+     * height. One is dropped straight down, while the other is thrown sideways
+     * off the table."
+     */
     looks: string;
     /** Optional: the misconception this design targets */
     targetsMisconception?: string;
+    /** Present when this design is a LINKED PAIR of two views moving together */
+    secondView?: VisualOptionSecondView;
     /** Interaction paradigm this design comes from — recorded for analysis:
      *  conventional | inversion | temporal | constructivist | comparison |
      *  goal | prediction */
@@ -112,6 +175,8 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                     recommended: !!c.recommended,
                     targetsMisconception: c.targetsMisconception,
                     manipulate: c.manipulate,
+                    linkedViews: !!c.secondView,
+                    secondViewRole: c.secondView?.role,
                 })),
             },
             "*",
@@ -139,6 +204,8 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                 cardId: card.id,
                 cardTitle: card.title,
                 paradigm: card.paradigm,
+                linkedViews: !!card.secondView,
+                secondViewRole: card.secondView?.role,
                 wasRecommended: !!card.recommended,
                 deliberationMs: Date.now() - shownAtRef.current,
                 optionCount: cards.length,
@@ -187,10 +254,21 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                         <div className="mb-1.5 flex items-start gap-2">
                             <Hand className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
                             <p className="text-xs leading-relaxed text-slate-600">
-                                <span className="font-medium text-slate-700">Students move:</span>{" "}
+                                <span className="font-medium text-slate-700">
+                                    {actionLabel(chosenCard.paradigm)}
+                                </span>{" "}
                                 {chosenCard.manipulate}
                             </p>
                         </div>
+                        {chosenCard.watch && (
+                            <div className="mb-1.5 flex items-start gap-2">
+                                <Eye className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
+                                <p className="text-xs leading-relaxed text-slate-600">
+                                    <span className="font-medium text-slate-700">They watch:</span>{" "}
+                                    {chosenCard.watch}
+                                </p>
+                            </div>
+                        )}
                         <div className="flex items-start gap-2">
                             <Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-none text-amber-400" />
                             <p className="text-xs leading-relaxed text-slate-600">
@@ -253,10 +331,21 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                             <div className="mb-2 flex items-start gap-2">
                                 <Hand className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
                                 <p className="text-xs leading-relaxed text-slate-600">
-                                    <span className="font-medium text-slate-700">Students move:</span>{" "}
+                                    <span className="font-medium text-slate-700">
+                                        {actionLabel(card.paradigm)}
+                                    </span>{" "}
                                     {card.manipulate}
                                 </p>
                             </div>
+                            {card.watch && (
+                                <div className="mb-2 flex items-start gap-2">
+                                    <Eye className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
+                                    <p className="text-xs leading-relaxed text-slate-600">
+                                        <span className="font-medium text-slate-700">They watch:</span>{" "}
+                                        {card.watch}
+                                    </p>
+                                </div>
+                            )}
                             <div className="flex items-start gap-2">
                                 <Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-none text-amber-400" />
                                 <p className="text-xs leading-relaxed text-slate-600">
@@ -264,6 +353,25 @@ export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsPr
                                     {card.reveals}
                                 </p>
                             </div>
+                            {card.secondView && (
+                                <div className="mt-3 rounded border border-[#8E90F5]/30 bg-[#8E90F5]/5 px-2 py-1.5">
+                                    <div className="flex items-start gap-2">
+                                        <Link2 className="mt-0.5 h-3.5 w-3.5 flex-none text-[#8E90F5]" />
+                                        <div>
+                                            <p className="text-[11px] leading-relaxed text-slate-600">
+                                                <span className="font-medium text-slate-700">
+                                                    Two linked views:
+                                                </span>{" "}
+                                                {card.secondView.shows} — moves together with the
+                                                first.
+                                            </p>
+                                            <p className="mt-0.5 text-[10px] leading-relaxed text-slate-400">
+                                                {SECOND_VIEW_ROLE_LABELS[card.secondView.role]}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             {card.targetsMisconception && (
                                 <p className="mt-3 rounded bg-amber-50 px-2 py-1.5 text-[11px] leading-relaxed text-amber-700">
                                     Clears up: {card.targetsMisconception}

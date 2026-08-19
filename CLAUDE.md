@@ -1690,17 +1690,122 @@ steps: [
 resetVars: { theta: 0 },
 ```
 
+## Linked Figures — TWO views of one idea (prefer this whenever it applies)
+
+**Before settling on a single visual, ask: what second representation answers a question
+the first cannot?** If one exists, build the pair. Two linked views beat both one
+overloaded view and one impoverished view. This is a default to consider, not a last
+resort.
+
+The copyable exemplar is **`src/data/sections/linkedFiguresDemo.tsx`** (reference-only,
+like `figureDemo.tsx` — not registered in `blocks.tsx`): the unit circle and the sine
+graph, side by side, sharing one angle variable and one highlight variable.
+
+### When a linked pair is the obvious build
+
+| Pairing | The two views | Example |
+|:---|:---|:---|
+| Object ↔ its measure | the thing you manipulate ↔ the graph of the quantity it controls | drag the radius ↔ the area curve traced as you drag |
+| Space ↔ time | the current configuration ↔ the trace it left behind | the pendulum ↔ its displacement-over-time plot |
+| Concrete ↔ abstract | the physical situation ↔ the formula or number line | tilting beam ↔ the torque equation with live terms |
+| Rate ↔ accumulation | the flow right now ↔ the total so far | the tap's flow rate ↔ the filling tank |
+| Part ↔ whole | the zoomed detail ↔ where it sits in the whole | the tangent at a point ↔ the whole curve |
+| One case ↔ many cases | this instance ↔ the distribution it belongs to | one coin-flip run ↔ the histogram of 500 runs |
+
+If the concept matches one of these, a SINGLE view is the choice that needs justifying.
+
+### The five rules (two pictures side by side are NOT a linked pair)
+
+1. **One source of truth.** Both views read the SAME store variables via `useVar`. Never
+   duplicate state, never write a sync callback between them. View B moves because it
+   reads `angle`, not because view A told it to.
+2. **Bidirectional when feasible.** Make the quantity draggable in EITHER view.
+3. **Solve the correspondence problem — this decides whether the pair teaches.** A shared
+   highlight variable connects counterparts: hovering an element in A pops its counterpart
+   in B while everything else recedes (the same linked-highlight contract as `InlineLinkedHighlight`
+   — target stroke ≥1.5× plus a ~28% halo, all other elements to 30-45%, eased ~150ms).
+   Give matching elements the same highlight id in both drawings. Without this, students
+   cannot map one view onto the other.
+4. **One quantity, one color, across BOTH views.** The shared quantity carries the single
+   accent hue in each drawing; everything else stays ink.
+5. **Both visible at once, with the tie shown.** Use `SplitLayout` (never tabs or an
+   accordion), and make the mapping literal at least once: a shared y-scale and zero line,
+   a connecting guide line, or a marker that appears in both at the same instant.
+
+Deliberate exception to "nothing teleports": read the shared variable **raw** in both
+views — no spring on it. For linked views exact lockstep beats easing, since a spring in
+each view lets them drift visibly apart mid-drag. Springs stay for local affordances only
+(handle scale on hover).
+
+```tsx
+// The shape, condensed from linkedFiguresDemo.tsx.
+// Both drawings read `linkedAngle` and `linkedViewHighlight` — that is the entire link.
+const AXIS_Y = 150;        // same zero line in BOTH views
+const AMPLITUDE_PX = 96;   // same pixels-per-unit in BOTH views → the visible tie
+
+function useHighlightState() {
+    const highlight = useVar<string>("linkedViewHighlight", "");
+    const setVar = useSetVar();
+    return {
+        opacity: (id: string) => (highlight && highlight !== id ? 0.35 : 1),
+        weight: (id: string, resting: number) => (highlight === id ? resting * 1.6 : resting),
+        hoverProps: (id: string) => ({
+            onPointerEnter: () => setVar("linkedViewHighlight", id),
+            onPointerLeave: () => setVar("linkedViewHighlight", ""),
+        }),
+    };
+}
+
+<SplitLayout key="layout-sine-pair" ratio="1:1" gap="lg" align="start">
+    <Block id="sine-pair-circle" padding="sm" hasVisualization>
+        <UnitCircleFigure />
+    </Block>
+    <Block id="sine-pair-graph" padding="sm" hasVisualization>
+        <SineGraphFigure />
+    </Block>
+</SplitLayout>
+```
+
+Checklist for every linked pair (in addition to the bespoke-figure checklist):
+
+- [ ] Both views read the same store variable(s) — grep the file: no duplicated state
+- [ ] The quantity is draggable in at least one view, ideally both
+- [ ] Matching elements share a highlight id, and hovering either one dims BOTH views
+- [ ] The shared quantity uses the same accent hue and the same formatter in both
+- [ ] Same scale / zero line, or another literal tie the reader can see
+- [ ] Side by side in one `SplitLayout` — never tabs, never an accordion
+- [ ] The second view has a nameable role (complementary / constraining / constructing).
+      If it does not, delete it — an unjustified second view costs attention and teaches nothing
+
 ## VisualOptionCards (Phase-1 Visual Chooser — TEMPORARY block)
 
 `VisualOptionCards` (import from `@/components/organisms`) is the teacher-facing carousel used during **text-first section builds**: the section's concept prose is written first, and this block stands in the exact spot where the section's interactive visual will go. Each card is a brief design spec for one candidate visual. When the teacher clicks "Use this visual" (or describes their own idea via the built-in "I have my own idea" input, or asks for different ideas), the choice is forwarded to the builder as a chat message; the builder then builds that visual and **REPLACES this entire block** with it.
 
 **Rules:**
+- **Every word on the card is read by a TEACHER, in about fifteen seconds, with nothing else to go on.** Write in plain classroom English, to the teacher, about their students. Never address the reader as the one interacting ("a ghost ball *you* place" makes the teacher the student — write "a faint copy students place themselves"), and never put design vocabulary on the card (paradigm, trace, affordance, binding, arity). If a phrase would make a colleague in the staff room say "what?", replace it with the ordinary word: *dots left behind* not "strobe trail", *lines that stay level* not "level lines that stay perfectly horizontal", *faint copy* not "ghost".
+- **Write every card in FOUR BEATS — the way you would describe the visual to someone with their eyes closed:** the scene → what students do → what they then watch → what it teaches. This is the standard to match:
+  > **Two balls fall from the same height — one straight down, one moving sideways**
+  >
+  > Imagine a table with two identical balls at the same height. One ball is dropped straight down, while the other is thrown sideways off the table.
+  >
+  > **Students predict:** Place the faint ball where they think the sideways-moving ball will be when the dropped ball hits the floor.
+  >
+  > **They watch:** See both balls' positions as they fall, with a ghost trail showing the sideways ball's path.
+  >
+  > **They discover:** Both balls hit the floor at the same time, even though one is moving sideways.
+  >
+  > **Clears up:** Moving sideways faster does not make a ball fall more slowly.
+- **`title` describes THE VISUAL, not the activity** — up to ~14 words, and naming the contrast the visual is built on is encouraged (the title above earns its length because every word adds picture). Never an invented name ("The strobe race"), never the activity ("Predict which ball lands first" — that is `manipulate`), never a metaphor standing in for the picture ("Unrolling the circle").
+- **`looks` is THE SCENE** — one or two sentences (~45 words) putting the reader in the picture: the objects, where they are, and the setup that matters. Opening with "Imagine…" is a good instinct. No dragging happens here, and no component names, coordinates, or hex colours.
+- **`manipulate` is WHAT STUDENTS DO** — one sentence, the gesture on something already standing in that scene. It renders under a label taken from `paradigm` ("Students predict:", "Students build:", "Students compare:"), so write the sentence to continue that label.
+- **`watch` is WHAT THEY THEN WATCH — REQUIRED** — one sentence naming what visibly answers the moment they act. This is the beat most often missing, and its absence is the single biggest reason a card cannot be pictured: without it the reader holds a handle attached to nothing.
 - This block is TEMPORARY scaffolding. It must NEVER survive into a finished section — building the chosen visual always replaces it (same block id).
 - Editor-mode only: in student preview it renders nothing, so an unfinished section shows clean text. Never design prose that depends on the carousel being visible.
 - 2-3 cards, at most ONE with `recommended: true`.
 - Every card MUST carry `paradigm` — one of `conventional`, `inversion`, `temporal`, `constructivist`, `comparison`, `goal`, `prediction` — naming its interaction paradigm. Cards in one carousel must come from DIFFERENT paradigms.
 - Every card must be implementable with the components in this file — decide internally which component family you would use BEFORE writing the card.
 - `manipulate` must name a concrete draggable/movable element INSIDE the visual (never an external slider).
+- Add `secondView` when the design is a **linked pair** of visuals (see *Linked Figures* below). It takes `shows` (what the second view displays), `role` (`complementary` | `constraining` | `constructing`), and `syncedBy` (the shared store variable(s) plus the shared hover highlight). Omit it for single-view designs, and keep at least one single-view card per carousel so the choice stays meaningful.
 
 ```tsx
 import { VisualOptionCards } from "@/components/organisms";
@@ -1711,21 +1816,44 @@ import { VisualOptionCards } from "@/components/organisms";
         cards={[
             {
                 id: "unroll-circumference",
-                title: "Unrolling the circle",
-                manipulate: "Drag the end of the circle's edge to unroll it into a straight line",
-                reveals: "The unrolled edge is always a bit more than 3 diameters long — that ratio is π",
-                looks: "A circle beside a ruler line; the circumference peels off and lays flat as you drag",
+                // THE VISUAL, with the contrast named — not "Unroll the rim",
+                // which would be the activity (that lives in `manipulate`).
+                title: "A circle rolled out flat against a ruler",
+                // THE SCENE: objects, where they are, what stands out.
+                // No dragging here — that is the next beat.
+                looks: "Imagine a wheel standing on a long ruler, with one spot on its rim marked in teal and the ruler already showing the wheel's width three times over",
+                // WHAT STUDENTS DO — continues the "Students step through:" label.
+                manipulate: "Roll the wheel along the ruler until the marked spot comes back down to the line",
+                // WHAT THEY THEN WATCH — the answer, as its own beat.
+                watch: "The rim unrolls into a straight stripe along the ruler, stopping just past the third width mark",
+                reveals: "The rim always stretches to just over three widths, whatever the wheel — that number is π",
                 targetsMisconception: "Students think π is a special number picked by mathematicians, not a ratio",
                 paradigm: "temporal",
                 recommended: true,
             },
             {
                 id: "sector-rearrange",
-                title: "Slicing into a rectangle",
-                manipulate: "Drag the slider of slices, then drag sectors to rearrange them into a near-rectangle",
-                reveals: "The rearranged shape approaches a rectangle of height r and width πr, so A = πr²",
-                looks: "A circle cut into colored pizza sectors next to the rectangle they form",
+                title: "A circle cut into wedges, rebuilt as a rectangle",
+                looks: "Imagine a circle sliced into coloured wedges like a cut cake, with an empty outlined strip waiting on the line beneath it",
+                manipulate: "Drag each wedge down into the strip, alternating point-up and point-down so they interlock",
+                watch: "The strip fills in and squares off, ending up as tall as the circle's radius and as wide as half its rim",
+                reveals: "The wedges lose no area when they move, so the circle's area is the rectangle's area — πr²",
                 paradigm: "constructivist",
+            },
+            {
+                id: "radius-area-pair",
+                title: "A circle beside a graph of its own area",
+                looks: "Imagine a circle on the left and, on the right, an empty graph labelled radius across the bottom and area up the side, with one dot marking the circle as it is now",
+                manipulate: "Stretch the circle by its rim and compare how far the dot travels sideways with how far it climbs",
+                watch: "The dot traces a curve that bends steeply upward — the area runs away from the radius rather than keeping pace",
+                reveals: "Doubling the radius makes the area four times bigger, which is why the curve bends instead of running straight",
+                paradigm: "comparison",
+                // A LINKED PAIR: both views read the same `radius` variable.
+                secondView: {
+                    shows: "A graph of area against radius, with the current point marked",
+                    role: "complementary",
+                    syncedBy: "radius, plus a shared hover highlight on the radius line",
+                },
             },
         ]}
     />
@@ -2110,6 +2238,10 @@ nothing teleports (springs for discrete changes, 1:1 tracking during drag).
 
 A complete copyable exemplar lives in `src/data/sections/figureDemo.tsx` (reference-only,
 like `exampleBlocks.tsx` — not registered in `blocks.tsx`).
+
+**Before building a single figure, check the *Linked Figures* section below.** Many
+concepts are better served by TWO linked views sharing one store variable than by one
+view carrying everything; `src/data/sections/linkedFiguresDemo.tsx` is that exemplar.
 
 ### The `<Figure>` Shell (import from `@/components/molecules`)
 
