@@ -142,7 +142,7 @@ const DraggableBlock = ({
                 if (blockId) onDragFinish(blockId);
             }}
             data-sortable-block-id={blockId}
-            className={`w-full relative ${dragging ? "z-50" : "z-0"}`}
+            className={`w-full relative ${dragging ? "z-50" : ""}`}
             style={{ position: "relative" }}
             whileDrag={{ scale: 1.01, opacity: 0.88 }}
         >
