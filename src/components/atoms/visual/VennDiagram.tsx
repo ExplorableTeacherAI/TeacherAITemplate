@@ -1,5 +1,4 @@
-import React, { useId } from "react";
-import { useVar, useSetVar } from "@/stores/variableStore";
+import React, { useState, useId } from "react";
 
 export interface VennDiagramProps {
     width?: number;
@@ -14,7 +13,6 @@ export interface VennDiagramProps {
     className?: string;
     showCounts?: boolean;
     showContainerBorder?: boolean;
-    highlightVarName?: string;
 }
 
 const colors = {
@@ -40,11 +38,9 @@ export const VennDiagram: React.FC<VennDiagramProps> = ({
     className = "",
     showCounts = true,
     showContainerBorder = false,
-    highlightVarName,
 }) => {
     const overlapClipId = useId();
-    const activeHighlight = useVar(highlightVarName ?? "__noop__", "") as string;
-    const setVar = useSetVar();
+    const [activeHighlight, setActiveHighlight] = useState("");
 
     const cxLeft = width * 0.42;
     const cxRight = width * 0.58;
@@ -52,13 +48,11 @@ export const VennDiagram: React.FC<VennDiagramProps> = ({
     const radius = Math.min(width, height) * 0.28;
 
     const setHighlight = (part: string) => {
-        if (!highlightVarName) return;
-        setVar(highlightVarName, part);
+        setActiveHighlight(part);
     };
 
     const clearHighlight = () => {
-        if (!highlightVarName) return;
-        setVar(highlightVarName, "");
+        setActiveHighlight("");
     };
 
     const isActive = (part: string) => activeHighlight && activeHighlight === part;

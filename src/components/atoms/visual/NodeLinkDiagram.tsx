@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import * as d3 from "d3";
-import { useVar, useSetVar } from "@/stores/variableStore";
 
 // ============================================================================
 // TYPES
@@ -20,8 +19,6 @@ export interface DiagramNode {
     /** Fix the node at a specific position (prevents force movement) */
     fx?: number | null;
     fy?: number | null;
-    /** Optional highlight ID for linked-highlight integration */
-    highlightId?: string;
     /** Extra data attached to the node */
     data?: Record<string, unknown>;
 }
@@ -39,8 +36,6 @@ export interface DiagramLink {
     color?: string;
     /** Whether the link is directed (shows arrowhead) */
     directed?: boolean;
-    /** Optional highlight ID for linked-highlight integration */
-    highlightId?: string;
 }
 
 export interface NodeLinkDiagramProps {
@@ -72,8 +67,6 @@ export interface NodeLinkDiagramProps {
     minNodeRadius?: number;
     /** Maximum node radius (default: 40) */
     maxNodeRadius?: number;
-    /** Variable name for linked-highlight integration */
-    highlightVarName?: string;
     /** Callback when a node is clicked */
     onNodeClick?: (node: DiagramNode) => void;
     /** Callback when a link is clicked */
@@ -100,7 +93,6 @@ interface SimNode extends d3.SimulationNodeDatum {
     group?: string;
     color?: string;
     radius: number;
-    highlightId?: string;
     data?: Record<string, unknown>;
     _original: DiagramNode;
 }
@@ -110,7 +102,6 @@ interface SimLink extends d3.SimulationLinkDatum<SimNode> {
     weight: number;
     color?: string;
     directed: boolean;
-    highlightId?: string;
     _original: DiagramLink;
 }
 
@@ -166,7 +157,6 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
     defaultLinkColor = theme.linkColor,
     minNodeRadius = 20,
     maxNodeRadius = 40,
-    highlightVarName,
     onNodeClick,
     onLinkClick,
     className = "",
@@ -188,9 +178,6 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
         label: string;
     }>({ visible: false, x: 0, y: 0, label: "" });
 
-    // Linked highlight integration
-    const activeHighlight = useVar(highlightVarName ?? "__noop__", null) as string | null;
-    const setVar = useSetVar();
 
     const colors = useMemo(
         () => ({ ...DEFAULT_GROUP_COLORS, ...groupColors }),
@@ -253,7 +240,6 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
             group: n.group,
             color: n.color,
             radius: getNodeRadius(n),
-            highlightId: n.highlightId,
             data: n.data,
             fx: n.fx ?? undefined,
             fy: n.fy ?? undefined,
@@ -271,7 +257,6 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
                 weight: l.weight ?? 1,
                 color: l.color,
                 directed: l.directed ?? false,
-                highlightId: l.highlightId,
                 _original: l,
             }));
 
@@ -486,10 +471,6 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
                         });
                 }
 
-                // Set highlight variable
-                if (highlightVarName && d.highlightId) {
-                    setVar(highlightVarName, d.highlightId);
-                }
             })
             .on("mouseleave", function () {
                 d3.select(this)
@@ -504,9 +485,6 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
                     linkLabelElements.transition().duration(200).attr("opacity", 1);
                 }
 
-                if (highlightVarName) {
-                    setVar(highlightVarName, null);
-                }
             })
             .on("click", (_event, d) => {
                 if (onNodeClick) onNodeClick(d._original);
@@ -662,43 +640,6 @@ export const NodeLinkDiagram: React.FC<NodeLinkDiagramProps> = ({
         getNodeColor,
         getNodeRadius,
     ]);
-
-    // ── Linked highlight effect ──────────────────────────────────────────────
-
-    useEffect(() => {
-        if (!svgRef.current || !highlightVarName) return;
-        const svg = d3.select(svgRef.current);
-
-        if (activeHighlight) {
-            svg
-                .selectAll<SVGGElement, SimNode>("g.nodes > g")
-                .transition()
-                .duration(150)
-                .attr("opacity", (d) =>
-                    d.highlightId === activeHighlight ? 1 : theme.dimOpacity
-                );
-
-            svg
-                .selectAll<SVGLineElement, SimLink>("g.links > line")
-                .transition()
-                .duration(150)
-                .attr("stroke-opacity", (d) =>
-                    d.highlightId === activeHighlight ? 0.8 : 0.05
-                );
-        } else {
-            svg
-                .selectAll<SVGGElement, SimNode>("g.nodes > g")
-                .transition()
-                .duration(200)
-                .attr("opacity", 1);
-
-            svg
-                .selectAll<SVGLineElement, SimLink>("g.links > line")
-                .transition()
-                .duration(200)
-                .attr("stroke-opacity", 0.6);
-        }
-    }, [activeHighlight, highlightVarName]);
 
     // ── Render ───────────────────────────────────────────────────────────────
 

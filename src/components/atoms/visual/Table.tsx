@@ -58,8 +58,7 @@ export interface TableProps {
  *
  * A styled, block-level table designed for embedding inside lessons.
  * Each cell can contain **any** React node — plain text, numbers, or
- * rich inline components such as `InlineScrubbleNumber`, `InlineFormula`,
- * `InlineLinkedHighlight`, `InlineClozeInput`, etc.
+ * rich inline components such as `InlineFormula`, `InlineHyperlink`, etc.
  *
  * The component reads its accent colour from the global variable store
  * (via `varName`) so colours can be kept in sync across the lesson.
@@ -77,7 +76,7 @@ export interface TableProps {
  *         { cells: ['e', '2.71828', 'Base of natural logarithm'] },
  *         { cells: [
  *             'r',
- *             <InlineScrubbleNumber varName="radius" defaultValue={5} min={1} max={20} step={0.5} />,
+ *             <InlineFormula latex="r = 5" />,
  *             'Radius of the circle',
  *         ] },
  *     ]}

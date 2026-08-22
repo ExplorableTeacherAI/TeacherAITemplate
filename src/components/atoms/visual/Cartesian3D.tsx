@@ -12,7 +12,6 @@ import {
     Environment,
 } from "@react-three/drei";
 import * as THREE from "three";
-import { useVar } from "@/stores/variableStore";
 
 // ── 3D Plot item type definitions ─────────────────────────────────────────────
 
@@ -38,7 +37,6 @@ export interface SurfacePlot3D {
     lowColor?: string;
     /** High color for height-based coloring (default red) */
     highColor?: string;
-    highlightId?: string;
 }
 
 /** 3D parametric curve — [x, y, z] as a function of parameter t */
@@ -53,7 +51,6 @@ export interface ParametricCurve3D {
     color?: string;
     /** Line width (default 2) */
     lineWidth?: number;
-    highlightId?: string;
 }
 
 /** 3D parametric surface — [x, y, z] = fn(u, v) */
@@ -70,7 +67,6 @@ export interface ParametricSurface3D {
     color?: string;
     opacity?: number;
     wireframe?: boolean;
-    highlightId?: string;
 }
 
 /** A fixed (non-interactive) 3D dot */
@@ -80,7 +76,6 @@ export interface StaticPoint3D {
     color?: string;
     /** Sphere radius (default 0.1) */
     size?: number;
-    highlightId?: string;
 }
 
 /** A 3D arrow from tail to tip */
@@ -92,7 +87,6 @@ export interface VectorPlot3D {
     color?: string;
     /** Shaft radius (default 0.04) */
     shaftRadius?: number;
-    highlightId?: string;
 }
 
 /** A 3D line segment between two points */
@@ -105,7 +99,6 @@ export interface SegmentPlot3D {
     lineWidth?: number;
     /** Dash pattern (default false) */
     dashed?: boolean;
-    highlightId?: string;
 }
 
 /** A 3D sphere */
@@ -116,7 +109,6 @@ export interface SpherePlot3D {
     color?: string;
     opacity?: number;
     wireframe?: boolean;
-    highlightId?: string;
 }
 
 /** A plane defined by a point and normal vector */
@@ -130,7 +122,6 @@ export interface PlanePlot3D {
     size?: number;
     color?: string;
     opacity?: number;
-    highlightId?: string;
 }
 
 /** A polyline connecting multiple 3D points */
@@ -139,7 +130,6 @@ export interface PolylinePlot3D {
     points: [number, number, number][];
     color?: string;
     lineWidth?: number;
-    highlightId?: string;
 }
 
 export type PlotItem3D =
@@ -207,35 +197,6 @@ export interface Cartesian3DProps {
     autoRotateSpeed?: number;
     /** Background color (default "transparent") */
     backgroundColor?: string;
-    /**
-     * Variable name for linked highlight support.
-     * When set, each plot item's highlightId is compared with the store value.
-     */
-    highlightVarName?: string;
-}
-
-// ── Highlight helpers ─────────────────────────────────────────────────────────
-
-interface HighlightStyle3D {
-    opacity: number;
-    isHighlighted: boolean;
-}
-
-function getHighlightStyle3D(
-    highlightId: string | undefined,
-    activeId: string | null | undefined,
-    baseOpacity = 0.8
-): HighlightStyle3D {
-    const isHighlighted = Boolean(highlightId && activeId === highlightId);
-    const hasActive = activeId !== null && activeId !== undefined;
-    return {
-        opacity: isHighlighted
-            ? Math.min(baseOpacity + 0.15, 1)
-            : hasActive && highlightId
-                ? baseOpacity * 0.2
-                : baseOpacity,
-        isHighlighted,
-    };
 }
 
 // ── Internal 3D scene components ──────────────────────────────────────────────
@@ -802,29 +763,15 @@ function DraggablePoint3D({
 
 // ── Plot item renderer ────────────────────────────────────────────────────────
 
-function RenderPlotItem({
-    item,
-    activeId,
-}: {
-    item: PlotItem3D;
-    activeId: string | null | undefined;
-}) {
+function RenderPlotItem({ item }: { item: PlotItem3D }) {
     switch (item.type) {
         case "surface": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                item.opacity ?? 0.8
-            );
+            const opacity = item.opacity ?? 0.8;
             return <SurfaceMesh {...item} opacity={opacity} />;
         }
 
         case "parametric": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                1
-            );
+            const opacity = 1;
             const samples = item.samples ?? 200;
             const tRange = item.tRange ?? [0, 2 * Math.PI];
             const points: [number, number, number][] = [];
@@ -848,20 +795,12 @@ function RenderPlotItem({
         }
 
         case "parametric-surface": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                item.opacity ?? 0.8
-            );
+            const opacity = item.opacity ?? 0.8;
             return <ParametricSurfaceMesh {...item} opacity={opacity} />;
         }
 
         case "point": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                1
-            );
+            const opacity = 1;
             return (
                 <Sphere
                     args={[item.size ?? 0.1, 16, 16]}
@@ -879,11 +818,7 @@ function RenderPlotItem({
         }
 
         case "vector": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                1
-            );
+            const opacity = 1;
             return (
                 <Vector3D
                     tail={item.tail}
@@ -896,11 +831,7 @@ function RenderPlotItem({
         }
 
         case "segment": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                1
-            );
+            const opacity = 1;
             return (
                 <Line
                     points={[item.point1, item.point2]}
@@ -916,11 +847,7 @@ function RenderPlotItem({
         }
 
         case "sphere": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                item.opacity ?? 0.4
-            );
+            const opacity = item.opacity ?? 0.4;
             return (
                 <Sphere args={[item.radius, 32, 32]} position={item.center}>
                     <meshStandardMaterial
@@ -937,11 +864,7 @@ function RenderPlotItem({
         }
 
         case "plane": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                item.opacity ?? 0.3
-            );
+            const opacity = item.opacity ?? 0.3;
             const point = item.point ?? [0, 0, 0];
             const normal = new THREE.Vector3(...item.normal).normalize();
             const quaternion = new THREE.Quaternion().setFromUnitVectors(
@@ -966,11 +889,7 @@ function RenderPlotItem({
         }
 
         case "polyline": {
-            const { opacity } = getHighlightStyle3D(
-                item.highlightId,
-                activeId,
-                1
-            );
+            const opacity = 1;
             return (
                 <Line
                     points={item.points}
@@ -996,7 +915,6 @@ function Cartesian3DScene({
     plots,
     draggablePoints,
     dynamicPlots,
-    activeId,
 }: {
     axisLength: number;
     showAxes: boolean;
@@ -1007,7 +925,6 @@ function Cartesian3DScene({
     plots: PlotItem3D[];
     draggablePoints: DraggablePoint3DConfig[];
     dynamicPlots?: (points: [number, number, number][]) => PlotItem3D[];
-    activeId: string | null | undefined;
 }) {
     // Track current positions of draggable points
     const positionsRef = useRef<[number, number, number][]>(
@@ -1063,7 +980,7 @@ function Cartesian3DScene({
 
             {/* Plot items */}
             {allPlots.map((item, i) => (
-                <RenderPlotItem key={`plot-${i}`} item={item} activeId={activeId} />
+                <RenderPlotItem key={`plot-${i}`} item={item} />
             ))}
 
             {/* Draggable points */}
@@ -1092,7 +1009,6 @@ function Cartesian3DScene({
  * - **Polylines** — connected sequences of 3D points
  * - **Draggable points** — interactive handles with constraint support
  * - **Dynamic plots** — geometry derived from draggable-point positions
- * - **Linked Highlight** — per-element `highlightId` for dim/emphasize behavior
  *
  * ## Basic usage
  * ```tsx
@@ -1167,11 +1083,7 @@ export function Cartesian3D({
     autoRotate = false,
     autoRotateSpeed = 1,
     backgroundColor = "transparent",
-    highlightVarName,
 }: Cartesian3DProps) {
-    // Read the active highlight ID from the global variable store
-    const activeId = useVar(highlightVarName ?? "", "") as string;
-    const effectiveActiveId = activeId || null;
 
     return (
         <div
@@ -1195,7 +1107,6 @@ export function Cartesian3D({
                         plots={plots}
                         draggablePoints={draggablePoints}
                         dynamicPlots={dynamicPlots}
-                        activeId={effectiveActiveId}
                     />
                 </Suspense>
                 <OrbitControls

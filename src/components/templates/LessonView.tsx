@@ -7,16 +7,8 @@ import {
     EditableH2,
     EditableH3,
     EditableParagraph,
-    InlineScrubbleNumber,
-    InlineClozeInput,
-    InlineClozeChoice,
-    InlineToggle,
-    InlineTooltip,
-    InlineTrigger,
     InlineHyperlink,
     InlineFormula,
-    InlineSpotColor,
-    InlineLinkedHighlight
 } from "@/components/atoms";
 import { EditableText } from "@/components/atoms/text/EditableText";
 import { StackLayout } from "@/components/layouts";
@@ -52,7 +44,7 @@ import { collectBlockIds as collectSortableBlockIds, removeBlockFromTree, serial
  */
 const parseContentWithInlineComponents = (content: string): React.ReactNode[] => {
     // Regex: group1=type, group2=id (up to | or }}), group3=optional base64 props
-    const markerRegex = /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle|inlineTooltip|inlineTrigger|inlineHyperlink|inlineFormula|inlineSpotColor|inlineLinkedHighlight):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
+    const markerRegex = /\{\{(inlineHyperlink|inlineFormula):([^|}]+)(?:\|([A-Za-z0-9+/=]*))?\}\}/g;
 
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
@@ -69,101 +61,6 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
 
         // Create the appropriate inline component, using saved props when available
         switch (componentType) {
-            case "inlineScrubbleNumber": {
-                const p = savedProps as { varName?: string; defaultValue?: number; min?: number; max?: number; step?: number; color?: string } | null;
-                parts.push(
-                    <InlineScrubbleNumber
-                        key={uniqueId}
-                        id={uniqueId}
-                        varName={p?.varName ?? `var_${uniqueId}`}
-                        defaultValue={p?.defaultValue ?? 10}
-                        min={p?.min ?? 0}
-                        max={p?.max ?? 100}
-                        step={p?.step ?? 1}
-                        {...(p?.color ? { color: p.color } : {})}
-                    />
-                );
-                break;
-            }
-            case "inlineClozeChoice": {
-                const p = savedProps as { varName?: string; correctAnswer?: string; options?: string[]; placeholder?: string; color?: string; bgColor?: string } | null;
-                parts.push(
-                    <InlineClozeChoice
-                        key={uniqueId}
-                        id={uniqueId}
-                        varName={p?.varName ?? `var_${uniqueId}`}
-                        correctAnswer={p?.correctAnswer ?? "Option 1"}
-                        options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
-                        placeholder={p?.placeholder ?? "???"}
-                        color={p?.color}
-                        bgColor={p?.bgColor}
-                    />
-                );
-                break;
-            }
-            case "inlineClozeInput": {
-                const p = savedProps as { varName?: string; correctAnswer?: string | string[]; placeholder?: string; color?: string; bgColor?: string; caseSensitive?: boolean } | null;
-                parts.push(
-                    <InlineClozeInput
-                        key={uniqueId}
-                        id={uniqueId}
-                        varName={p?.varName ?? `var_${uniqueId}`}
-                        correctAnswer={p?.correctAnswer ?? "answer"}
-                        placeholder={p?.placeholder ?? "???"}
-                        color={p?.color}
-                        bgColor={p?.bgColor}
-                        caseSensitive={p?.caseSensitive}
-                    />
-                );
-                break;
-            }
-            case "inlineToggle": {
-                const p = savedProps as { varName?: string; options?: string[]; color?: string; bgColor?: string } | null;
-                parts.push(
-                    <InlineToggle
-                        key={uniqueId}
-                        id={uniqueId}
-                        varName={p?.varName ?? `var_${uniqueId}`}
-                        options={p?.options ?? ["Option 1", "Option 2", "Option 3"]}
-                        color={p?.color}
-                        bgColor={p?.bgColor}
-                    />
-                );
-                break;
-            }
-            case "inlineTooltip": {
-                const p = savedProps as { text?: string; tooltip?: string; color?: string; bgColor?: string; position?: string; maxWidth?: number } | null;
-                parts.push(
-                    <InlineTooltip
-                        key={uniqueId}
-                        id={uniqueId}
-                        tooltip={p?.tooltip ?? "Tooltip content"}
-                        color={p?.color}
-                        bgColor={p?.bgColor}
-                        position={p?.position}
-                        maxWidth={p?.maxWidth}
-                    >
-                        {p?.text ?? "term"}
-                    </InlineTooltip>
-                );
-                break;
-            }
-            case "inlineTrigger": {
-                const p = savedProps as { text?: string; varName?: string; value?: string | number | boolean; color?: string; bgColor?: string } | null;
-                parts.push(
-                    <InlineTrigger
-                        key={uniqueId}
-                        id={uniqueId}
-                        varName={p?.varName ?? `var_${uniqueId}`}
-                        value={p?.value}
-                        color={p?.color}
-                        bgColor={p?.bgColor}
-                    >
-                        {p?.text ?? "trigger"}
-                    </InlineTrigger>
-                );
-                break;
-            }
             case "inlineHyperlink": {
                 const p = savedProps as { text?: string; href?: string; targetBlockId?: string; color?: string; bgColor?: string } | null;
                 parts.push(
@@ -181,45 +78,9 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
                 break;
             }
             case "inlineFormula": {
-                const p = savedProps as { latex?: string; colorMap?: Record<string, string>; color?: string } | null;
+                const p = savedProps as { latex?: string } | null;
                 parts.push(
-                    <InlineFormula
-                        key={uniqueId}
-                        id={uniqueId}
-                        latex={p?.latex ?? "x^2"}
-                        colorMap={p?.colorMap}
-                        color={p?.color}
-                    />
-                );
-                break;
-            }
-            case "inlineSpotColor": {
-                const p = savedProps as { varName?: string; color?: string; text?: string } | null;
-                parts.push(
-                    <InlineSpotColor
-                        key={uniqueId}
-                        id={uniqueId}
-                        varName={p?.varName ?? `var_${uniqueId}`}
-                        color={p?.color ?? "#3B82F6"}
-                    >
-                        {p?.text ?? "variable"}
-                    </InlineSpotColor>
-                );
-                break;
-            }
-            case "inlineLinkedHighlight": {
-                const p = savedProps as { varName?: string; highlightId?: string; color?: string; bgColor?: string; text?: string } | null;
-                parts.push(
-                    <InlineLinkedHighlight
-                        key={uniqueId}
-                        id={uniqueId}
-                        varName={p?.varName ?? `highlight_${uniqueId}`}
-                        highlightId={p?.highlightId ?? uniqueId}
-                        color={p?.color}
-                        bgColor={p?.bgColor}
-                    >
-                        {p?.text ?? "highlight"}
-                    </InlineLinkedHighlight>
+                    <InlineFormula key={uniqueId} id={uniqueId} latex={p?.latex ?? "x^2"} />
                 );
                 break;
             }
@@ -248,7 +109,7 @@ const parseContentWithInlineComponents = (content: string): React.ReactNode[] =>
  * Check if content contains inline component markers (with or without props)
  */
 const hasInlineComponents = (content: string): boolean => {
-    return /\{\{(inlineScrubbleNumber|inlineClozeInput|inlineClozeChoice|inlineToggle|inlineTooltip|inlineTrigger|inlineHyperlink|inlineFormula|inlineSpotColor|inlineLinkedHighlight):[^}]+\}\}/.test(content);
+    return /\{\{(inlineHyperlink|inlineFormula):[^}]+\}\}/.test(content);
 };
 
 interface LessonViewProps {
@@ -392,16 +253,8 @@ const replacePersistedEmptyParagraph = (
 };
 
 const inlineComponentTypes = new Set<unknown>([
-    InlineScrubbleNumber,
-    InlineClozeInput,
-    InlineClozeChoice,
-    InlineToggle,
-    InlineTooltip,
-    InlineTrigger,
     InlineHyperlink,
     InlineFormula,
-    InlineSpotColor,
-    InlineLinkedHighlight,
 ]);
 
 const removeInlineComponentById = (node: ReactNode, componentId: string): ReactNode => {
@@ -551,25 +404,6 @@ export const LessonView = ({ onEditBlock }: LessonViewProps) => {
                         contentElement = (
                             <hr className="my-6 border-t border-gray-200" />
                         );
-                        break;
-                    case "formulaBlock":
-                        contentElement = (
-                            <FormulaBlock
-                                latex={content || "E = mc^2"}
-                                colorMap={{}}
-                                variables={{}}
-                            />
-                        );
-                        // Open the editor modal for the new formula block
-                        if (editing) {
-                            setTimeout(() => {
-                                editing.openFormulaBlockEditor(
-                                    { latex: content || "E = mc^2", colorMap: {}, variables: {}, isNew: true },
-                                    blockId,
-                                    `formulaBlock-${blockId}`
-                                );
-                            }, 100);
-                        }
                         break;
                     case "paragraph":
                     default:

@@ -5,7 +5,6 @@ import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
-import { useComponentHint, HintIcon } from './InlineInteractionHint';
 
 interface InlineHyperlinkProps {
     /** Unique identifier for this component instance */
@@ -20,8 +19,6 @@ interface InlineHyperlinkProps {
     color?: string;
     /** Optional background color on hover */
     bgColor?: string;
-    /** Whether to show interaction hint for first occurrence (default: true) */
-    showHint?: boolean;
 }
 
 /**
@@ -51,13 +48,11 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
     targetBlockId,
     color = '#10B981',
     bgColor = 'rgba(16, 185, 129, 0.15)',
-    showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
     const inlineIdRef = useRef(id || `hyperlink-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
     // ── Interaction Hint System ──
-    const { hintVisible, dismissHint } = useComponentHint('hyperlink', { enabled: showHint });
 
     // Editing support
     const { isEditor } = useAppMode();
@@ -185,7 +180,6 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
     };
 
     const handleClick = () => {
-        dismissHint(); // Dismiss interaction hint on first click
         if (effectiveHref) {
             window.open(effectiveHref, '_blank', 'noopener,noreferrer');
         } else if (effectiveTargetBlockId) {
@@ -278,7 +272,6 @@ export const InlineHyperlink: React.FC<InlineHyperlinkProps> = ({
             </motion.span>
 
             {/* Interaction Hint - shows for first instance only */}
-            <HintIcon type="hyperlink" visible={hintVisible} isEditing={isEditing} />
         </span>
     );
 };

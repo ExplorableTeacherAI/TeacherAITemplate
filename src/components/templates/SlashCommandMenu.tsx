@@ -7,15 +7,8 @@ import {
     Type,
     Quote,
     Minus,
-    Hash,
-    ChevronDown,
-    TextCursor,
-    Info,
-    Zap,
     Link,
     Sigma,
-    Palette,
-    Highlighter,
 } from "lucide-react";
 
 // Block-level command types (replace the entire block)
@@ -25,28 +18,18 @@ export type BlockCommandType =
     | "h3"
     | "paragraph"
     | "quote"
-    | "divider"
-    | "formulaBlock";
+    | "divider";
 
 // Inline component command types (insert within text)
 export type InlineCommandType =
-    | "inlineScrubbleNumber"
-    | "inlineClozeInput"
-    | "inlineClozeChoice"
-    | "inlineToggle"
-    | "inlineTooltip"
-    | "inlineTrigger"
-    | "inlineHyperlink"
-    | "inlineFormula"
-    | "inlineSpotColor"
-    | "inlineLinkedHighlight";
+    | "inlineHyperlink";
 
 // Combined type for all slash commands
 export type SlashCommandType = BlockCommandType | InlineCommandType;
 
 // Helper to check if a command is inline
 export const isInlineCommand = (type: SlashCommandType): type is InlineCommandType => {
-    return ["inlineScrubbleNumber", "inlineClozeInput", "inlineClozeChoice", "inlineToggle", "inlineTooltip", "inlineTrigger", "inlineHyperlink", "inlineFormula", "inlineSpotColor", "inlineLinkedHighlight"].includes(type);
+    return ["inlineHyperlink"].includes(type);
 };
 
 interface SlashCommand {
@@ -108,93 +91,13 @@ const slashCommands: SlashCommand[] = [
         keywords: ["divider", "separator", "hr", "line"],
         category: "block",
     },
-    {
-        id: "formulaBlock",
-        label: "Formula Block",
-        description: "Interactive math formula with draggable numbers",
-        icon: <Sigma className="h-4 w-4" />,
-        keywords: ["formula", "math", "equation", "interactive", "scrub", "katex", "latex", "block"],
-        category: "block",
-    },
     // Inline component commands
-    {
-        id: "inlineScrubbleNumber",
-        label: "Scrubble Number",
-        description: "Interactive number with drag/click controls",
-        icon: <Hash className="h-4 w-4" />,
-        keywords: ["number", "scrubble", "stepper", "slider", "inline", "variable"],
-        category: "inline",
-    },
-    {
-        id: "inlineClozeInput",
-        label: "Cloze Input",
-        description: "Fill-in-the-blank input with answer validation",
-        icon: <TextCursor className="h-4 w-4" />,
-        keywords: ["cloze", "fill", "blank", "answer", "input", "text"],
-        category: "inline",
-    },
-    {
-        id: "inlineClozeChoice",
-        label: "Cloze Choice",
-        description: "Dropdown choice with answer validation",
-        icon: <ChevronDown className="h-4 w-4" />,
-        keywords: ["cloze", "choice", "dropdown", "select", "options", "multiple"],
-        category: "inline",
-    },
-    {
-        id: "inlineToggle",
-        label: "Toggle",
-        description: "Click to cycle through options",
-        icon: <Type className="h-4 w-4" />,
-        keywords: ["toggle", "cycle", "switch", "options", "click", "mutable"],
-        category: "inline",
-    },
-    {
-        id: "inlineTooltip",
-        label: "Tooltip",
-        description: "Show a tooltip/definition on hover",
-        icon: <Info className="h-4 w-4" />,
-        keywords: ["tooltip", "hover", "definition", "glossary", "info", "explain", "hoverable"],
-        category: "inline",
-    },
-    {
-        id: "inlineTrigger",
-        label: "Trigger",
-        description: "Click to set a variable value",
-        icon: <Zap className="h-4 w-4" />,
-        keywords: ["trigger", "click", "action", "event", "activate", "run", "fire"],
-        category: "inline",
-    },
     {
         id: "inlineHyperlink",
         label: "Hyperlink",
         description: "Link to URL or scroll to block",
         icon: <Link className="h-4 w-4" />,
         keywords: ["link", "hyperlink", "url", "href", "anchor", "navigate", "scroll", "goto"],
-        category: "inline",
-    },
-    {
-        id: "inlineFormula",
-        label: "Formula",
-        description: "Inline math formula with colored variables",
-        icon: <Sigma className="h-4 w-4" />,
-        keywords: ["formula", "math", "equation", "latex", "katex", "inline", "expression"],
-        category: "inline",
-    },
-    {
-        id: "inlineSpotColor",
-        label: "Spot Color",
-        description: "Colored pill highlighting a variable name",
-        icon: <Palette className="h-4 w-4" />,
-        keywords: ["spot", "color", "highlight", "variable", "pill", "tag", "label"],
-        category: "inline",
-    },
-    {
-        id: "inlineLinkedHighlight",
-        label: "Linked Highlight",
-        description: "Hover to highlight linked parts of a visual",
-        icon: <Highlighter className="h-4 w-4" />,
-        keywords: ["linked", "highlight", "hover", "connect", "visual", "link", "interactive", "coordinate"],
         category: "inline",
     },
 ];

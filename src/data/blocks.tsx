@@ -1,6 +1,6 @@
 import { type ReactElement } from "react";
 // import { Block } from "@/components/templates";
-// import { StackLayout, SplitLayout, GridLayout, ScrollytellingLayout, ScrollStep, ScrollVisual } from "@/components/layouts";
+// import { StackLayout, SplitLayout, GridLayout } from "@/components/layouts";
 
 // Initialize variables and their colors from this file's variable definitions
 import { useVariableStore, initializeVariableColors } from "@/stores";
@@ -37,8 +37,6 @@ initializeVariableColors(variableDefinitions);
  * const setVar = useSetVar();
  * setVar('amplitude', 2.5);
  * 
- * // InlineScrubbleNumber (from variables.ts): getVariableInfo(name) + numberPropsFromDefinition(...)
- * <InlineScrubbleNumber varName="amplitude" {...numberPropsFromDefinition(getVariableInfo('amplitude'))} />
  * 
  * ------------------------------------------------------------------
  * AVAILABLE LAYOUTS
@@ -67,15 +65,6 @@ initializeVariableColors(variableDefinitions);
  *          <Block id="item-2">...</Block>
  *          <Block id="item-3">...</Block>
  *      </GridLayout>
- * 
- * 4. ScrollytellingLayout
- *    - Best for: Narrative steps with a reactive sticky visualization.
- *    - Usage:
- *      <ScrollytellingLayout varName="scrollStep" visualPosition="right">
- *          <ScrollStep><Block id="step-0">...</Block></ScrollStep>
- *          <ScrollStep><Block id="step-1">...</Block></ScrollStep>
- *          <ScrollVisual><Block id="viz">...</Block></ScrollVisual>
- *      </ScrollytellingLayout>
  * 
  * EXAMPLES:
  * See `src/data/exampleBlocks.tsx` for comprehensive examples.

@@ -32,28 +32,8 @@ export const extractContentWithMarkers = (element: HTMLElement): string => {
             const componentType = el.getAttribute('data-inline-component');
             const componentId = el.getAttribute('data-component-id');
 
-            // Runtime answer feedback is derived UI, never lesson source.
-            if (componentType === 'inlineFeedbackResult') return '';
-
             if (componentType && componentId) {
                 const propsAttr = el.getAttribute('data-component-props');
-                if (componentType === 'inlineFeedback') {
-                    let props: Record<string, unknown> = {};
-                    if (propsAttr) {
-                        try {
-                            const parsed = JSON.parse(decodeMarkerJson(propsAttr));
-                            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                                props = parsed as Record<string, unknown>;
-                            }
-                        } catch { /* validated below when encoded */ }
-                    }
-                    const childrenContent = Array.from(el.childNodes)
-                        .map(serializeNode)
-                        .join('');
-                    const encoded = encodeMarkerProps({ ...props, childrenContent });
-                    return `{{${componentType}:${componentId}|${encoded}}}`;
-                }
-
                 // Check for saved props (present on real React-rendered components)
                 if (propsAttr) {
                     // Props are stored as base64-encoded JSON on the element.
@@ -108,48 +88,6 @@ export const hasInlineComponentSpans = (element: HTMLElement): boolean => {
  */
 export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: string): string => {
     switch (commandType) {
-        case 'inlineScrubbleNumber':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; background: rgba(216, 27, 96, 0.9); color: white; border-radius: 4px; padding: 0 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: default;"
-            ><span style="padding: 0 2px;">◀</span><span style="min-width: 20px; text-align: center;">10</span><span style="padding: 0 2px;">▶</span></span>`;
-        case 'inlineClozeChoice':
-            return `<span
-                contenteditable="false"
-                data-inline-component="inlineClozeChoice"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; background: rgba(59, 130, 246, 0.35); color: #3B82F6; border-radius: 4px; padding: 0 6px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
-            >??? &#x25BE;</span>`;
-        case 'inlineClozeInput':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; background: rgba(59, 130, 246, 0.35); color: #3B82F6; border-radius: 4px; padding: 0 6px; font-weight: 500; margin: 0 2px; user-select: none; cursor: text;"
-            >???</span>`;
-        case 'inlineToggle':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; color: #D946EF; border-bottom: 2px dashed #D946EF; padding-bottom: 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
-            >option</span>`;
-        case 'inlineTooltip':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="color: #F59E0B; cursor: help; font-weight: 500; margin: 0 2px; user-select: none;"
-            >term</span>`;
-        case 'inlineTrigger':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; color: #10B981; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
-            >trigger</span>`;
         case 'inlineHyperlink':
             return `<span
                 contenteditable="false"
@@ -157,27 +95,6 @@ export const getInlineComponentHTML = (commandType: SlashCommandType, uniqueId: 
                 data-component-id="${uniqueId}"
                 style="display: inline-flex; align-items: center; color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 2px; font-weight: 500; margin: 0 2px; user-select: none; cursor: pointer;"
             >link</span>`;
-        case 'inlineFormula':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; color: #8B5CF6; font-weight: 500; margin: 0 2px; user-select: none; cursor: default; font-style: italic;"
-            >f(x)</span>`;
-        case 'inlineSpotColor':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; background: #3B82F6; color: #ffffff; border-radius: 6px; padding: 1px 6px; font-weight: 600; margin: 0 2px; user-select: none; cursor: default; font-size: 0.92em; letter-spacing: 0.01em;"
-            >variable</span>`;
-        case 'inlineLinkedHighlight':
-            return `<span
-                contenteditable="false"
-                data-inline-component="${commandType}"
-                data-component-id="${uniqueId}"
-                style="display: inline-flex; align-items: center; color: #3b82f6; text-decoration: underline; text-decoration-style: dotted; text-decoration-color: #3b82f6; padding: 1px 4px; border-radius: 4px; font-weight: 500; margin: 0 2px; user-select: none; cursor: default;"
-            >highlight</span>`;
         default:
             return '';
     }

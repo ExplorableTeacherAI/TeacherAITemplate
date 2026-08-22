@@ -8,9 +8,9 @@ One file per mini explorable explanation generated during an AI tutor session.
 import { type ReactElement } from "react";
 import { Block } from "@/components/templates";
 import { StackLayout } from "@/components/layouts";
-import { EditableH2, EditableParagraph, InlineScrubbleNumber } from "@/components/atoms";
+import { EditableH2, EditableParagraph } from "@/components/atoms";
 import { registerVariables } from "@/stores";
-import { type VariableDefinition, numberPropsFromDefinition } from "../variables";
+import { type VariableDefinition } from "../variables";
 
 // Every variable name MUST be prefixed with the explorable id (camelCase)
 // to avoid collisions with other explorables in the same session.
@@ -43,8 +43,8 @@ import { blocks as fractionBarsBlocks } from "./explorables/fraction-bars";
 ```
 
 Rules:
-- Follow ALL design rules from the project CLAUDE.md (interactivity, one
-  component per Block, soft colors, hierarchical IDs, hints, ...).
+- Follow ALL rules from the project CLAUDE.md (one component per Block,
+  hierarchical IDs, central variable definitions, ...).
 - Keep it SMALL: 2-5 blocks, at most one visualization.
 - Use `registerVariables` (NOT `useVariableStore.getState().initialize`,
   which only works once per app load).

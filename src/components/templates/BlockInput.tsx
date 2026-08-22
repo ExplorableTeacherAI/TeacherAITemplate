@@ -346,18 +346,11 @@ export const BlockInput = ({ id, onCommit, onAIRequest, placeholder = "Type '/' 
             paragraph: "Start writing...",
             quote: "Enter your quote...",
             divider: "",
-            formulaBlock: "Enter LaTeX formula...",
         };
 
         // If it's a divider, commit immediately
         if (commandType === "divider") {
             onCommit(id, "---", commandType);
-            return;
-        }
-
-        // If it's a formulaBlock, commit immediately (opens editor modal)
-        if (commandType === "formulaBlock") {
-            onCommit(id, "", commandType);
             return;
         }
 

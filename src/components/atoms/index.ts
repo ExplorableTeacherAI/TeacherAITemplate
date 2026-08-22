@@ -47,18 +47,7 @@ export * from "./ui/tooltip";
 export * from "./ui/use-toast";
 
 // Text Components
-export { InlineClozeChoice } from "./text/InlineClozeChoice";
-export { InlineClozeInput } from "./text/InlineClozeInput";
-export { InlineFeedback } from "./text/InlineFeedback";
-export type { InlineFeedbackProps, FeedbackPosition, SectionLink, VisualizationHintConfig } from "./text/InlineFeedback";
-export { InlineToggle } from "./text/InlineToggle";
-export { InlineTooltip } from "./text/InlineTooltip";
-export { InlineTrigger } from "./text/InlineTrigger";
 export { InlineHyperlink } from "./text/InlineHyperlink";
-export { InlineScrubbleNumber } from "./text/InlineScrubbleNumber";
-export { InlineSpotColor } from "./text/InlineSpotColor";
-export { InlineLinkedHighlight } from "./text/InlineLinkedHighlight";
-export { RevealOnInteraction } from "./text/RevealOnInteraction";
 export {
     EditableH1,
     EditableH2,
@@ -143,7 +132,6 @@ export type {
 export { MafsBasic } from "./visual/MafsBasic";
 export { MafsAnimated } from "./visual/MafsAnimated";
 export { MafsInteractive } from "./visual/MafsInteractive";
-export { MafsInteractiveDemo } from "./visual/MafsInteractiveDemo";
 
 // Visual — React Flow Components
 export { FlowDiagram } from "./visual/FlowDiagram";
@@ -184,13 +172,7 @@ export { VideoDisplay } from "./visual/VideoDisplay";
 export type { VideoDisplayProps, VideoFit } from "./visual/VideoDisplay";
 
 // Visual — Interaction Hint (animated gesture overlay for interactive visualizations)
-export { InteractionHintSequence } from "./visual/InteractionHint";
-export type { GestureType, HintStep, InteractionHintSequenceProps, DragPathConfig } from "./visual/InteractionHint";
 
-// Visual — Triggered Hint Overlay (bridges InlineFeedback → visualization hints)
-export { TriggeredHintOverlay } from "./visual/TriggeredHintOverlay";
-export type { TriggeredHintOverlayProps } from "./visual/TriggeredHintOverlay";
 
-// Inline Interaction Hint (tooltip-style hints for inline components)
-export { InlineInteractionHint, useComponentHint, HintIcon } from "./text/InlineInteractionHint";
-export type { InlineInteractionHintProps, UseComponentHintOptions } from "./text/InlineInteractionHint";
+
+

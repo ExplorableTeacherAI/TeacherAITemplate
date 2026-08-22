@@ -38,11 +38,11 @@ const leadingStyles = {
  * EditableParagraph - Body text with inline component support
  * 
  * Use this for regular paragraph content that may contain inline
- * interactive components like InlineScrubbleNumber, equations, etc.
+ * inline components like InlineFormula, InlineHyperlink, etc.
  * 
  * Features:
  * - Supports inline editing in editor mode
- * - Can contain inline components (InlineScrubbleNumber, Equation, etc.)
+ * - Can contain inline components (InlineFormula, InlineHyperlink, etc.)
  * - Configurable text size and line-height
  * - Comfortable reading experience by default
  * 
@@ -57,7 +57,7 @@ const leadingStyles = {
  * ```tsx
  * <EditableParagraph blockId="demo">
  *   If we set the value to{" "}
- *   <InlineScrubbleNumber varName="myValue" defaultValue={5} min={0} max={10} />
+ *   <InlineFormula latex="x^2" />
  *   {" "}we can see the effect in real-time.
  * </EditableParagraph>
  * ```

@@ -17,7 +17,7 @@ export const ACCENT_VIOLET = '#8B5CF6';
 
 /**
  * Standard 10-color palette used by most modals for the text / foreground
- * color picker (e.g., Tooltip, Toggle, Trigger, Hyperlink, ClozeChoice, ClozeInput).
+ * color picker (e.g., Hyperlink, Formula).
  */
 export const COLOR_PRESETS_STANDARD = [
     '#D81B60', // Pink / Red
@@ -77,8 +77,6 @@ export const COLOR_PRESETS_NAMED = [
 /** Default background opacity used when deriving bg from a hex color. */
 export const DEFAULT_BG_OPACITY = 0.15;
 
-/** Higher opacity used by Cloze-style editors. */
-export const CLOZE_BG_OPACITY = 0.35;
 
 /** Helper: Convert a hex color to an `rgba(…, alpha)` string. */
 export function hexToRgba(hex: string, alpha: number): string {

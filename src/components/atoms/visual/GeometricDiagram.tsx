@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-import { useVar, useSetVar } from "@/stores/variableStore";
+import React, { useState, useMemo } from "react";
 
 export type GeometricVariant = "circle" | "triangle" | "polygon";
 
@@ -16,7 +15,6 @@ export interface GeometricDiagramProps {
     strokeColor?: string;
     fillColor?: string;
     accentColor?: string;
-    highlightVarName?: string;
 }
 
 const baseTheme = {
@@ -51,10 +49,8 @@ export const GeometricDiagram: React.FC<GeometricDiagramProps> = ({
     strokeColor = baseTheme.stroke,
     fillColor = baseTheme.fill,
     accentColor = baseTheme.accent,
-    highlightVarName,
 }) => {
-    const activeHighlight = useVar(highlightVarName ?? "__noop__", "") as string;
-    const setVar = useSetVar();
+    const [activeHighlight, setActiveHighlight] = useState("");
 
     const cx = width / 2;
     const cy = height / 2;
@@ -88,13 +84,11 @@ export const GeometricDiagram: React.FC<GeometricDiagramProps> = ({
     const isActive = (part: string) => activeHighlight && activeHighlight === part;
 
     const setHighlight = (part: string) => {
-        if (!highlightVarName) return;
-        setVar(highlightVarName, part);
+        setActiveHighlight(part);
     };
 
     const clearHighlight = () => {
-        if (!highlightVarName) return;
-        setVar(highlightVarName, "");
+        setActiveHighlight("");
     };
 
     const primaryStroke = isActive("boundary") ? baseTheme.activeStroke : strokeColor;

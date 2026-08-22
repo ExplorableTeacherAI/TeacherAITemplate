@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, cloneElement, isValidElement, Children, Fragment, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { motion, useDragControls, type PanInfo } from "framer-motion";
 import { BlockContext } from "@/contexts/BlockContext";
-import { InteractionLegend } from "@/components/molecules";
 import {
     getDirectBlockId,
     getLayoutRowId,
@@ -19,8 +18,6 @@ export interface BlockRendererProps {
     /** Array of Block elements to render */
     initialBlocks?: ReactElement[];
     isPreview?: boolean;
-    /** Hide the auto-rendered InteractionLegend (used for small embedded explorables) */
-    hideLegend?: boolean;
     /** Render at natural content height with compact padding (for iframe embeds)
      *  instead of the default absolutely-positioned scroll container */
     embedded?: boolean;
@@ -228,7 +225,6 @@ const renderDraggableTree = (node: ReactNode, options: DraggableTreeOptions): Re
 export const BlockRenderer = ({
     initialBlocks = [],
     isPreview = false,
-    hideLegend = false,
     embedded = false,
     onEditBlock,
     onAddBlock,
@@ -452,7 +448,6 @@ export const BlockRenderer = ({
             >
                 <div className="max-w-5xl mx-auto w-full">
                     {/* Interaction legend — teaches first-time users how the interactive elements work */}
-                    {initialBlocks.length > 0 && !hideLegend && <InteractionLegend />}
 
                     {onReorder ? (
                         <div className="space-y-2">

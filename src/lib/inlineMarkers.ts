@@ -76,35 +76,10 @@ export const updateProvisionalInlinePlaceholder = (
 
     let displayText: string | undefined;
     switch (componentType) {
-        case 'inlineScrubbleNumber': {
-            const value = values.defaultValue;
-            if (typeof value === 'number') {
-                const valueNode = element.children.item(1);
-                if (valueNode) valueNode.textContent = String(value);
-            }
-            break;
-        }
-        case 'inlineClozeInput':
-            displayText = stringValue('placeholder') ?? '???';
-            break;
-        case 'inlineClozeChoice':
-            displayText = `${stringValue('placeholder') ?? '???'} ▾`;
-            break;
-        case 'inlineToggle': {
-            const options = values.options;
-            displayText = Array.isArray(options) && typeof options[0] === 'string'
-                ? options[0]
-                : 'option';
-            break;
-        }
         case 'inlineFormula':
             displayText = stringValue('latex') ?? 'x^2';
             break;
-        case 'inlineTooltip':
-        case 'inlineTrigger':
         case 'inlineHyperlink':
-        case 'inlineSpotColor':
-        case 'inlineLinkedHighlight':
             displayText = stringValue('text');
             break;
     }
@@ -114,25 +89,7 @@ export const updateProvisionalInlinePlaceholder = (
     const color = stringValue('color');
     const bgColor = stringValue('bgColor');
     if (bgColor) element.style.backgroundColor = bgColor;
-    if (color) {
-        if (componentType === 'inlineSpotColor') {
-            element.style.backgroundColor = color;
-            const hex = color.replace('#', '');
-            const validHex = /^[0-9a-fA-F]{6}$/.test(hex);
-            if (validHex) {
-                const r = parseInt(hex.slice(0, 2), 16) / 255;
-                const g = parseInt(hex.slice(2, 4), 16) / 255;
-                const b = parseInt(hex.slice(4, 6), 16) / 255;
-                const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-                element.style.color = luminance > 0.45 ? '#1a1a2e' : '#ffffff';
-            }
-        } else {
-            element.style.color = color;
-            if (componentType === 'inlineLinkedHighlight') {
-                element.style.textDecorationColor = color;
-            }
-        }
-    }
+    if (color) element.style.color = color;
 
     return true;
 };

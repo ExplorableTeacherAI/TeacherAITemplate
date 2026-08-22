@@ -73,7 +73,7 @@ const ExplorableView = () => {
         };
     }, [entry, id]);
 
-    // Report student interactions (variable changes: scrubs, answers, toggles)
+    // Report student interactions (variable changes: answers, drags)
     // to the embedding chat page, so the tutor can react without the student
     // having to retype what they did.
     useEffect(() => {
@@ -84,7 +84,7 @@ const ExplorableView = () => {
             if (vars === prev) return;
             for (const [name, value] of Object.entries(vars)) {
                 if (prev[name] !== value) {
-                    // RevealOnInteraction and similar gates are implementation
+                    // Interaction-gate variables are implementation
                     // details, not concept variables the tutor should discuss.
                     const isInternalState = /_(explored|interacted|revealed)$/.test(name);
                     if (isInternalState) continue;
@@ -96,7 +96,7 @@ const ExplorableView = () => {
                             previousValue: prev[name],
                             value,
                             // Generic store changes are exploration. Assessed
-                            // answers are reported explicitly by InlineFeedback.
+                            // answers are reported explicitly by the lesson components.
                             interactionKind: "variable_change",
                         },
                         "*"
@@ -124,7 +124,6 @@ const ExplorableView = () => {
             <BlockRenderer
                 initialBlocks={entry.blocks}
                 isPreview={!isEditor}
-                hideLegend
                 embedded
             />
         </div>
