@@ -66,7 +66,7 @@ export const Block = ({
     children,
     className = "",
     padding = "md",
-    isPreview = false,
+    isPreview: isPreviewProp = false,
     hasVisualization = false,
     onEditBlock,
     onAddBlock,
@@ -83,6 +83,12 @@ export const Block = ({
     const isDragActiveRef = useRef(false);
     const dragStartPos = useRef<{ x: number; y: number } | null>(null);
     const { isPreview: appIsPreview } = useAppMode();
+    // App mode WINS over the prop. A Block rendered straight by a layout (a
+    // scrollytelling step, a split pane) never goes through BlockRenderer, so
+    // it never receives isPreview and would otherwise fall back to `false` and
+    // show editor chrome. In this build the app is always in preview mode, so
+    // deriving the flag here is what makes every block read-only.
+    const isPreview = isPreviewProp || appIsPreview;
 
     const paddingClasses = {
         none: "",

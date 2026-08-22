@@ -1777,83 +1777,18 @@ Checklist for every linked pair (in addition to the bespoke-figure checklist):
 - [ ] The second view has a nameable role (complementary / constraining / constructing).
       If it does not, delete it — an unjustified second view costs attention and teaches nothing
 
-## VisualOptionCards (Phase-1 Visual Chooser — TEMPORARY block)
+## VisualOptionCards — REMOVED, do not use
 
-`VisualOptionCards` (import from `@/components/organisms`) is the teacher-facing carousel used during **text-first section builds**: the section's concept prose is written first, and this block stands in the exact spot where the section's interactive visual will go. Each card is a brief design spec for one candidate visual. When the teacher clicks "Use this visual" (or describes their own idea via the built-in "I have my own idea" input, or asks for different ideas), the choice is forwarded to the builder as a chat message; the builder then builds that visual and **REPLACES this entire block** with it.
+`VisualOptionCards` used to be a teacher-facing chooser: a section was written text-first
+with a carousel of candidate visual designs standing in the spot where its visual would
+go, and the teacher picked one. **That flow is gone.** The component is still present so
+that lessons written before the change keep compiling, but it renders nothing in every
+mode and reports nothing.
 
-**Rules:**
-- **Every word on the card is read by a TEACHER, in about fifteen seconds, with nothing else to go on.** Write in plain classroom English, to the teacher, about their students. Never address the reader as the one interacting ("a ghost ball *you* place" makes the teacher the student — write "a faint copy students place themselves"), and never put design vocabulary on the card (paradigm, trace, affordance, binding, arity). If a phrase would make a colleague in the staff room say "what?", replace it with the ordinary word: *dots left behind* not "strobe trail", *lines that stay level* not "level lines that stay perfectly horizontal", *faint copy* not "ghost".
-- **A card is exactly THREE beats — the description, what students do, what it teaches.** Add nothing beyond them: a card the teacher has to wade through gets skimmed, and a skimmed card is not compared. This is the standard to match:
-  > **Two balls fall from the same height — one straight down, one moving sideways**
-  >
-  > Imagine a table with two identical balls at the same height. One ball is dropped straight down, while the other is thrown sideways off the table. As they fall, each one leaves a faint trail showing the path it took.
-  >
-  > **Students predict:** Place the faint ball where they think the sideways-moving ball will be when the dropped ball hits the floor.
-  >
-  > **They discover:** Both balls hit the floor at the same time, even though one is moving sideways.
-  >
-  > **Clears up:** Moving sideways faster does not make a ball fall more slowly.
-- **`title` describes THE VISUAL, not the activity** — up to ~14 words, and naming the contrast the visual is built on is encouraged (the title above earns its length because every word adds picture). Never an invented name ("The strobe race"), never the activity ("Predict which ball lands first" — that is `manipulate`), never a metaphor standing in for the picture ("Unrolling the circle").
-- **`looks` is THE DESCRIPTION, and it carries everything that is not one of the other two beats** — one or two sentences (~45 words): (a) the scene, the objects, where they are and the setup that matters, opening with "Imagine…" if that helps; (b) what the picture DOES, woven into the same sentences rather than split onto its own line ("…as they fall, each one leaves a faint trail showing the path it took"); and (c) for a linked pair, the second view mentioned in plain words as part of the picture ("…with a graph beside it drawing one line per ball"). No component names, coordinates, or hex colours.
-- **`manipulate` is WHAT STUDENTS DO** — one sentence, the gesture on something already standing in that scene. It renders under a label taken from `paradigm` ("Students predict:", "Students build:", "Students compare:"), so write the sentence to continue that label.
-- This block is TEMPORARY scaffolding. It must NEVER survive into a finished section — building the chosen visual always replaces it (same block id).
-- Editor-mode only: in student preview it renders nothing, so an unfinished section shows clean text. Never design prose that depends on the carousel being visible.
-- 2-3 cards, at most ONE with `recommended: true`.
-- Every card MUST carry `paradigm` — one of `conventional`, `inversion`, `temporal`, `constructivist`, `comparison`, `goal`, `prediction` — naming its interaction paradigm. Cards in one carousel must come from DIFFERENT paradigms.
-- Every card must be implementable with the components in this file — decide internally which component family you would use BEFORE writing the card.
-- `manipulate` must name a concrete draggable/movable element INSIDE the visual (never an external slider).
-- Add `secondView` when the design is a **linked pair** of visuals (see *Linked Figures* below). It takes `shows` (what the second view displays), `role` (`complementary` | `constraining` | `constructing`), and `syncedBy` (the shared store variable(s) plus the shared hover highlight). Omit it for single-view designs, and keep at least one single-view card per carousel so the choice stays meaningful.
-
-```tsx
-import { VisualOptionCards } from "@/components/organisms";
-
-<Block id="circle-area-visual">
-    <VisualOptionCards
-        blockId="circle-area-visual"
-        cards={[
-            {
-                id: "unroll-circumference",
-                // THE VISUAL, with the contrast named — not "Unroll the rim",
-                // which would be the activity (that lives in `manipulate`).
-                title: "A circle rolled out flat against a ruler",
-                // THE DESCRIPTION: the scene, plus what the picture does.
-                // Everything that is not one of the other two beats lives here.
-                looks: "Imagine a wheel standing on a long ruler, with one spot on its rim marked in teal. As the wheel rolls, its rim unrolls into a straight stripe along the ruler beneath it",
-                // WHAT STUDENTS DO — continues the "Students step through:" label.
-                manipulate: "Roll the wheel along the ruler until the marked spot comes back down to the line",
-                reveals: "The rim always stretches to just over three widths, whatever the wheel — that number is π",
-                targetsMisconception: "Students think π is a special number picked by mathematicians, not a ratio",
-                paradigm: "temporal",
-                recommended: true,
-            },
-            {
-                id: "sector-rearrange",
-                title: "A circle cut into wedges, rebuilt as a rectangle",
-                looks: "Imagine a circle sliced into coloured wedges like a cut cake, with an empty outlined strip waiting beneath it that squares off into a rectangle as the wedges drop in",
-                manipulate: "Drag each wedge down into the strip, alternating point-up and point-down so they interlock",
-                reveals: "The wedges lose no area when they move, so the circle's area is the rectangle's area — πr²",
-                paradigm: "constructivist",
-            },
-            {
-                id: "radius-area-pair",
-                title: "A circle beside a graph of its own area",
-                looks: "Imagine a circle on the left and, beside it, a graph of area against radius where a dot tracks the circle and traces a curve that bends steeply upward as it grows",
-                manipulate: "Stretch the circle by its rim and compare how far the dot travels sideways with how far it climbs",
-                reveals: "Doubling the radius makes the area four times bigger, which is why the curve bends instead of running straight",
-                paradigm: "comparison",
-                // A LINKED PAIR: both views read the same `radius` variable.
-                // Not shown on the card — the teacher meets the graph inside
-                // `looks` above; this carries the phase-2 build contract.
-                secondView: {
-                    shows: "A graph of area against radius, with the current point marked",
-                    role: "complementary",
-                    syncedBy: "radius, plus a shared hover highlight on the radius line",
-                },
-            },
-        ]}
-    />
-</Block>
-```
+Never import it and never place it in a section. Every section that needs a visual gets
+its visual built in the same pass as its prose — you choose the design (explore the
+paradigms internally, then commit) and build it. The teacher changes it afterwards by
+telling you what they want in the chat.
 
 ## Visual Assessment Tasks
 

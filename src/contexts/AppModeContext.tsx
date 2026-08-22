@@ -16,31 +16,45 @@ interface AppModeProviderProps {
 }
 
 /**
- * Provider component that determines the app mode from:
- * 1. URL parameter (?mode=editor or ?mode=preview)
- * 2. Environment variable (VITE_APP_MODE)
- * 3. Default fallback (editor)
+ * Provider component that determines the app mode.
+ *
+ * NO-EDITS BUILD: the lesson always renders in `preview` mode. `isEditor` is
+ * the master gate for every in-place editing affordance in this app
+ * (EditableText, the inline component editors, BlockInput / slash commands,
+ * the block hover chrome, the VisualOptionCards chooser), so pinning the mode
+ * here is what makes the lesson read-only — the chat is the only way to
+ * change a lesson. The `?mode=` URL parameter and `VITE_APP_MODE` are
+ * deliberately NOT honoured for the lesson: an editor mode must not be
+ * reachable by anyone in this build.
+ *
+ * The ONE exception is the tutor's single-explorable route (`?explorable=<id>`,
+ * see src/pages/ExplorableView.tsx). That is a separate surface from the
+ * teacher's lesson and keeps its own editor, so it still resolves its mode
+ * from the URL / env the way it always did.
  */
 export const AppModeProvider = ({
     children,
-    defaultMode = 'editor'
+    defaultMode = 'preview'
 }: AppModeProviderProps) => {
     const mode = useMemo(() => {
-        // First, check URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const urlMode = urlParams.get('mode');
 
+        // Lesson view (no ?explorable=) is ALWAYS preview — no override.
+        if (!urlParams.has('explorable')) {
+            return 'preview' as AppMode;
+        }
+
+        // Tutor single-explorable route keeps the original resolution order.
+        const urlMode = urlParams.get('mode');
         if (urlMode === 'editor' || urlMode === 'preview') {
             return urlMode as AppMode;
         }
 
-        // Second, check environment variable
         const envMode = import.meta.env.VITE_APP_MODE;
         if (envMode === 'editor' || envMode === 'preview') {
             return envMode as AppMode;
         }
 
-        // Fallback to default
         return defaultMode;
     }, [defaultMode]);
 

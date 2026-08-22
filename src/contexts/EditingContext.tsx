@@ -437,13 +437,16 @@ export const EditingProvider = ({ children }: EditingProviderProps) => {
     }, []);
 
     const enableEditing = useCallback(() => {
-        // Allow enabling in editor mode OR in standalone mode for testing
-        const isStandalone = typeof window !== 'undefined' && window.self === window.top;
-        if (isEditor || isStandalone) {
-            setIsEditing(true);
-            // Notify parent that editing mode is enabled
-            window.parent.postMessage({ type: 'editing-mode-changed', isEditing: true }, '*');
-        }
+        // NO-EDITS BUILD: editing can only ever be turned on where the app is
+        // in editor mode, which the lesson never is (see AppModeContext — only
+        // the tutor's ?explorable= route resolves to `editor`). The old
+        // "standalone window" escape hatch is gone on purpose: a `npm run dev`
+        // of a lesson workspace must be read-only too, otherwise the teacher's
+        // preview and a directly-opened workspace would disagree.
+        if (!isEditor) return;
+        setIsEditing(true);
+        // Notify parent that editing mode is enabled
+        window.parent.postMessage({ type: 'editing-mode-changed', isEditing: true }, '*');
     }, [isEditor]);
 
     const disableEditing = useCallback(() => {

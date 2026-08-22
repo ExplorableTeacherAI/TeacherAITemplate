@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Hand, Lightbulb, Loader2, PenLine, RefreshCw, Sparkles, Star } from "lucide-react";
-import { useAppMode } from "@/contexts/AppModeContext";
 
 /** A design that pairs TWO linked views sharing the same store variables.
  *  See D.1a of the visual design space: the second view must carry information
@@ -130,18 +129,16 @@ const saveChoice = (blockId: string, choice: StoredChoice) => {
 /**
  * VisualOptionCards — teacher-facing chooser for a section's visualization.
  *
- * Rendered by the builder during phase 1 (text-first section builds) in the
- * spot where the section's interactive visual will go. Each card is a brief
- * design spec; when the teacher picks one (or describes their own idea), the
- * choice is posted to the parent editor frame, which forwards it to the
- * builder as a chat message. The builder then builds that visual and
- * REPLACES this block with it (phase 2).
- *
- * Editor-mode only: students never see this block — in preview mode it
- * renders nothing, so an unfinished section is just clean text.
+ * NO-EDITS BUILD: DISABLED. This build has no visual-option selection — the
+ * builder designs and builds each section's visual itself, and the teacher
+ * changes it through the chat. The component is kept only so that a lesson
+ * written before the change still compiles; it renders nothing and reports
+ * nothing, in every mode. Do not add it to new sections.
  */
 export const VisualOptionCards = ({ blockId, intro, cards }: VisualOptionCardsProps) => {
-    const { isPreview } = useAppMode();
+    // Chooser is permanently off — see the note above. Kept as a named const
+    // (rather than `true`) so the gates below read the same as they always did.
+    const isPreview: boolean = true;
     const fp = cards.map((c) => c.id).join("|");
     const [choice, setChoice] = useState<StoredChoice | null>(() =>
         typeof window === "undefined" ? null : loadChoice(blockId, fp),
