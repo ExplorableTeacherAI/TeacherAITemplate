@@ -172,6 +172,10 @@ Every block, layout, and component MUST have a **unique, descriptive, hierarchic
 | Component | Purpose |
 |-----------|---------|
 | `FormulaBlock` | Static block-level math display (`latex` prop) |
+### Standard UI Components (`@/components/atoms`, shadcn/ui)
+
+The full shadcn/ui kit is available for ordinary page interactivity — `Input`, `Textarea`, `Select`, `RadioGroup`, `Checkbox`, `Switch`, `Slider`, `Button`, `Tabs`, `Accordion`, `Collapsible`, `Card`, `Alert`, `Badge`, `Progress`, `Dialog`, `Popover`, `Tooltip`, `Separator`. Use them for controls, answer entry and panels; keep lesson prose in the editable text components, and keep shared values in the variable store (`useVar` / `useSetVar`). `Table` from this barrel is the lesson table component, not shadcn's primitive. See `CLAUDE.md` for a worked example.
+
 ### Visual Components
 
 | Component | Library | Key Props |

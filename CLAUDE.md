@@ -434,6 +434,67 @@ happens to accept) is a TypeScript error that fails the build. The exact unions:
 - `InlineFormula` — static inline math formula (import from `@/components/atoms`)
 - `FormulaBlock` — static block-level math display (import from `@/components/molecules`)
 
+### Standard UI Components (shadcn/ui — import from `@/components/atoms`)
+
+The full shadcn/ui kit ships with the project and is exported from the same barrel as everything else. Use these for ordinary web-page interactivity — controls, panels, navigation, answer entry:
+
+| Component | Use for |
+|---|---|
+| `Input`, `Textarea` | Typed answers, numeric entry |
+| `Select` (`SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem`) | Dropdown choice |
+| `RadioGroup`, `RadioGroupItem`, `Checkbox`, `Switch` | Single/multiple choice, on-off options |
+| `Slider` | Dragging a number through a range |
+| `Button` | Check answer, reset, step, reveal |
+| `Tabs`, `Accordion`, `Collapsible` | Grouping content the student can switch between or expand |
+| `Card`, `Alert`, `Badge`, `Separator`, `Progress` | Panels, callouts, labels, dividers, progress |
+| `Dialog`, `Popover`, `HoverCard`, `Tooltip` | Overlays and hover help |
+
+**Rules:**
+1. **Lesson TEXT still uses the editable components** (`EditableParagraph`, `EditableH1`-`H3`). Never put lesson prose inside a `Card`/`Alert` as raw text — the teacher could not edit it.
+2. **Keep shared values in the variable store** so a control and a visual stay in sync: read with `useVar`, write with `useSetVar` (see *Critical Rule: Global Variables*). Local `useState` is fine for state nothing else needs.
+3. `Table` imported from `@/components/atoms` is the lesson table component, not shadcn's table primitive.
+
+```tsx
+// A control panel driving a visual, and a typed answer with a check button
+import { useState } from "react";
+import { Input, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/atoms";
+import { useVar, useSetVar } from "@/stores";
+
+const RadiusControls = () => {
+    const radius = useVar("circleRadius", 3);
+    const setVar = useSetVar();
+    return (
+        <div className="flex items-center gap-3">
+            <Select value={String(radius)} onValueChange={(v) => setVar("circleRadius", Number(v))}>
+                <SelectTrigger className="w-32"><SelectValue placeholder="Radius" /></SelectTrigger>
+                <SelectContent>
+                    {[1, 2, 3, 4, 5].map((r) => (
+                        <SelectItem key={r} value={String(r)}>{r} cm</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={() => setVar("circleRadius", 3)}>Reset</Button>
+        </div>
+    );
+};
+
+const AreaCheck = () => {
+    const [answer, setAnswer] = useState("");
+    const [result, setResult] = useState<string | null>(null);
+    return (
+        <div className="flex items-center gap-2">
+            <Input value={answer} onChange={(e) => setAnswer(e.target.value)} className="w-28" placeholder="Area" />
+            <Button onClick={() => setResult(Math.abs(Number(answer) - 28.27) < 0.5 ? "Correct" : "Not quite — try again")}>
+                Check
+            </Button>
+            {result && <span className="text-sm text-slate-600">{result}</span>}
+        </div>
+    );
+};
+```
+
+Wrap such a component in its own `<Block>` like any other component, and define its variables in `src/data/variables.ts` first.
+
 ### Visual Components (import from `@/components/atoms`)
 
 #### Media
