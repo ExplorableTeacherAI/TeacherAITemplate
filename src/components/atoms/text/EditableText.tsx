@@ -59,17 +59,33 @@ export const EditableText: React.FC<EditableTextProps> = ({
     const refreshEmptyState = useCallback(() => {
         const element = containerRef.current;
         if (!element) return;
-        const hasInlineComponent = Boolean(
-            element.querySelector('[data-inline-component]')
+        // Hidden staged content (e.g. RevealOnInteraction before the student
+        // interacts) counts as content: the block is not empty, its text just
+        // has not appeared yet — the "empty block" placeholder would mislead.
+        const hasHiddenContent = Boolean(
+            element.querySelector('[data-inline-component], [data-reveal-pending]')
         );
         const text = (element.innerText || element.textContent || '')
             .replace(/(?:\s|\u00a0|\u200B|\u200C|\u200D|\uFEFF)+/g, '');
-        setIsVisuallyEmpty(!hasInlineComponent && text.length === 0);
+        setIsVisuallyEmpty(!hasHiddenContent && text.length === 0);
     }, []);
 
     useEffect(() => {
         refreshEmptyState();
     }, [children, refreshEmptyState]);
+
+    // Content can change without this component re-rendering — a
+    // RevealOnInteraction firing, state-bound text updating, an inline
+    // component mounting late. Watch the DOM itself so the empty flag (and
+    // with it the placeholder overlay) can never go stale and sit behind
+    // text that appeared after mount.
+    useEffect(() => {
+        const element = containerRef.current;
+        if (!element || !isEditor) return;
+        const observer = new MutationObserver(refreshEmptyState);
+        observer.observe(element, { subtree: true, childList: true, characterData: true });
+        return () => observer.disconnect();
+    }, [isEditor, refreshEmptyState]);
 
     // Inline slash commands (inert when enableSlashCommands is false)
     const {
