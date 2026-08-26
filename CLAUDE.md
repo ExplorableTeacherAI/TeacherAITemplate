@@ -644,9 +644,9 @@ function MyInlineComponent({ showHint = true }) {
 | `varName` | `string` | *(required)* | Variable key to lookup the color for |
 | `color` | `string` | *(required)* | The hex color for this variable (usually via store) |
 
-## RevealOnInteraction (Explore First, Ask Second)
+## RevealOnInteraction (TUTOR EXPLORABLES ONLY — never in lesson sections)
 
-`RevealOnInteraction` keeps an embedded question hidden until the student has actually interacted with the visualization, then fades it in. This enforces the "explore first, ask second" flow — the student discovers the pattern by dragging, and only then is prompted to answer.
+`RevealOnInteraction` keeps an embedded question hidden until the student has actually interacted with the visualization, then fades it in. **Use it ONLY inside tutor explorables (`src/data/explorables/`)**, where the tutor shepherds the student through the reveal. It must NEVER appear in lesson sections (`src/data/sections/`): the teacher cannot see or edit hidden content in the editor, and a self-paced student who never interacts never sees the question at all. In lesson sections, write every question in plain sight.
 
 It watches a boolean store variable. Pair it with the `interactionVar` prop on `Cartesian2D`, which flips that variable to `true` on the student's **first genuine drag** (the initial mount sync is ignored automatically). The flag is transient — it does **not** need a `variables.ts` entry (`useVar` defaults it to `false`).
 
@@ -1369,7 +1369,7 @@ happens to accept) is a TypeScript error that fails the build. The exact unions:
 - `InlineHyperlink` — click to open external URL or scroll to a block on page (connective, emerald)
 - `InlineSpotColor` — colored text highlight
 - `InlineLinkedHighlight` — bidirectional highlighting
-- `RevealOnInteraction` — hides an embedded question until the student interacts with the visualization, then fades it in (pairs with `Cartesian2D` `interactionVar`)
+- `RevealOnInteraction` — hides an embedded question until the student interacts, then fades it in (pairs with `Cartesian2D` `interactionVar`). TUTOR EXPLORABLES ONLY — never use in lesson sections
 - `Table` — block-level table with inline components in cells (import from `@/components/atoms`)
 
 ### Math Components

@@ -50,7 +50,13 @@ export const RevealOnInteraction: React.FC<RevealOnInteractionProps> = ({
     const Tag = block ? 'div' : 'span';
 
     if (!revealed) {
-        return placeholder ? <Tag className="text-slate-400">{placeholder}</Tag> : null;
+        // Never render null: the invisible marker lets the editor's
+        // EditableText tell "content staged behind an interaction" apart from
+        // a truly empty block, so no "Click to edit empty block…" placeholder
+        // appears over content that is merely waiting to be revealed.
+        return placeholder
+            ? <Tag data-reveal-pending="true" className="text-slate-400">{placeholder}</Tag>
+            : <Tag data-reveal-pending="true" aria-hidden="true" style={{ display: 'none' }} />;
     }
 
     return (
