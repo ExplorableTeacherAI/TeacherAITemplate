@@ -1,3 +1,4 @@
+import { isRestoredAnswer } from "@/lib/activityRecovery";
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useVar, useVariableStore } from '@/stores/variableStore';
 import { cn, isAnswerCorrect } from '@/lib/utils';
@@ -272,6 +273,7 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     className,
 }) => {
     const storeValue = useVar(varName, '') as string;
+    const restoredAnswer = useRef(isRestoredAnswer(varName, storeValue) ? storeValue : undefined);
     const defaults = getDefaultMessages(position);
     const [vizHintTriggered, setVizHintTriggered] = useState(false);
     const feedbackRef = useRef<HTMLSpanElement>(null);
@@ -332,6 +334,9 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     // react instantly (avatar celebration/encouragement) without waiting for
     // the tutor agent's reply. No-op when not embedded in an iframe.
     useEffect(() => {
+        // Mounting a saved answer is not a new student submission.
+        if (restoredAnswer.current !== undefined && restoredAnswer.current === storeValue) return;
+        restoredAnswer.current = undefined;
         if (!hasAnswer || window.parent === window) return;
         const explorableId = new URLSearchParams(window.location.search).get('explorable') ?? undefined;
         window.parent.postMessage(
