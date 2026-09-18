@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { useVar, useSetVar } from '@/stores/variableStore';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -60,6 +61,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
     showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(id || `toggle-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
 
     // ── Interaction Hint System ──
     const { hintVisible, dismissHint } = useComponentHint('toggle', { enabled: showHint });
@@ -77,7 +79,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `toggle-${blockIdFromContext}-${varName ?? options.join(',')}`;
+            const elementPath = `toggle-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -85,7 +87,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `toggle-${blockId}-${varName ?? options.join(',')}`;
+        const elementPath = `toggle-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, varName, options]);
 
@@ -98,7 +100,9 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'toggle' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { varName?: string; options?: string[]; color?: string; bgColor?: string } } | null;
@@ -133,7 +137,6 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
     }, [usesVarStore, effectiveVarName, setVar]);
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(id || varName || `toggle-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const json = JSON.stringify({
             varName: effectiveVarName,
@@ -141,7 +144,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
             color: effectiveColor,
             bgColor: effectiveBgColor,
         });
-        try { return btoa(json); } catch { return ''; }
+        try { return encodeMarkerJson(json); } catch { return ''; }
     }, [effectiveVarName, effectiveOptions, effectiveColor, effectiveBgColor]);
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
@@ -154,7 +157,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `toggle-${blockId}-${varName ?? options.join(',')}`;
+            elementPath = `toggle-${blockId}-${inlineIdRef.current}`;
         }
 
         openToggleEditor(
@@ -163,6 +166,7 @@ export const InlineToggle: React.FC<InlineToggleProps> = ({
                 options: effectiveOptions,
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath

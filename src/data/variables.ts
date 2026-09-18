@@ -41,8 +41,12 @@ export interface VariableDefinition {
     options?: string[];
     /** Placeholder text for text inputs */
     placeholder?: string;
-    /** Correct answer for cloze input validation */
-    correctAnswer?: string;
+    /**
+     * Correct answer for cloze input validation.
+     * Accepts a single string, pipe-separated alternates (e.g. "first | 1 | 1st"),
+     * or an array of accepted answers (e.g. ["first", "1", "1st"]).
+     */
+    correctAnswer?: string | string[];
     /** Whether cloze matching is case sensitive */
     caseSensitive?: boolean;
     /** Background color for inline components */

@@ -255,6 +255,10 @@ export const InlineFormulaEditorModal: React.FC = () => {
     }, []);
 
     const handleSave = useCallback(() => {
+        if (!latex.trim()) {
+            setError('Formula is required.');
+            return;
+        }
         // Sync changed colors to the central variable color store
         const setColor = useVariableStore.getState().setColor;
         for (const [varName, hexColor] of Object.entries(colorMap)) {

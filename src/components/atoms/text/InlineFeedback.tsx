@@ -1,9 +1,11 @@
+import { isRestoredAnswer } from "@/lib/activityRecovery";
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useVar, useVariableStore } from '@/stores/variableStore';
-import { cn } from '@/lib/utils';
+import { cn, isAnswerCorrect } from '@/lib/utils';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useEditing } from '@/contexts/EditingContext';
 import type { HintStep } from '@/components/atoms/visual/InteractionHint';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // InlineFeedback — inline feedback for cloze inputs / choices
@@ -43,8 +45,12 @@ export interface VisualizationHintConfig {
 export interface InlineFeedbackProps {
     /** Variable name to watch in the store (must match the cloze component's varName) */
     varName: string;
-    /** Expected correct value (compared against the store value) */
-    correctValue: string;
+    /**
+     * Expected correct value(s), compared against the store value.
+     * Accepts a single string, pipe-separated alternates (e.g. "first | 1 | 1st"),
+     * or an array of accepted answers — must mirror the cloze component's `correctAnswer`.
+     */
+    correctValue: string | string[];
     /** Case-sensitive comparison (default: false) */
     caseSensitive?: boolean;
     /**
@@ -267,9 +273,11 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     className,
 }) => {
     const storeValue = useVar(varName, '') as string;
+    const restoredAnswer = useRef(isRestoredAnswer(varName, storeValue) ? storeValue : undefined);
     const defaults = getDefaultMessages(position);
     const [vizHintTriggered, setVizHintTriggered] = useState(false);
     const feedbackRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(`feedback-${varName}`);
     const [visible, setVisible] = useState(false);
 
     // Detect edit mode
@@ -281,13 +289,30 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
 
     const effectiveSuccessMessage = successMessage ?? defaults.success;
     const effectiveFailureMessage = failureMessage ?? defaults.failure;
+    const componentProps = React.useMemo(() => {
+        const json = JSON.stringify({
+            varName,
+            correctValue,
+            caseSensitive,
+            position,
+            successMessage,
+            failureMessage,
+            hint,
+            reviewBlockId,
+            reviewLabel,
+            sectionLinks,
+            visualizationHint,
+            className,
+        });
+        try { return encodeMarkerJson(json); } catch { return ''; }
+    }, [
+        varName, correctValue, caseSensitive, position, successMessage,
+        failureMessage, hint, reviewBlockId, reviewLabel, sectionLinks,
+        visualizationHint, className,
+    ]);
 
     const hasAnswer = storeValue.trim() !== '';
-    const isCorrect =
-        hasAnswer &&
-        (caseSensitive
-            ? storeValue.trim() === correctValue.trim()
-            : storeValue.trim().toLowerCase() === correctValue.trim().toLowerCase());
+    const isCorrect = hasAnswer && isAnswerCorrect(storeValue, correctValue, caseSensitive);
 
     const showHint = hint && !isCorrect && hasAnswer;
     const showReviewLink = reviewBlockId && !isCorrect && hasAnswer;
@@ -309,6 +334,9 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     // react instantly (avatar celebration/encouragement) without waiting for
     // the tutor agent's reply. No-op when not embedded in an iframe.
     useEffect(() => {
+        // Mounting a saved answer is not a new student submission.
+        if (restoredAnswer.current !== undefined && restoredAnswer.current === storeValue) return;
+        restoredAnswer.current = undefined;
         if (!hasAnswer || window.parent === window) return;
         const explorableId = new URLSearchParams(window.location.search).get('explorable') ?? undefined;
         window.parent.postMessage(
@@ -345,6 +373,8 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
         <span
             className={cn("inline", className)}
             data-inline-component="inlineFeedback"
+            data-component-id={inlineIdRef.current}
+            data-component-props={componentProps}
         >
             {children}
 

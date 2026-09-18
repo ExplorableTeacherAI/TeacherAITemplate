@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import html2canvas from 'html2canvas';
 import { Stage, Layer, Line, Text, Transformer } from 'react-konva';
 import Konva from 'konva';
@@ -415,7 +416,10 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
 
     const editingTextBox = textBoxes.find(t => t.id === editingId);
 
-    return (
+    // Portal to document.body: blocks render inside `position: relative; z-index: 0`
+    // motion wrappers, so a fixed overlay left in place is trapped in that stacking
+    // context and every later block on the page paints over it.
+    return createPortal(
         <>
             {/* Annotation container */}
             <div
@@ -731,7 +735,8 @@ export const AnnotationOverlay: React.FC<AnnotationOverlayProps> = ({
                     to   { opacity: 1; transform: translateY(0); }
                 }
             `}</style>
-        </>
+        </>,
+        document.body
     );
 };
 

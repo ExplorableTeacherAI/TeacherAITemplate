@@ -15,6 +15,7 @@ export const HyperlinkEditorModal: React.FC = () => {
     const [targetBlockId, setTargetBlockId] = useState('');
     const [color, setColor] = useState('#10B981');
     const [bgColor, setBgColor] = useState('rgba(16, 185, 129, 0.15)');
+    const [error, setError] = useState<string | null>(null);
 
     const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
@@ -27,10 +28,32 @@ export const HyperlinkEditorModal: React.FC = () => {
             setLinkType(editingHyperlink.href ? 'external' : 'block');
             setColor(editingHyperlink.color || '#10B981');
             setBgColor(editingHyperlink.bgColor || 'rgba(16, 185, 129, 0.15)');
+            setError(null);
         }
     }, [editingHyperlink]);
 
     const handleSave = useCallback(() => {
+        if (!text.trim()) {
+            setError('Link text is required.');
+            return;
+        }
+        if (linkType === 'external') {
+            if (!href.trim()) {
+                setError('URL is required.');
+                return;
+            }
+            try {
+                const url = new URL(href.trim());
+                if (!['http:', 'https:'].includes(url.protocol)) throw new Error('unsupported protocol');
+            } catch {
+                setError('Enter a valid URL beginning with http:// or https://.');
+                return;
+            }
+        } else if (!targetBlockId.trim()) {
+            setError('Target block ID is required.');
+            return;
+        }
+        setError(null);
         saveHyperlinkEdit({
             text: text || undefined,
             href: linkType === 'external' ? (href || undefined) : undefined,
@@ -215,6 +238,12 @@ export const HyperlinkEditorModal: React.FC = () => {
                         presets={COLOR_PRESETS}
                         defaultOpacity={DEFAULT_BG_OPACITY}
                     />
+
+                    {error && (
+                        <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                            {error}
+                        </p>
+                    )}
 
                     {/* Preview */}
                     <div>

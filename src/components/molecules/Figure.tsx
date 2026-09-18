@@ -7,17 +7,21 @@ import { useVar, useSetVar, useVarColor } from "@/stores";
  * Figure — uniform chrome for bespoke canvas/SVG figures
  * ======================================================
  *
- * A thin shell that gives every custom figure the same quiet polish (frame,
- * caption, reset / play-pause controls) while the drawing inside stays fully
- * bespoke. See `FIGURE_DESIGN_LANGUAGE.md`: chrome is uniform, content is
+ * A thin shell that gives every custom figure the same quiet polish (white
+ * ground, caption, reset / play-pause controls) while the drawing inside stays
+ * fully bespoke. See `FIGURE_DESIGN_LANGUAGE.md`: chrome is uniform, content is
  * unique — never rebuild this chrome per-figure, never restyle the shell.
+ *
+ * The shell is deliberately BORDERLESS. Do not add a border, ring, card, or
+ * shadow around a figure here or in figure code — the drawing itself is the
+ * only thing the reader should see.
  *
  * The children get the full surface: the frame is a `position: relative`
  * container, so absolutely-positioned overlays such as
  * `InteractionHintSequence` keep working inside.
  */
 export interface FigureProps {
-    /** Unique figure id — emitted as `data-figure-id` for the verification harness. */
+    /** Unique figure id — emitted as `data-figure-id` for review and research tooling. */
     id: string;
     /** Caption rendered below the frame (13px, ink-gray, sentence case). */
     caption?: ReactNode;
@@ -82,10 +86,22 @@ export const Figure: React.FC<FigureProps> = ({
 
     const hasControls = playable || Boolean(onReset);
 
+    // Width-capped and centered: figures remain evidence inside the narrative
+    // even inside the wide `xl` content column — an
+    // unconstrained w-full SVG at 1024px renders comically large. Width (not
+    // height) is capped so the element keeps the viewBox aspect and
+    // pointer→viewBox math in drawings stays linear. Override with
+    // className="max-w-..." for deliberately wide figures.
     return (
-        <figure data-figure-id={id} className={cn("group w-full", className)}>
+        <figure
+            data-figure-id={id}
+            className={cn("group mx-auto w-full max-w-[560px]", className)}
+        >
             <div
-                className="relative w-full overflow-hidden rounded-xl border border-border/40 bg-white"
+                // Borderless by design: the drawing sits directly on the page
+                // ground. A visible frame is chrome competing with the figure —
+                // see FIGURE_DESIGN_LANGUAGE.md §3 ("no frame around a figure").
+                className="relative w-full overflow-hidden rounded-xl bg-white"
                 style={aspectRatio ? { aspectRatio } : undefined}
             >
                 {children}

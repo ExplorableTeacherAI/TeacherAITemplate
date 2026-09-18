@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
@@ -55,6 +56,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
     showHint = true,
 }) => {
     const containerRef = useRef<HTMLSpanElement>(null);
+    const inlineIdRef = useRef(id || `tooltip-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     // ── Interaction Hint System ──
@@ -134,7 +136,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
 
     useEffect(() => {
         if (blockIdFromContext) {
-            const elementPath = `tooltip-${blockIdFromContext}-${childText ?? tooltip?.substring(0, 20)}`;
+            const elementPath = `tooltip-${blockIdFromContext}-${inlineIdRef.current}`;
             setEditIdentity({ blockId: blockIdFromContext, elementPath });
             return;
         }
@@ -142,7 +144,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
 
         const block = containerRef.current.closest('[data-block-id]');
         const blockId = block?.getAttribute('data-block-id') || '';
-        const elementPath = `tooltip-${blockId}-${childText ?? tooltip?.substring(0, 20)}`;
+        const elementPath = `tooltip-${blockId}-${inlineIdRef.current}`;
         setEditIdentity({ blockId, elementPath });
     }, [blockIdFromContext, childText, tooltip]);
 
@@ -155,7 +157,9 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
         const edit = [...pendingEdits].reverse().find(e =>
             e.type === 'tooltip' &&
             (e as any).blockId === blockId &&
-            (e as any).elementPath === elementPath
+            ((e as any).componentId
+                ? (e as any).componentId === inlineIdRef.current
+                : (e as any).elementPath === elementPath)
         );
 
         return edit as { newProps: { text?: string; tooltip?: string; color?: string; bgColor?: string; position?: string; maxWidth?: number } } | null;
@@ -179,7 +183,6 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
     });
 
     // Stable ID and serialized props for round-trip extraction (base64 for HTML attribute safety)
-    const inlineIdRef = useRef(id || `tooltip-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
     const componentProps = useMemo(() => {
         const textForProps = effectiveText ?? domTextRef.current;
         const json = JSON.stringify({
@@ -190,7 +193,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
             position: effectivePosition,
             maxWidth: effectiveMaxWidth,
         });
-        try { return btoa(json); } catch { return ''; }
+        try { return encodeMarkerJson(json); } catch { return ''; }
     }, [effectiveText, effectiveTooltip, effectiveColor, effectiveBgColor, effectivePosition, effectiveMaxWidth]);
 
     // Calculate tooltip position when visible (hover or tap)
@@ -239,7 +242,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
         if (!elementPath) {
             const block = containerRef.current?.closest('[data-block-id]');
             blockId = blockId || block?.getAttribute('data-block-id') || '';
-            elementPath = `tooltip-${blockId}-${childText ?? tooltip?.substring(0, 20)}`;
+            elementPath = `tooltip-${blockId}-${inlineIdRef.current}`;
         }
 
         const text = effectiveText ?? containerRef.current?.textContent?.trim();
@@ -252,6 +255,7 @@ export const InlineTooltip: React.FC<InlineTooltipProps> = ({
                 bgColor: effectiveBgColor,
                 position: effectivePosition,
                 maxWidth: effectiveMaxWidth,
+                componentId: inlineIdRef.current,
             },
             blockId,
             elementPath

@@ -4,21 +4,21 @@ import { Children, isValidElement, useEffect, useState, type ReactNode } from "r
  * Live per-section build status, posted into this iframe by the teacher
  * frontend (`section-build-status` messages sourced from the backend's
  * /sections/status poll). Empty everywhere else — published lessons, the
- * verification harness, and explorable embeds never receive these messages,
+ * screenshot review tools and explorable embeds never receive these messages,
  * so all build-progress UI is inert outside the teacher's editor preview.
  */
 export type SectionBuildInfo = {
     /** Section id — equals the section's file name in src/data/sections/ */
     id: string;
     title: string;
-    status: string; // queued | building | verifying | ready | needs_attention | failed | interrupted
+    status: string; // queued | building | ready | needs_attention | failed | interrupted
     /** True once the section is registered into blocks.tsx */
     registered: boolean;
-    /** Live builder activity, e.g. "writing spec and code", "repairing issues (round 1/2)" */
+    /** Live builder activity, e.g. "writing section code" */
     detail?: string;
 };
 
-const IN_FLIGHT_STATES = new Set(["queued", "building", "verifying"]);
+const IN_FLIGHT_STATES = new Set(["queued", "building"]);
 
 export const isInFlight = (section: SectionBuildInfo): boolean =>
     IN_FLIGHT_STATES.has(section.status);
@@ -101,4 +101,25 @@ export function getSectionBlockIds(sectionId: string): Promise<Set<string>> {
         sectionIdsCache.set(key, cached);
     }
     return cached;
+}
+
+/**
+ * True while the teacher's builder is running a turn (parent frontend posts
+ * `builder-busy`). Used to keep the lesson visible during builds: a mid-write
+ * blocks file briefly fails to compile, and without this the page would fall
+ * back to the WelcomeScreen and the teacher would appear to lose their lesson.
+ */
+export function useBuilderBusy(): boolean {
+    const [busy, setBusy] = useState(false);
+
+    useEffect(() => {
+        const handler = (event: MessageEvent) => {
+            if (event.data?.type !== "builder-busy") return;
+            setBusy(!!event.data.busy);
+        };
+        window.addEventListener("message", handler);
+        return () => window.removeEventListener("message", handler);
+    }, []);
+
+    return busy;
 }

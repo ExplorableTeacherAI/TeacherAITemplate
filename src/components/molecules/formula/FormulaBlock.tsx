@@ -218,17 +218,18 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
     const displayClozeInputs: Record<string, ClozeInputConfig> = pendingEdit?.newProps?.clozeInputs ?? clozeInputs;
     const displayClozeChoices: Record<string, ClozeChoiceConfig> = pendingEdit?.newProps?.clozeChoices ?? clozeChoices;
     const displayLinkedHighlights: Record<string, LinkedHighlightConfig> = pendingEdit?.newProps?.linkedHighlights ?? linkedHighlights;
+    const displayColor = pendingEdit?.newProps?.color ?? color;
 
     const handleEditClick = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         if (!editIdentity) return;
         openFormulaBlockEditor(
-            { latex: displayLatex, colorMap: displayColorMap, variables: displayVariables as any, clozeInputs: displayClozeInputs as any, clozeChoices: displayClozeChoices as any, linkedHighlights: displayLinkedHighlights as any },
+            { latex: displayLatex, colorMap: displayColorMap, variables: displayVariables as any, clozeInputs: displayClozeInputs as any, clozeChoices: displayClozeChoices as any, linkedHighlights: displayLinkedHighlights as any, color: displayColor },
             editIdentity.blockId,
             editIdentity.elementPath
         );
-    }, [displayLatex, displayColorMap, displayVariables, displayClozeInputs, displayClozeChoices, displayLinkedHighlights, openFormulaBlockEditor, editIdentity]);
+    }, [displayLatex, displayColorMap, displayVariables, displayClozeInputs, displayClozeChoices, displayLinkedHighlights, displayColor, openFormulaBlockEditor, editIdentity]);
 
     // ── Variable store ──────────────────────────────────────────────────────
     const allVars = useVariableStore((s) => s.variables);
@@ -333,13 +334,16 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
 
     // ── Merge store colors into colorMap for \clr{} terms ───────────────────
     const effectiveColorMap = useMemo(() => {
+        if (pendingEdit?.newProps?.colorMap !== undefined) {
+            return displayColorMap;
+        }
         const merged = { ...displayColorMap };
         for (const key of Object.keys(merged)) {
             const storeColor = allVarColors[key];
             if (storeColor) merged[key] = storeColor;
         }
         return merged;
-    }, [displayColorMap, allVarColors]);
+    }, [displayColorMap, allVarColors, pendingEdit]);
 
     // ── Format a variable's value for display ───────────────────────────────
     const formatValue = useCallback(
@@ -743,7 +747,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
                 isEditor && isEditing && 'group',
                 className,
             )}
-            style={{ color }}
+            style={{ color: displayColor }}
             contentEditable={false}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}

@@ -6,7 +6,7 @@ export interface StackLayoutProps {
     /** Optional className for custom styling */
     className?: string;
     /** Maximum width constraint */
-    maxWidth?: "none" | "md" | "lg" | "xl" | "2xl" | "full";
+    maxWidth?: "none" | "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 }
 
 /**
@@ -20,6 +20,7 @@ export const StackLayout = ({
 }: StackLayoutProps) => {
     const maxWidthClasses = {
         none: "",
+        sm: "max-w-xl",
         md: "max-w-2xl",
         lg: "max-w-4xl",
         xl: "max-w-5xl",

@@ -114,6 +114,9 @@ export const ClozeInputEditorModal: React.FC = () => {
                             style={{ '--tw-ring-color': BRAND_GREEN } as React.CSSProperties}
                             placeholder="e.g., 90"
                         />
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Separate multiple accepted answers with | (e.g., first | 1 | 1st)
+                        </p>
                     </div>
 
                     {/* Placeholder */}

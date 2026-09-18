@@ -17,7 +17,7 @@ Content is organized as **blocks** inside **layouts**, with shared state via a *
 |:---|:---|:---|:---|
 | **1. No static charts** | Every chart/graph must have at least one manipulable element | `<Cartesian2D plots={[...]} />` with no movable points | `<Cartesian2D ... movablePoints={[...]} />` with bound variables |
 | **2. Bi-directional binding** | Prose ↔ Formula ↔ Visual must ALL sync via shared variables | Scrubbing text doesn't update the chart | `varName="radius"` used in `InlineScrubbleNumber`, `FormulaBlock \scrub{}`, AND `Cartesian2D` |
-| **3. Linked highlights** | Hovering prose terms highlights visual elements and vice versa | No visual connection between explanation and diagram | `InlineLinkedHighlight` connects "radius" text to the radius line in the diagram |
+| **3. Linked highlights** | Hovering prose terms highlights visual elements and vice versa — the target pops (heavier stroke + halo) while everything else dims to 30-45% | A tint so faint nothing appears to happen on hover | `InlineLinkedHighlight` connects "radius" text to the radius line, which thickens and gains a halo while the rest of the diagram recedes |
 | **4. Observable change** | When user manipulates, they see real-time consequences | User drags a point but nothing else changes | Dragging the radius updates the area value in both formula and prose |
 
 ### Before Creating Any Visualization, Ask:
@@ -58,6 +58,9 @@ Before considering a visualization complete, walk through these checks:
 - [ ] Colors have sufficient contrast against white background
 - [ ] Interactive elements are visually distinct from static elements
 - [ ] No visual clutter — elements don't compete for attention
+- [ ] Every linked highlight passes the squint test: hovering the bound phrase makes its target
+      the obvious difference in the picture (heavier stroke + halo, or scaled-up mark) while
+      all other elements and labels recede to 30-45% opacity
 
 **D. Interactivity Works:**
 - [ ] Every described interaction WORKS when tried
@@ -270,11 +273,53 @@ quarterCircleAngle: {
 />
 ```
 
+### Multiple Correct Answers
+
+`correctAnswer` accepts **more than one valid answer** whenever a question has equivalent phrasings (e.g. "first", "1", and "1st" are all correct). Two interchangeable forms are supported:
+
+```tsx
+// Array form (preferred when authoring code)
+<InlineClozeInput
+    varName="racePosition"
+    correctAnswer={["first", "1", "1st"]}
+    {...clozePropsFromDefinition(getVariableInfo('racePosition'))}
+/>
+
+// Pipe-separated string form (equivalent — this is also what the teacher editor modal produces)
+<InlineClozeInput
+    varName="racePosition"
+    correctAnswer="first | 1 | 1st"
+    {...clozePropsFromDefinition(getVariableInfo('racePosition'))}
+/>
+```
+
+Matching rules:
+- Every alternate is **trimmed** and compared **case-insensitively** by default (`caseSensitive` applies to all alternates)
+- The student's answer is correct if it matches **any** alternate — auto-match while typing, Enter, and blur submission all honor the full set
+- The same forms work everywhere an answer is checked: `variables.ts` `correctAnswer`, `InlineFeedback` `correctValue`, `Step` `correctAnswer` (auto-advance and gated Continue), and `\cloze{}` inside `FormulaBlock` (use the pipe string form there)
+
+**Rule: whenever a cloze answer has common equivalent forms (numerals vs words, ordinals, abbreviations, symbol vs name), list ALL of them.** Ask: "could a student reasonably type this differently and still be right?" If yes, add the alternate.
+
+```ts
+// variables.ts — define the alternates once, in the variable definition
+racePosition: {
+    defaultValue: '',
+    type: 'text',
+    label: 'Race Position',
+    description: 'Student answer for the race position question',
+    placeholder: '???',
+    correctAnswer: ['first', '1', '1st'],
+    color: '#3B82F6',
+},
+```
+
+**IMPORTANT — keep `InlineFeedback` in sync:** when a cloze input accepts multiple answers, its wrapping `InlineFeedback` must receive the SAME set via `correctValue` (e.g. `correctValue={["first", "1", "1st"]}`), otherwise the input turns green while the feedback says the answer is wrong.
+
 ### Key Cloze Variable Fields
 
 | Field | Purpose |
 |-------|---------|
-| `correctAnswer` | The expected answer string (not stored in variable store — stays as a prop) |
+| `correctAnswer` | The expected answer(s) — a string, pipe-separated alternates (`"first \| 1 \| 1st"`), or an array (`['first', '1', '1st']`). Not stored in variable store — stays as a prop |
 | `caseSensitive` | Whether matching is case sensitive (default: `false`) |
 | `placeholder` | Button text shown before student types (default: `"???"`) |
 | `color` | Text/border color |
@@ -418,6 +463,30 @@ In JSX string attributes (`latex="..."`), a single backslash is passed through l
 ```
 
 This applies to **all** LaTeX commands: `\sin`, `\cos`, `\omega`, `\pi`, `\phi`, `\alpha`, `\frac`, `\sqrt`, `\sum`, `\int`, `\clr`, etc.
+
+### Critical Rule: ASCII-Only LaTeX — Never Paste Unicode Math Characters
+
+**LaTeX strings must contain ONLY ASCII characters.** KaTeX has no glyphs for
+precomposed accented Unicode (`î`, `ĵ`, `â`, …) — they render as missing-glyph
+boxes in the lesson. Always write the LaTeX command form:
+
+```tsx
+// WRONG — Unicode î/ĵ render as broken boxes
+<InlineFormula latex="a\,î + b\,ĵ + c\,k̂" colorMap={{}} />
+
+// CORRECT — LaTeX accent commands with dotless \imath/\jmath
+<InlineFormula latex="a\hat{\imath} + b\hat{\jmath} + c\hat{k}" colorMap={{}} />
+```
+
+| Never type | Write instead |
+|:---|:---|
+| `î`, `ĵ`, `k̂` | `\hat{\imath}`, `\hat{\jmath}`, `\hat{k}` |
+| `π`, `θ`, `ω` | `\pi`, `\theta`, `\omega` |
+| `×`, `·`, `≤`, `≥`, `≠` | `\times`, `\cdot`, `\le`, `\ge`, `\ne` |
+| `°` | `^\circ` |
+| `→`, `⇒` | `\to`, `\Rightarrow` |
+
+(Unicode is fine in prose text — this rule is only for `latex="..."` strings.)
 
 **Same rule for `FormulaBlock`:**
 
@@ -575,9 +644,9 @@ function MyInlineComponent({ showHint = true }) {
 | `varName` | `string` | *(required)* | Variable key to lookup the color for |
 | `color` | `string` | *(required)* | The hex color for this variable (usually via store) |
 
-## RevealOnInteraction (Explore First, Ask Second)
+## RevealOnInteraction (TUTOR EXPLORABLES ONLY — never in lesson sections)
 
-`RevealOnInteraction` keeps an embedded question hidden until the student has actually interacted with the visualization, then fades it in. This enforces the "explore first, ask second" flow — the student discovers the pattern by dragging, and only then is prompted to answer.
+`RevealOnInteraction` keeps an embedded question hidden until the student has actually interacted with the visualization, then fades it in. **Use it ONLY inside tutor explorables (`src/data/explorables/`)**, where the tutor shepherds the student through the reveal. It must NEVER appear in lesson sections (`src/data/sections/`): the teacher cannot see or edit hidden content in the editor, and a self-paced student who never interacts never sees the question at all. In lesson sections, write every question in plain sight.
 
 It watches a boolean store variable. Pair it with the `interactionVar` prop on `Cartesian2D`, which flips that variable to `true` on the student's **first genuine drag** (the initial mount sync is ignored automatically). The flag is transient — it does **not** need a `variables.ts` entry (`useVar` defaults it to `false`).
 
@@ -621,7 +690,7 @@ For an interaction that is **not** a `Cartesian2D` drag, set the flag yourself f
 |------|--------------------|
 | `number` | `{ defaultValue: 5, type: 'number', min: 0, max: 10, step: 1 }` |
 | `text` | `{ defaultValue: 'Hello', type: 'text', placeholder: 'Enter...' }` |
-| `text` (cloze) | `{ defaultValue: '', type: 'text', correctAnswer: '90', placeholder: '???', color: '#3B82F6' }` |
+| `text` (cloze) | `{ defaultValue: '', type: 'text', correctAnswer: '90', placeholder: '???', color: '#3B82F6' }` — `correctAnswer` also accepts multiple answers: `['first', '1', '1st']` or `'first \| 1 \| 1st'` |
 | `select` | `{ defaultValue: 'sine', type: 'select', options: ['sine', 'cosine'] }` |
 | `select` (cloze choice) | `{ defaultValue: '', type: 'select', correctAnswer: 'circle', options: ['cube', 'circle'], placeholder: '???', color: '#D81B60' }` |
 | `select` (toggle) | `{ defaultValue: 'triangle', type: 'select', options: ['triangle', 'square', 'pentagon'], color: '#D946EF' }` |
@@ -1105,6 +1174,9 @@ This ensures:
 **Rules:**
 1. Leave plenty of padded space or margin (at least `20px` to `40px`) around the perimeter of visual items.
 2. If text may change or grow (e.g. reactive variables or bold interactive states), ensure the `viewBox` bounds can accommodate the maximum possible width of that text.
+3. **Budget label width before you place the plot.** Text is roughly `characters × fontSize × 0.6` units wide (`"Positive"` at 12px ≈ 58 units). Reserve gutters for every label that sits beside the drawing, then size the plot with what's left: `plotWidth = viewBoxWidth − leftGutter − rightGutter`. Never pick a round plot size and hope the labels fit next to it.
+4. **Anchor edge labels back toward the ink.** Right of the plot → `textAnchor="end"` at `x = viewBoxWidth − pad`. Left of the plot → `textAnchor="start"` at `x = pad`. Centered under a column → `textAnchor="middle"` with the x clamped so the half-width still fits.
+5. **Check every reachable state.** Walk each slider/drag to its minimum and maximum and confirm the longest string still renders whole. A label that fits at the default value and is sliced at the extreme is a failed visualization.
 
 ```tsx
 // WRONG — text at X=290 will be clipped by the strict width=300 boundary
@@ -1116,11 +1188,63 @@ This ensures:
 <svg width={340} height={200} viewBox="0 0 340 200">
     <text x={290} y={100}>Hypotenuse</text>
 </svg>
+
+// WRONG — plot ends at 520 inside a 560-wide viewBox; "Positive" needs ~58 more
+// units and renders as "Posit". The SVG clips it silently — no error, no warning.
+<text x={chartX + chartWidth + 12} y={chartY + 20} fontSize="12">Positive</text>
+
+// CORRECT — gutter reserved first, label anchored back toward the plot
+const PAD = 24, RIGHT_GUTTER = 72;
+const chartWidth = VIEWBOX_WIDTH - PAD - RIGHT_GUTTER;
+<text x={VIEWBOX_WIDTH - PAD} y={chartY + 20} textAnchor="end" fontSize="12">Positive</text>
 ```
+
+### Critical Rule: No Borders or Frames Around Visualizations
+
+**Never wrap a visualization in a border, ring, card, or shadow, and never draw a rectangle around the plot area.** The visual sits directly on the page's white ground — the `<Figure>` shell is deliberately borderless, and `<Block>` supplies the spacing.
+
+```tsx
+// WRONG — chrome competing with the drawing
+<div className="rounded-xl border border-slate-200 shadow-sm p-4">
+    <MyFigureDrawing />
+</div>
+
+// WRONG — a box drawn "to hold the chart" is chart junk
+<rect x={40} y={50} width={480} height={260} fill="none" stroke="#64748B" strokeWidth="2" />
+
+// CORRECT — nothing but the drawing
+<Figure id="my-figure" caption="…">
+    <MyFigureDrawing />
+</Figure>
+```
+
+A stroke is allowed only when it **means** something (the boundary of the region being explained), never as a container for the visual.
+
+### Critical Rule: One Quantity, One Number Format
+
+**A quantity must render through the same formatter everywhere it appears** — in the drawing, in the slider readout, and in the prose. Define the formatter once and call it in all three places.
+
+```tsx
+const fmtPercent = (v: number) => `${v.toFixed(1)}%`;   // one source of truth
+```
+
+**Rules:**
+1. Percentages use `%` with fixed decimals (`13.6%`). **Never `‰`**, never a bare number beside a sibling readout that shows a unit.
+2. **Never rescale a value to avoid a decimal point.** `Math.round(p * 10) + "‰"` renders `136‰` next to a slider reading `13.6%` — every reader sees a missing decimal point and a wrong number.
+3. Decimal places come from the variable's `step` (`step: 0.1` → one decimal) and stay constant at every value, paired with `fontVariantNumeric: "tabular-nums"` so the readout never jitters.
+4. Before finishing, list every string the visualization prints at the default state and at both extremes of every control, and confirm each is a number a teacher would write by hand.
 
 ## Available Layouts
 
 Import from `@/components/layouts`.
+
+**Layout prop values are closed sets — use ONLY the values listed below.** Do not
+guess additional variants: passing an unlisted value (e.g. a size a sibling layout
+happens to accept) is a TypeScript error that fails the build. The exact unions:
+`StackLayout.maxWidth`: `none | sm | md | lg | xl | 2xl | full` ·
+`SplitLayout.gap` / `GridLayout.gap`: `none | sm | md | lg | xl` ·
+`SplitLayout.ratio`: `1:1 | 1:2 | 2:1 | 1:3 | 3:1 | 2:3 | 3:2` ·
+`GridLayout.columns`: `2–6` · `align`: `start | center | end | stretch`.
 
 - `StackLayout` — single column, use `maxWidth` prop (`sm`, `md`, `lg`, `xl`, `2xl`, `full`)
 - `SplitLayout` — side-by-side (ideal for text + visual), use `ratio` (`1:1`, `1:2`, `2:1`, `1:3`, `3:1`, `2:3`, `3:2`), `gap` (`none`, `sm`, `md`, `lg`, `xl`), `align` (`start`, `center`, `end`, `stretch`)
@@ -1245,7 +1369,7 @@ Import from `@/components/layouts`.
 - `InlineHyperlink` — click to open external URL or scroll to a block on page (connective, emerald)
 - `InlineSpotColor` — colored text highlight
 - `InlineLinkedHighlight` — bidirectional highlighting
-- `RevealOnInteraction` — hides an embedded question until the student interacts with the visualization, then fades it in (pairs with `Cartesian2D` `interactionVar`)
+- `RevealOnInteraction` — hides an embedded question until the student interacts, then fades it in (pairs with `Cartesian2D` `interactionVar`). TUTOR EXPLORABLES ONLY — never use in lesson sections
 - `Table` — block-level table with inline components in cells (import from `@/components/atoms`)
 
 ### Math Components
@@ -1330,7 +1454,7 @@ Import from `@/components/layouts`.
 | Prop | Type | Default | Purpose |
 |------|------|---------|--------|
 | `varName` | `string` | *(required)* | Variable to watch (must match the cloze component's `varName`) |
-| `correctValue` | `string` | *(required)* | Expected correct value |
+| `correctValue` | `string \| string[]` | *(required)* | Expected correct value(s) — a string, pipe-separated alternates, or an array; must mirror the cloze component's `correctAnswer` |
 | `position` | `'terminal' \| 'mid' \| 'standalone'` | `'terminal'` | Position of blank in sentence — affects default feedback style |
 | `caseSensitive` | `boolean` | `false` | Whether comparison is case-sensitive |
 | `successMessage` | `string` | *(varies by position)* | Message shown on correct answer — celebrate and explain WHY (no trailing period) |
@@ -1423,7 +1547,7 @@ Question ends with `?`, so feedback is a natural conversational response.
 
 **Matching rules:**
 - The `varName` in `InlineFeedback` must match the `varName` in the cloze component inside
-- The `correctValue` in `InlineFeedback` must match the `correctAnswer` of the cloze component
+- The `correctValue` in `InlineFeedback` must match the `correctAnswer` of the cloze component — including ALL alternates when multiple answers are accepted (e.g. both use `["first", "1", "1st"]`)
 
 **Position rules:**
 - **Prefer terminal position** — restructure questions so the blank ends the sentence
@@ -1564,6 +1688,171 @@ steps: [
     },
 ],
 resetVars: { theta: 0 },
+```
+
+## Linked Figures — TWO views of one idea (prefer this whenever it applies)
+
+**Before settling on a single visual, ask: what second representation answers a question
+the first cannot?** If one exists, build the pair. Two linked views beat both one
+overloaded view and one impoverished view. This is a default to consider, not a last
+resort.
+
+The copyable exemplar is **`src/data/sections/linkedFiguresDemo.tsx`** (reference-only,
+like `figureDemo.tsx` — not registered in `blocks.tsx`): the unit circle and the sine
+graph, side by side, sharing one angle variable and one highlight variable.
+
+### When a linked pair is the obvious build
+
+| Pairing | The two views | Example |
+|:---|:---|:---|
+| Object ↔ its measure | the thing you manipulate ↔ the graph of the quantity it controls | drag the radius ↔ the area curve traced as you drag |
+| Space ↔ time | the current configuration ↔ the trace it left behind | the pendulum ↔ its displacement-over-time plot |
+| Concrete ↔ abstract | the physical situation ↔ the formula or number line | tilting beam ↔ the torque equation with live terms |
+| Rate ↔ accumulation | the flow right now ↔ the total so far | the tap's flow rate ↔ the filling tank |
+| Part ↔ whole | the zoomed detail ↔ where it sits in the whole | the tangent at a point ↔ the whole curve |
+| One case ↔ many cases | this instance ↔ the distribution it belongs to | one coin-flip run ↔ the histogram of 500 runs |
+
+If the concept matches one of these, a SINGLE view is the choice that needs justifying.
+
+### The five rules (two pictures side by side are NOT a linked pair)
+
+1. **One source of truth.** Both views read the SAME store variables via `useVar`. Never
+   duplicate state, never write a sync callback between them. View B moves because it
+   reads `angle`, not because view A told it to.
+2. **Bidirectional when feasible.** Make the quantity draggable in EITHER view.
+3. **Solve the correspondence problem — this decides whether the pair teaches.** A shared
+   highlight variable connects counterparts: hovering an element in A pops its counterpart
+   in B while everything else recedes (the same linked-highlight contract as `InlineLinkedHighlight`
+   — target stroke ≥1.5× plus a ~28% halo, all other elements to 30-45%, eased ~150ms).
+   Give matching elements the same highlight id in both drawings. Without this, students
+   cannot map one view onto the other.
+4. **One quantity, one color, across BOTH views.** The shared quantity carries the single
+   accent hue in each drawing; everything else stays ink.
+5. **Both visible at once, with the tie shown.** Use `SplitLayout` (never tabs or an
+   accordion), and make the mapping literal at least once: a shared y-scale and zero line,
+   a connecting guide line, or a marker that appears in both at the same instant.
+
+Deliberate exception to "nothing teleports": read the shared variable **raw** in both
+views — no spring on it. For linked views exact lockstep beats easing, since a spring in
+each view lets them drift visibly apart mid-drag. Springs stay for local affordances only
+(handle scale on hover).
+
+```tsx
+// The shape, condensed from linkedFiguresDemo.tsx.
+// Both drawings read `linkedAngle` and `linkedViewHighlight` — that is the entire link.
+const AXIS_Y = 150;        // same zero line in BOTH views
+const AMPLITUDE_PX = 96;   // same pixels-per-unit in BOTH views → the visible tie
+
+function useHighlightState() {
+    const highlight = useVar<string>("linkedViewHighlight", "");
+    const setVar = useSetVar();
+    return {
+        opacity: (id: string) => (highlight && highlight !== id ? 0.35 : 1),
+        weight: (id: string, resting: number) => (highlight === id ? resting * 1.6 : resting),
+        hoverProps: (id: string) => ({
+            onPointerEnter: () => setVar("linkedViewHighlight", id),
+            onPointerLeave: () => setVar("linkedViewHighlight", ""),
+        }),
+    };
+}
+
+<SplitLayout key="layout-sine-pair" ratio="1:1" gap="lg" align="start">
+    <Block id="sine-pair-circle" padding="sm" hasVisualization>
+        <UnitCircleFigure />
+    </Block>
+    <Block id="sine-pair-graph" padding="sm" hasVisualization>
+        <SineGraphFigure />
+    </Block>
+</SplitLayout>
+```
+
+Checklist for every linked pair (in addition to the bespoke-figure checklist):
+
+- [ ] Both views read the same store variable(s) — grep the file: no duplicated state
+- [ ] The quantity is draggable in at least one view, ideally both
+- [ ] Matching elements share a highlight id, and hovering either one dims BOTH views
+- [ ] The shared quantity uses the same accent hue and the same formatter in both
+- [ ] Same scale / zero line, or another literal tie the reader can see
+- [ ] Side by side in one `SplitLayout` — never tabs, never an accordion
+- [ ] The second view has a nameable role (complementary / constraining / constructing).
+      If it does not, delete it — an unjustified second view costs attention and teaches nothing
+
+## VisualOptionCards (Phase-1 Visual Chooser — TEMPORARY block)
+
+`VisualOptionCards` (import from `@/components/organisms`) is the teacher-facing carousel used during **text-first section builds**: the section's concept prose is written first, and this block stands in the exact spot where the section's interactive visual will go. Each card is a brief design spec for one candidate visual. When the teacher clicks "Use this visual" (or describes their own idea via the built-in "I have my own idea" input, or asks for different ideas), the choice is forwarded to the builder as a chat message; the builder then builds that visual and **REPLACES this entire block** with it.
+
+**Rules:**
+- **Every word on the card is read by a TEACHER, in about fifteen seconds, with nothing else to go on.** Write in plain classroom English, to the teacher, about their students. Never address the reader as the one interacting ("a ghost ball *you* place" makes the teacher the student — write "a faint copy students place themselves"), and never put design vocabulary on the card (paradigm, trace, affordance, binding, arity). If a phrase would make a colleague in the staff room say "what?", replace it with the ordinary word: *dots left behind* not "strobe trail", *lines that stay level* not "level lines that stay perfectly horizontal", *faint copy* not "ghost".
+- **A card is exactly THREE beats — the description, what students do, what it teaches.** Add nothing beyond them: a card the teacher has to wade through gets skimmed, and a skimmed card is not compared. This is the standard to match:
+  > **Two balls fall from the same height — one straight down, one moving sideways**
+  >
+  > Imagine a table with two identical balls at the same height. One ball is dropped straight down, while the other is thrown sideways off the table. As they fall, each one leaves a faint trail showing the path it took.
+  >
+  > **Students predict:** Place the faint ball where they think the sideways-moving ball will be when the dropped ball hits the floor.
+  >
+  > **They discover:** Both balls hit the floor at the same time, even though one is moving sideways.
+  >
+  > **Clears up:** Moving sideways faster does not make a ball fall more slowly.
+- **`title` describes THE VISUAL, not the activity** — up to ~14 words, and naming the contrast the visual is built on is encouraged (the title above earns its length because every word adds picture). Never an invented name ("The strobe race"), never the activity ("Predict which ball lands first" — that is `manipulate`), never a metaphor standing in for the picture ("Unrolling the circle").
+- **`looks` is THE DESCRIPTION, and it carries everything that is not one of the other two beats** — one or two sentences (~45 words): (a) the scene, the objects, where they are and the setup that matters, opening with "Imagine…" if that helps; (b) what the picture DOES, woven into the same sentences rather than split onto its own line ("…as they fall, each one leaves a faint trail showing the path it took"); and (c) for a linked pair, the second view mentioned in plain words as part of the picture ("…with a graph beside it drawing one line per ball"). No component names, coordinates, or hex colours.
+- **`manipulate` is WHAT STUDENTS DO** — one sentence, the gesture on something already standing in that scene. It renders under a label taken from `paradigm` ("Students predict:", "Students build:", "Students compare:"), so write the sentence to continue that label.
+- This block is TEMPORARY scaffolding. It must NEVER survive into a finished section — building the chosen visual always replaces it (same block id).
+- Editor-mode only: in student preview it renders nothing, so an unfinished section shows clean text. Never design prose that depends on the carousel being visible.
+- 2-3 cards, at most ONE with `recommended: true`.
+- Every card MUST carry `paradigm` — one of `conventional`, `inversion`, `temporal`, `constructivist`, `comparison`, `goal`, `prediction` — naming its interaction paradigm. Cards in one carousel must come from DIFFERENT paradigms.
+- Every card must be implementable with the components in this file — decide internally which component family you would use BEFORE writing the card.
+- `manipulate` must name a concrete draggable/movable element INSIDE the visual (never an external slider).
+- Add `secondView` when the design is a **linked pair** of visuals (see *Linked Figures* below). It takes `shows` (what the second view displays), `role` (`complementary` | `constraining` | `constructing`), and `syncedBy` (the shared store variable(s) plus the shared hover highlight). Omit it for single-view designs, and keep at least one single-view card per carousel so the choice stays meaningful.
+
+```tsx
+import { VisualOptionCards } from "@/components/organisms";
+
+<Block id="circle-area-visual">
+    <VisualOptionCards
+        blockId="circle-area-visual"
+        cards={[
+            {
+                id: "unroll-circumference",
+                // THE VISUAL, with the contrast named — not "Unroll the rim",
+                // which would be the activity (that lives in `manipulate`).
+                title: "A circle rolled out flat against a ruler",
+                // THE DESCRIPTION: the scene, plus what the picture does.
+                // Everything that is not one of the other two beats lives here.
+                looks: "Imagine a wheel standing on a long ruler, with one spot on its rim marked in teal. As the wheel rolls, its rim unrolls into a straight stripe along the ruler beneath it",
+                // WHAT STUDENTS DO — continues the "Students step through:" label.
+                manipulate: "Roll the wheel along the ruler until the marked spot comes back down to the line",
+                reveals: "The rim always stretches to just over three widths, whatever the wheel — that number is π",
+                targetsMisconception: "Students think π is a special number picked by mathematicians, not a ratio",
+                paradigm: "temporal",
+                recommended: true,
+            },
+            {
+                id: "sector-rearrange",
+                title: "A circle cut into wedges, rebuilt as a rectangle",
+                looks: "Imagine a circle sliced into coloured wedges like a cut cake, with an empty outlined strip waiting beneath it that squares off into a rectangle as the wedges drop in",
+                manipulate: "Drag each wedge down into the strip, alternating point-up and point-down so they interlock",
+                reveals: "The wedges lose no area when they move, so the circle's area is the rectangle's area — πr²",
+                paradigm: "constructivist",
+            },
+            {
+                id: "radius-area-pair",
+                title: "A circle beside a graph of its own area",
+                looks: "Imagine a circle on the left and, beside it, a graph of area against radius where a dot tracks the circle and traces a curve that bends steeply upward as it grows",
+                manipulate: "Stretch the circle by its rim and compare how far the dot travels sideways with how far it climbs",
+                reveals: "Doubling the radius makes the area four times bigger, which is why the curve bends instead of running straight",
+                paradigm: "comparison",
+                // A LINKED PAIR: both views read the same `radius` variable.
+                // Not shown on the card — the teacher meets the graph inside
+                // `looks` above; this carries the phase-2 build contract.
+                secondView: {
+                    shows: "A graph of area against radius, with the current point marked",
+                    role: "complementary",
+                    syncedBy: "radius, plus a shared hover highlight on the radius line",
+                },
+            },
+        ]}
+    />
+</Block>
 ```
 
 ## Visual Assessment Tasks
@@ -1945,16 +2234,21 @@ nothing teleports (springs for discrete changes, 1:1 tracking during drag).
 A complete copyable exemplar lives in `src/data/sections/figureDemo.tsx` (reference-only,
 like `exampleBlocks.tsx` — not registered in `blocks.tsx`).
 
+**Before building a single figure, check the *Linked Figures* section below.** Many
+concepts are better served by TWO linked views sharing one store variable than by one
+view carrying everything; `src/data/sections/linkedFiguresDemo.tsx` is that exemplar.
+
 ### The `<Figure>` Shell (import from `@/components/molecules`)
 
-Uniform chrome for every bespoke figure: rounded white frame, quiet icon controls
+Uniform chrome for every bespoke figure: **borderless** white ground, quiet icon controls
 (top-right, fade in on hover/focus, always visible on touch), 13px ink-gray caption below.
-The drawing inside stays fully custom — the frame is a `position: relative` container, so
-`InteractionHintSequence` overlays keep working inside. Never rebuild or restyle this chrome.
+The drawing inside stays fully custom — the shell is a `position: relative` container, so
+`InteractionHintSequence` overlays keep working inside. Never rebuild or restyle this chrome,
+and never add a border, ring, card, or shadow around it.
 
 | Prop | Type | Purpose |
 |------|------|---------|
-| `id` | `string` *(required)* | Emitted as `data-figure-id` on the root (verification harness target) |
+| `id` | `string` *(required)* | Emitted as `data-figure-id` on the root for review and research tooling |
 | `caption` | `ReactNode` | Caption below the frame — sentence case, explains the interaction |
 | `onReset` | `() => void` | When provided, shows a reset icon button that calls it |
 | `playable` | `boolean` | Shows a play/pause toggle in the chrome |
@@ -2152,4 +2446,10 @@ Checklist for every bespoke figure (in addition to the interactivity rules above
 - [ ] `useRafLoop` for anything continuous, advanced by `dt`/`elapsed` (never frame count)
 - [ ] Wrapped in `<Figure>` with `id`, caption, and `onReset`; sliders via `FigureSlider`
 - [ ] `InteractionHintSequence` inside the shell, positioned on the draggable element
+- [ ] Every linked highlight pops its target (stroke ≥1.5× plus a ~28%-opacity halo) AND
+      recedes every other element and label to 30-45%, eased ~150ms both ways (§6a of
+      `FIGURE_DESIGN_LANGUAGE.md`); pointer enter/leave on the element writes the same variable
 - [ ] Labels readable and non-overlapping at BOTH extremes of every control's range
+- [ ] Every label FULLY inside the viewBox — gutters reserved before the plot was sized, edge labels anchored back toward the ink, nothing sliced at any reachable state
+- [ ] No border/ring/card/shadow around the figure and no `<rect>` frame around the plot
+- [ ] Each quantity uses ONE formatter everywhere (figure, slider readout, prose) — `%` never `‰`, fixed decimals, tabular numerals

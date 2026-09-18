@@ -35,11 +35,16 @@ export const ClozeChoiceEditorModal: React.FC = () => {
             setError('Correct answer is required');
             return false;
         }
-        if (options.length < 2) {
+        if (options.some(option => !option.trim())) {
+            setError('All options must have text');
+            return false;
+        }
+        const normalizedOptions = options.map(option => option.trim());
+        if (normalizedOptions.length < 2) {
             setError('At least 2 options are required');
             return false;
         }
-        if (!options.some(o => o.trim() === correctAnswer.trim())) {
+        if (!normalizedOptions.includes(correctAnswer.trim())) {
             setError('Correct answer must be one of the options');
             return false;
         }
@@ -53,7 +58,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
         saveClozeChoiceEdit({
             varName: varName || undefined,
             correctAnswer,
-            options: options.filter(o => o.trim() !== ''),
+            options: options.map(option => option.trim()),
             placeholder: placeholder || undefined,
             color,
             bgColor: bgColor || undefined,
