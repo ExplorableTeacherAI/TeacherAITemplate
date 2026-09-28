@@ -1,0 +1,160 @@
+/**
+ * Chat terms — the named elements of a tutor explorable, so the tutor's chat
+ * text can point at them.
+ *
+ * An explorable file exports them next to its blocks:
+ *
+ *     export const chatTerms: ChatTerm[] = [
+ *         { id: "rings", label: "concentric rings", color: "#AC8BF9",
+ *           highlight: { varName: "circleDissection_highlight", value: "rings" },
+ *           select: { varName: "circleDissection_mode", value: "rings" } },
+ *     ];
+ *
+ * ExplorableView reports them to the chat page, which forwards them to the
+ * tutor each turn. The tutor writes `[concentric rings](el:rings)`; the chat
+ * renders it as a pill in the element's color, and hovering / clicking the
+ * pill sets the declared store variables inside the explorable (a linked
+ * highlight, or "show me this one"). Only variables declared here can be set
+ * from outside the iframe.
+ */
+
+export type ChatTermValue = string | number | boolean;
+
+export interface ChatTermBinding {
+    /** Store variable of this explorable (id-prefixed, e.g. `circleDissection_highlight`) */
+    varName: string;
+    value: ChatTermValue;
+}
+
+export interface ChatTerm {
+    /** Short id, unique within the explorable — the tutor writes `[label](el:<id>)` */
+    id: string;
+    /** How the element is named in words, e.g. "concentric rings" */
+    label: string;
+    /** The element's exact spot color in the figure (#RRGGBB) */
+    color: string;
+    /** Hovering the term in chat sets varName=value (linked highlight); leaving restores it */
+    highlight?: ChatTermBinding;
+    /** Clicking the term in chat sets varName=value (e.g. switch the figure to this element) */
+    select?: ChatTermBinding;
+}
+
+const ID_RE = /^[A-Za-z0-9_-]{1,40}$/;
+const HEX_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+const VAR_RE = /^[A-Za-z][A-Za-z0-9_]{0,80}$/;
+
+const isValue = (v: unknown): v is ChatTermValue =>
+    typeof v === "string" || typeof v === "boolean" || (typeof v === "number" && Number.isFinite(v));
+
+const binding = (b: unknown): ChatTermBinding | undefined => {
+    if (!b || typeof b !== "object") return undefined;
+    const { varName, value } = b as Record<string, unknown>;
+    return typeof varName === "string" && VAR_RE.test(varName) && isValue(value)
+        ? { varName, value }
+        : undefined;
+};
+
+/** Keep only well-formed terms (agent-written code — never trust the shape). */
+export const sanitizeChatTerms = (raw: unknown): ChatTerm[] => {
+    if (!Array.isArray(raw)) return [];
+    const seen = new Set<string>();
+    const out: ChatTerm[] = [];
+    for (const t of raw.slice(0, 24)) {
+        if (!t || typeof t !== "object") continue;
+        const { id, label, color } = t as Record<string, unknown>;
+        if (typeof id !== "string" || !ID_RE.test(id) || seen.has(id)) continue;
+        if (typeof label !== "string" || !label.trim() || typeof color !== "string" || !HEX_RE.test(color)) continue;
+        seen.add(id);
+        out.push({
+            id,
+            label: label.trim().slice(0, 60),
+            color,
+            highlight: binding((t as ChatTerm).highlight),
+            select: binding((t as ChatTerm).select),
+        });
+    }
+    return out;
+};
+
+/** Variables the chat page may set for these terms, with their allowed values. */
+export const settableVariables = (terms: ChatTerm[]): Map<string, Set<ChatTermValue>> => {
+    const allowed = new Map<string, Set<ChatTermValue>>();
+    for (const t of terms) {
+        for (const b of [t.highlight, t.select]) {
+            if (!b) continue;
+            if (!allowed.has(b.varName)) allowed.set(b.varName, new Set());
+            allowed.get(b.varName)!.add(b.value);
+        }
+    }
+    return allowed;
+};
+
+/**
+ * Chat variables — numeric store variables the tutor's chat text can show
+ * live or change. Exported next to `chatTerms`:
+ *
+ *     export const chatVariables: ChatVariable[] = [
+ *         { id: "rings", label: "number of rings", varName: "circleDissection_numRings",
+ *           color: DISSECTION_COLORS.rings, settable: { min: 1, max: 12, step: 1 } },
+ *         { id: "area", label: "area", varName: "circleDissection_area", decimals: 1, unit: "cm²" },
+ *     ];
+ *
+ * The tutor writes `[area](value:area)` (live readout), `[4](scrub:rings)`
+ * (a number the student drags in chat) or `[8 rings](set:rings=8)` (click to
+ * set). Only variables with `settable` can be changed from chat, and only
+ * within its range, snapped to its step.
+ */
+export interface ChatVariable {
+    /** Short id, unique within the explorable */
+    id: string;
+    /** What the number is, in words */
+    label: string;
+    /** Numeric store variable of this explorable */
+    varName: string;
+    /** Spot color of the quantity (#RRGGBB) */
+    color?: string;
+    unit?: string;
+    /** Decimal places shown in chat (default 0) — match the explorable's formatter */
+    decimals?: number;
+    /** Present when the chat may change it */
+    settable?: { min: number; max: number; step: number };
+}
+
+const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+
+export const sanitizeChatVariables = (raw: unknown): ChatVariable[] => {
+    if (!Array.isArray(raw)) return [];
+    const seen = new Set<string>();
+    const out: ChatVariable[] = [];
+    for (const v of raw.slice(0, 16)) {
+        if (!v || typeof v !== "object") continue;
+        const r = v as Record<string, unknown>;
+        if (typeof r.id !== "string" || !ID_RE.test(r.id) || seen.has(r.id)) continue;
+        if (typeof r.label !== "string" || !r.label.trim()) continue;
+        if (typeof r.varName !== "string" || !VAR_RE.test(r.varName)) continue;
+        const s = r.settable as Record<string, unknown> | undefined;
+        const settable =
+            s && finite(s.min) && finite(s.max) && finite(s.step) && s.max > s.min && s.step > 0
+                ? { min: s.min, max: s.max, step: s.step }
+                : undefined;
+        seen.add(r.id);
+        out.push({
+            id: r.id,
+            label: r.label.trim().slice(0, 60),
+            varName: r.varName,
+            color: typeof r.color === "string" && HEX_RE.test(r.color) ? r.color : undefined,
+            unit: typeof r.unit === "string" ? r.unit.slice(0, 12) : undefined,
+            decimals: finite(r.decimals) ? Math.min(Math.max(Math.round(r.decimals), 0), 4) : undefined,
+            settable,
+        });
+    }
+    return out;
+};
+
+/** Clamp to the range and snap to the step grid (anchored at min). */
+export const snapToSettable = (value: number, s: { min: number; max: number; step: number }): number => {
+    const clamped = Math.min(Math.max(value, s.min), s.max);
+    const snapped = s.min + Math.round((clamped - s.min) / s.step) * s.step;
+    // strip float noise like 0.30000000000000004
+    return Math.min(Number(snapped.toFixed(10)), s.max);
+};
