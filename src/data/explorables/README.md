@@ -42,6 +42,15 @@ import { blocks as fractionBarsBlocks } from "./explorables/fraction-bars";
 "fraction-bars": { blocks: fractionBarsBlocks, title: "Fraction bars" },
 ```
 
+Chat link (see `src/lib/chatTerms.ts`):
+- Export `chatTerms` — the elements the tutor can name in chat, each with its
+  exact spot color. Required: publishing rejects a file without readable terms.
+- Numbers need no declaration: every `number` definition registered under the
+  explorable's prefix (`fractionBars_numerator`) reaches the chat with its
+  label, unit, color and range, as `numerator`. Export `chatVariables` only
+  to add a derived readout, rename a number, or hide one (it replaces the
+  automatic list).
+
 Rules:
 - Follow ALL design rules from the project CLAUDE.md (interactivity, one
   component per Block, soft colors, hierarchical IDs, hints, ...).

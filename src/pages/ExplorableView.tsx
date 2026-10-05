@@ -3,27 +3,39 @@ import { useEffect, useRef, useState } from "react";
 import { BlockRenderer } from "@/components/templates";
 import { explorables } from "@/data/explorables";
 import { useAppMode } from "@/contexts/AppModeContext";
-import { useVariableStore } from "@/stores";
+import * as stores from "@/stores";
 import {
     type ChatTerm,
     type ChatVariable,
+    type VariableDefinitionLike,
+    deriveChatVariables,
     sanitizeChatTerms,
     sanitizeChatVariables,
     settableVariables,
     snapToSettable,
 } from "@/lib/chatTerms";
 
+const { useVariableStore } = stores;
+
+// The numbers an explorable registered, for deriving its chat variables. A
+// workspace whose store predates the definitions registry (it is synced on
+// the next preview start) degrades to "no derived variables" here instead of
+// failing to import.
+const registeredDefinitions = (): Record<string, VariableDefinitionLike> =>
+    (stores as { getRegisteredDefinitions?: () => Record<string, VariableDefinitionLike> })
+        .getRegisteredDefinitions?.() ?? {};
+
 // Each explorable file may export `chatTerms` and `chatVariables` (see
-// src/lib/chatTerms.ts). Lazy on purpose: only the current explorable's
-// module is touched, and the registry has already imported it, so this
-// resolves to the loaded module.
+// src/lib/chatTerms.ts); without `chatVariables` the numbers it registered
+// stand in. Lazy on purpose: only the current explorable's module is
+// touched, and the registry has already imported it, so this resolves to
+// the loaded module.
 const explorableModules = import.meta.glob<Record<string, unknown>>("../data/explorables/*.tsx");
 
 interface ChatSpec {
     terms: ChatTerm[];
     variables: ChatVariable[];
 }
-const NO_CHAT_SPEC: ChatSpec = { terms: [], variables: [] };
 
 /**
  * ExplorableView — renders exactly one registered explorable, selected via
@@ -75,9 +87,10 @@ const ExplorableView = () => {
 
     useEffect(() => {
         if (!entry) return;
+        const derived = () => deriveChatVariables(id, registeredDefinitions());
         const load = explorableModules[`../data/explorables/${id}.tsx`];
         if (!load) {
-            setChatSpec(NO_CHAT_SPEC);
+            setChatSpec({ terms: [], variables: derived() });
             return;
         }
         let cancelled = false;
@@ -86,10 +99,16 @@ const ExplorableView = () => {
                 if (cancelled) return;
                 setChatSpec({
                     terms: sanitizeChatTerms(mod.chatTerms),
-                    variables: sanitizeChatVariables(mod.chatVariables),
+                    // An explicit export replaces the derived list, so a file
+                    // can hide a number or add a derived readout.
+                    variables:
+                        mod.chatVariables === undefined
+                            ? derived()
+                            : sanitizeChatVariables(mod.chatVariables),
                 });
             })
-            .catch(() => { if (!cancelled) setChatSpec(NO_CHAT_SPEC); }); // plain spot colors in chat
+            // plain spot colors in chat, numbers still derived
+            .catch(() => { if (!cancelled) setChatSpec({ terms: [], variables: derived() }); });
         return () => { cancelled = true; };
     }, [entry, id]);
 

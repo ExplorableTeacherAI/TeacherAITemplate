@@ -185,6 +185,29 @@ export const initializeVariableColors = (
 };
 
 /**
+ * The definition fields kept for runtime introspection. Tutor explorables
+ * register their variables with these, and ExplorableView derives the
+ * numbers the chat can show or change from them (see lib/chatTerms.ts).
+ */
+export interface RegisteredDefinition {
+    defaultValue?: VarValue;
+    color?: string;
+    label?: string;
+    type?: string;
+    unit?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    correctAnswer?: unknown;
+}
+
+const registeredDefinitions: Record<string, RegisteredDefinition> = {};
+
+/** Every definition passed to registerVariables so far (name → definition). */
+export const getRegisteredDefinitions = (): Readonly<Record<string, RegisteredDefinition>> =>
+    registeredDefinitions;
+
+/**
  * Register additional variables AFTER the store has been initialized.
  *
  * Unlike initialize() (which only runs once), this merges new defaults and
@@ -196,11 +219,12 @@ export const initializeVariableColors = (
  * registerVariables({ fractionBars_numerator: { defaultValue: 1, type: 'number', color: '#62D0AD' } });
  */
 export const registerVariables = (
-    definitions: Record<string, { defaultValue?: VarValue; color?: string }>
+    definitions: Record<string, RegisteredDefinition>
 ): void => {
     const store = useVariableStore.getState();
     const newVars: Record<string, VarValue> = {};
     for (const [name, def] of Object.entries(definitions)) {
+        registeredDefinitions[name] = def;
         if (def.defaultValue !== undefined && !(name in store.variables)) {
             newVars[name] = def.defaultValue;
         }

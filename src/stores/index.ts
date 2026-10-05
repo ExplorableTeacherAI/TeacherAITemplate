@@ -38,6 +38,8 @@ export {
     useVarColor,
     initializeVariableColors,
     registerVariables,
+    getRegisteredDefinitions,
     type VarValue,
+    type RegisteredDefinition,
 } from './variableStore';
 

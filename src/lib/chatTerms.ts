@@ -158,3 +158,77 @@ export const snapToSettable = (value: number, s: { min: number; max: number; ste
     // strip float noise like 0.30000000000000004
     return Math.min(Number(snapped.toFixed(10)), s.max);
 };
+
+/**
+ * Derived chat variables — when an explorable exports no `chatVariables`,
+ * the numbers it registered with `registerVariables` stand in: every number
+ * definition whose name carries the explorable's camelCase prefix
+ * (`circleDissection_numRings` for `circle-dissection`) becomes a variable
+ * the chat can show live (`[…](value:numRings)`) and, when it has a
+ * min/max/step, change (`[…](scrub:numRings)`, `[…](set:numRings=8)`).
+ * Its id is the name after the prefix. Reveal gates, highlight variables and
+ * answers are left out. An explicit `chatVariables` export replaces this
+ * list entirely (also the way to hide a variable or add a derived readout).
+ */
+export interface VariableDefinitionLike {
+    defaultValue?: unknown;
+    color?: string;
+    label?: string;
+    type?: string;
+    unit?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    correctAnswer?: unknown;
+}
+
+/** `circle-area-growth` → `circleAreaGrowth_`, the variable prefix its file must use. */
+export const explorableVariablePrefix = (explorableId: string): string => {
+    const parts = explorableId.split(/[^A-Za-z0-9]+/).filter(Boolean);
+    return parts.map((p, i) => (i === 0 ? p : p[0].toUpperCase() + p.slice(1))).join("") + "_";
+};
+
+// Internal state and assessment variables: never something the chat should scrub.
+const HIDDEN_SUFFIX_RE = /(explored|interacted|revealed|highlight|answer|correct|status)$/i;
+
+const decimalsOfStep = (step: number): number => {
+    const text = String(step);
+    const dot = text.indexOf(".");
+    return dot < 0 ? 0 : Math.min(text.length - dot - 1, 4);
+};
+
+const humanize = (name: string): string =>
+    name.replace(/[_-]+/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase().trim();
+
+export const deriveChatVariables = (
+    explorableId: string,
+    definitions: Readonly<Record<string, VariableDefinitionLike>>,
+): ChatVariable[] => {
+    const prefix = explorableVariablePrefix(explorableId).toLowerCase();
+    if (prefix === "_") return [];
+    const raw: unknown[] = [];
+    for (const [name, def] of Object.entries(definitions)) {
+        if (!def || !name.toLowerCase().startsWith(prefix)) continue;
+        const suffix = name.slice(prefix.length);
+        if (!suffix || HIDDEN_SUFFIX_RE.test(suffix) || def.correctAnswer !== undefined) continue;
+        const isNumber =
+            def.type === "number" || (def.type === undefined && typeof def.defaultValue === "number");
+        if (!isNumber) continue;
+        const { min, max, step } = def;
+        const settable =
+            finite(min) && finite(max) && finite(step) && max > min && step > 0
+                ? { min, max, step }
+                : undefined;
+        const defaultValue = typeof def.defaultValue === "number" ? def.defaultValue : 0;
+        raw.push({
+            id: suffix,
+            label: def.label?.trim() || humanize(suffix),
+            varName: name,
+            color: def.color,
+            unit: def.unit,
+            decimals: settable ? decimalsOfStep(settable.step) : Number.isInteger(defaultValue) ? 0 : 2,
+            settable,
+        });
+    }
+    return sanitizeChatVariables(raw);
+};
