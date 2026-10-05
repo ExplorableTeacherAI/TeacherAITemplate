@@ -136,6 +136,24 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     // Local state for component without varName
     const [localValue, setLocalValue] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    // The menu hangs off the trigger's left edge. For a blank near the end of
+    // a line it would run past the right edge of the page — inside the tutor
+    // chat's iframe that edge clips it — so it hangs off the right edge
+    // instead. Decided from the layout width (unaffected by the open
+    // animation's scale) the moment the menu mounts, and reset on close.
+    const [alignRight, setAlignRight] = useState(false);
+    const menuRef = useCallback((menu: HTMLElement | null) => {
+        if (!menu) { setAlignRight(false); return; }
+        const anchor = dropdownRef.current;
+        if (!anchor) return;
+        const left = anchor.getBoundingClientRect().left;
+        const available = document.documentElement.clientWidth - 4;
+        setAlignRight(left + menu.offsetWidth > available && left + anchor.offsetWidth > menu.offsetWidth);
+    }, []);
+    const menuClassName = cn(
+        "absolute top-full mt-1 inline-block rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]",
+        alignRight ? "right-0" : "left-0",
+    );
     const [isHovered, setIsHovered] = useState(false);
 
     // Determine which value to use
@@ -337,11 +355,12 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                     <AnimatePresence>
                         {isOpen && (
                             <motion.span
+                                ref={menuRef}
                                 initial={{ opacity: 0, y: -4, scale: 0.97 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                                 transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-                                className="absolute top-full left-0 mt-1 inline-block rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
+                                className={menuClassName}
                                 style={{
                                     background: 'white',
                                     boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',
@@ -404,11 +423,12 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                 <AnimatePresence>
                     {isOpen && (
                         <motion.span
+                            ref={menuRef}
                             initial={{ opacity: 0, y: -4, scale: 0.97 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -4, scale: 0.97 }}
                             transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-                            className="absolute top-full left-0 mt-1 inline-block rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]"
+                            className={menuClassName}
                             style={{
                                 background: 'white',
                                 boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)',

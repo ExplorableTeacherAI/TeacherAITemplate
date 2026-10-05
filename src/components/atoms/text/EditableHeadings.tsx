@@ -1,6 +1,7 @@
 import React from 'react';
 import { EditableText } from './EditableText';
 import { cn } from '@/lib/utils';
+import { useEmbedded } from '@/contexts/EmbedContext';
 
 interface EditableHeadingProps {
     children: React.ReactNode;
@@ -21,6 +22,23 @@ export const headingStyles = {
     h5: 'text-lg sm:text-xl font-medium leading-normal',
     h6: 'text-base sm:text-lg font-medium leading-normal',
 };
+
+/**
+ * Heading scale when the explorable is embedded in the tutor chat — stepped
+ * down to sit with the chat's 14px body text (an h2 there is 20px, like a
+ * `prose-sm` h2), and without the responsive step-up.
+ */
+export const embeddedHeadingStyles = {
+    h1: 'text-2xl font-bold tracking-tight leading-tight',
+    h2: 'text-xl font-semibold tracking-tight leading-snug',
+    h3: 'text-lg font-semibold leading-snug',
+    h4: 'text-base font-medium leading-normal',
+    h5: 'text-sm font-medium leading-normal',
+    h6: 'text-sm font-medium leading-normal',
+};
+
+/** The heading scale for the current rendering context. */
+const useHeadingStyles = () => (useEmbedded() ? embeddedHeadingStyles : headingStyles);
 
 /**
  * EditableH1 - Primary page/section title
@@ -45,7 +63,7 @@ export const EditableH1: React.FC<EditableHeadingProps> = ({
         as="h1"
         id={id}
         blockId={blockId}
-        className={cn(headingStyles.h1, className)}
+        className={cn(useHeadingStyles().h1, className)}
     >
         {children}
     </EditableText>
@@ -74,7 +92,7 @@ export const EditableH2: React.FC<EditableHeadingProps> = ({
         as="h2"
         id={id}
         blockId={blockId}
-        className={cn(headingStyles.h2, className)}
+        className={cn(useHeadingStyles().h2, className)}
     >
         {children}
     </EditableText>
@@ -103,7 +121,7 @@ export const EditableH3: React.FC<EditableHeadingProps> = ({
         as="h3"
         id={id}
         blockId={blockId}
-        className={cn(headingStyles.h3, className)}
+        className={cn(useHeadingStyles().h3, className)}
     >
         {children}
     </EditableText>
@@ -132,7 +150,7 @@ export const EditableH4: React.FC<EditableHeadingProps> = ({
         as="h4"
         id={id}
         blockId={blockId}
-        className={cn(headingStyles.h4, className)}
+        className={cn(useHeadingStyles().h4, className)}
     >
         {children}
     </EditableText>
@@ -154,7 +172,7 @@ export const EditableH5: React.FC<EditableHeadingProps> = ({
         as="h5"
         id={id}
         blockId={blockId}
-        className={cn(headingStyles.h5, className)}
+        className={cn(useHeadingStyles().h5, className)}
     >
         {children}
     </EditableText>
@@ -176,7 +194,7 @@ export const EditableH6: React.FC<EditableHeadingProps> = ({
         as="h6"
         id={id}
         blockId={blockId}
-        className={cn(headingStyles.h6, className)}
+        className={cn(useHeadingStyles().h6, className)}
     >
         {children}
     </EditableText>

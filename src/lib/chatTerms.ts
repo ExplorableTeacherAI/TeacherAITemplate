@@ -26,6 +26,13 @@ export interface ChatTermBinding {
     value: ChatTermValue;
 }
 
+/**
+ * Store counter the embedded view bumps whenever the chat changes a value
+ * (a scrub, a `set:` chip, a term click). Changing the figure from the chat
+ * is exploring it, so RevealOnInteraction treats a bump like a drag.
+ */
+export const CHAT_INTERACTION_VAR = "mathvibe_chatInteracted";
+
 export interface ChatTerm {
     /** Short id, unique within the explorable — the tutor writes `[label](el:<id>)` */
     id: string;

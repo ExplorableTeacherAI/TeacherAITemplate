@@ -5,6 +5,7 @@ import { explorables } from "@/data/explorables";
 import { useAppMode } from "@/contexts/AppModeContext";
 import * as stores from "@/stores";
 import {
+    CHAT_INTERACTION_VAR,
     type ChatTerm,
     type ChatVariable,
     type VariableDefinitionLike,
@@ -36,6 +37,46 @@ interface ChatSpec {
     terms: ChatTerm[];
     variables: ChatVariable[];
 }
+
+const HEX_COLOR_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+/** `#RRGGBB` / `#RGB` → the `rgb(r, g, b)` form getComputedStyle reports. */
+const hexToRgb = (hex: string): string => {
+    const h = hex.length === 4 ? hex.slice(1).split("").map((c) => c + c).join("") : hex.slice(1);
+    const n = parseInt(h, 16);
+    return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
+};
+
+/**
+ * Linked highlight for a chat term that has no `highlight` binding: every
+ * SVG element currently drawn in the term's exact spot color pops, the rest
+ * of that drawing recedes — the same look the contract asks of a bound
+ * highlight. Spot colors are exact by contract, so a color match IS the
+ * element. Draws nothing when nothing on screen has the color (an option the
+ * figure is not showing); only a binding can preview those.
+ */
+const highlightByColor = (root: HTMLElement, color: string, on: boolean) => {
+    for (const el of root.querySelectorAll<SVGElement>("svg [data-chat-lit]")) {
+        el.removeAttribute("data-chat-lit");
+        el.style.removeProperty("--chat-lit");
+    }
+    for (const svg of root.querySelectorAll("svg[data-chat-dim]")) svg.removeAttribute("data-chat-dim");
+    if (!on || !HEX_COLOR_RE.test(color)) return;
+    const rgb = hexToRgb(color);
+    const svgs = new Set<Element>();
+    for (const el of root.querySelectorAll<SVGElement>("svg *")) {
+        if (el instanceof SVGDefsElement || el.closest("defs")) continue;
+        const cs = getComputedStyle(el);
+        const painted =
+            (cs.fill === rgb && cs.fill !== "none") || (cs.stroke === rgb && cs.stroke !== "none");
+        if (!painted) continue;
+        el.setAttribute("data-chat-lit", "1");
+        el.style.setProperty("--chat-lit", color);
+        const svg = el.closest("svg");
+        if (svg) svgs.add(svg);
+    }
+    for (const svg of svgs) svg.setAttribute("data-chat-dim", "1");
+};
 
 /**
  * ExplorableView — renders exactly one registered explorable, selected via
@@ -75,14 +116,35 @@ const ExplorableView = () => {
         // overflow-x: clip, not hidden: `hidden` forces overflow-y to `auto`,
         // which turns <body> into a scroll container — an open dropdown then
         // shows a scrollbar and the height reports creep 1px per resize.
+        // overflow-y: clip as well: the chat sizes the frame to the content,
+        // so this document must never scroll on its own — a wheel over it
+        // used to scroll the document inside the frame and cut the figure
+        // off at the top (with no scrollbar to show why). Wheel events now
+        // chain out to the chat transcript or the side panel's box instead.
         style.textContent = `
-            html, body { background: transparent !important; overflow-x: clip; }
+            html, body { background: transparent !important; overflow-x: clip; overflow-y: clip; }
             body { min-height: 0 !important; }
             html, body { scrollbar-width: none; -ms-overflow-style: none; }
             html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
+            /* Chat hover fallback (see highlightByColor): pop what is drawn in
+               the term's color, let the rest of that drawing recede. */
+            svg[data-chat-dim] * { transition: opacity 150ms ease, filter 150ms ease; }
+            svg[data-chat-dim] *:not([data-chat-lit]):not(:has([data-chat-lit])) { opacity: 0.4; }
+            svg[data-chat-dim] [data-chat-lit] {
+                filter: drop-shadow(0 0 3px var(--chat-lit)) drop-shadow(0 0 1px var(--chat-lit));
+            }
         `;
         document.head.appendChild(style);
-        return () => { style.remove(); };
+        // Belt and braces for engines that still let the viewport scroll
+        // programmatically: snap it back so the top of the figure stays put.
+        const resetScroll = () => {
+            if (window.scrollY !== 0 || window.scrollX !== 0) window.scrollTo(0, 0);
+        };
+        window.addEventListener("scroll", resetScroll);
+        return () => {
+            style.remove();
+            window.removeEventListener("scroll", resetScroll);
+        };
     }, [isEditor]);
 
     useEffect(() => {
@@ -158,10 +220,23 @@ const ExplorableView = () => {
             const d = event.data;
             if (!d || d.explorableId !== id) return;
             const store = useVariableStore.getState();
+            // A value change made from the chat counts as exploring the figure
+            // (RevealOnInteraction watches this); hover highlights do not.
+            const countInteraction = () => {
+                const n = store.variables[CHAT_INTERACTION_VAR];
+                store.setVariable(CHAT_INTERACTION_VAR, (typeof n === "number" ? n : 0) + 1);
+            };
+            if (d.type === "mathvibe-explorable-highlight-color") {
+                if (rootRef.current && typeof d.color === "string") {
+                    highlightByColor(rootRef.current, d.color, d.on === true);
+                }
+                return;
+            }
             if (d.type === "mathvibe-explorable-set-value") {
                 const v = variables.find((x) => x.id === d.variableId);
                 if (!v?.settable || typeof d.value !== "number" || !Number.isFinite(d.value)) return;
                 store.setVariable(v.varName, snapToSettable(d.value, v.settable));
+                countInteraction();
                 return;
             }
             if (typeof d.varName !== "string") return;
@@ -177,6 +252,7 @@ const ExplorableView = () => {
                 if (!saved.has(d.varName)) saved.set(d.varName, store.variables[d.varName] ?? "");
             } else {
                 saved.delete(d.varName); // a click is a deliberate choice — keep it
+                countInteraction();
             }
             store.setVariable(d.varName, d.value);
         };
@@ -285,7 +361,8 @@ const ExplorableView = () => {
                 if (prev[name] !== value) {
                     // RevealOnInteraction and similar gates are implementation
                     // details, not concept variables the tutor should discuss.
-                    const isInternalState = /_(explored|interacted|revealed)$/.test(name);
+                    const isInternalState =
+                        /_(explored|interacted|revealed)$/.test(name) || name === CHAT_INTERACTION_VAR;
                     if (isInternalState || highlightOnly.has(name)) continue;
                     window.parent.postMessage(
                         {

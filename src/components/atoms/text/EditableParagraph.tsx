@@ -1,6 +1,7 @@
 import React from 'react';
 import { EditableText } from './EditableText';
 import { cn } from '@/lib/utils';
+import { useEmbedded } from '@/contexts/EmbedContext';
 
 interface EditableParagraphProps {
     children: React.ReactNode;
@@ -24,6 +25,19 @@ const sizeStyles = {
 };
 
 /**
+ * Size styles when the explorable is embedded in the tutor chat: `base`
+ * matches the chat's own body text (14px / 24px line) so the explorable's
+ * prose reads at the same size as the bubbles around it. No responsive
+ * step-up — the iframe's width says nothing about the reader's screen.
+ */
+const embeddedSizeStyles = {
+    sm: 'text-xs',
+    base: 'text-sm',
+    lg: 'text-base',
+    xl: 'text-lg',
+};
+
+/**
  * Line-height styles
  */
 const leadingStyles = {
@@ -32,6 +46,13 @@ const leadingStyles = {
     normal: 'leading-normal',
     relaxed: 'leading-relaxed',
     loose: 'leading-loose',
+};
+
+/** Embedded: the chat's 24px line for the default `relaxed` body text. */
+const embeddedLeadingStyles = {
+    ...leadingStyles,
+    relaxed: 'leading-6',
+    loose: 'leading-7',
 };
 
 /**
@@ -76,22 +97,25 @@ export const EditableParagraph: React.FC<EditableParagraphProps> = ({
     className = '',
     size = 'base',
     leading = 'relaxed',
-}) => (
-    <EditableText
-        as="p"
-        id={id}
-        blockId={blockId}
-        className={cn(
-            'text-muted-foreground',
-            sizeStyles[size],
-            leadingStyles[leading],
-            className
-        )}
-        enableSlashCommands
-    >
-        {children}
-    </EditableText>
-);
+}) => {
+    const embedded = useEmbedded();
+    return (
+        <EditableText
+            as="p"
+            id={id}
+            blockId={blockId}
+            className={cn(
+                'text-muted-foreground',
+                (embedded ? embeddedSizeStyles : sizeStyles)[size],
+                (embedded ? embeddedLeadingStyles : leadingStyles)[leading],
+                className
+            )}
+            enableSlashCommands
+        >
+            {children}
+        </EditableText>
+    );
+};
 
 /**
  * EditableSpan - Inline text wrapper with editing support

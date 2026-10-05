@@ -1,5 +1,6 @@
-import React from 'react';
-import { useVar } from '@/stores';
+import React, { useEffect } from 'react';
+import { useSetVar, useVar } from '@/stores';
+import { CHAT_INTERACTION_VAR } from '@/lib/chatTerms';
 
 interface RevealOnInteractionProps {
     /**
@@ -45,7 +46,18 @@ export const RevealOnInteraction: React.FC<RevealOnInteractionProps> = ({
     placeholder = null,
     block = false,
 }) => {
-    const revealed = useVar<boolean>(varName, false);
+    const flagged = useVar<boolean>(varName, false);
+    // In the tutor chat the student can change the figure's variables from
+    // the bubbles (scrub a number, click a `set:` chip or a term). That is
+    // exploring too, but it never runs the figure's own onChange that would
+    // flip the flag — so the embedded view counts those changes here, and
+    // the first one reveals the question and sets the flag for everyone else.
+    const chatInteractions = useVar<number>(CHAT_INTERACTION_VAR, 0);
+    const setVar = useSetVar();
+    const revealed = flagged || chatInteractions > 0;
+    useEffect(() => {
+        if (!flagged && chatInteractions > 0) setVar(varName, true);
+    }, [flagged, chatInteractions, setVar, varName]);
 
     const Tag = block ? 'div' : 'span';
 

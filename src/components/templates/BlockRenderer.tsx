@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, cloneElement, isValidElement, Children, Fragment, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { motion, useDragControls, type PanInfo } from "framer-motion";
 import { BlockContext } from "@/contexts/BlockContext";
+import { EmbedContext } from "@/contexts/EmbedContext";
 import { InteractionLegend } from "@/components/molecules";
 import {
     getDirectBlockId,
@@ -440,12 +441,16 @@ export const BlockRenderer = ({
     }, [initialBlocks, onReorder]);
 
     return (
+        <EmbedContext.Provider value={embedded}>
         <div ref={containerRef} style={containerStyles} className="pointer-events-auto">
             <div
                 ref={stackRef}
                 className={
+                    // Embedded in the tutor chat: 16px side padding, the same
+                    // as a chat bubble's, so the chat can line the iframe up
+                    // with its bubbles and the text edges match.
                     embedded
-                        ? "z-30 flex flex-col gap-4 px-4 py-4 md:px-6"
+                        ? "z-30 flex flex-col gap-2 px-4 py-2"
                         : "min-h-full z-30 flex flex-col gap-6 pt-8 pb-16 px-8 md:px-16 lg:px-24"
                 }
                 aria-label="Content Blocks"
@@ -569,6 +574,7 @@ export const BlockRenderer = ({
                 </div>
             </div>
         </div>
+        </EmbedContext.Provider>
     );
 };
 
