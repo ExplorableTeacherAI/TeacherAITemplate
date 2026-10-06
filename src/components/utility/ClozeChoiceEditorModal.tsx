@@ -3,6 +3,8 @@ import { useEditing } from '@/contexts/EditingContext';
 import { COLOR_PRESETS_STANDARD, CLOZE_BG_OPACITY, BRAND_GREEN } from './editorColors';
 import { BgColorPicker } from './BgColorPicker';
 import { VariableNamePicker } from './VariableNamePicker';
+import { ClozeFeedbackFields } from './ClozeFeedbackFields';
+import type { ClozeFeedback } from '@/components/atoms/text/feedbackContext';
 
 export const ClozeChoiceEditorModal: React.FC = () => {
     const { editingClozeChoice, closeClozeChoiceEditor, saveClozeChoiceEdit } = useEditing();
@@ -14,6 +16,8 @@ export const ClozeChoiceEditorModal: React.FC = () => {
     const [color, setColor] = useState('#3B82F6');
     const [bgColor, setBgColor] = useState('rgba(59, 130, 246, 0.35)');
     const [error, setError] = useState<string | null>(null);
+    // null when the blank has no InlineFeedback around it
+    const [feedback, setFeedback] = useState<ClozeFeedback | null>(null);
 
     const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
@@ -26,6 +30,7 @@ export const ClozeChoiceEditorModal: React.FC = () => {
             setPlaceholder(editingClozeChoice.placeholder || '???');
             setColor(editingClozeChoice.color || '#3B82F6');
             setBgColor(editingClozeChoice.bgColor || 'rgba(59, 130, 246, 0.35)');
+            setFeedback(editingClozeChoice.feedback ?? null);
             setError(null);
         }
     }, [editingClozeChoice]);
@@ -62,8 +67,9 @@ export const ClozeChoiceEditorModal: React.FC = () => {
             placeholder: placeholder || undefined,
             color,
             bgColor: bgColor || undefined,
+            ...(feedback ? { feedback } : {}),
         });
-    }, [varName, correctAnswer, options, placeholder, color, bgColor, validate, saveClozeChoiceEdit]);
+    }, [varName, correctAnswer, options, placeholder, color, bgColor, feedback, validate, saveClozeChoiceEdit]);
 
     const handleCancel = useCallback(() => {
         closeClozeChoiceEditor();
@@ -199,6 +205,8 @@ export const ClozeChoiceEditorModal: React.FC = () => {
                             placeholder="Select from options above or type here"
                         />
                     </div>
+
+                    {feedback && <ClozeFeedbackFields value={feedback} onChange={setFeedback} />}
 
                     {/* Placeholder */}
                     <div>

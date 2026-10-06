@@ -1,5 +1,5 @@
 import { useActivityRecovery } from "@/lib/activityRecovery";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { BlockRenderer } from "@/components/templates";
 import { explorables } from "@/data/explorables";
 import { useAppMode } from "@/contexts/AppModeContext";
@@ -77,6 +77,10 @@ const highlightByColor = (root: HTMLElement, color: string, on: boolean) => {
     }
     for (const svg of svgs) svg.setAttribute("data-chat-dim", "1");
 };
+
+// The teacher's block editor loads only in editor mode, so a student frame
+// never imports it (or anything it depends on) — see EditableExplorableBlocks.
+const EditableExplorableBlocks = lazy(() => import("./EditableExplorableBlocks"));
 
 /**
  * ExplorableView — renders exactly one registered explorable, selected via
@@ -399,12 +403,18 @@ const ExplorableView = () => {
 
     return (
         <div ref={rootRef} className={`relative ${isEditor ? "bg-white" : "bg-transparent"}`}>
-            <BlockRenderer
-                initialBlocks={entry.blocks}
-                isPreview={!isEditor}
-                hideLegend
-                embedded
-            />
+            {isEditor ? (
+                <Suspense fallback={null}>
+                    <EditableExplorableBlocks blocks={entry.blocks} />
+                </Suspense>
+            ) : (
+                <BlockRenderer
+                    initialBlocks={entry.blocks}
+                    isPreview
+                    hideLegend
+                    embedded
+                />
+            )}
         </div>
     );
 };

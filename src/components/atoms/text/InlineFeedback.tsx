@@ -6,6 +6,7 @@ import { useAppMode } from '@/contexts/AppModeContext';
 import { useEditing } from '@/contexts/EditingContext';
 import type { HintStep } from '@/components/atoms/visual/InteractionHint';
 import { encodeMarkerJson } from '@/lib/inlineMarkers';
+import { InlineFeedbackContext, type ClozeFeedback } from './feedbackContext';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // InlineFeedback — inline feedback for cloze inputs / choices
@@ -282,13 +283,37 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
 
     // Detect edit mode
     const { isEditor } = useAppMode();
-    const { isEditing } = useEditing();
+    const { isEditing, pendingEdits } = useEditing();
     const isStandalone = typeof window !== 'undefined' && window.self === window.top;
     const canEdit = isEditor || isStandalone;
     const inEditMode = canEdit && isEditing;
 
-    const effectiveSuccessMessage = successMessage ?? defaults.success;
-    const effectiveFailureMessage = failureMessage ?? defaults.failure;
+    // The cloze editors edit this wrapper's messages (see feedbackContext): a
+    // pending edit of the cloze watching our variable carries the new text.
+    const pendingFeedback = React.useMemo(() => {
+        for (let i = pendingEdits.length - 1; i >= 0; i--) {
+            const edit = pendingEdits[i] as {
+                type: string;
+                originalProps?: { varName?: string };
+                newProps?: { feedback?: ClozeFeedback };
+            };
+            if ((edit.type === 'clozeChoice' || edit.type === 'clozeInput') &&
+                edit.originalProps?.varName === varName && edit.newProps?.feedback) {
+                return edit.newProps.feedback;
+            }
+        }
+        return null;
+    }, [pendingEdits, varName]);
+    const sourceFeedback: ClozeFeedback = React.useMemo(() => ({
+        successMessage: successMessage ?? '',
+        failureMessage: failureMessage ?? '',
+        hint: hint ?? '',
+    }), [successMessage, failureMessage, hint]);
+    const feedback = pendingFeedback ?? sourceFeedback;
+    // An emptied message falls back to the position's default, as when absent.
+    const effectiveSuccessMessage = feedback.successMessage || defaults.success;
+    const effectiveFailureMessage = feedback.failureMessage || defaults.failure;
+    const effectiveHint = feedback.hint;
     const componentProps = React.useMemo(() => {
         const json = JSON.stringify({
             varName,
@@ -314,7 +339,7 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
     const hasAnswer = storeValue.trim() !== '';
     const isCorrect = hasAnswer && isAnswerCorrect(storeValue, correctValue, caseSensitive);
 
-    const showHint = hint && !isCorrect && hasAnswer;
+    const showHint = effectiveHint && !isCorrect && hasAnswer;
     const showReviewLink = reviewBlockId && !isCorrect && hasAnswer;
     const showSectionLinks = sectionLinks && sectionLinks.length > 0 && !isCorrect && hasAnswer;
     const showVizHint = visualizationHint && !isCorrect && hasAnswer;
@@ -376,7 +401,9 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
             data-component-id={inlineIdRef.current}
             data-component-props={componentProps}
         >
-            {children}
+            <InlineFeedbackContext.Provider value={feedback}>
+                {children}
+            </InlineFeedbackContext.Provider>
 
             {hasAnswer && (
                 <span
@@ -398,7 +425,7 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
                             {/* Failure message + hint text */}
                             <span style={{ color: '#b45309' }}>
                                 {" "}{effectiveFailureMessage}
-                                {showHint && <span>{` ${hint}`}</span>}
+                                {showHint && <span>{` ${effectiveHint}`}</span>}
                             </span>
 
                             {/* Section links */}

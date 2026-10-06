@@ -1,3 +1,4 @@
+import type { ClozeFeedback } from '@/components/atoms/text/feedbackContext';
 import { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect, type ReactNode } from 'react';
 import { useAppMode } from './AppModeContext';
 import { extractContentWithMarkers } from '@/hooks/useInlineSlashCommands';
@@ -69,6 +70,8 @@ export interface ClozeInputEdit extends InlineComponentIdentity {
 }
 
 export interface ClozeInputProps extends InlineComponentIdentity {
+    /** Messages of the InlineFeedback around the blank (absent when there is none) */
+    feedback?: ClozeFeedback;
     varName?: string;
     correctAnswer?: string;
     placeholder?: string;
@@ -89,6 +92,8 @@ export interface ClozeChoiceEdit extends InlineComponentIdentity {
 }
 
 export interface ClozeChoiceProps extends InlineComponentIdentity {
+    /** Messages of the InlineFeedback around the blank (absent when there is none) */
+    feedback?: ClozeFeedback;
     varName?: string;
     correctAnswer?: string;
     options?: string[];

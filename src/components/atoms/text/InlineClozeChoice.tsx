@@ -8,6 +8,7 @@ import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 import { useComponentHint, HintIcon } from './InlineInteractionHint';
+import { useClozeFeedback } from './feedbackContext';
 
 interface InlineClozeChoiceProps {
     /** Unique identifier for this component instance */
@@ -83,6 +84,8 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     const { isEditor } = useAppMode();
     const { isEditing, openClozeChoiceEditor, pendingEdits } = useEditing();
     const { id: blockIdFromContext } = useBlockContext();
+    // answer feedback of the InlineFeedback around this blank, edited alongside it
+    const clozeFeedback = useClozeFeedback();
 
     const isStandalone = typeof window !== 'undefined' && window.self === window.top;
     const canEdit = isEditor || isStandalone;
@@ -139,21 +142,58 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     // The menu hangs off the trigger's left edge. For a blank near the end of
     // a line it would run past the right edge of the page — inside the tutor
     // chat's iframe that edge clips it — so it hangs off the right edge
-    // instead. Decided from the layout width (unaffected by the open
-    // animation's scale) the moment the menu mounts, and reset on close.
+    // instead. Likewise a blank on the last line of a frame drops its menu
+    // below the visible area (the editor's preview frame, or the chat frame
+    // before it grows), so it opens upward when there is room above and not
+    // below. Decided from layout sizes (unaffected by the open animation's
+    // scale) the moment the menu mounts, and reset on close.
+    //
+    // The frame can also be cut off from OUTSIDE: the tutor chat's transcript
+    // or the editor's pane shows only part of a taller iframe, and nothing in
+    // this document can measure that. An IntersectionObserver without a root
+    // can — it reports what is really on screen, clipping by the embedding
+    // page included — so a menu cut off at the bottom flips up as well.
     const [alignRight, setAlignRight] = useState(false);
+    const [openUp, setOpenUp] = useState(false);
+    const menuObserver = useRef<IntersectionObserver | null>(null);
     const menuRef = useCallback((menu: HTMLElement | null) => {
-        if (!menu) { setAlignRight(false); return; }
+        menuObserver.current?.disconnect();
+        menuObserver.current = null;
+        if (!menu) { setAlignRight(false); setOpenUp(false); return; }
         const anchor = dropdownRef.current;
         if (!anchor) return;
-        const left = anchor.getBoundingClientRect().left;
+        const rect = anchor.getBoundingClientRect();
         const available = document.documentElement.clientWidth - 4;
-        setAlignRight(left + menu.offsetWidth > available && left + anchor.offsetWidth > menu.offsetWidth);
+        setAlignRight(rect.left + menu.offsetWidth > available && rect.left + anchor.offsetWidth > menu.offsetWidth);
+        const needed = menu.offsetHeight + 8;
+        const roomAbove = rect.top >= needed;
+        if (window.innerHeight - rect.bottom < needed && roomAbove) {
+            setOpenUp(true);
+            return;
+        }
+        if (!roomAbove || typeof IntersectionObserver === 'undefined') return;
+        const observer = new IntersectionObserver(([entry]) => {
+            observer.disconnect();
+            const cutAtBottom =
+                entry.intersectionRatio < 0.99 &&
+                entry.intersectionRect.bottom < entry.boundingClientRect.bottom - 1;
+            if (cutAtBottom) setOpenUp(true);
+        }, { threshold: [0, 0.99, 1] });
+        observer.observe(menu);
+        menuObserver.current = observer;
     }, []);
+    useEffect(() => () => menuObserver.current?.disconnect(), []);
     const menuClassName = cn(
-        "absolute top-full mt-1 inline-block rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]",
+        "absolute inline-block rounded-lg overflow-hidden z-50 w-auto min-w-[80px] max-w-[300px]",
+        openUp ? "bottom-full mb-1" : "top-full mt-1",
         alignRight ? "right-0" : "left-0",
     );
+    const menuMotion = {
+        initial: { opacity: 0, y: openUp ? 4 : -4, scale: 0.97 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        exit: { opacity: 0, y: openUp ? 4 : -4, scale: 0.97 },
+        transition: { duration: 0.12, ease: [0.4, 0, 0.2, 1] as const },
+    };
     const [isHovered, setIsHovered] = useState(false);
 
     // Determine which value to use
@@ -225,11 +265,12 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                 color: effectiveColor,
                 bgColor: effectiveBgColor,
                 componentId: inlineIdRef.current,
+                ...(clozeFeedback ? { feedback: clozeFeedback } : {}),
             },
             blockId,
             elementPath
         );
-    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveCorrectAnswer, effectiveOptions, effectivePlaceholder, effectiveColor, effectiveBgColor, openClozeChoiceEditor, varName, correctAnswer]);
+    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveCorrectAnswer, effectiveOptions, effectivePlaceholder, effectiveColor, effectiveBgColor, openClozeChoiceEditor, varName, correctAnswer, clozeFeedback]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (canEdit && isEditing && !disableEditing) {
@@ -356,10 +397,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                         {isOpen && (
                             <motion.span
                                 ref={menuRef}
-                                initial={{ opacity: 0, y: -4, scale: 0.97 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                                transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
+                                {...menuMotion}
                                 className={menuClassName}
                                 style={{
                                     background: 'white',
@@ -424,10 +462,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
                     {isOpen && (
                         <motion.span
                             ref={menuRef}
-                            initial={{ opacity: 0, y: -4, scale: 0.97 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                            transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
+                            {...menuMotion}
                             className={menuClassName}
                             style={{
                                 background: 'white',

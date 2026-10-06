@@ -7,6 +7,7 @@ import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
 import { useBlockContext } from '@/contexts/BlockContext';
 import { useComponentHint, HintIcon } from './InlineInteractionHint';
+import { useClozeFeedback } from './feedbackContext';
 
 interface InlineClozeInputProps {
     /** Unique identifier for this component instance */
@@ -83,6 +84,8 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
     const { isEditor } = useAppMode();
     const { isEditing, openClozeInputEditor, pendingEdits } = useEditing();
     const { id: blockIdFromContext } = useBlockContext();
+    // answer feedback of the InlineFeedback around this blank, edited alongside it
+    const clozeFeedback = useClozeFeedback();
 
     const isStandalone = typeof window !== 'undefined' && window.self === window.top;
     const canEdit = isEditor || isStandalone;
@@ -204,11 +207,12 @@ export const InlineClozeInput: React.FC<InlineClozeInputProps> = ({
                 bgColor: effectiveBgColor,
                 caseSensitive: effectiveCaseSensitive,
                 componentId: inlineIdRef.current,
+                ...(clozeFeedback ? { feedback: clozeFeedback } : {}),
             },
             blockId,
             elementPath
         );
-    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveCorrectAnswer, effectivePlaceholder, effectiveColor, effectiveBgColor, effectiveCaseSensitive, openClozeInputEditor, varName, correctAnswer]);
+    }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveCorrectAnswer, effectivePlaceholder, effectiveColor, effectiveBgColor, effectiveCaseSensitive, openClozeInputEditor, varName, correctAnswer, clozeFeedback]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (canEdit && isEditing && !disableEditing) {

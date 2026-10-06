@@ -3,6 +3,8 @@ import { useEditing } from '@/contexts/EditingContext';
 import { COLOR_PRESETS_STANDARD, CLOZE_BG_OPACITY, BRAND_GREEN } from './editorColors';
 import { BgColorPicker } from './BgColorPicker';
 import { VariableNamePicker } from './VariableNamePicker';
+import { ClozeFeedbackFields } from './ClozeFeedbackFields';
+import type { ClozeFeedback } from '@/components/atoms/text/feedbackContext';
 
 export const ClozeInputEditorModal: React.FC = () => {
     const { editingClozeInput, closeClozeInputEditor, saveClozeInputEdit } = useEditing();
@@ -14,6 +16,8 @@ export const ClozeInputEditorModal: React.FC = () => {
     const [color, setColor] = useState('#3B82F6');
     const [bgColor, setBgColor] = useState('rgba(59, 130, 246, 0.35)');
     const [error, setError] = useState<string | null>(null);
+    // null when the blank has no InlineFeedback around it
+    const [feedback, setFeedback] = useState<ClozeFeedback | null>(null);
 
     const COLOR_PRESETS = COLOR_PRESETS_STANDARD;
 
@@ -26,6 +30,7 @@ export const ClozeInputEditorModal: React.FC = () => {
             setCaseSensitive(editingClozeInput.caseSensitive ?? false);
             setColor(editingClozeInput.color || BRAND_GREEN);
             setBgColor(editingClozeInput.bgColor || 'rgba(59, 130, 246, 0.35)');
+            setFeedback(editingClozeInput.feedback ?? null);
             setError(null);
         }
     }, [editingClozeInput]);
@@ -49,8 +54,9 @@ export const ClozeInputEditorModal: React.FC = () => {
             color,
             bgColor: bgColor || undefined,
             caseSensitive,
+            ...(feedback ? { feedback } : {}),
         });
-    }, [varName, correctAnswer, placeholder, caseSensitive, color, bgColor, validate, saveClozeInputEdit]);
+    }, [varName, correctAnswer, placeholder, caseSensitive, color, bgColor, feedback, validate, saveClozeInputEdit]);
 
     const handleCancel = useCallback(() => {
         closeClozeInputEditor();
@@ -118,6 +124,8 @@ export const ClozeInputEditorModal: React.FC = () => {
                             Separate multiple accepted answers with | (e.g., first | 1 | 1st)
                         </p>
                     </div>
+
+                    {feedback && <ClozeFeedbackFields value={feedback} onChange={setFeedback} />}
 
                     {/* Placeholder */}
                     <div>
