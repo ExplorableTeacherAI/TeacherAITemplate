@@ -28,6 +28,12 @@ interface RevealOnInteractionProps {
  * student has actually dragged/scrubbed something — so they explore first and
  * are prompted for the answer second.
  *
+ * The hidden children still take up their space (`visibility: hidden`, not
+ * `display: none`): in the tutor chat the explorable's height is what the
+ * transcript scrolls by, and content that appears from nothing makes the
+ * figure jump and the chat shift under the student. Reserving the space
+ * means the reveal changes nothing but what is visible.
+ *
  * @example
  * ```tsx
  * // 1. The visualization flips the flag on first drag:
@@ -62,13 +68,21 @@ export const RevealOnInteraction: React.FC<RevealOnInteractionProps> = ({
     const Tag = block ? 'div' : 'span';
 
     if (!revealed) {
-        // Never render null: the invisible marker lets the editor's
-        // EditableText tell "content staged behind an interaction" apart from
-        // a truly empty block, so no "Click to edit empty block…" placeholder
-        // appears over content that is merely waiting to be revealed.
+        // The `data-reveal-pending` marker lets the editor's EditableText tell
+        // "content staged behind an interaction" apart from a truly empty
+        // block, so no "Click to edit empty block…" placeholder appears over
+        // content that is merely waiting to be revealed. The children are
+        // laid out but invisible and inert, so the reveal keeps the height.
         return placeholder
             ? <Tag data-reveal-pending="true" className="text-slate-400">{placeholder}</Tag>
-            : <Tag data-reveal-pending="true" aria-hidden="true" style={{ display: 'none' }} />;
+            : (
+                <Tag data-reveal-pending="true" aria-hidden="true"
+                    style={{ visibility: 'hidden', pointerEvents: 'none' }}
+                    // @ts-expect-error inert is not in React's typings yet
+                    inert="">
+                    {children}
+                </Tag>
+            );
     }
 
     return (

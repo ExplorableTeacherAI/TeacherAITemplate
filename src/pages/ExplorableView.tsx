@@ -1,5 +1,5 @@
 import { useActivityRecovery } from "@/lib/activityRecovery";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, Children, isValidElement, useMemo, type ReactNode } from "react";
 import { BlockRenderer } from "@/components/templates";
 import { explorables } from "@/data/explorables";
 import { useAppMode } from "@/contexts/AppModeContext";
@@ -82,6 +82,14 @@ const highlightByColor = (root: HTMLElement, color: string, on: boolean) => {
 // never imports it (or anything it depends on) — see EditableExplorableBlocks.
 const EditableExplorableBlocks = lazy(() => import("./EditableExplorableBlocks"));
 
+/** Does this block tree contain a visualization block (`<Block hasVisualization>`)? */
+const containsVisualization = (node: ReactNode): boolean => {
+    if (!isValidElement(node)) return false;
+    const props = node.props as { hasVisualization?: boolean; children?: ReactNode };
+    if (props.hasVisualization === true) return true;
+    return Children.toArray(props.children).some(containsVisualization);
+};
+
 /**
  * ExplorableView — renders exactly one registered explorable, selected via
  * the `?explorable=<id>` URL query parameter (read before the hash, since
@@ -106,6 +114,27 @@ const ExplorableView = () => {
     const rootRef = useRef<HTMLDivElement>(null);
     // null until known — so the chat is never told "no terms" before they load
     const [chatSpec, setChatSpec] = useState<ChatSpec | null>(null);
+    // Docked in the chat's side panel: the student keeps reading the chat
+    // beside the figure, so only the visualization blocks are shown there —
+    // the instruction paragraph and the question stay in the inline copy.
+    const [docked, setDocked] = useState(false);
+    useEffect(() => {
+        if (isEditor) return;
+        const handler = (event: MessageEvent) => {
+            const d = event.data;
+            if (d?.type === "mathvibe-explorable-dock" && d.explorableId === id) {
+                setDocked(d.docked === true);
+            }
+        };
+        window.addEventListener("message", handler);
+        return () => window.removeEventListener("message", handler);
+    }, [id, isEditor]);
+    const visibleBlocks = useMemo(() => {
+        const blocks = entry?.blocks ?? [];
+        if (!docked) return blocks;
+        const figures = blocks.filter(containsVisualization);
+        return figures.length > 0 ? figures : blocks;
+    }, [entry, docked]);
 
     // Embedded in the tutor chat, the explorable must read as part of the
     // chat, not a separate panel: clear the template's page background (the
@@ -409,7 +438,7 @@ const ExplorableView = () => {
                 </Suspense>
             ) : (
                 <BlockRenderer
-                    initialBlocks={entry.blocks}
+                    initialBlocks={visibleBlocks}
                     isPreview
                     hideLegend
                     embedded
