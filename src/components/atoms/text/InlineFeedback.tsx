@@ -92,6 +92,9 @@ export interface InlineFeedbackProps {
 /**
  * Scroll smoothly to a block and briefly flash a highlight ring.
  */
+// Submissions per answer box since this page loaded (reported as `attempt`).
+const submissionCounts = new Map<string, number>();
+
 const scrollToBlock = (blockId: string) => {
     const el = document.querySelector(`[data-block-id="${blockId}"]`);
     if (el) {
@@ -364,6 +367,8 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
         restoredAnswer.current = undefined;
         if (!hasAnswer || window.parent === window) return;
         const explorableId = new URLSearchParams(window.location.search).get('explorable') ?? undefined;
+        const attempt = (submissionCounts.get(varName) ?? 0) + 1;
+        submissionCounts.set(varName, attempt);
         window.parent.postMessage(
             {
                 type: 'mathvibe-explorable-feedback',
@@ -372,6 +377,10 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
                 value: storeValue,
                 correct: isCorrect,
                 interactionKind: 'answer',
+                at: Date.now(),
+                // 1-based submission number for this answer box since the
+                // page loaded — lets the dashboard tell first tries from retries.
+                attempt,
             },
             '*'
         );

@@ -1,4 +1,5 @@
 import { useActivityRecovery } from "@/lib/activityRecovery";
+import { findFigure, postFigureBox, startPointerTelemetry } from "@/lib/pointerTelemetry";
 import { lazy, Suspense, useEffect, useRef, useState, Children, isValidElement, useMemo, type ReactNode } from "react";
 import { BlockRenderer } from "@/components/templates";
 import { explorables } from "@/data/explorables";
@@ -112,6 +113,13 @@ const ExplorableView = () => {
     const hydrated = useActivityRecovery(id, !isEditor && !!entry);
     const [dots, setDots] = useState("");
     const rootRef = useRef<HTMLDivElement>(null);
+    // Variables the chat just changed (set-value / select), so the interaction
+    // reporter can tag the resulting store change as chat-driven. Entries
+    // expire quickly in case the change never lands (same value, snapped).
+    const chatChangedRef = useRef<Map<string, number>>(new Map());
+    const markChatChange = (varName: string) => {
+        chatChangedRef.current.set(varName, Date.now() + 300);
+    };
     // null until known — so the chat is never told "no terms" before they load
     const [chatSpec, setChatSpec] = useState<ChatSpec | null>(null);
     // Docked in the chat's side panel: the student keeps reading the chat
@@ -268,6 +276,7 @@ const ExplorableView = () => {
             if (d.type === "mathvibe-explorable-set-value") {
                 const v = variables.find((x) => x.id === d.variableId);
                 if (!v?.settable || typeof d.value !== "number" || !Number.isFinite(d.value)) return;
+                markChatChange(v.varName);
                 store.setVariable(v.varName, snapToSettable(d.value, v.settable));
                 countInteraction();
                 return;
@@ -286,6 +295,7 @@ const ExplorableView = () => {
             } else {
                 saved.delete(d.varName); // a click is a deliberate choice — keep it
                 countInteraction();
+                markChatChange(d.varName);
             }
             store.setVariable(d.varName, d.value);
         };
@@ -375,6 +385,48 @@ const ExplorableView = () => {
         };
     }, [entry, id, hydrated]);
 
+    // Pointer telemetry for the teacher's dashboard: where the figure sits in
+    // this document (so a dwell overlay can be placed on a thumbnail) and how
+    // long the pointer lingered over each part of it. Students only.
+    useEffect(() => {
+        if (!entry || !id || !hydrated || isEditor || window.parent === window) return;
+        const root = rootRef.current;
+        if (!root) return;
+        let stop: (() => void) | undefined;
+        let observer: ResizeObserver | undefined;
+        const sendBox = () => {
+            try {
+                postFigureBox(id, findFigure(root));
+            } catch {
+                // best effort
+            }
+        };
+        try {
+            sendBox();
+            observer = new ResizeObserver(sendBox);
+            observer.observe(root);
+            window.addEventListener("resize", sendBox);
+            stop = startPointerTelemetry(root, id, () => {
+                try {
+                    return findFigure(root);
+                } catch {
+                    return null;
+                }
+            });
+        } catch {
+            // telemetry must never break the explorable
+        }
+        return () => {
+            observer?.disconnect();
+            window.removeEventListener("resize", sendBox);
+            try {
+                stop?.();
+            } catch {
+                // ignore
+            }
+        };
+    }, [entry, id, hydrated, isEditor]);
+
     // Report student interactions (variable changes: scrubs, answers, toggles)
     // to the embedding chat page, so the tutor can react without the student
     // having to retype what they did.
@@ -397,6 +449,10 @@ const ExplorableView = () => {
                     const isInternalState =
                         /_(explored|interacted|revealed)$/.test(name) || name === CHAT_INTERACTION_VAR;
                     if (isInternalState || highlightOnly.has(name)) continue;
+                    const now = Date.now();
+                    const chatUntil = chatChangedRef.current.get(name);
+                    const fromChat = chatUntil !== undefined && chatUntil >= now;
+                    chatChangedRef.current.delete(name);
                     window.parent.postMessage(
                         {
                             type: "mathvibe-explorable-interaction",
@@ -407,6 +463,10 @@ const ExplorableView = () => {
                             // Generic store changes are exploration. Assessed
                             // answers are reported explicitly by InlineFeedback.
                             interactionKind: "variable_change",
+                            at: now,
+                            // "chat": a set/select control in the chat caused
+                            // it; "iframe": the student did it in the figure.
+                            source: fromChat ? "chat" : "iframe",
                         },
                         "*"
                     );
