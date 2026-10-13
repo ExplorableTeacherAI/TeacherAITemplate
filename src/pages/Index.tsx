@@ -1,4 +1,5 @@
-import { LessonView } from "@/components/templates";
+import { lazy, Suspense } from "react";
+const LessonView = lazy(() => import("@/components/templates/LessonView").then(m => ({ default: m.LessonView })));
 import ExplorableView from "./ExplorableView";
 
 const Index = () => {
@@ -14,8 +15,8 @@ const Index = () => {
   }
 
   return (
-    <div className="h-screen">
-      <LessonView onEditBlock={handleEditBlock} />
+    <div className="h-dvh">
+      <Suspense fallback={<p role="status">Loading lesson…</p>}><LessonView onEditBlock={handleEditBlock} /></Suspense>
     </div>
   );
 };

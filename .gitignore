@@ -25,3 +25,7 @@ dist-ssr
 
 # Per-workspace vite dep cache (see vite.config.ts cacheDir)
 .vite_cache
+
+# Local browser acceptance artifacts
+output/playwright/
+__pycache__/

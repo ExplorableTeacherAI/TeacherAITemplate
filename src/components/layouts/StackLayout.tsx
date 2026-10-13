@@ -30,7 +30,7 @@ export const StackLayout = ({
 
     return (
         <div
-            className={`w-full ${maxWidthClasses[maxWidth]} ${className}`}
+            className={`min-w-0 w-full ${maxWidthClasses[maxWidth]} ${className}`}
             data-layout-type="full-width"
         >
             {children}

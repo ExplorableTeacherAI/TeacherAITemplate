@@ -278,7 +278,7 @@ export const Block = ({
             >
                 {/* Magic wand icon - shown on visualization blocks in editor mode */}
                 {!isPreview && !appIsPreview && hasVisualization && (
-                    <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <div className="absolute top-2 right-2 z-20 block-touch-controls opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button
@@ -303,7 +303,7 @@ export const Block = ({
 
                 {/* Hover controls - hidden in preview mode */}
                 {!isPreview && (
-                    <div className="relative z-10 flex items-center gap-px opacity-0 group-hover:opacity-100 transition-opacity pt-1">
+                    <div className="relative z-10 flex items-center gap-px block-touch-controls opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity pt-1">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button

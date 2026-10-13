@@ -195,12 +195,12 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
     };
 
     return (
-        <div className="flex justify-center p-2 relative">
+        <div className="flex min-w-0 max-w-full justify-center p-2 relative">
             <svg
                 width={width}
                 height={computedHeight}
                 viewBox={`0 0 ${width} ${computedHeight}`}
-                className="overflow-visible"
+                className="h-auto max-w-full overflow-visible"
                 onMouseLeave={onHoverLeave}
             >
                 {/* Label */}

@@ -67,13 +67,14 @@ export const GridLayout = ({
     };
 
     // Use custom tablet columns if provided, otherwise use auto-calculated
+    const desktopColumnClasses = { 2: "lg:grid-cols-2", 3: "lg:grid-cols-3", 4: "lg:grid-cols-4", 5: "lg:grid-cols-5", 6: "lg:grid-cols-6" };
     const responsiveColumns = tabletColumns
-        ? `${mobileColumnClasses[mobileColumns]} ${tabletColumnClasses[tabletColumns]} lg:grid-cols-${columns}`
+        ? `${mobileColumnClasses[mobileColumns]} ${tabletColumnClasses[tabletColumns]} ${desktopColumnClasses[columns]}`
         : `${mobileColumnClasses[mobileColumns]} ${columnClasses[columns]}`;
 
     return (
         <div
-            className={`grid ${responsiveColumns} ${gapClasses[gap]} ${alignClasses[align]} ${className}`}
+            className={`grid min-w-0 [&>*]:min-w-0 ${responsiveColumns} ${gapClasses[gap]} ${alignClasses[align]} ${className}`}
             data-layout-type="grid"
             data-layout-columns={columns}
         >
