@@ -77,10 +77,10 @@ export const SplitLayout = ({
             data-layout-type="split"
             data-layout-ratio={ratio}
         >
-            <div className={firstClass}>
+            <div className={`min-w-0 ${firstClass}`}>
                 {firstChild}
             </div>
-            <div className={secondClass}>
+            <div className={`min-w-0 ${secondClass}`}>
                 {secondChild}
             </div>
         </div>

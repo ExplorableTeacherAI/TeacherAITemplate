@@ -17,7 +17,7 @@ export const WelcomeScreen = () => {
                 <img
                     src={`${import.meta.env.BASE_URL}logo.svg`}
                     alt="Math Vibe Logo"
-                    className="w-[36rem] h-auto"
+                    className="w-[36rem] max-w-full h-auto"
                     loading="eager"
                 />
             </div>

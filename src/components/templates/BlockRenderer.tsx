@@ -1,3 +1,4 @@
+import "../../responsive.css";
 import { useCallback, useEffect, useMemo, useRef, useState, cloneElement, isValidElement, Children, Fragment, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { motion, useDragControls, type PanInfo } from "framer-motion";
 import { BlockContext } from "@/contexts/BlockContext";
@@ -451,7 +452,7 @@ export const BlockRenderer = ({
                     // with its bubbles and the text edges match.
                     embedded
                         ? "z-30 flex flex-col gap-2 px-4 py-2"
-                        : "min-h-full z-30 flex flex-col gap-6 pt-8 pb-16 px-8 md:px-16 lg:px-24"
+                        : "min-h-full z-30 flex flex-col gap-6 pt-8 pb-16 px-3 sm:px-8 md:px-10 lg:px-24"
                 }
                 aria-label="Content Blocks"
             >
