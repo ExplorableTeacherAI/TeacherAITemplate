@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useVar, useSetVar } from '@/stores/variableStore';
-import { cn } from '@/lib/utils';
+import { cn, isAnswerCorrect } from '@/lib/utils';
 import { encodeMarkerJson } from '@/lib/inlineMarkers';
 import { useEditing } from '@/contexts/EditingContext';
 import { useAppMode } from '@/contexts/AppModeContext';
@@ -201,7 +201,8 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     const rawSelectedValue = usesVarStore ? storeValue : localValue;
     const selectedValue = typeof rawSelectedValue === 'string' && rawSelectedValue !== '' ? rawSelectedValue : null;
 
-    const isCorrect = selectedValue === effectiveCorrectAnswer;
+    // Accepts the same answer forms as InlineFeedback: one value or a pipe list ("a | b").
+    const isCorrect = selectedValue !== null && isAnswerCorrect(selectedValue, effectiveCorrectAnswer);
 
     const setSelectedValue = useCallback((val: string | null) => {
         if (usesVarStore && effectiveVarName) {
@@ -280,7 +281,7 @@ export const InlineClozeChoice: React.FC<InlineClozeChoiceProps> = ({
     };
 
     const handleSelect = (option: string) => {
-        const correct = option === effectiveCorrectAnswer;
+        const correct = isAnswerCorrect(option, effectiveCorrectAnswer);
         setSelectedValue(option);
         setIsOpen(false);
         onChange?.(option, correct);

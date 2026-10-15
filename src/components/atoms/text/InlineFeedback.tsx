@@ -94,6 +94,8 @@ export interface InlineFeedbackProps {
  */
 // Submissions per answer box since this page loaded (reported as `attempt`).
 const submissionCounts = new Map<string, number>();
+// Last value each answer box reported to the embedding page (per page load).
+const lastReported = new Map<string, string>();
 
 const scrollToBlock = (blockId: string) => {
     const el = document.querySelector(`[data-block-id="${blockId}"]`);
@@ -365,7 +367,18 @@ export const InlineFeedback: React.FC<InlineFeedbackProps> = ({
         // Mounting a saved answer is not a new student submission.
         if (restoredAnswer.current !== undefined && restoredAnswer.current === storeValue) return;
         restoredAnswer.current = undefined;
-        if (!hasAnswer || window.parent === window) return;
+        if (!hasAnswer) {
+            // Cleared: the next value is a fresh submission again.
+            lastReported.delete(varName);
+            return;
+        }
+        // A remount (the explorable re-rendered, was docked or undocked) sees
+        // the same value already in the store: it was reported when the
+        // student chose it, and reporting it again made the tutor react to
+        // a submission that never happened.
+        if (lastReported.get(varName) === storeValue) return;
+        lastReported.set(varName, storeValue);
+        if (window.parent === window) return;
         const explorableId = new URLSearchParams(window.location.search).get('explorable') ?? undefined;
         const attempt = (submissionCounts.get(varName) ?? 0) + 1;
         submissionCounts.set(varName, attempt);
