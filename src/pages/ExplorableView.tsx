@@ -491,7 +491,9 @@ const ExplorableView = () => {
     if (!hydrated) return <div role="status">Restoring your activity…</div>;
 
     return (
-        <div ref={rootRef} className={`relative ${isEditor ? "bg-white" : "bg-transparent"}`}>
+        // In the teacher's editor the page fills the frame, so the body's
+        // grey gradient never shows under a short explorable.
+        <div ref={rootRef} className={`relative ${isEditor ? "min-h-screen bg-white" : "bg-transparent"}`}>
             {isEditor ? (
                 <Suspense fallback={null}>
                     <EditableExplorableBlocks blocks={entry.blocks} />
