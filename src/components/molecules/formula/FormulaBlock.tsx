@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react'
 import { createPortal } from 'react-dom';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
+import './FormulaBlock.css';
 import { cn } from '@/lib/utils';
 import { useVariableStore, useSetVar } from '@/stores';
 import { useEditing } from '@/contexts/EditingContext';
@@ -743,7 +744,7 @@ export const FormulaBlock: React.FC<FormulaBlockProps> = ({
         <div
             ref={containerRef}
             className={cn(
-                'formula-block w-full flex justify-center items-center py-4',
+                'formula-block w-full flex items-center py-4',
                 isEditor && isEditing && 'group',
                 className,
             )}

@@ -24,8 +24,6 @@
 
 [data-layout-type], [data-block-id] { min-width: 0; max-width: 100%; }
 [data-block-id] { overflow-wrap: anywhere; }
-.formula-block { overflow-x: auto; justify-content: safe center; }
-.formula-block > span { flex-shrink: 0; }
 @media (pointer: coarse) {
   .block-touch-controls { opacity: 1; }
 }

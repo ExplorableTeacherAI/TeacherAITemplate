@@ -1,0 +1,14 @@
+/* Owned by FormulaBlock: works in standalone lessons as well as the app.
+   Auto margins center formulas that fit without making an oversized formula's
+   beginning unreachable. KaTeX bases wrap only between mathematical groups. */
+.formula-block.formula-block { min-width: 0; overflow-x: auto; justify-content: flex-start; }
+.formula-block > span { flex-shrink: 0; max-width: 100%; margin-inline: auto; }
+.formula-block > span > span:first-child { max-width: 100%; }
+@media (min-width: 640px) and (max-width: 1199px) {
+  .formula-block > span > span:first-child { font-size: 1.25rem; }
+}
+@media (max-width: 639px) {
+  .formula-block.formula-block { padding-block: 0.5rem; }
+  .formula-block > span > span:first-child { font-size: 1.125rem; line-height: 1.75; }
+  [data-layout-type="split"]:has(> div > .formula-block) { row-gap: 0.5rem; }
+}
