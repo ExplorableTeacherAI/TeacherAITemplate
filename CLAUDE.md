@@ -1690,6 +1690,29 @@ steps: [
 resetVars: { theta: 0 },
 ```
 
+## CodeSandbox (programming lessons — the student writes and RUNS code)
+
+`CodeSandbox` (import by path: `import { CodeSandbox } from "@/components/atoms/code/CodeSandbox"`) is a small Python editor with a Run button. The program runs in the browser (Pyodide in a web worker, `src/lib/pythonRunner.ts`); the sandbox shows what it printed, the variables it left in memory, and on a crash Python's own error with the line banded in the editor. Use it whenever a lesson teaches programming: a trace figure lets the student watch code run, a sandbox lets them write it and read their own errors.
+
+```tsx
+<div data-manipulated-variable="program">
+    <CodeSandbox
+        id="loop-sandbox-editor"
+        varName="loopSandbox_code"            // text store variable holding the program
+        initialCode={"total = 0\nfor n in range(1, 6):\nprint(n)"}   // ONE deliberate mistake to fix
+        showVariables                           // memory panel: one box per variable
+        check={{ output: "1\n2\n3\n4\n5" }}     // the task; a run that passes is a correct attempt
+        successMessage="every number was printed on its own line"
+        highlightVarName="loopSandbox_highlight" // linked highlights, with highlights={[{ id, lines: [2], color }]}
+        highlights={[{ id: "for-line", lines: [2], color: "#F7B23B" }, { id: "output", target: "output", color: "#AC8BF9" }]}
+    />
+</div>
+```
+
+Live code: `slots={[{ id, varName, line, pattern: "range\\((\\d+)\\)", min, max, step, color }]}` puts a draggable number (or, with `kind: "choice"` and `options`, a click-to-switch word) INSIDE the code, bound to a store variable; the program then auto-runs on every change and `resultVarName` receives `{ ok, output, error, variables, trace }`, so a figure next to the sandbox (`showOutput={false}`) is drawn from the real run (see `src/data/explorables/shared/pythonTrace.ts` in a tutor workspace for the helpers).
+
+Rules: one program and one task per sandbox (`check` is the question — no extra blank), start from a program with one deliberate mistake or one missing line and say what it should print (never what is wrong), teach the one piece of syntax it needs in the paragraph above it, keep programs at 2–6 lines, and never let anything around it appear or disappear with state (editor, output and memory panels are fixed-size). In tutor lessons every run is reported to the tutor with the code, output and error.
+
 ## Linked Figures — TWO views of one idea (prefer this whenever it applies)
 
 **Before settling on a single visual, ask: what second representation answers a question

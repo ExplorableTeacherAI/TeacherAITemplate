@@ -194,3 +194,7 @@ export type { TriggeredHintOverlayProps } from "./visual/TriggeredHintOverlay";
 // Inline Interaction Hint (tooltip-style hints for inline components)
 export { InlineInteractionHint, useComponentHint, HintIcon } from "./text/InlineInteractionHint";
 export type { InlineInteractionHintProps, UseComponentHintOptions } from "./text/InlineInteractionHint";
+
+// Code — a runnable Python editor for programming lessons (Pyodide in a worker)
+export { CodeSandbox, checkPasses } from "./code/CodeSandbox";
+export type { CodeSandboxProps, CodeSandboxCheck, CodeSandboxHighlight } from "./code/CodeSandbox";
