@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Anchor as PopoverAnchor } from '@radix-ui/react-popover';
+import { Popover, PopoverContent } from '@/components/atoms/ui/popover';
 import { useVar, useSetVar } from '@/stores/variableStore';
 import { useVarColor } from '@/stores';
 import { cn } from '@/lib/utils';
@@ -99,6 +101,13 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
 
     const [isDragging, setIsDragging] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [numberEditorOpen, setNumberEditorOpen] = useState(false);
+    const [numberDraft, setNumberDraft] = useState('');
+    const numberAnchorRef = useRef<HTMLSpanElement>(null);
+    const restoreNumberFocus = useRef(true);
+    const touchGesture = useRef<{ id: number; x: number; y: number; value: number; axis: 'pending' | 'horizontal' | 'vertical' } | null>(null);
+    const suppressMouseUntil = useRef(0);
+    const touchTapPending = useRef(false);
 
     // ── Interaction Hint System ──
     const { hintVisible, dismissHint } = useComponentHint('scrubble-number', { enabled: showHint });
@@ -228,7 +237,8 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
 
     const updateValue = useCallback((newValue: number) => {
         // Round to step precision to avoid floating-point drift (e.g. 10.700000000000001)
-        const decimals = displayStep < 1 ? Math.max(0, -Math.floor(Math.log10(displayStep))) : 0;
+        const [coefficient, exponent = '0'] = String(displayStep).split('e');
+        const decimals = Math.min(100, Math.max(0, (coefficient.split('.')[1]?.length ?? 0) - Number(exponent)));
         const rounded = Number(newValue.toFixed(decimals));
         const clampedValue = Math.max(displayMin, Math.min(displayMax, rounded));
 
@@ -252,12 +262,14 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
     updateValueRef.current = updateValue;
 
     const increment = () => {
-        const decimals = displayStep < 1 ? Math.max(0, -Math.floor(Math.log10(displayStep))) : 0;
+        const [coefficient, exponent = '0'] = String(displayStep).split('e');
+        const decimals = Math.min(100, Math.max(0, (coefficient.split('.')[1]?.length ?? 0) - Number(exponent)));
         updateValue(Number((value + displayStep).toFixed(decimals)));
     };
 
     const decrement = () => {
-        const decimals = displayStep < 1 ? Math.max(0, -Math.floor(Math.log10(displayStep))) : 0;
+        const [coefficient, exponent = '0'] = String(displayStep).split('e');
+        const decimals = Math.min(100, Math.max(0, (coefficient.split('.')[1]?.length ?? 0) - Number(exponent)));
         updateValue(Number((value - displayStep).toFixed(decimals)));
     };
 
@@ -270,6 +282,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             handleEditClick(e);
             return;
         }
+        if (Date.now() < suppressMouseUntil.current) return;
 
         dismissHint(); // Dismiss interaction hint on first drag
         setIsDragging(true);
@@ -278,26 +291,55 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         e.preventDefault();
     };
 
-    const handleTouchStart = (e: React.TouchEvent) => {
-        if (canEdit && isEditing) {
-            return;
+    const openNumberEditor = () => {
+        dismissHint();
+        restoreNumberFocus.current = true;
+        setNumberDraft(String(value));
+        setNumberEditorOpen(true);
+    };
+    useEffect(() => {
+        if (numberEditorOpen) setNumberDraft(String(value));
+    }, [value, numberEditorOpen]);
+
+    // Let the browser keep vertical scrolling. Only a deliberate horizontal
+    // gesture changes the number; a tap opens precise, accessible controls.
+    const handlePointerDown = (e: React.PointerEvent<HTMLSpanElement>) => {
+        if (e.pointerType === 'mouse' || (canEdit && isEditing)) return;
+        suppressMouseUntil.current = Date.now() + 800;
+        touchTapPending.current = false;
+        if (!e.isPrimary) { touchGesture.current = null; return; }
+        touchGesture.current = { id: e.pointerId, x: e.clientX, y: e.clientY, value, axis: 'pending' };
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+    const handlePointerMove = (e: React.PointerEvent<HTMLSpanElement>) => {
+        const gesture = touchGesture.current;
+        if (!gesture || gesture.id !== e.pointerId) return;
+        const dx = e.clientX - gesture.x;
+        const dy = e.clientY - gesture.y;
+        if (gesture.axis === 'pending') {
+            if (Math.max(Math.abs(dx), Math.abs(dy)) < 8) return;
+            gesture.axis = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
         }
-
-        const touch = e.touches[0];
-        if (!touch) return;
-
-        dismissHint(); // Dismiss interaction hint on first drag
-        setIsDragging(true);
-        dragStartX.current = touch.clientX;
-        dragStartValue.current = value;
-        // Prevent scrolling while scrubbing
+        if (gesture.axis !== 'horizontal') return;
+        dismissHint();
         e.preventDefault();
+        updateValueRef.current(gesture.value + Math.round(dx / 8) * displayStep);
+    };
+    const handlePointerUp = (e: React.PointerEvent<HTMLSpanElement>) => {
+        if (e.pointerType === 'mouse' || (canEdit && isEditing)) return;
+        const gesture = touchGesture.current;
+        touchGesture.current = null;
+        suppressMouseUntil.current = Date.now() + 800;
+        touchTapPending.current = gesture?.id === e.pointerId && gesture.axis === 'pending';
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (canEdit && isEditing) return;
 
-        if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openNumberEditor();
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
             e.preventDefault();
             increment();
         } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
@@ -336,7 +378,7 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
         );
     }, [editIdentity, blockIdFromContext, effectiveVarName, effectiveDefaultValue, displayMin, displayMax, displayStep, effectiveColor, openScrubbleNumberEditor, varName, defaultValue]);
 
-    // Handle dragging with useEffect (mouse and touch events)
+    // Preserve desktop mouse dragging; touch gestures use pointer events above.
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!isDragging) return;
@@ -347,43 +389,18 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
             updateValueRef.current(dragStartValue.current + deltaValue);
         };
 
-        const handleTouchMove = (e: TouchEvent) => {
-            if (!isDragging) return;
-
-            const touch = e.touches[0];
-            if (!touch) return;
-
-            const deltaX = touch.clientX - dragStartX.current;
-            const sensitivity = 2; // pixels per step
-            const deltaValue = Math.round(deltaX / sensitivity) * displayStep;
-            updateValueRef.current(dragStartValue.current + deltaValue);
-            
-            // Prevent scrolling while scrubbing
-            e.preventDefault();
-        };
-
         const handleMouseUp = () => {
-            setIsDragging(false);
-        };
-
-        const handleTouchEnd = () => {
             setIsDragging(false);
         };
 
         if (isDragging) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
-            window.addEventListener('touchmove', handleTouchMove, { passive: false });
-            window.addEventListener('touchend', handleTouchEnd);
-            window.addEventListener('touchcancel', handleTouchEnd);
         }
 
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('touchmove', handleTouchMove);
-            window.removeEventListener('touchend', handleTouchEnd);
-            window.removeEventListener('touchcancel', handleTouchEnd);
         };
     }, [isDragging, displayStep]);
 
@@ -440,15 +457,35 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                 </motion.div>
             )}
 
-            {/* Number display with underline */}
+            {/* The anchor stays inline; the controls live in a portal. */}
+            <Popover open={numberEditorOpen} onOpenChange={setNumberEditorOpen}>
+            <PopoverAnchor asChild>
             <span
+                ref={numberAnchorRef}
                 onMouseDown={handleMouseDown}
-                onTouchStart={handleTouchStart}
-                onClick={canEdit && isEditing ? (e) => { e.stopPropagation(); e.preventDefault(); } : undefined}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={() => { touchGesture.current = null; touchTapPending.current = false; }}
+                onLostPointerCapture={() => { touchGesture.current = null; }}
+                role="spinbutton"
+                aria-label={effectiveVarName || 'Adjust number'}
+                aria-valuenow={value}
+                aria-valuemin={displayMin}
+                aria-valuemax={displayMax}
+                onClick={e => {
+                    if (canEdit && isEditing) { e.stopPropagation(); e.preventDefault(); return; }
+                    // Open after the touch's compatibility click, so focus on
+                    // the anchor cannot immediately dismiss the new popover.
+                    if (touchTapPending.current) {
+                        touchTapPending.current = false;
+                        openNumberEditor();
+                    }
+                }}
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
                 className={cn(
-                    "select-none font-medium transition-all duration-150",
+                    "select-none font-medium transition-all duration-150 [@media(pointer:coarse)]:inline-flex [@media(pointer:coarse)]:min-h-8 [@media(pointer:coarse)]:min-w-8 [@media(pointer:coarse)]:items-center [@media(pointer:coarse)]:justify-center",
                     !(canEdit && isEditing) && "cursor-ew-resize",
                     canEdit && isEditing && "cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 rounded px-0.5 -mx-0.5"
                 )}
@@ -458,11 +495,42 @@ export const InlineScrubbleNumber: React.FC<InlineScrubbleNumberProps> = ({
                     textDecorationColor: effectiveColor,
                     textDecorationThickness: '2px',
                     textUnderlineOffset: '2px',
-                    touchAction: 'none', // Prevent touch scrolling on this element
+                    touchAction: 'pan-y pinch-zoom', // Keep native scrolling and zooming.
                 }}
             >
                 {formatValue ? formatValue(value) : Number(value.toFixed(2))}
             </span>
+
+            </PopoverAnchor>
+            <PopoverContent role="dialog" aria-label="Adjust number" className="w-64 max-w-[calc(100vw-24px)] p-3"
+                onOpenAutoFocus={e => e.preventDefault()}
+                onInteractOutside={() => { restoreNumberFocus.current = false; }}
+                onCloseAutoFocus={e => {
+                    // This inline control uses Anchor rather than Trigger, so
+                    // Radix has no trigger ref to restore after Done or Escape.
+                    // Outside interactions must keep their chosen focus target.
+                    e.preventDefault();
+                    if (restoreNumberFocus.current) numberAnchorRef.current?.focus({ preventScroll: true });
+                }}>
+                <form onSubmit={e => {
+                    e.preventDefault();
+                    const next = Number(numberDraft);
+                    if (numberDraft.trim() && Number.isFinite(next)) {
+                        updateValue(next);
+                        setNumberEditorOpen(false);
+                    }
+                }}>
+                    <label className="mb-2 block text-sm">Number value
+                        <input aria-label="Number value" type="number" inputMode={displayMin < 0 ? 'text' : 'decimal'} required min={displayMin} max={displayMax} step={displayStep} value={numberDraft} onChange={e => setNumberDraft(e.target.value)} className="mt-1 h-11 w-full rounded border bg-background px-2 text-base" />
+                    </label>
+                    <div className="flex gap-2">
+                        <button type="button" aria-label="Decrease number" disabled={value <= displayMin} onClick={decrement} className="h-11 flex-1 rounded border disabled:opacity-40">−</button>
+                        <button type="button" aria-label="Increase number" disabled={value >= displayMax} onClick={increment} className="h-11 flex-1 rounded border disabled:opacity-40">+</button>
+                        <button type="submit" className="h-11 flex-1 rounded bg-primary text-primary-foreground">Done</button>
+                    </div>
+                </form>
+            </PopoverContent>
+            </Popover>
 
             {/* Edit button - appears on hover in edit mode */}
             {canEdit && isEditing && isHovered && (
